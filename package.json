@@ -40,7 +40,7 @@
     "lint-staged": "^16.2.1",
     "prettier": "^2.8.8",
     "prettier-plugin-vue": "^1.1.6",
-    "sass": "^1.93.2",
+    "sass": "^1.93.3",
     "sass-embedded": "^1.93.2",
     "typescript": "5.9.2",
     "typescript-eslint": "^8.44.1",

@@ -1,8 +1,8 @@
 <?php
 
-namespace OCA\NextcloudAppTemplate\Settings;
+namespace OCA\Forum\Settings;
 
-use OCA\NextcloudAppTemplate\AppInfo\Application;
+use OCA\Forum\AppInfo\Application;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IAppConfig;
 use OCP\IL10N;
@@ -22,8 +22,8 @@ class Admin implements ISettings {
 	 * @return TemplateResponse
 	 */
 	public function getForm(): TemplateResponse {
-		Util::addScript(Application::APP_ID, Application::JS_DIR . '/nextcloudapptemplate-settings');
-		Util::addStyle(Application::APP_ID, Application::CSS_DIR . '/nextcloudapptemplate-style');
+		Util::addScript(Application::APP_ID, Application::JS_DIR . '/forum-settings');
+		Util::addStyle(Application::APP_ID, Application::CSS_DIR . '/forum-style');
 		return new TemplateResponse(Application::APP_ID, 'settings', [], '');
 	}
 

@@ -1,17 +1,17 @@
 {
-  "name": "nextcloud/nextcloudapptemplate",
+  "name": "nextcloud/forum",
   "description": "Automatically fills the currency rates for your Cospend projects daily.",
   "license": "AGPL-3.0-or-later",
   "authors": [
     {
-      "name": "Your Name",
-      "email": "your@email.com",
-      "homepage": "https://your.website"
+      "name": "Chen Asraf",
+      "email": "contact@casraf.dev",
+      "homepage": "https://casraf.dev"
     }
   ],
   "autoload": {
     "psr-4": {
-      "OCA\\NextcloudAppTemplate\\": "lib/"
+      "OCA\\Forum\\": "lib/"
     }
   },
   "scripts": {

@@ -1,5 +1,5 @@
 <template>
-  <NcContent app-name="nextcloudapptemplate">
+  <NcContent app-name="forum">
     <!-- Left sidebar -->
     <NcAppNavigation>
       <template #search>
@@ -98,21 +98,21 @@ export default {
       searchValue: '',
       isRouterLoading: false,
       // Mount path for this app section; adjust to your mount.
-      basePath: '/apps/nextcloudapptemplate',
+      basePath: '/apps/forum',
       strings: {
-        title: t('nextcloudapptemplate', 'Hello World — App'),
+        title: t('forum', 'Hello World — App'),
         subtitle: t(
-          'nextcloudapptemplate',
+          'forum',
           'Use the sidebar to navigate between views. Backend calls use {cStart}axios{cEnd} and OCS responses.',
           { cStart: '<code>', cEnd: '</code>' },
           undefined,
           { escape: false },
         ),
-        searchLabel: t('nextcloudapptemplate', 'Search'),
-        searchPlaceholder: t('nextcloudapptemplate', 'Type to filter…'),
-        navHome: t('nextcloudapptemplate', 'Home'),
-        navExamples: t('nextcloudapptemplate', 'Examples'),
-        navAbout: t('nextcloudapptemplate', 'About'),
+        searchLabel: t('forum', 'Search'),
+        searchPlaceholder: t('forum', 'Type to filter…'),
+        navHome: t('forum', 'Home'),
+        navExamples: t('forum', 'Examples'),
+        navAbout: t('forum', 'About'),
       },
       _removeBeforeEach: null,
       _removeAfterEach: null,

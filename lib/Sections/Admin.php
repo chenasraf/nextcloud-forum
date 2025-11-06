@@ -1,8 +1,8 @@
 <?php
 
-namespace OCA\NextcloudAppTemplate\Sections;
+namespace OCA\Forum\Sections;
 
-use OCA\NextcloudAppTemplate\AppInfo;
+use OCA\Forum\AppInfo;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
@@ -25,7 +25,7 @@ class Admin implements IIconSection {
 	}
 
 	public function getName(): string {
-		return $this->l->t('Nextcloud App Template');
+		return $this->l->t('Forum');
 	}
 
 	public function getPriority(): int {

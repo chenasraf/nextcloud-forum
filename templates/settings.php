@@ -1,1 +1,1 @@
-<div id="nextcloudapptemplate-settings"></div>
+<div id="forum-settings"></div>

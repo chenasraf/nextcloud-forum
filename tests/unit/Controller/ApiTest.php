@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Controller;
 
-use OCA\NextcloudAppTemplate\AppInfo\Application;
-use OCA\NextcloudAppTemplate\Controller\ApiController;
-use OCA\NextcloudAppTemplate\Service\FetchCurrenciesService;
+use OCA\Forum\AppInfo\Application;
+use OCA\Forum\Controller\ApiController;
+use OCA\Forum\Service\FetchCurrenciesService;
 use OCP\IAppConfig;
 use OCP\IL10N;
 use OCP\IRequest;

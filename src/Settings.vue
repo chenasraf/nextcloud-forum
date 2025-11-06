@@ -1,5 +1,5 @@
 <template>
-  <div id="nextcloudapptemplate-content" class="section">
+  <div id="forum-content" class="section">
     <h2>{{ strings.title }}</h2>
 
     <!-- Information / quick start -->
@@ -161,10 +161,10 @@ export default {
       // Example: select with label <-> value mapping (like your intervals)
       themeLabel: null,
       themeOptions: [
-        { label: t('nextcloudapptemplate', 'Light'), value: 'light' },
-        { label: t('nextcloudapptemplate', 'Dark'), value: 'dark' },
+        { label: t('forum', 'Light'), value: 'light' },
+        { label: t('forum', 'Dark'), value: 'dark' },
         {
-          label: n('nextcloudapptemplate', 'System (1 option)', 'System (%n options)', 2),
+          label: n('forum', 'System (1 option)', 'System (%n options)', 2),
           value: 'system',
         },
       ],
@@ -183,15 +183,15 @@ export default {
       // All user-visible strings go here
       strings: {
         // Titles / headers
-        title: t('nextcloudapptemplate', 'Hello World — App Template'),
-        infoTitle: t('nextcloudapptemplate', 'Information'),
-        examplesHeader: t('nextcloudapptemplate', 'Quick Examples'),
-        itemsHeader: t('nextcloudapptemplate', 'Editable List'),
-        backendHeader: t('nextcloudapptemplate', 'Backend Calls'),
+        title: t('forum', 'Hello World — App Template'),
+        infoTitle: t('forum', 'Information'),
+        examplesHeader: t('forum', 'Quick Examples'),
+        itemsHeader: t('forum', 'Editable List'),
+        backendHeader: t('forum', 'Backend Calls'),
 
         // Info
         infoIntro: t(
-          'nextcloudapptemplate',
+          'forum',
           'This view shows {bStart}small, focused examples{bEnd} for inputs, lists, selections, and backend calls.',
           { bStart: '<b>', bEnd: '</b>' },
           undefined,
@@ -200,21 +200,21 @@ export default {
 
         gettingStartedList: [
           t(
-            'nextcloudapptemplate',
+            'forum',
             'Import UI parts from {cStart}@nextcloud/vue{cEnd} and wire them with {cStart}v-model{cEnd}.',
             { cStart: '<code>', cEnd: '</code>' },
             undefined,
             { escape: false },
           ),
           t(
-            'nextcloudapptemplate',
+            'forum',
             'Use {cStart}axios{cEnd} for API calls; return OCS data as needed.',
             { cStart: '<code>', cEnd: '</code>' },
             undefined,
             { escape: false },
           ),
           t(
-            'nextcloudapptemplate',
+            'forum',
             'Keep user-facing text in a central {cStart}strings{cEnd} object with {cStart}t/n{cEnd}.',
             { cStart: '<code>', cEnd: '</code>' },
             undefined,
@@ -223,7 +223,7 @@ export default {
         ],
 
         tipsNote: t(
-          'nextcloudapptemplate',
+          'forum',
           'Pro tip: keep labels in {cStart}label{cEnd} and values in {cStart}value{cEnd} to simplify mapping.',
           { cStart: '<code>', cEnd: '</code>' },
           undefined,
@@ -231,40 +231,40 @@ export default {
         ),
 
         // Name example
-        nameInputHeader: t('nextcloudapptemplate', 'Your Name'),
-        nameInputLabel: t('nextcloudapptemplate', 'Name'),
-        nameInputPlaceholder: t('nextcloudapptemplate', 'e.g. Ada Lovelace'),
-        livePreview: t('nextcloudapptemplate', 'Live preview:'),
+        nameInputHeader: t('forum', 'Chen Asraf'),
+        nameInputLabel: t('forum', 'Name'),
+        nameInputPlaceholder: t('forum', 'e.g. Ada Lovelace'),
+        livePreview: t('forum', 'Live preview:'),
 
         // Theme example
-        themeHeader: t('nextcloudapptemplate', 'Theme'),
-        themeLabel: t('nextcloudapptemplate', 'Choose a theme'),
-        themePreview: t('nextcloudapptemplate', 'Active value:'),
+        themeHeader: t('forum', 'Theme'),
+        themeLabel: t('forum', 'Choose a theme'),
+        themePreview: t('forum', 'Active value:'),
 
         // Counter example
-        counterHeader: t('nextcloudapptemplate', 'Counter'),
-        plus: t('nextcloudapptemplate', '+1'),
-        minus: t('nextcloudapptemplate', '-1'),
+        counterHeader: t('forum', 'Counter'),
+        plus: t('forum', '+1'),
+        minus: t('forum', '-1'),
 
         // Items table
-        newItemLabel: t('nextcloudapptemplate', 'New item'),
-        newItemPlaceholder: t('nextcloudapptemplate', 'e.g. Hello item'),
-        add: t('nextcloudapptemplate', 'Add'),
-        clear: t('nextcloudapptemplate', 'Clear'),
-        tableItem: t('nextcloudapptemplate', 'Item'),
-        tableActions: t('nextcloudapptemplate', 'Actions'),
-        editItemAria: t('nextcloudapptemplate', 'Edit item'),
-        duplicate: t('nextcloudapptemplate', 'Duplicate'),
-        remove: t('nextcloudapptemplate', 'Remove'),
-        noItems: t('nextcloudapptemplate', 'No items yet'),
+        newItemLabel: t('forum', 'New item'),
+        newItemPlaceholder: t('forum', 'e.g. Hello item'),
+        add: t('forum', 'Add'),
+        clear: t('forum', 'Clear'),
+        tableItem: t('forum', 'Item'),
+        tableActions: t('forum', 'Actions'),
+        editItemAria: t('forum', 'Edit item'),
+        duplicate: t('forum', 'Duplicate'),
+        remove: t('forum', 'Remove'),
+        noItems: t('forum', 'No items yet'),
 
         // Backend
-        fetchHello: t('nextcloudapptemplate', 'Fetch Hello'),
-        save: t('nextcloudapptemplate', 'Save'),
-        loading: t('nextcloudapptemplate', 'Loading…'),
-        lastHelloAt: t('nextcloudapptemplate', 'Last hello at:'),
-        never: t('nextcloudapptemplate', 'Never'),
-        serverSaid: t('nextcloudapptemplate', 'Server said:'),
+        fetchHello: t('forum', 'Fetch Hello'),
+        save: t('forum', 'Save'),
+        loading: t('forum', 'Loading…'),
+        lastHelloAt: t('forum', 'Last hello at:'),
+        never: t('forum', 'Never'),
+        serverSaid: t('forum', 'Server said:'),
       },
     }
   },
@@ -359,7 +359,7 @@ function cryptoRandom() {
 </script>
 
 <style scoped lang="scss">
-#nextcloudapptemplate-content {
+#forum-content {
   h2:first-child {
     margin-top: 0;
   }

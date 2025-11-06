@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\NextcloudAppTemplate\AppInfo;
+namespace OCA\Forum\AppInfo;
 
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -10,7 +10,7 @@ use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 class Application extends App implements IBootstrap {
-	public const APP_ID = 'nextcloudapptemplate';
+	public const APP_ID = 'forum';
 	public const DIST_DIR = '../dist';
 	public const JS_DIR = self::DIST_DIR . '/js';
 	public const CSS_DIR = self::DIST_DIR . '/css';
@@ -24,5 +24,10 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function boot(IBootContext $context): void {
+	}
+
+	public static function tableName(string $name): string {
+		// return self::APP_ID . '_' . $name;
+		return $name;
 	}
 }

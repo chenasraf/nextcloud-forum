@@ -162,10 +162,10 @@ export default {
       name: '',
       themeLabel: null,
       themeOptions: [
-        { label: t('nextcloudapptemplate', 'Light'), value: 'light' },
-        { label: t('nextcloudapptemplate', 'Dark'), value: 'dark' },
+        { label: t('forum', 'Light'), value: 'light' },
+        { label: t('forum', 'Dark'), value: 'dark' },
         {
-          label: n('nextcloudapptemplate', 'System (1 option)', 'System (%n options)', 2),
+          label: n('forum', 'System (1 option)', 'System (%n options)', 2),
           value: 'system',
         },
       ],
@@ -175,15 +175,15 @@ export default {
 
       strings: {
         // Toolbar
-        searchLabel: t('nextcloudapptemplate', 'Search'),
-        searchPlaceholder: t('nextcloudapptemplate', 'Filter messages…'),
-        refresh: t('nextcloudapptemplate', 'Refresh'),
-        showForm: t('nextcloudapptemplate', 'Show form'),
-        hideForm: t('nextcloudapptemplate', 'Hide form'),
+        searchLabel: t('forum', 'Search'),
+        searchPlaceholder: t('forum', 'Filter messages…'),
+        refresh: t('forum', 'Refresh'),
+        showForm: t('forum', 'Show form'),
+        hideForm: t('forum', 'Hide form'),
 
         // Info
         quickHelp: t(
-          'nextcloudapptemplate',
+          'forum',
           'Use the form to post a hello. The list shows recent hellos fetched from the server. All user-visible text is centralized in {cStart}strings{cEnd}.',
           { cStart: '<code>', cEnd: '</code>' },
           undefined,
@@ -191,26 +191,26 @@ export default {
         ),
 
         // Form
-        formHeader: t('nextcloudapptemplate', 'Say hello'),
-        nameInputLabel: t('nextcloudapptemplate', 'Name'),
-        nameInputPlaceholder: t('nextcloudapptemplate', 'e.g. Ada'),
-        themeLabel: t('nextcloudapptemplate', 'Theme'),
-        add: t('nextcloudapptemplate', 'Add'),
-        clear: t('nextcloudapptemplate', 'Clear'),
-        livePreview: t('nextcloudapptemplate', 'Preview:'),
+        formHeader: t('forum', 'Say hello'),
+        nameInputLabel: t('forum', 'Name'),
+        nameInputPlaceholder: t('forum', 'e.g. Ada'),
+        themeLabel: t('forum', 'Theme'),
+        add: t('forum', 'Add'),
+        clear: t('forum', 'Clear'),
+        livePreview: t('forum', 'Preview:'),
 
         // List
-        loading: t('nextcloudapptemplate', 'Loading…'),
-        emptyTitle: t('nextcloudapptemplate', 'No hellos yet'),
-        emptyDesc: t('nextcloudapptemplate', 'Try adding one using the form above.'),
-        addExample: t('nextcloudapptemplate', 'Add example'),
-        colMessage: t('nextcloudapptemplate', 'Message'),
-        colAt: t('nextcloudapptemplate', 'Time'),
-        colActions: t('nextcloudapptemplate', 'Actions'),
-        duplicate: t('nextcloudapptemplate', 'Duplicate'),
-        remove: t('nextcloudapptemplate', 'Remove'),
-        clearAll: t('nextcloudapptemplate', 'Clear all'),
-        never: t('nextcloudapptemplate', 'Never'),
+        loading: t('forum', 'Loading…'),
+        emptyTitle: t('forum', 'No hellos yet'),
+        emptyDesc: t('forum', 'Try adding one using the form above.'),
+        addExample: t('forum', 'Add example'),
+        colMessage: t('forum', 'Message'),
+        colAt: t('forum', 'Time'),
+        colActions: t('forum', 'Actions'),
+        duplicate: t('forum', 'Duplicate'),
+        remove: t('forum', 'Remove'),
+        clearAll: t('forum', 'Clear all'),
+        never: t('forum', 'Never'),
       },
     }
   },

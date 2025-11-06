@@ -2,24 +2,21 @@
 
 declare(strict_types=1);
 
-// SPDX-FileCopyrightText: Your Name <your@email.com>
+// SPDX-FileCopyrightText: Chen Asraf <contact@casraf.dev>
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-namespace OCA\NextcloudAppTemplate\Cron;
+namespace OCA\Forum\Cron;
 
 use OCP\AppFramework\Utility\ITimeFactory;
-use OCP\BackgroundJob\TimedJob;
+use OCP\BackgroundJob\QueuedJob;
 use Psr\Log\LoggerInterface;
 
-class {{pascalCase name}}Task extends TimedJob {
+class {{pascalCase name}}Task extends QueuedJob {
 	public function __construct(
 		ITimeFactory $time,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($time);
-
-		// Run once an hour
-		$this->setInterval(3600);
 	}
 
 	protected function run($arguments): void {

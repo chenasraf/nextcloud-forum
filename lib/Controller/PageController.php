@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace OCA\NextcloudAppTemplate\Controller;
+namespace OCA\Forum\Controller;
 
-use OCA\NextcloudAppTemplate\AppInfo\Application;
+use OCA\Forum\AppInfo\Application;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\FrontpageRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -19,7 +19,7 @@ class PageController extends Controller {
 		IRequest $request,
 		private LoggerInterface $logger,
 	) {
-		$this->logger->info('NextcloudAppTemplate page controller loaded');
+		$this->logger->info('Forum page controller loaded');
 		parent::__construct($appName, $request);
 	}
 
@@ -34,7 +34,7 @@ class PageController extends Controller {
 	#[NoCSRFRequired]
 	#[FrontpageRoute(verb: 'GET', url: '/')]
 	public function index(): TemplateResponse {
-		$this->logger->info('NextcloudAppTemplate main page loaded');
+		$this->logger->info('Forum main page loaded');
 		return new TemplateResponse(Application::APP_ID, 'app', [
 			'script' => 'app',
 		]);

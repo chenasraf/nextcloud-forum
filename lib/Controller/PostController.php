@@ -1,0 +1,181 @@
+<?php
+
+declare(strict_types=1);
+
+// SPDX-FileCopyrightText: Chen Asraf <contact@casraf.dev>
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace OCA\Forum\Controller;
+
+use OCA\Forum\Db\PostMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\OCSController;
+use OCP\IRequest;
+use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
+
+class PostController extends OCSController {
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		private PostMapper $postMapper,
+		private IUserSession $userSession,
+		private LoggerInterface $logger,
+	) {
+		parent::__construct($appName, $request);
+	}
+
+	/**
+	 * Get posts by thread
+	 *
+	 * @param int $threadId Thread ID
+	 * @param int $limit Maximum number of posts to return
+	 * @param int $offset Offset for pagination
+	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
+	 *
+	 * 200: Posts returned
+	 */
+	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts')]
+	public function byThread(int $threadId, int $limit = 50, int $offset = 0): DataResponse {
+		try {
+			$posts = $this->postMapper->findByThreadId($threadId, $limit, $offset);
+			return new DataResponse(array_map(fn ($p) => $p->jsonSerialize(), $posts));
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch posts'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Get a single post
+	 *
+	 * @param int $id Post ID
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 *
+	 * 200: Post returned
+	 */
+	#[ApiRoute(verb: 'GET', url: '/api/posts/{id}')]
+	public function show(int $id): DataResponse {
+		try {
+			$post = $this->postMapper->find($id);
+			return new DataResponse($post->jsonSerialize());
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching post: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch post'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Get a post by slug
+	 *
+	 * @param string $slug Post slug
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 *
+	 * 200: Post returned
+	 */
+	#[ApiRoute(verb: 'GET', url: '/api/posts/slug/{slug}')]
+	public function bySlug(string $slug): DataResponse {
+		try {
+			$post = $this->postMapper->findBySlug($slug);
+			return new DataResponse($post->jsonSerialize());
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching post by slug: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch post'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Create a new post
+	 *
+	 * @param int $threadId Thread ID
+	 * @param string $content Post content
+	 * @param string $slug Post slug
+	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
+	 *
+	 * 201: Post created
+	 */
+	#[ApiRoute(verb: 'POST', url: '/api/posts')]
+	public function create(int $threadId, string $content, string $slug): DataResponse {
+		try {
+			$user = $this->userSession->getUser();
+			if (!$user) {
+				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+			}
+
+			$post = new \OCA\Forum\Db\Post();
+			$post->setThreadId($threadId);
+			$post->setAuthorId($user->getUID());
+			$post->setContent($content);
+			$post->setSlug($slug);
+			$post->setIsEdited(false);
+			$post->setCreatedAt(time());
+			$post->setUpdatedAt(time());
+
+			$createdPost = $this->postMapper->insert($post);
+			return new DataResponse($createdPost->jsonSerialize(), Http::STATUS_CREATED);
+		} catch (\Exception $e) {
+			$this->logger->error('Error creating post: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to create post'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Update a post
+	 *
+	 * @param int $id Post ID
+	 * @param string|null $content Post content
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 *
+	 * 200: Post updated
+	 */
+	#[ApiRoute(verb: 'PUT', url: '/api/posts/{id}')]
+	public function update(int $id, ?string $content = null): DataResponse {
+		try {
+			$post = $this->postMapper->find($id);
+
+			if ($content !== null) {
+				$post->setContent($content);
+				$post->setIsEdited(true);
+				$post->setEditedAt(time());
+			}
+			$post->setUpdatedAt(time());
+
+			$updatedPost = $this->postMapper->update($post);
+			return new DataResponse($updatedPost->jsonSerialize());
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error updating post: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to update post'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Delete a post
+	 *
+	 * @param int $id Post ID
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 *
+	 * 200: Post deleted
+	 */
+	#[ApiRoute(verb: 'DELETE', url: '/api/posts/{id}')]
+	public function destroy(int $id): DataResponse {
+		try {
+			$post = $this->postMapper->find($id);
+			$this->postMapper->delete($post);
+			return new DataResponse(['success' => true]);
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error deleting post: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to delete post'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+}

@@ -627,7 +627,8 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			['tag' => 'u', 'replacement' => '<u>{content}</u>', 'description' => 'Underlined text', 'parse_inner' => true],
 			['tag' => 'url', 'replacement' => '<a href="{href}" target="_blank" rel="noopener noreferrer">{content}</a>', 'description' => 'URL link', 'parse_inner' => true],
 			['tag' => 'img', 'replacement' => '<img src="{url}" alt="Image" class="forum-image" />', 'description' => 'Image', 'parse_inner' => true],
-			['tag' => 'code', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false],
+			['tag' => 'code', 'replacement' => '<pre><code>{content}</code></pre>', 'description' => 'Code block', 'parse_inner' => false],
+			['tag' => 'icode', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false],
 			['tag' => 'quote', 'replacement' => '<blockquote>{content}</blockquote>', 'description' => 'Quote', 'parse_inner' => true],
 		];
 

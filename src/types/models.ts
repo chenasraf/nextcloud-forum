@@ -41,6 +41,8 @@ export interface Thread {
   // Enriched fields (added by Thread::enrichThreadAuthor)
   authorDisplayName?: string
   authorIsDeleted?: boolean
+  categorySlug?: string | null
+  categoryName?: string | null
 }
 
 export interface Post {

@@ -192,8 +192,9 @@ export default defineComponent({
       // Example: this.$router.push({ name: 'new-thread', params: { categoryId: this.category.id } })
     },
 
-    goBack() {
-      this.$router.back()
+    goBack(): void {
+      // Always navigate to home, not browser history
+      this.$router.push('/')
     },
   },
 })

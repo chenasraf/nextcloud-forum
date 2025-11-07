@@ -3,11 +3,8 @@
     <!-- Left sidebar -->
     <NcAppNavigation>
       <template #search>
-        <NcAppNavigationSearch
-          v-model="searchValue"
-          :label="strings.searchLabel"
-          :placeholder="strings.searchPlaceholder"
-        />
+        <NcAppNavigationSearch v-model="searchValue" :label="strings.searchLabel"
+          :placeholder="strings.searchPlaceholder" />
       </template>
 
       <template #list>
@@ -17,28 +14,30 @@
           </template>
 
           <!-- Category headers as collapsible submenus -->
-          <NcAppNavigationItem
-            v-for="header in categoryHeaders"
-            :key="`header-${header.id}`"
-            :name="header.name"
-            :open="isHeaderOpen(header.id)"
-            @click.native.prevent="toggleHeader(header.id)"
-          >
+          <NcAppNavigationItem v-for="header in categoryHeaders" :key="`header-${header.id}`" :name="header.name"
+            @click="toggleHeader(header.id)">
             <template #icon>
               <FolderIcon :size="20" />
             </template>
 
+            <template #actions>
+              <NcActionButton>
+                <template #icon>
+                  <ChevronDownIcon v-if="isHeaderOpen(header.id)" :size="20" />
+                  <ChevronRightIcon v-else :size="20" />
+                </template>
+              </NcActionButton>
+            </template>
+
             <!-- Categories under each header -->
-            <NcAppNavigationItem
-              v-for="category in header.categories"
-              :key="`category-${category.id}`"
-              :name="category.name"
-              :to="{ path: `/c/${category.slug}` }"
-            >
-              <template #icon>
-                <ForumIcon :size="20" />
-              </template>
-            </NcAppNavigationItem>
+            <template v-if="isHeaderOpen(header.id)">
+              <NcAppNavigationItem v-for="category in header.categories" :key="`category-${category.id}`"
+                :name="category.name" :to="{ path: `/c/${category.slug}` }">
+                <template #icon>
+                  <ForumIcon :size="20" />
+                </template>
+              </NcAppNavigationItem>
+            </template>
           </NcAppNavigationItem>
         </NcAppNavigationItem>
       </template>
@@ -76,11 +75,14 @@ import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSearch'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import HomeIcon from '@icons/Home.vue'
 import ForumIcon from '@icons/Forum.vue'
 import FolderIcon from '@icons/Folder.vue'
 import PuzzleIcon from '@icons/Puzzle.vue'
 import InfoIcon from '@icons/Information.vue'
+import ChevronDownIcon from '@icons/ChevronDown.vue'
+import ChevronRightIcon from '@icons/ChevronRight.vue'
 import { useCategories } from '@/composables/useCategories'
 
 export default defineComponent({
@@ -92,11 +94,14 @@ export default defineComponent({
     NcAppNavigationItem,
     NcAppNavigationSearch,
     NcLoadingIcon,
+    NcActionButton,
     HomeIcon,
     ForumIcon,
     FolderIcon,
     PuzzleIcon,
     InfoIcon,
+    ChevronDownIcon,
+    ChevronRightIcon,
   },
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
@@ -191,8 +196,7 @@ export default defineComponent({
 }
 
 #forum-content {
-  flex-basis: 100%;
-  flex: 1;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   max-width: calc(100% - 128px);
@@ -215,8 +219,9 @@ export default defineComponent({
 
 #forum-router {
   flex: 1;
-  overflow-y: auto;
   padding: 1rem;
+  padding-bottom: 3rem; // Add extra bottom padding
+  min-height: 0;
 }
 
 .router-loading {

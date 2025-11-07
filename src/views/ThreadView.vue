@@ -21,12 +21,7 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
+    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
       <template #action>
         <NcButton @click="refresh">{{ strings.retry }}</NcButton>
       </template>
@@ -69,15 +64,8 @@
     <!-- Posts list -->
     <section v-if="!loading && !error && posts.length > 0" class="mt-16">
       <div class="posts-list">
-        <PostCard
-          v-for="(post, index) in posts"
-          :key="post.id"
-          :post="post"
-          :is-first-post="index === 0"
-          @reply="handleReply"
-          @edit="handleEdit"
-          @delete="handleDelete"
-        />
+        <PostCard v-for="(post, index) in posts" :key="post.id" :post="post" :is-first-post="index === 0"
+          @reply="handleReply" @edit="handleEdit" @delete="handleDelete" />
       </div>
 
       <!-- Pagination info -->
@@ -87,16 +75,20 @@
     </section>
 
     <!-- Empty posts state (thread exists but no posts) -->
-    <NcEmptyContent
-      v-else-if="!loading && !error && thread && posts.length === 0"
-      :title="strings.emptyPostsTitle"
-      :description="strings.emptyPostsDesc"
-      class="mt-16"
-    >
+    <NcEmptyContent v-else-if="!loading && !error && thread && posts.length === 0" :title="strings.emptyPostsTitle"
+      :description="strings.emptyPostsDesc" class="mt-16">
       <template #action>
         <NcButton @click="replyToThread">{{ strings.reply }}</NcButton>
       </template>
     </NcEmptyContent>
+
+    <!-- Reply form -->
+    <PostReplyForm
+      v-if="!loading && !error && thread && !thread.isLocked"
+      ref="replyForm"
+      @submit="handleSubmitReply"
+      @cancel="handleCancelReply"
+    />
   </div>
 </template>
 
@@ -107,6 +99,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import PostCard from '@/components/PostCard.vue'
+import PostReplyForm from '@/components/PostReplyForm.vue'
 import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import EyeIcon from '@icons/Eye.vue'
@@ -122,6 +115,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcDateTime,
     PostCard,
+    PostReplyForm,
     PinIcon,
     LockIcon,
     EyeIcon,
@@ -264,11 +258,54 @@ export default defineComponent({
     replyToThread(): void {
       console.log('Reply to thread:', this.thread?.id)
       // TODO: Implement reply to thread functionality
-      // Could open a reply form at the bottom or navigate to a reply page
+      // Could scroll to the reply form at the bottom
+    },
+
+    async handleSubmitReply(content: string): Promise<void> {
+      if (!this.thread) {
+        return
+      }
+
+      const replyForm = this.$refs.replyForm as any
+
+      try {
+        const response = await ocs.post<Post>('/posts', {
+          threadId: this.thread.id,
+          content,
+        })
+
+        // Append the new post to the existing posts array
+        if (response.data) {
+          this.posts.push(response.data)
+
+          // Clear the form only on success
+          if (replyForm && typeof replyForm.clear === 'function') {
+            replyForm.clear()
+          }
+        }
+      } catch (e) {
+        console.error('Failed to submit reply', e)
+        // Reset submitting state on error
+        if (replyForm && typeof replyForm.setSubmitting === 'function') {
+          replyForm.setSubmitting(false)
+        }
+        // TODO: Show error notification
+      }
+    },
+
+    handleCancelReply(): void {
+      // Optional: Could implement special behavior on cancel
+      console.log('Reply cancelled')
     },
 
     goBack(): void {
-      this.$router.back()
+      // Always navigate to the category, not browser history
+      if (this.thread?.categorySlug) {
+        this.$router.push(`/c/${this.thread.categorySlug}`)
+      } else {
+        // Fallback to home if no category info
+        this.$router.push('/')
+      }
     },
   },
 })
@@ -276,6 +313,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .thread-view {
+  margin-bottom: 3rem;
+
   .muted {
     color: var(--color-text-maxcontrast);
     opacity: 0.7;

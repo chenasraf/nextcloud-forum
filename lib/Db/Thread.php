@@ -87,7 +87,7 @@ class Thread extends Entity implements JsonSerializable {
 		];
 	}
 
-	public static function enrichThreadAuthor(mixed $thread): array {
+	public static function enrichThread(mixed $thread): array {
 		if (!is_array($thread)) {
 			$thread = $thread->jsonSerialize();
 		}
@@ -102,6 +102,18 @@ class Thread extends Entity implements JsonSerializable {
 			// Forum user doesn't exist, use the original authorId
 			$thread['authorDisplayName'] = $thread['authorId'];
 			$thread['authorIsDeleted'] = false;
+		}
+
+		// Add category information (slug and name) for navigation
+		try {
+			$categoryMapper = \OC::$server->get(\OCA\Forum\Db\CategoryMapper::class);
+			$category = $categoryMapper->find($thread['categoryId']);
+			$thread['categorySlug'] = $category->getSlug();
+			$thread['categoryName'] = $category->getName();
+		} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
+			// Category doesn't exist
+			$thread['categorySlug'] = null;
+			$thread['categoryName'] = null;
 		}
 
 		return $thread;

@@ -100,7 +100,7 @@ class ForumUserController extends OCSController {
 	 * 200: Current user's forum profile returned
 	 */
 	#[NoAdminRequired]
-	#[ApiRoute(verb: 'GET', url: '/api/users/me')]
+	#[ApiRoute(verb: 'GET', url: '/api/current-user')]
 	public function me(): DataResponse {
 		try {
 			$user = $this->userSession->getUser();

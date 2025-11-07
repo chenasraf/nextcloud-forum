@@ -120,11 +120,6 @@ export default defineComponent({
   padding: 16px;
   background: var(--color-main-background);
   transition: box-shadow 0.2s ease;
-  cursor: pointer;
-
-  * {
-    cursor: inherit;
-  }
 
   &.first-post {
     background: var(--color-background-hover);
@@ -208,6 +203,38 @@ export default defineComponent({
 
     :deep(br) {
       line-height: 1.6;
+    }
+
+    // Code blocks ([code])
+    :deep(pre) {
+      background: var(--color-background-dark);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 16px;
+      margin: 12px 0;
+      overflow-x: auto;
+
+      code {
+        background: none;
+        padding: 0;
+        border: none;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--color-main-text);
+        white-space: pre;
+        display: block;
+      }
+    }
+
+    // Inline code ([icode])
+    :deep(code) {
+      background: var(--color-background-dark);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      color: var(--color-main-text);
     }
   }
 

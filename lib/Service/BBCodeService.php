@@ -60,6 +60,10 @@ class BBCodeService {
 			$escapedContent = preg_replace_callback(
 				$pattern,
 				function ($matches) use ($replacement, $params, &$protectedContent, &$placeholderIndex) {
+					// // Convert newlines to <br /> in the content before replacing
+					// $contentIndex = count($matches) - 1;
+					// $matches[$contentIndex] = nl2br($matches[$contentIndex]);
+
 					// Replace this BBCode but don't allow nested parsing
 					$result = $this->replaceBBCode($matches, $replacement, $params);
 

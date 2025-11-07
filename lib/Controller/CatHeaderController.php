@@ -11,6 +11,7 @@ use OCA\Forum\Db\CatHeaderMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -33,6 +34,7 @@ class CatHeaderController extends OCSController {
 	 *
 	 * 200: Category headers returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/headers')]
 	public function index(): DataResponse {
 		try {
@@ -52,6 +54,7 @@ class CatHeaderController extends OCSController {
 	 *
 	 * 200: Category header returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/headers/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -75,6 +78,7 @@ class CatHeaderController extends OCSController {
 	 *
 	 * 201: Category header created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/headers')]
 	public function create(string $name, ?string $description = null, int $sortOrder = 0): DataResponse {
 		try {
@@ -84,6 +88,7 @@ class CatHeaderController extends OCSController {
 			$header->setSortOrder($sortOrder);
 			$header->setCreatedAt(time());
 
+			/** @var \OCA\Forum\Db\CatHeader */
 			$createdHeader = $this->catHeaderMapper->insert($header);
 			return new DataResponse($createdHeader->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -103,6 +108,7 @@ class CatHeaderController extends OCSController {
 	 *
 	 * 200: Category header updated
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/headers/{id}')]
 	public function update(int $id, ?string $name = null, ?string $description = null, ?int $sortOrder = null): DataResponse {
 		try {
@@ -118,6 +124,7 @@ class CatHeaderController extends OCSController {
 				$header->setSortOrder($sortOrder);
 			}
 
+			/** @var \OCA\Forum\Db\CatHeader */
 			$updatedHeader = $this->catHeaderMapper->update($header);
 			return new DataResponse($updatedHeader->jsonSerialize());
 		} catch (DoesNotExistException $e) {
@@ -136,6 +143,7 @@ class CatHeaderController extends OCSController {
 	 *
 	 * 200: Category header deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/headers/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

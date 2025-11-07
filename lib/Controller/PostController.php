@@ -7,10 +7,14 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Db\BBCodeMapper;
+use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Service\BBCodeService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -22,6 +26,8 @@ class PostController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private PostMapper $postMapper,
+		private BBCodeService $bbCodeService,
+		private BBCodeMapper $bbCodeMapper,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -38,11 +44,14 @@ class PostController extends OCSController {
 	 *
 	 * 200: Posts returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts')]
 	public function byThread(int $threadId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
 			$posts = $this->postMapper->findByThreadId($threadId, $limit, $offset);
-			return new DataResponse(array_map(fn ($p) => $p->jsonSerialize(), $posts));
+			// Prefetch BBCodes once for all posts to avoid repeated queries
+			$bbcodes = $this->bbCodeMapper->findAllEnabled();
+			return new DataResponse(array_map(fn ($p) => Post::enrichPostContent($p, $bbcodes), $posts));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch posts'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -57,11 +66,12 @@ class PostController extends OCSController {
 	 *
 	 * 200: Post returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/posts/{id}')]
 	public function show(int $id): DataResponse {
 		try {
 			$post = $this->postMapper->find($id);
-			return new DataResponse($post->jsonSerialize());
+			return new DataResponse(Post::enrichPostContent($post));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -78,11 +88,12 @@ class PostController extends OCSController {
 	 *
 	 * 200: Post returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/posts/slug/{slug}')]
 	public function bySlug(string $slug): DataResponse {
 		try {
 			$post = $this->postMapper->findBySlug($slug);
-			return new DataResponse($post->jsonSerialize());
+			return new DataResponse(Post::enrichPostContent($post));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -101,6 +112,7 @@ class PostController extends OCSController {
 	 *
 	 * 201: Post created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/posts')]
 	public function create(int $threadId, string $content, string $slug): DataResponse {
 		try {
@@ -118,8 +130,9 @@ class PostController extends OCSController {
 			$post->setCreatedAt(time());
 			$post->setUpdatedAt(time());
 
+			/** @var \OCA\Forum\Db\Post */
 			$createdPost = $this->postMapper->insert($post);
-			return new DataResponse($createdPost->jsonSerialize(), Http::STATUS_CREATED);
+			return new DataResponse(Post::enrichPostContent($createdPost), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating post: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create post'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -135,6 +148,7 @@ class PostController extends OCSController {
 	 *
 	 * 200: Post updated
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/posts/{id}')]
 	public function update(int $id, ?string $content = null): DataResponse {
 		try {
@@ -147,8 +161,9 @@ class PostController extends OCSController {
 			}
 			$post->setUpdatedAt(time());
 
+			/** @var \OCA\Forum\Db\Post */
 			$updatedPost = $this->postMapper->update($post);
-			return new DataResponse($updatedPost->jsonSerialize());
+			return new DataResponse(Post::enrichPostContent($updatedPost));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -165,6 +180,7 @@ class PostController extends OCSController {
 	 *
 	 * 200: Post deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/posts/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

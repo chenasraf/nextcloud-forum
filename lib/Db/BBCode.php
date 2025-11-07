@@ -22,6 +22,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setDescription(?string $value)
  * @method bool getEnabled()
  * @method void setEnabled(bool $value)
+ * @method bool getParseInner()
+ * @method void setParseInner(bool $value)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $value)
  */
@@ -30,6 +32,7 @@ class BBCode extends Entity implements JsonSerializable {
 	protected $replacement;
 	protected $description;
 	protected $enabled;
+	protected $parseInner;
 	protected $createdAt;
 
 	public function __construct() {
@@ -38,6 +41,7 @@ class BBCode extends Entity implements JsonSerializable {
 		$this->addType('replacement', 'string');
 		$this->addType('description', 'string');
 		$this->addType('enabled', 'boolean');
+		$this->addType('parseInner', 'boolean');
 		$this->addType('createdAt', 'integer');
 	}
 
@@ -48,7 +52,8 @@ class BBCode extends Entity implements JsonSerializable {
 			'replacement' => $this->getReplacement(),
 			'description' => $this->getDescription(),
 			'enabled' => $this->getEnabled(),
-			'created_at' => $this->getCreatedAt(),
+			'parseInner' => $this->getParseInner(),
+			'createdAt' => $this->getCreatedAt(),
 		];
 	}
 }

@@ -11,6 +11,7 @@ use OCA\Forum\Db\ReadMarkerMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -35,6 +36,7 @@ class ReadMarkerController extends OCSController {
 	 *
 	 * 200: Read markers returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/read-markers')]
 	public function index(): DataResponse {
 		try {
@@ -59,6 +61,7 @@ class ReadMarkerController extends OCSController {
 	 *
 	 * 200: Read marker returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/read-marker')]
 	public function show(int $threadId): DataResponse {
 		try {
@@ -86,6 +89,7 @@ class ReadMarkerController extends OCSController {
 	 *
 	 * 200: Thread marked as read
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/read-markers')]
 	public function create(int $threadId, int $lastReadPostId): DataResponse {
 		try {
@@ -99,6 +103,7 @@ class ReadMarkerController extends OCSController {
 				$marker = $this->readMarkerMapper->findByUserAndThread($user->getUID(), $threadId);
 				$marker->setLastReadPostId($lastReadPostId);
 				$marker->setReadAt(time());
+				/** @var \OCA\Forum\Db\ReadMarker */
 				$updatedMarker = $this->readMarkerMapper->update($marker);
 				return new DataResponse($updatedMarker->jsonSerialize());
 			} catch (DoesNotExistException $e) {
@@ -109,6 +114,7 @@ class ReadMarkerController extends OCSController {
 				$marker->setLastReadPostId($lastReadPostId);
 				$marker->setReadAt(time());
 
+				/** @var \OCA\Forum\Db\ReadMarker */
 				$createdMarker = $this->readMarkerMapper->insert($marker);
 				return new DataResponse($createdMarker->jsonSerialize());
 			}
@@ -126,6 +132,7 @@ class ReadMarkerController extends OCSController {
 	 *
 	 * 200: Read marker deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/read-markers/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

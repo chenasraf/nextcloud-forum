@@ -1,0 +1,380 @@
+<template>
+  <div class="thread-view">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <NcButton type="tertiary" @click="goBack">{{ strings.back }}</NcButton>
+      </div>
+
+      <div class="toolbar-right">
+        <NcButton @click="refresh" :disabled="loading">{{ strings.refresh }}</NcButton>
+        <NcButton type="primary" @click="replyToThread" :disabled="loading || thread?.isLocked">
+          {{ strings.reply }}
+        </NcButton>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="center mt-16" v-if="loading">
+      <NcLoadingIcon :size="32" />
+      <span class="muted ml-8">{{ strings.loading }}</span>
+    </div>
+
+    <!-- Error state -->
+    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+      <template #action>
+        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+      </template>
+    </NcEmptyContent>
+
+    <!-- Thread Header -->
+    <div v-else-if="thread" class="thread-header mt-16">
+      <div class="thread-title-section">
+        <h2 class="thread-title">
+          <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">📌</span>
+          <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">🔒</span>
+          {{ thread.title }}
+        </h2>
+        <div class="thread-meta">
+          <span class="meta-item">
+            <span class="meta-label">{{ strings.by }}</span>
+            <span class="meta-value">{{ thread.authorId }}</span>
+          </span>
+          <span class="meta-divider">·</span>
+          <span class="meta-item">
+            <NcDateTime v-if="thread.createdAt" :timestamp="thread.createdAt * 1000" />
+          </span>
+          <span class="meta-divider">·</span>
+          <span class="meta-item">
+            <span class="stat-icon">👁️</span>
+            <span class="stat-label">{{ strings.views(thread.viewCount) }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Posts list -->
+    <section v-if="!loading && !error && posts.length > 0" class="mt-16">
+      <div class="posts-list">
+        <PostCard v-for="(post, index) in posts" :key="post.id" :post="post" :is-first-post="index === 0"
+          @reply="handleReply" @edit="handleEdit" @delete="handleDelete" />
+      </div>
+
+      <!-- Pagination info -->
+      <div v-if="posts.length >= limit" class="pagination-info mt-16">
+        <p class="muted">{{ strings.showingPosts(posts.length) }}</p>
+      </div>
+    </section>
+
+    <!-- Empty posts state (thread exists but no posts) -->
+    <NcEmptyContent v-else-if="!loading && !error && thread && posts.length === 0" :title="strings.emptyPostsTitle"
+      :description="strings.emptyPostsDesc" class="mt-16">
+      <template #action>
+        <NcButton type="primary" @click="replyToThread">{{ strings.reply }}</NcButton>
+      </template>
+    </NcEmptyContent>
+  </div>
+</template>
+
+<script lang="ts">
+import NcButton from '@nextcloud/vue/components/NcButton'
+import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
+import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import PostCard from '@/components/PostCard.vue'
+
+import { ocs } from '@/axios'
+import { t, n } from '@nextcloud/l10n'
+
+export default {
+  name: 'ThreadView',
+  components: {
+    NcButton,
+    NcEmptyContent,
+    NcLoadingIcon,
+    NcDateTime,
+    PostCard,
+  },
+  data() {
+    return {
+      loading: false,
+      thread: null,
+      posts: [],
+      error: null,
+      limit: 50,
+      offset: 0,
+
+      strings: {
+        back: t('forum', 'Back'),
+        refresh: t('forum', 'Refresh'),
+        reply: t('forum', 'Reply'),
+        loading: t('forum', 'Loading…'),
+        errorTitle: t('forum', 'Error loading thread'),
+        emptyPostsTitle: t('forum', 'No posts yet'),
+        emptyPostsDesc: t('forum', 'Be the first to post in this thread.'),
+        retry: t('forum', 'Retry'),
+        by: t('forum', 'by'),
+        views: (count: string) => n('forum', '%n view', '%n views', count),
+        pinned: t('forum', 'Pinned thread'),
+        locked: t('forum', 'Locked thread'),
+        showingPosts: (count) => n('forum', 'Showing %n post', 'Showing %n posts', count),
+      },
+    }
+  },
+  computed: {
+    threadId() {
+      return this.$route.params.id ? parseInt(this.$route.params.id) : null
+    },
+    threadSlug() {
+      return this.$route.params.slug || null
+    },
+  },
+  created() {
+    this.refresh()
+  },
+  methods: {
+    async refresh() {
+      try {
+        this.loading = true
+        this.error = null
+
+        // Fetch thread details
+        await this.fetchThread()
+
+        // Fetch posts
+        if (this.thread) {
+          await this.fetchPosts()
+        }
+      } catch (e) {
+        console.error('Failed to refresh', e)
+        this.error = e.message || t('forum', 'An unexpected error occurred')
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async fetchThread() {
+      try {
+        let resp
+        if (this.threadSlug) {
+          resp = await ocs.get(`/threads/slug/${this.threadSlug}`)
+        } else if (this.threadId) {
+          resp = await ocs.get(`/threads/${this.threadId}`)
+        } else {
+          throw new Error(t('forum', 'No thread ID or slug provided'))
+        }
+        this.thread = resp.data
+      } catch (e) {
+        console.error('Failed to fetch thread', e)
+        throw new Error(t('forum', 'Thread not found'))
+      }
+    },
+
+    async fetchPosts() {
+      try {
+        const resp = await ocs.get(`/threads/${this.thread.id}/posts`, {
+          params: {
+            limit: this.limit,
+            offset: this.offset,
+          },
+        })
+        this.posts = resp.data || []
+
+        // Mark thread as read up to the last post in the current view
+        if (this.posts.length > 0) {
+          await this.markAsRead()
+        }
+      } catch (e) {
+        console.error('Failed to fetch posts', e)
+        throw new Error(t('forum', 'Failed to load posts'))
+      }
+    },
+
+    async markAsRead() {
+      try {
+        // Get the last post ID from the current view
+        const lastPost = this.posts[this.posts.length - 1]
+        if (!lastPost || !this.thread) {
+          return
+        }
+
+        // Send request to mark thread as read
+        await ocs.post('/read-markers', {
+          threadId: this.thread.id,
+          lastReadPostId: lastPost.id,
+        })
+      } catch (e) {
+        // Silently fail - marking as read is not critical
+        console.debug('Failed to mark thread as read', e)
+      }
+    },
+
+    handleReply(post) {
+      console.log('Reply to post:', post.id)
+      // TODO: Implement reply functionality
+      // Could open a reply form or navigate to a reply page
+    },
+
+    handleEdit(post) {
+      console.log('Edit post:', post.id)
+      // TODO: Implement edit functionality
+      // Could open an edit dialog or navigate to edit page
+    },
+
+    async handleDelete(post) {
+      console.log('Delete post:', post.id)
+      // TODO: Implement delete functionality with confirmation
+      // if (confirm(t('forum', 'Are you sure you want to delete this post?'))) {
+      //   await ocs.delete(`/posts/${post.id}`)
+      //   await this.refresh()
+      // }
+    },
+
+    replyToThread() {
+      console.log('Reply to thread:', this.thread?.id)
+      // TODO: Implement reply to thread functionality
+      // Could open a reply form at the bottom or navigate to a reply page
+    },
+
+    goBack() {
+      this.$router.back()
+    },
+  },
+}
+</script>
+
+<style scoped lang="scss">
+.thread-view {
+  .muted {
+    color: var(--color-text-maxcontrast);
+    opacity: 0.7;
+  }
+
+  .mt-8 {
+    margin-top: 8px;
+  }
+
+  .mt-12 {
+    margin-top: 12px;
+  }
+
+  .mt-16 {
+    margin-top: 16px;
+  }
+
+  .ml-8 {
+    margin-left: 8px;
+  }
+
+  .center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toolbar {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  .thread-header {
+    padding: 20px;
+    background: var(--color-background-hover);
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+  }
+
+  .thread-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .thread-title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-main-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &.badge-pinned {
+      opacity: 0.9;
+    }
+
+    &.badge-locked {
+      opacity: 0.8;
+    }
+  }
+
+  .thread-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--color-text-maxcontrast);
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .meta-label {
+    font-style: italic;
+  }
+
+  .meta-value {
+    font-weight: 500;
+    color: var(--color-text-lighter);
+  }
+
+  .meta-divider {
+    opacity: 0.5;
+  }
+
+  .stat-icon {
+    font-size: 1rem;
+  }
+
+  .stat-value {
+    font-weight: 600;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pagination-info {
+    text-align: center;
+    padding: 12px;
+  }
+}
+</style>

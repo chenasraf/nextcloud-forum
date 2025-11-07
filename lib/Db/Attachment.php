@@ -40,10 +40,10 @@ class Attachment extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getId(),
-			'post_id' => $this->getPostId(),
+			'postId' => $this->getPostId(),
 			'fileid' => $this->getFileid(),
 			'filename' => $this->getFilename(),
-			'created_at' => $this->getCreatedAt(),
+			'createdAt' => $this->getCreatedAt(),
 		];
 	}
 }

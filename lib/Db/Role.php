@@ -38,7 +38,7 @@ class Role extends Entity implements JsonSerializable {
 			'id' => $this->getId(),
 			'name' => $this->getName(),
 			'description' => $this->getDescription(),
-			'created_at' => $this->getCreatedAt(),
+			'createdAt' => $this->getCreatedAt(),
 		];
 	}
 }

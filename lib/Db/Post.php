@@ -56,14 +56,28 @@ class Post extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getId(),
-			'thread_id' => $this->getThreadId(),
-			'author_id' => $this->getAuthorId(),
+			'threadId' => $this->getThreadId(),
+			'authorId' => $this->getAuthorId(),
 			'content' => $this->getContent(),
+			'contentRaw' => $this->getContent(),
 			'slug' => $this->getSlug(),
-			'is_edited' => $this->getIsEdited(),
-			'edited_at' => $this->getEditedAt(),
-			'created_at' => $this->getCreatedAt(),
-			'updated_at' => $this->getUpdatedAt(),
+			'isEdited' => $this->getIsEdited(),
+			'editedAt' => $this->getEditedAt(),
+			'createdAt' => $this->getCreatedAt(),
+			'updatedAt' => $this->getUpdatedAt(),
 		];
+	}
+
+	public static function enrichPostContent(mixed $post, array $bbcodes = []): array {
+		if (!is_array($post)) {
+			$post = $post->jsonSerialize();
+		}
+		$service = \OC::$server->get(\OCA\Forum\Service\BBCodeService::class);
+		if (empty($bbcodes)) {
+			$mapper = \OC::$server->get(\OCA\Forum\Db\BBCodeMapper::class);
+			$bbcodes = $mapper->findAllEnabled();
+		}
+		$post['content'] = $service->parse($post['content'], $bbcodes);
+		return $post;
 	}
 }

@@ -40,10 +40,10 @@ class Reaction extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getId(),
-			'post_id' => $this->getPostId(),
-			'user_id' => $this->getUserId(),
-			'reaction_type' => $this->getReactionType(),
-			'created_at' => $this->getCreatedAt(),
+			'postId' => $this->getPostId(),
+			'userId' => $this->getUserId(),
+			'reactionType' => $this->getReactionType(),
+			'createdAt' => $this->getCreatedAt(),
 		];
 	}
 }

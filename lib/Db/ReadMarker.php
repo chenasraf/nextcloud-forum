@@ -40,10 +40,10 @@ class ReadMarker extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getId(),
-			'user_id' => $this->getUserId(),
-			'thread_id' => $this->getThreadId(),
-			'last_read_post_id' => $this->getLastReadPostId(),
-			'read_at' => $this->getReadAt(),
+			'userId' => $this->getUserId(),
+			'threadId' => $this->getThreadId(),
+			'lastReadPostId' => $this->getLastReadPostId(),
+			'readAt' => $this->getReadAt(),
 		];
 	}
 }

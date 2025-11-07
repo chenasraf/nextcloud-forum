@@ -6,7 +6,6 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\AppInfo\Application;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\Attribute\FrontpageRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -32,11 +31,23 @@ class PageController extends Controller {
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
-	#[FrontpageRoute(verb: 'GET', url: '/')]
 	public function index(): TemplateResponse {
 		$this->logger->info('Forum main page loaded');
 		return new TemplateResponse(Application::APP_ID, 'app', [
 			'script' => 'app',
 		]);
+	}
+
+	/**
+	 * Main app page - catch all route
+	 *
+	 * @return TemplateResponse<Http::STATUS_OK,array{}>
+	 *
+	 * 200: OK
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	public function catchAll(string $path = ''): TemplateResponse {
+		return $this->index();
 	}
 }

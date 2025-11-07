@@ -11,6 +11,7 @@ use OCA\Forum\Db\ThreadMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -35,6 +36,7 @@ class ThreadController extends OCSController {
 	 *
 	 * 200: Threads returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/threads')]
 	public function index(): DataResponse {
 		try {
@@ -56,6 +58,7 @@ class ThreadController extends OCSController {
 	 *
 	 * 200: Threads returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{categoryId}/threads')]
 	public function byCategory(int $categoryId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
@@ -75,6 +78,7 @@ class ThreadController extends OCSController {
 	 *
 	 * 200: Thread returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -82,7 +86,8 @@ class ThreadController extends OCSController {
 
 			// Increment view count
 			$thread->setViewCount($thread->getViewCount() + 1);
-			$this->threadMapper->update($thread);
+			/** @var \OCA\Forum\Db\Thread */
+			$thread = $this->threadMapper->update($thread);
 
 			return new DataResponse($thread->jsonSerialize());
 		} catch (DoesNotExistException $e) {
@@ -101,6 +106,7 @@ class ThreadController extends OCSController {
 	 *
 	 * 200: Thread returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/slug/{slug}')]
 	public function bySlug(string $slug): DataResponse {
 		try {
@@ -108,7 +114,8 @@ class ThreadController extends OCSController {
 
 			// Increment view count
 			$thread->setViewCount($thread->getViewCount() + 1);
-			$this->threadMapper->update($thread);
+			/** @var \OCA\Forum\Db\Thread */
+			$thread = $this->threadMapper->update($thread);
 
 			return new DataResponse($thread->jsonSerialize());
 		} catch (DoesNotExistException $e) {
@@ -129,6 +136,7 @@ class ThreadController extends OCSController {
 	 *
 	 * 201: Thread created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/threads')]
 	public function create(int $categoryId, string $title, string $slug): DataResponse {
 		try {
@@ -150,6 +158,7 @@ class ThreadController extends OCSController {
 			$thread->setCreatedAt(time());
 			$thread->setUpdatedAt(time());
 
+			/** @var \OCA\Forum\Db\Thread */
 			$createdThread = $this->threadMapper->insert($thread);
 			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -170,6 +179,7 @@ class ThreadController extends OCSController {
 	 *
 	 * 200: Thread updated
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/threads/{id}')]
 	public function update(int $id, ?string $title = null, ?bool $isLocked = null, ?bool $isPinned = null, ?bool $isHidden = null): DataResponse {
 		try {
@@ -189,6 +199,7 @@ class ThreadController extends OCSController {
 			}
 			$thread->setUpdatedAt(time());
 
+			/** @var \OCA\Forum\Db\Thread */
 			$updatedThread = $this->threadMapper->update($thread);
 			return new DataResponse($updatedThread->jsonSerialize());
 		} catch (DoesNotExistException $e) {
@@ -207,6 +218,7 @@ class ThreadController extends OCSController {
 	 *
 	 * 200: Thread deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/threads/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

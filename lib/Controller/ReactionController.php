@@ -11,6 +11,7 @@ use OCA\Forum\Db\ReactionMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -36,6 +37,7 @@ class ReactionController extends OCSController {
 	 *
 	 * 200: Reactions returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/posts/{postId}/reactions')]
 	public function byPost(int $postId): DataResponse {
 		try {
@@ -55,6 +57,7 @@ class ReactionController extends OCSController {
 	 *
 	 * 200: Reaction returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/reactions/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -77,6 +80,7 @@ class ReactionController extends OCSController {
 	 *
 	 * 201: Reaction created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/reactions')]
 	public function create(int $postId, string $reactionType): DataResponse {
 		try {
@@ -91,6 +95,7 @@ class ReactionController extends OCSController {
 			$reaction->setReactionType($reactionType);
 			$reaction->setCreatedAt(time());
 
+			/** @var \OCA\Forum\Db\Reaction */
 			$createdReaction = $this->reactionMapper->insert($reaction);
 			return new DataResponse($createdReaction->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -107,6 +112,7 @@ class ReactionController extends OCSController {
 	 *
 	 * 200: Reaction deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/reactions/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

@@ -60,15 +60,15 @@ class Category extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getId(),
-			'header_id' => $this->getHeaderId(),
+			'headerId' => $this->getHeaderId(),
 			'name' => $this->getName(),
 			'description' => $this->getDescription(),
 			'slug' => $this->getSlug(),
-			'sort_order' => $this->getSortOrder(),
-			'thread_count' => $this->getThreadCount(),
-			'post_count' => $this->getPostCount(),
-			'created_at' => $this->getCreatedAt(),
-			'updated_at' => $this->getUpdatedAt(),
+			'sortOrder' => $this->getSortOrder(),
+			'threadCount' => $this->getThreadCount(),
+			'postCount' => $this->getPostCount(),
+			'createdAt' => $this->getCreatedAt(),
+			'updatedAt' => $this->getUpdatedAt(),
 		];
 	}
 }

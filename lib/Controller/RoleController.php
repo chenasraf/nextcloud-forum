@@ -11,6 +11,7 @@ use OCA\Forum\Db\RoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -33,6 +34,7 @@ class RoleController extends OCSController {
 	 *
 	 * 200: Roles returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/roles')]
 	public function index(): DataResponse {
 		try {
@@ -52,6 +54,7 @@ class RoleController extends OCSController {
 	 *
 	 * 200: Role returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -74,6 +77,7 @@ class RoleController extends OCSController {
 	 *
 	 * 201: Role created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/roles')]
 	public function create(string $name, ?string $description = null): DataResponse {
 		try {
@@ -82,6 +86,7 @@ class RoleController extends OCSController {
 			$role->setDescription($description);
 			$role->setCreatedAt(time());
 
+			/** @var \OCA\Forum\Db\Role */
 			$createdRole = $this->roleMapper->insert($role);
 			return new DataResponse($createdRole->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -100,6 +105,7 @@ class RoleController extends OCSController {
 	 *
 	 * 200: Role updated
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/roles/{id}')]
 	public function update(int $id, ?string $name = null, ?string $description = null): DataResponse {
 		try {
@@ -112,6 +118,7 @@ class RoleController extends OCSController {
 				$role->setDescription($description);
 			}
 
+			/** @var \OCA\Forum\Db\Role */
 			$updatedRole = $this->roleMapper->update($role);
 			return new DataResponse($updatedRole->jsonSerialize());
 		} catch (DoesNotExistException $e) {
@@ -130,6 +137,7 @@ class RoleController extends OCSController {
 	 *
 	 * 200: Role deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/roles/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

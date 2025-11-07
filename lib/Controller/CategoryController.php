@@ -12,6 +12,7 @@ use OCA\Forum\Db\CatHeaderMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -35,6 +36,7 @@ class CategoryController extends OCSController {
 	 *
 	 * 200: Category headers with nested categories returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/categories')]
 	public function index(): DataResponse {
 		try {
@@ -75,6 +77,7 @@ class CategoryController extends OCSController {
 	 *
 	 * 200: Categories returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/headers/{headerId}/categories')]
 	public function byHeader(int $headerId): DataResponse {
 		try {
@@ -94,6 +97,7 @@ class CategoryController extends OCSController {
 	 *
 	 * 200: Category returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -115,6 +119,7 @@ class CategoryController extends OCSController {
 	 *
 	 * 200: Category returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/slug/{slug}')]
 	public function bySlug(string $slug): DataResponse {
 		try {
@@ -140,6 +145,7 @@ class CategoryController extends OCSController {
 	 *
 	 * 201: Category created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/categories')]
 	public function create(int $headerId, string $name, string $slug, ?string $description = null, int $sortOrder = 0): DataResponse {
 		try {
@@ -154,6 +160,7 @@ class CategoryController extends OCSController {
 			$category->setCreatedAt(time());
 			$category->setUpdatedAt(time());
 
+			/** @var \OCA\Forum\Db\Category */
 			$createdCategory = $this->categoryMapper->insert($category);
 			return new DataResponse($createdCategory->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -174,6 +181,7 @@ class CategoryController extends OCSController {
 	 *
 	 * 200: Category updated
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/categories/{id}')]
 	public function update(int $id, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null): DataResponse {
 		try {
@@ -193,6 +201,7 @@ class CategoryController extends OCSController {
 			}
 			$category->setUpdatedAt(time());
 
+			/** @var \OCA\Forum\Db\Category */
 			$updatedCategory = $this->categoryMapper->update($category);
 			return new DataResponse($updatedCategory->jsonSerialize());
 		} catch (DoesNotExistException $e) {
@@ -211,6 +220,7 @@ class CategoryController extends OCSController {
 	 *
 	 * 200: Category deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/categories/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

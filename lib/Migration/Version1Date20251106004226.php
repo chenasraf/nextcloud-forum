@@ -284,6 +284,10 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'notnull' => true,
 			'default' => true,
 		]);
+		$table->addColumn('parse_inner', 'boolean', [
+			'notnull' => true,
+			'default' => true,
+		]);
 		$table->addColumn('created_at', 'integer', [
 			'notnull' => true,
 			'unsigned' => true,
@@ -358,7 +362,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addIndex(['category_id'], 'forum_threads_category_id_idx');
 		$table->addIndex(['author_id'], 'forum_threads_author_id_idx');
 		$table->addIndex(['last_post_id'], 'forum_threads_last_post_id_idx');
-		$table->addIndex(['is_pinned', 'updated_at'], 'forum_threads_pinned_updated_idx');
+		$table->addIndex(['is_pinned', 'updated_at'], 'forum_thread_pin_upd_idx');
 	}
 
 	private function createForumPostsTable(ISchemaWrapper $schema): void {
@@ -438,9 +442,9 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'unsigned' => true,
 		]);
 		$table->setPrimaryKey(['id']);
-		$table->addIndex(['user_id'], 'forum_read_markers_user_id_idx');
-		$table->addIndex(['thread_id'], 'forum_read_markers_thread_id_idx');
-		$table->addUniqueIndex(['user_id', 'thread_id'], 'forum_read_markers_unique_idx');
+		$table->addIndex(['user_id'], 'forum_read_mark_uid_idx');
+		$table->addIndex(['thread_id'], 'forum_read_mark_tid_idx');
+		$table->addUniqueIndex(['user_id', 'thread_id'], 'forum_read_mark_uniq_idx');
 	}
 
 	private function createForumReactionsTable(ISchemaWrapper $schema): void {
@@ -515,6 +519,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
+		$userManager = \OC::$server->get(\OCP\IUserManager::class);
 		$timestamp = time();
 
 		// Create default roles
@@ -595,13 +600,13 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 
 		// Create default BBCodes
 		$bbcodes = [
-			['tag' => 'b', 'replacement' => '<strong>{content}</strong>', 'description' => 'Bold text'],
-			['tag' => 'i', 'replacement' => '<em>{content}</em>', 'description' => 'Italic text'],
-			['tag' => 'u', 'replacement' => '<u>{content}</u>', 'description' => 'Underlined text'],
-			['tag' => 'url', 'replacement' => '<a href="{href}" target="_blank" rel="noopener noreferrer">{content}</a>', 'description' => 'URL link'],
-			['tag' => 'img', 'replacement' => '<img src="{url}" alt="Image" class="forum-image" />', 'description' => 'Image'],
-			['tag' => 'code', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code'],
-			['tag' => 'quote', 'replacement' => '<blockquote>{content}</blockquote>', 'description' => 'Quote'],
+			['tag' => 'b', 'replacement' => '<strong>{content}</strong>', 'description' => 'Bold text', 'parse_inner' => true],
+			['tag' => 'i', 'replacement' => '<em>{content}</em>', 'description' => 'Italic text', 'parse_inner' => true],
+			['tag' => 'u', 'replacement' => '<u>{content}</u>', 'description' => 'Underlined text', 'parse_inner' => true],
+			['tag' => 'url', 'replacement' => '<a href="{href}" target="_blank" rel="noopener noreferrer">{content}</a>', 'description' => 'URL link', 'parse_inner' => true],
+			['tag' => 'img', 'replacement' => '<img src="{url}" alt="Image" class="forum-image" />', 'description' => 'Image', 'parse_inner' => true],
+			['tag' => 'code', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false],
+			['tag' => 'quote', 'replacement' => '<blockquote>{content}</blockquote>', 'description' => 'Quote', 'parse_inner' => true],
 		];
 
 		foreach ($bbcodes as $bbcode) {
@@ -612,31 +617,53 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 					'replacement' => $qb->createNamedParameter($bbcode['replacement']),
 					'description' => $qb->createNamedParameter($bbcode['description']),
 					'enabled' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'parse_inner' => $qb->createNamedParameter($bbcode['parse_inner'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				])
 				->executeStatement();
 		}
 
-		// Create admin forum user
-		$qb = $db->getQueryBuilder();
-		$qb->insert('forum_users')
-			->values([
-				'user_id' => $qb->createNamedParameter('admin'),
-				'post_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-			])
-			->executeStatement();
+		// Create forum users for all Nextcloud users
+		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
+		$adminGroup = $groupManager->get('admin');
 
-		// Assign admin role to admin user
-		$qb = $db->getQueryBuilder();
-		$qb->insert('forum_user_roles')
-			->values([
-				'user_id' => $qb->createNamedParameter('admin'),
-				'role_id' => $qb->createNamedParameter($adminRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-			])
-			->executeStatement();
+		$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $userRoleId, $adminRoleId, $adminGroup) {
+			$userId = $user->getUID();
+			$isAdmin = $adminGroup && $adminGroup->inGroup($user);
+
+			// Create forum user
+			$qb = $db->getQueryBuilder();
+			$qb->insert('forum_users')
+				->values([
+					'user_id' => $qb->createNamedParameter($userId),
+					'post_count' => $qb->createNamedParameter($userId === 'admin' ? 1 : 0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				])
+				->executeStatement();
+
+			// Assign User role to all users
+			$qb = $db->getQueryBuilder();
+			$qb->insert('forum_user_roles')
+				->values([
+					'user_id' => $qb->createNamedParameter($userId),
+					'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				])
+				->executeStatement();
+
+			// Assign Admin role to admin group members
+			if ($isAdmin) {
+				$qb = $db->getQueryBuilder();
+				$qb->insert('forum_user_roles')
+					->values([
+						'user_id' => $qb->createNamedParameter($userId),
+						'role_id' => $qb->createNamedParameter($adminRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					])
+					->executeStatement();
+			}
+		});
 
 		// Create welcome thread
 		$qb = $db->getQueryBuilder();

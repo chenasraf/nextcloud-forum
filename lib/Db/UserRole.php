@@ -36,9 +36,9 @@ class UserRole extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getId(),
-			'user_id' => $this->getUserId(),
-			'role_id' => $this->getRoleId(),
-			'created_at' => $this->getCreatedAt(),
+			'userId' => $this->getUserId(),
+			'roleId' => $this->getRoleId(),
+			'createdAt' => $this->getCreatedAt(),
 		];
 	}
 }

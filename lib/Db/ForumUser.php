@@ -40,10 +40,10 @@ class ForumUser extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getId(),
-			'user_id' => $this->getUserId(),
-			'post_count' => $this->getPostCount(),
-			'created_at' => $this->getCreatedAt(),
-			'updated_at' => $this->getUpdatedAt(),
+			'userId' => $this->getUserId(),
+			'postCount' => $this->getPostCount(),
+			'createdAt' => $this->getCreatedAt(),
+			'updatedAt' => $this->getUpdatedAt(),
 		];
 	}
 }

@@ -42,8 +42,8 @@ class CatHeader extends Entity implements JsonSerializable {
 			'id' => $this->getId(),
 			'name' => $this->getName(),
 			'description' => $this->getDescription(),
-			'sort_order' => $this->getSortOrder(),
-			'created_at' => $this->getCreatedAt(),
+			'sortOrder' => $this->getSortOrder(),
+			'createdAt' => $this->getCreatedAt(),
 		];
 	}
 }

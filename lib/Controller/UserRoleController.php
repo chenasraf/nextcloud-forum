@@ -11,6 +11,7 @@ use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -34,6 +35,7 @@ class UserRoleController extends OCSController {
 	 *
 	 * 200: User roles returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/users/{userId}/roles')]
 	public function byUser(string $userId): DataResponse {
 		try {
@@ -53,6 +55,7 @@ class UserRoleController extends OCSController {
 	 *
 	 * 200: User roles returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{roleId}/users')]
 	public function byRole(int $roleId): DataResponse {
 		try {
@@ -73,6 +76,7 @@ class UserRoleController extends OCSController {
 	 *
 	 * 201: Role assigned to user
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/user-roles')]
 	public function create(string $userId, int $roleId): DataResponse {
 		try {
@@ -81,6 +85,7 @@ class UserRoleController extends OCSController {
 			$userRole->setRoleId($roleId);
 			$userRole->setCreatedAt(time());
 
+			/** @var \OCA\Forum\Db\UserRole */
 			$createdUserRole = $this->userRoleMapper->insert($userRole);
 			return new DataResponse($createdUserRole->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -97,6 +102,7 @@ class UserRoleController extends OCSController {
 	 *
 	 * 200: Role removed from user
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/user-roles/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

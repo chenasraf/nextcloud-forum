@@ -11,6 +11,7 @@ use OCA\Forum\Db\BBCodeMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -33,6 +34,7 @@ class BBCodeController extends OCSController {
 	 *
 	 * 200: BBCodes returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes')]
 	public function index(): DataResponse {
 		try {
@@ -51,6 +53,7 @@ class BBCodeController extends OCSController {
 	 *
 	 * 200: Enabled BBCodes returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes/enabled')]
 	public function enabled(): DataResponse {
 		try {
@@ -70,6 +73,7 @@ class BBCodeController extends OCSController {
 	 *
 	 * 200: BBCode returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -94,6 +98,7 @@ class BBCodeController extends OCSController {
 	 *
 	 * 201: BBCode created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/bbcodes')]
 	public function create(string $tag, string $replacement, ?string $description = null, bool $enabled = true): DataResponse {
 		try {
@@ -104,6 +109,7 @@ class BBCodeController extends OCSController {
 			$bbcode->setEnabled($enabled);
 			$bbcode->setCreatedAt(time());
 
+			/** @var \OCA\Forum\Db\BBCode */
 			$createdBBCode = $this->bbCodeMapper->insert($bbcode);
 			return new DataResponse($createdBBCode->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -124,6 +130,7 @@ class BBCodeController extends OCSController {
 	 *
 	 * 200: BBCode updated
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/bbcodes/{id}')]
 	public function update(int $id, ?string $tag = null, ?string $replacement = null, ?string $description = null, ?bool $enabled = null): DataResponse {
 		try {
@@ -142,6 +149,7 @@ class BBCodeController extends OCSController {
 				$bbcode->setEnabled($enabled);
 			}
 
+			/** @var \OCA\Forum\Db\BBCode */
 			$updatedBBCode = $this->bbCodeMapper->update($bbcode);
 			return new DataResponse($updatedBBCode->jsonSerialize());
 		} catch (DoesNotExistException $e) {
@@ -160,6 +168,7 @@ class BBCodeController extends OCSController {
 	 *
 	 * 200: BBCode deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/bbcodes/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

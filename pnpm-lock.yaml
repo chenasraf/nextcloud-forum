@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@nextcloud/auth':
+        specifier: ^2.5.3
+        version: 2.5.3
       '@nextcloud/axios':
         specifier: ^2.5.2
         version: 2.5.2

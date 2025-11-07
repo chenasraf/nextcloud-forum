@@ -20,26 +20,6 @@
             <HomeIcon :size="20" />
           </template>
         </NcAppNavigationItem>
-
-        <NcAppNavigationItem
-          :name="strings.navExamples"
-          :to="{ path: basePath + '/examples' }"
-          :active="isPrefixRoute(basePath + '/examples')"
-        >
-          <template #icon>
-            <PuzzleIcon :size="20" />
-          </template>
-        </NcAppNavigationItem>
-
-        <NcAppNavigationItem
-          :name="strings.navAbout"
-          :to="{ path: basePath + '/about' }"
-          :active="isPrefixRoute(basePath + '/about')"
-        >
-          <template #icon>
-            <InfoIcon :size="20" />
-          </template>
-        </NcAppNavigationItem>
       </template>
 
       <template #footer>
@@ -48,17 +28,19 @@
     </NcAppNavigation>
 
     <!-- Main content -->
-    <NcAppContent id="hello-main">
-      <header class="page-header">
-        <h2>{{ strings.title }}</h2>
-        <p class="muted" v-html="strings.subtitle"></p>
-      </header>
+    <NcAppContent id="forum-main">
+      <div id="forum-content">
+        <header class="page-header">
+          <h2>{{ strings.title }}</h2>
+          <p class="muted" v-html="strings.subtitle"></p>
+        </header>
 
-      <div id="hello-router">
-        <div v-if="isRouterLoading" class="router-loading">
-          <NcLoadingIcon :size="48" />
+        <div id="forum-router">
+          <div v-if="isRouterLoading" class="router-loading">
+            <NcLoadingIcon :size="48" />
+          </div>
+          <router-view v-else />
         </div>
-        <router-view v-else />
       </div>
     </NcAppContent>
   </NcContent>
@@ -142,12 +124,18 @@ export default {
 </script>
 
 <style scoped lang="scss">
-#hello-main {
+#forum-main {
+  height: 100vh;
+  overflow: auto;
+}
+
+#forum-content {
+  flex-basis: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  /* fills viewport next to sidebar */
-  overflow: hidden;
+  max-width: calc(100% - 128px);
+  margin: 0 auto;
 }
 
 .page-header {
@@ -164,7 +152,7 @@ export default {
   }
 }
 
-#hello-router {
+#forum-router {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;

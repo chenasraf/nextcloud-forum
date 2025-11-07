@@ -11,6 +11,7 @@ use OCA\Forum\Db\ForumUserMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -35,6 +36,7 @@ class ForumUserController extends OCSController {
 	 *
 	 * 200: Forum users returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/users')]
 	public function index(): DataResponse {
 		try {
@@ -54,6 +56,7 @@ class ForumUserController extends OCSController {
 	 *
 	 * 200: Forum user returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/users/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -75,6 +78,7 @@ class ForumUserController extends OCSController {
 	 *
 	 * 200: Forum user returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/users/by-uid/{userId}')]
 	public function byUserId(string $userId): DataResponse {
 		try {
@@ -95,6 +99,7 @@ class ForumUserController extends OCSController {
 	 *
 	 * 200: Current user's forum profile returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/users/me')]
 	public function me(): DataResponse {
 		try {
@@ -121,6 +126,7 @@ class ForumUserController extends OCSController {
 	 *
 	 * 201: Forum user created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/users')]
 	public function create(string $userId): DataResponse {
 		try {
@@ -130,6 +136,7 @@ class ForumUserController extends OCSController {
 			$forumUser->setCreatedAt(time());
 			$forumUser->setUpdatedAt(time());
 
+			/** @var \OCA\Forum\Db\ForumUser */
 			$createdUser = $this->forumUserMapper->insert($forumUser);
 			return new DataResponse($createdUser->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -147,6 +154,7 @@ class ForumUserController extends OCSController {
 	 *
 	 * 200: Forum user updated
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/users/{id}')]
 	public function update(int $id, ?int $postCount = null): DataResponse {
 		try {
@@ -157,6 +165,7 @@ class ForumUserController extends OCSController {
 			}
 			$user->setUpdatedAt(time());
 
+			/** @var \OCA\Forum\Db\ForumUser */
 			$updatedUser = $this->forumUserMapper->update($user);
 			return new DataResponse($updatedUser->jsonSerialize());
 		} catch (DoesNotExistException $e) {
@@ -175,6 +184,7 @@ class ForumUserController extends OCSController {
 	 *
 	 * 200: Forum user deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/users/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

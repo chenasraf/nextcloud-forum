@@ -72,18 +72,18 @@ class Thread extends Entity implements JsonSerializable {
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->getId(),
-			'category_id' => $this->getCategoryId(),
-			'author_id' => $this->getAuthorId(),
+			'categoryId' => $this->getCategoryId(),
+			'authorId' => $this->getAuthorId(),
 			'title' => $this->getTitle(),
 			'slug' => $this->getSlug(),
-			'view_count' => $this->getViewCount(),
-			'post_count' => $this->getPostCount(),
-			'last_post_id' => $this->getLastPostId(),
-			'is_locked' => $this->getIsLocked(),
-			'is_pinned' => $this->getIsPinned(),
-			'is_hidden' => $this->getIsHidden(),
-			'created_at' => $this->getCreatedAt(),
-			'updated_at' => $this->getUpdatedAt(),
+			'viewCount' => $this->getViewCount(),
+			'postCount' => $this->getPostCount(),
+			'lastPostId' => $this->getLastPostId(),
+			'isLocked' => $this->getIsLocked(),
+			'isPinned' => $this->getIsPinned(),
+			'isHidden' => $this->getIsHidden(),
+			'createdAt' => $this->getCreatedAt(),
+			'updatedAt' => $this->getUpdatedAt(),
 		];
 	}
 }

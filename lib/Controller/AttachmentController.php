@@ -11,6 +11,7 @@ use OCA\Forum\Db\AttachmentMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
+use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -34,6 +35,7 @@ class AttachmentController extends OCSController {
 	 *
 	 * 200: Attachments returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/posts/{postId}/attachments')]
 	public function byPost(int $postId): DataResponse {
 		try {
@@ -53,6 +55,7 @@ class AttachmentController extends OCSController {
 	 *
 	 * 200: Attachment returned
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/attachments/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -76,6 +79,7 @@ class AttachmentController extends OCSController {
 	 *
 	 * 201: Attachment created
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/attachments')]
 	public function create(int $postId, int $fileid, string $filename): DataResponse {
 		try {
@@ -85,6 +89,7 @@ class AttachmentController extends OCSController {
 			$attachment->setFilename($filename);
 			$attachment->setCreatedAt(time());
 
+			/** @var \OCA\Forum\Db\Attachment */
 			$createdAttachment = $this->attachmentMapper->insert($attachment);
 			return new DataResponse($createdAttachment->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -101,6 +106,7 @@ class AttachmentController extends OCSController {
 	 *
 	 * 200: Attachment deleted
 	 */
+	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/attachments/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

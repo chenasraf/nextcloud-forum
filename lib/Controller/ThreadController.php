@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -24,6 +25,7 @@ class ThreadController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private ThreadMapper $threadMapper,
+		private CategoryMapper $categoryMapper,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -161,6 +163,19 @@ class ThreadController extends OCSController {
 
 			/** @var \OCA\Forum\Db\Thread */
 			$createdThread = $this->threadMapper->insert($thread);
+
+			// Update the category's thread and post counts
+			// A new thread includes an initial post, so increment both
+			try {
+				$category = $this->categoryMapper->find($categoryId);
+				$category->setThreadCount($category->getThreadCount() + 1);
+				$category->setPostCount($category->getPostCount() + 1);
+				$this->categoryMapper->update($category);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update category counts: ' . $e->getMessage());
+				// Don't fail the request if category update fails
+			}
+
 			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating thread: ' . $e->getMessage());

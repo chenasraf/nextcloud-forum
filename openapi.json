@@ -3102,7 +3102,7 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/forum/api/users/me": {
+        "/ocs/v2.php/apps/forum/api/current-user": {
             "get": {
                 "operationId": "forum_user-me",
                 "summary": "Get current user's forum profile",
@@ -3768,8 +3768,7 @@
                                 "type": "object",
                                 "required": [
                                     "threadId",
-                                    "content",
-                                    "slug"
+                                    "content"
                                 ],
                                 "properties": {
                                     "threadId": {
@@ -3783,7 +3782,9 @@
                                     },
                                     "slug": {
                                         "type": "string",
-                                        "description": "Post slug"
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Post slug (auto-generated if not provided)"
                                     }
                                 }
                             }

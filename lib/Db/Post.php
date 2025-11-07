@@ -72,12 +72,27 @@ class Post extends Entity implements JsonSerializable {
 		if (!is_array($post)) {
 			$post = $post->jsonSerialize();
 		}
+
+		// Parse BBCode content
 		$service = \OC::$server->get(\OCA\Forum\Service\BBCodeService::class);
 		if (empty($bbcodes)) {
 			$mapper = \OC::$server->get(\OCA\Forum\Db\BBCodeMapper::class);
 			$bbcodes = $mapper->findAllEnabled();
 		}
 		$post['content'] = $service->parse($post['content'], $bbcodes);
+
+		// Add author display name (obfuscated if user is deleted)
+		try {
+			$forumUserMapper = \OC::$server->get(\OCA\Forum\Db\ForumUserMapper::class);
+			$forumUser = $forumUserMapper->findByUserId($post['authorId']);
+			$post['authorDisplayName'] = $forumUser->getDisplayName();
+			$post['authorIsDeleted'] = $forumUser->getDeletedAt() !== null;
+		} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
+			// Forum user doesn't exist, use the original authorId
+			$post['authorDisplayName'] = $post['authorId'];
+			$post['authorIsDeleted'] = false;
+		}
+
 		return $post;
 	}
 }

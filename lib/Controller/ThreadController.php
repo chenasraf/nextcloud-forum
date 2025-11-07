@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -41,7 +42,7 @@ class ThreadController extends OCSController {
 	public function index(): DataResponse {
 		try {
 			$threads = $this->threadMapper->findAll();
-			return new DataResponse(array_map(fn ($t) => $t->jsonSerialize(), $threads));
+			return new DataResponse(array_map(fn ($t) => Thread::enrichThreadAuthor($t), $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -63,7 +64,7 @@ class ThreadController extends OCSController {
 	public function byCategory(int $categoryId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
 			$threads = $this->threadMapper->findByCategoryId($categoryId, $limit, $offset);
-			return new DataResponse(array_map(fn ($t) => $t->jsonSerialize(), $threads));
+			return new DataResponse(array_map(fn ($t) => Thread::enrichThreadAuthor($t), $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads by category: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -89,7 +90,7 @@ class ThreadController extends OCSController {
 			/** @var \OCA\Forum\Db\Thread */
 			$thread = $this->threadMapper->update($thread);
 
-			return new DataResponse($thread->jsonSerialize());
+			return new DataResponse(Thread::enrichThreadAuthor($thread));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -117,7 +118,7 @@ class ThreadController extends OCSController {
 			/** @var \OCA\Forum\Db\Thread */
 			$thread = $this->threadMapper->update($thread);
 
-			return new DataResponse($thread->jsonSerialize());
+			return new DataResponse(Thread::enrichThreadAuthor($thread));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

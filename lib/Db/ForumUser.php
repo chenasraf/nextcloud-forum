@@ -22,12 +22,15 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCreatedAt(int $value)
  * @method int getUpdatedAt()
  * @method void setUpdatedAt(int $value)
+ * @method int|null getDeletedAt()
+ * @method void setDeletedAt(?int $value)
  */
 class ForumUser extends Entity implements JsonSerializable {
 	protected $userId;
 	protected $postCount;
 	protected $createdAt;
 	protected $updatedAt;
+	protected $deletedAt;
 
 	public function __construct() {
 		$this->addType('id', 'integer');
@@ -35,6 +38,7 @@ class ForumUser extends Entity implements JsonSerializable {
 		$this->addType('postCount', 'integer');
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
+		$this->addType('deletedAt', 'integer');
 	}
 
 	public function jsonSerialize(): array {
@@ -44,6 +48,23 @@ class ForumUser extends Entity implements JsonSerializable {
 			'postCount' => $this->getPostCount(),
 			'createdAt' => $this->getCreatedAt(),
 			'updatedAt' => $this->getUpdatedAt(),
+			'deletedAt' => $this->getDeletedAt(),
+			'isDeleted' => $this->getDeletedAt() !== null,
 		];
+	}
+
+	/**
+	 * Get the display name for this user
+	 * Returns obfuscated name if user is deleted
+	 *
+	 * @return string
+	 */
+	public function getDisplayName(): string {
+		if ($this->getDeletedAt() !== null) {
+			// User is deleted, return obfuscated name
+			return 'Deleted User #' . $this->getId();
+		}
+
+		return $this->getUserId();
 	}
 }

@@ -2,9 +2,12 @@
   <div class="post-card" :class="{ 'first-post': isFirstPost }">
     <div class="post-header">
       <div class="author-info">
-        <NcAvatar :user="post.authorId" :size="32" />
+        <NcAvatar v-if="!post.authorIsDeleted" :user="post.authorId" :size="32" />
+        <NcAvatar v-else :display-name="post.authorDisplayName" :size="32" />
         <div class="author-details">
-          <span class="author-name">{{ post.authorId }}</span>
+          <span class="author-name" :class="{ 'deleted-user': post.authorIsDeleted }">
+            {{ post.authorDisplayName || post.authorId }}
+          </span>
           <div class="post-meta">
             <NcDateTime v-if="post.createdAt" :timestamp="post.createdAt * 1000" />
             <span v-if="post.isEdited" class="edited-badge">
@@ -156,6 +159,11 @@ export default {
     font-weight: 600;
     color: var(--color-main-text);
     font-size: 1rem;
+
+    &.deleted-user {
+      font-style: italic;
+      opacity: 0.7;
+    }
   }
 
   .post-meta {

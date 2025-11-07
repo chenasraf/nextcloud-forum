@@ -101,6 +101,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'notnull' => true,
 			'unsigned' => true,
 		]);
+		$table->addColumn('deleted_at', 'integer', [
+			'notnull' => false,
+			'unsigned' => true,
+			'default' => null,
+		]);
 		$table->setPrimaryKey(['id']);
 		$table->addUniqueIndex(['user_id'], 'forum_users_user_id_idx');
 	}

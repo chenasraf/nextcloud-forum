@@ -16,7 +16,9 @@
         <div class="thread-meta">
           <span class="meta-item">
             <span class="meta-label">{{ strings.by }}</span>
-            <span class="meta-value">{{ thread.authorId }}</span>
+            <span class="meta-value" :class="{ 'deleted-user': thread.authorIsDeleted }">
+              {{ thread.authorDisplayName || thread.authorId }}
+            </span>
           </span>
           <span class="meta-divider">·</span>
           <span class="meta-item">
@@ -179,6 +181,11 @@ export default {
   .meta-value {
     font-weight: 500;
     color: var(--color-text-lighter);
+
+    &.deleted-user {
+      font-style: italic;
+      opacity: 0.7;
+    }
   }
 
   .meta-divider {

@@ -3,8 +3,11 @@
     <!-- Left sidebar -->
     <NcAppNavigation>
       <template #search>
-        <NcAppNavigationSearch v-model="searchValue" :label="strings.searchLabel"
-          :placeholder="strings.searchPlaceholder" />
+        <NcAppNavigationSearch
+          v-model="searchValue"
+          :label="strings.searchLabel"
+          :placeholder="strings.searchPlaceholder"
+        />
       </template>
 
       <template #list>
@@ -14,8 +17,12 @@
           </template>
 
           <!-- Category headers as collapsible submenus -->
-          <NcAppNavigationItem v-for="header in categoryHeaders" :key="`header-${header.id}`" :name="header.name"
-            @click="toggleHeader(header.id)">
+          <NcAppNavigationItem
+            v-for="header in categoryHeaders"
+            :key="`header-${header.id}`"
+            :name="header.name"
+            @click="toggleHeader(header.id)"
+          >
             <template #icon>
               <FolderIcon :size="20" />
             </template>
@@ -31,8 +38,12 @@
 
             <!-- Categories under each header -->
             <template v-if="isHeaderOpen(header.id)">
-              <NcAppNavigationItem v-for="category in header.categories" :key="`category-${category.id}`"
-                :name="category.name" :to="{ path: `/c/${category.slug}` }">
+              <NcAppNavigationItem
+                v-for="category in header.categories"
+                :key="`category-${category.id}`"
+                :name="category.name"
+                :to="{ path: `/c/${category.slug}` }"
+              >
                 <template #icon>
                   <ForumIcon :size="20" />
                 </template>
@@ -43,7 +54,10 @@
       </template>
 
       <template #footer>
-        <!-- Optional footer controls -->
+        <div v-if="userId" class="sidebar-footer">
+          <NcAvatar :user="userId" :size="32" />
+          <span class="user-display-name">{{ displayName }}</span>
+        </div>
       </template>
     </NcAppNavigation>
 
@@ -83,7 +97,9 @@ import PuzzleIcon from '@icons/Puzzle.vue'
 import InfoIcon from '@icons/Information.vue'
 import ChevronDownIcon from '@icons/ChevronDown.vue'
 import ChevronRightIcon from '@icons/ChevronRight.vue'
+import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import { useCategories } from '@/composables/useCategories'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 export default defineComponent({
   name: 'AppUserWrapper',
@@ -95,6 +111,7 @@ export default defineComponent({
     NcAppNavigationSearch,
     NcLoadingIcon,
     NcActionButton,
+    NcAvatar,
     HomeIcon,
     ForumIcon,
     FolderIcon,
@@ -105,9 +122,16 @@ export default defineComponent({
   },
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
+    const { userId, displayName, fetchCurrentUser } = useCurrentUser()
+
+    // Fetch current user on mount
+    fetchCurrentUser()
+
     return {
       categoryHeaders,
       fetchCategories,
+      userId,
+      displayName,
     }
   },
   // Tell NcContent we *do* have a sidebar so it arranges layout properly
@@ -229,5 +253,20 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   height: 100%;
+}
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+
+  .user-display-name {
+    font-weight: 500;
+    color: var(--color-main-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 </style>

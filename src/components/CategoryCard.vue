@@ -19,14 +19,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, type PropType } from 'vue'
 import { t } from '@nextcloud/l10n'
+import type { Category } from '@/types'
 
-export default {
+export default defineComponent({
   name: 'CategoryCard',
   props: {
     category: {
-      type: Object,
+      type: Object as PropType<Category>,
       required: true,
     },
   },
@@ -39,7 +41,7 @@ export default {
       },
     }
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

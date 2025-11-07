@@ -47,7 +47,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, type PropType } from 'vue'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcActions from '@nextcloud/vue/components/NcActions'
@@ -57,8 +58,9 @@ import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
+import type { Post } from '@/types'
 
-export default {
+export default defineComponent({
   name: 'PostCard',
   components: {
     NcAvatar,
@@ -71,7 +73,7 @@ export default {
   },
   props: {
     post: {
-      type: Object,
+      type: Object as PropType<Post>,
       required: true,
     },
     isFirstPost: {
@@ -94,22 +96,21 @@ export default {
     currentUser() {
       return getCurrentUser()
     },
-    canEdit() {
-      return this.currentUser && this.currentUser.uid === this.post.authorId
+    canEdit(): boolean {
+      return this.currentUser !== null && this.currentUser.uid === this.post.authorId
     },
-    canDelete() {
+    canDelete(): boolean {
       // For now, only author can delete. Later add admin/moderator check
-      return this.currentUser && this.currentUser.uid === this.post.authorId
+      return this.currentUser !== null && this.currentUser.uid === this.post.authorId
     },
-    formattedContent() {
+    formattedContent(): string {
       // Content is already parsed by BBCodeService on the backend
       // BBCodeService handles HTML escaping before parsing BBCodes
       return this.post.content
     },
   },
-  methods: {
-  },
-}
+  methods: {},
+})
 </script>
 
 <style scoped lang="scss">

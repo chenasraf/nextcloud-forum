@@ -3,12 +3,12 @@
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <NcButton type="tertiary" @click="goBack">{{ strings.back }}</NcButton>
+        <NcButton @click="goBack">{{ strings.back }}</NcButton>
       </div>
 
       <div class="toolbar-right">
         <NcButton @click="refresh" :disabled="loading">{{ strings.refresh }}</NcButton>
-        <NcButton type="primary" @click="createThread" :disabled="loading || category?.isLocked">
+        <NcButton @click="createThread" :disabled="loading">
           {{ strings.newThread }}
         </NcButton>
       </div>
@@ -46,7 +46,7 @@
       class="mt-16"
     >
       <template #action>
-        <NcButton type="primary" @click="createThread">{{ strings.newThread }}</NcButton>
+        <NcButton @click="createThread">{{ strings.newThread }}</NcButton>
       </template>
     </NcEmptyContent>
 
@@ -69,16 +69,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import ThreadCard from '@/components/ThreadCard.vue'
-
+import type { Category, Thread } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 
-export default {
+export default defineComponent({
   name: 'CategoryView',
   components: {
     NcButton,
@@ -89,9 +90,9 @@ export default {
   data() {
     return {
       loading: false,
-      category: null,
-      threads: [],
-      error: null,
+      category: null as Category | null,
+      threads: [] as Thread[],
+      error: null as string | null,
       limit: 50,
       offset: 0,
 
@@ -104,18 +105,19 @@ export default {
         emptyTitle: t('forum', 'No threads yet'),
         emptyDesc: t('forum', 'Be the first to start a discussion in this category.'),
         retry: t('forum', 'Retry'),
-        showingThreads: (count) => n('forum', 'Showing %n thread', 'Showing %n threads', count),
+        showingThreads: (count: number) =>
+          n('forum', 'Showing %n thread', 'Showing %n threads', count),
       },
     }
   },
   computed: {
-    categoryId() {
-      return this.$route.params.id ? parseInt(this.$route.params.id) : null
+    categoryId(): number | null {
+      return this.$route.params.id ? parseInt(this.$route.params.id as string) : null
     },
-    categorySlug() {
-      return this.$route.params.slug || null
+    categorySlug(): string | null {
+      return (this.$route.params.slug as string) || null
     },
-    sortedThreads() {
+    sortedThreads(): Thread[] {
       // Sort pinned threads first, then by updatedAt descending
       return [...this.threads].sort((a, b) => {
         if (a.isPinned !== b.isPinned) {
@@ -143,7 +145,7 @@ export default {
         }
       } catch (e) {
         console.error('Failed to refresh', e)
-        this.error = e.message || t('forum', 'An unexpected error occurred')
+        this.error = (e as Error).message || t('forum', 'An unexpected error occurred')
       } finally {
         this.loading = false
       }
@@ -153,9 +155,9 @@ export default {
       try {
         let resp
         if (this.categorySlug) {
-          resp = await ocs.get(`/categories/slug/${this.categorySlug}`)
+          resp = await ocs.get<Category>(`/categories/slug/${this.categorySlug}`)
         } else if (this.categoryId) {
-          resp = await ocs.get(`/categories/${this.categoryId}`)
+          resp = await ocs.get<Category>(`/categories/${this.categoryId}`)
         } else {
           throw new Error(t('forum', 'No category ID or slug provided'))
         }
@@ -168,7 +170,7 @@ export default {
 
     async fetchThreads() {
       try {
-        const resp = await ocs.get(`/categories/${this.category.id}/threads`, {
+        const resp = await ocs.get<Thread[]>(`/categories/${this.category!.id}/threads`, {
           params: {
             limit: this.limit,
             offset: this.offset,
@@ -181,7 +183,7 @@ export default {
       }
     },
 
-    navigateToThread(thread) {
+    navigateToThread(thread: Thread) {
       this.$router.push(`/t/${thread.slug}`)
     },
 
@@ -194,7 +196,7 @@ export default {
       this.$router.back()
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

@@ -3,12 +3,12 @@
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <NcButton type="tertiary" @click="goBack">{{ strings.back }}</NcButton>
+        <NcButton @click="goBack">{{ strings.back }}</NcButton>
       </div>
 
       <div class="toolbar-right">
         <NcButton @click="refresh" :disabled="loading">{{ strings.refresh }}</NcButton>
-        <NcButton type="primary" @click="replyToThread" :disabled="loading || thread?.isLocked">
+        <NcButton @click="replyToThread" :disabled="loading || thread?.isLocked">
           {{ strings.reply }}
         </NcButton>
       </div>
@@ -21,7 +21,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">{{ strings.retry }}</NcButton>
       </template>
@@ -64,8 +69,15 @@
     <!-- Posts list -->
     <section v-if="!loading && !error && posts.length > 0" class="mt-16">
       <div class="posts-list">
-        <PostCard v-for="(post, index) in posts" :key="post.id" :post="post" :is-first-post="index === 0"
-          @reply="handleReply" @edit="handleEdit" @delete="handleDelete" />
+        <PostCard
+          v-for="(post, index) in posts"
+          :key="post.id"
+          :post="post"
+          :is-first-post="index === 0"
+          @reply="handleReply"
+          @edit="handleEdit"
+          @delete="handleDelete"
+        />
       </div>
 
       <!-- Pagination info -->
@@ -75,16 +87,21 @@
     </section>
 
     <!-- Empty posts state (thread exists but no posts) -->
-    <NcEmptyContent v-else-if="!loading && !error && thread && posts.length === 0" :title="strings.emptyPostsTitle"
-      :description="strings.emptyPostsDesc" class="mt-16">
+    <NcEmptyContent
+      v-else-if="!loading && !error && thread && posts.length === 0"
+      :title="strings.emptyPostsTitle"
+      :description="strings.emptyPostsDesc"
+      class="mt-16"
+    >
       <template #action>
-        <NcButton type="primary" @click="replyToThread">{{ strings.reply }}</NcButton>
+        <NcButton @click="replyToThread">{{ strings.reply }}</NcButton>
       </template>
     </NcEmptyContent>
   </div>
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
@@ -93,11 +110,11 @@ import PostCard from '@/components/PostCard.vue'
 import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import EyeIcon from '@icons/Eye.vue'
-
+import type { Thread, Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 
-export default {
+export default defineComponent({
   name: 'ThreadView',
   components: {
     NcButton,
@@ -112,9 +129,9 @@ export default {
   data() {
     return {
       loading: false,
-      thread: null,
-      posts: [],
-      error: null,
+      thread: null as Thread | null,
+      posts: [] as Post[],
+      error: null as string | null,
       limit: 50,
       offset: 0,
 
@@ -128,26 +145,26 @@ export default {
         emptyPostsDesc: t('forum', 'Be the first to post in this thread.'),
         retry: t('forum', 'Retry'),
         by: t('forum', 'by'),
-        views: (count: string) => n('forum', '%n view', '%n views', count),
+        views: (count: number) => n('forum', '%n view', '%n views', count),
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
-        showingPosts: (count) => n('forum', 'Showing %n post', 'Showing %n posts', count),
+        showingPosts: (count: number) => n('forum', 'Showing %n post', 'Showing %n posts', count),
       },
     }
   },
   computed: {
-    threadId() {
-      return this.$route.params.id ? parseInt(this.$route.params.id) : null
+    threadId(): number | null {
+      return this.$route.params.id ? parseInt(this.$route.params.id as string) : null
     },
-    threadSlug() {
-      return this.$route.params.slug || null
+    threadSlug(): string | null {
+      return (this.$route.params.slug as string) || null
     },
   },
   created() {
     this.refresh()
   },
   methods: {
-    async refresh() {
+    async refresh(): Promise<void> {
       try {
         this.loading = true
         this.error = null
@@ -161,19 +178,19 @@ export default {
         }
       } catch (e) {
         console.error('Failed to refresh', e)
-        this.error = e.message || t('forum', 'An unexpected error occurred')
+        this.error = (e as Error).message || t('forum', 'An unexpected error occurred')
       } finally {
         this.loading = false
       }
     },
 
-    async fetchThread() {
+    async fetchThread(): Promise<void> {
       try {
         let resp
         if (this.threadSlug) {
-          resp = await ocs.get(`/threads/slug/${this.threadSlug}`)
+          resp = await ocs.get<Thread>(`/threads/slug/${this.threadSlug}`)
         } else if (this.threadId) {
-          resp = await ocs.get(`/threads/${this.threadId}`)
+          resp = await ocs.get<Thread>(`/threads/${this.threadId}`)
         } else {
           throw new Error(t('forum', 'No thread ID or slug provided'))
         }
@@ -184,9 +201,9 @@ export default {
       }
     },
 
-    async fetchPosts() {
+    async fetchPosts(): Promise<void> {
       try {
-        const resp = await ocs.get(`/threads/${this.thread.id}/posts`, {
+        const resp = await ocs.get<Post[]>(`/threads/${this.thread!.id}/posts`, {
           params: {
             limit: this.limit,
             offset: this.offset,
@@ -204,7 +221,7 @@ export default {
       }
     },
 
-    async markAsRead() {
+    async markAsRead(): Promise<void> {
       try {
         // Get the last post ID from the current view
         const lastPost = this.posts[this.posts.length - 1]
@@ -223,19 +240,19 @@ export default {
       }
     },
 
-    handleReply(post) {
+    handleReply(post: Post): void {
       console.log('Reply to post:', post.id)
       // TODO: Implement reply functionality
       // Could open a reply form or navigate to a reply page
     },
 
-    handleEdit(post) {
+    handleEdit(post: Post): void {
       console.log('Edit post:', post.id)
       // TODO: Implement edit functionality
       // Could open an edit dialog or navigate to edit page
     },
 
-    async handleDelete(post) {
+    async handleDelete(post: Post): Promise<void> {
       console.log('Delete post:', post.id)
       // TODO: Implement delete functionality with confirmation
       // if (confirm(t('forum', 'Are you sure you want to delete this post?'))) {
@@ -244,17 +261,17 @@ export default {
       // }
     },
 
-    replyToThread() {
+    replyToThread(): void {
       console.log('Reply to thread:', this.thread?.id)
       // TODO: Implement reply to thread functionality
       // Could open a reply form at the bottom or navigate to a reply page
     },
 
-    goBack() {
+    goBack(): void {
       this.$router.back()
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

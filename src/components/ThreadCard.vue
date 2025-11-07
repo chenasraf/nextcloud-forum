@@ -47,15 +47,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, type PropType } from 'vue'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import CommentIcon from '@icons/Comment.vue'
 import EyeIcon from '@icons/Eye.vue'
 import { t } from '@nextcloud/l10n'
+import type { Thread } from '@/types'
 
-export default {
+export default defineComponent({
   name: 'ThreadCard',
   components: {
     NcDateTime,
@@ -66,7 +68,7 @@ export default {
   },
   props: {
     thread: {
-      type: Object,
+      type: Object as PropType<Thread>,
       required: true,
     },
   },
@@ -81,7 +83,7 @@ export default {
       },
     }
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

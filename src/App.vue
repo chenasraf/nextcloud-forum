@@ -3,13 +3,15 @@
     <!-- Left sidebar -->
     <NcAppNavigation>
       <template #search>
-        <NcAppNavigationSearch v-model="searchValue" :label="strings.searchLabel"
-          :placeholder="strings.searchPlaceholder" />
+        <NcAppNavigationSearch
+          v-model="searchValue"
+          :label="strings.searchLabel"
+          :placeholder="strings.searchPlaceholder"
+        />
       </template>
 
       <template #list>
-        <NcAppNavigationItem :name="strings.navHome" :to="{ path: '/' }"
-          :open="true">
+        <NcAppNavigationItem :name="strings.navHome" :to="{ path: '/' }" :open="true">
           <template #icon>
             <HomeIcon :size="20" />
           </template>
@@ -20,7 +22,8 @@
             :key="`header-${header.id}`"
             :name="header.name"
             :open="isHeaderOpen(header.id)"
-            @click.native.prevent="toggleHeader(header.id)">
+            @click.native.prevent="toggleHeader(header.id)"
+          >
             <template #icon>
               <FolderIcon :size="20" />
             </template>
@@ -30,7 +33,8 @@
               v-for="category in header.categories"
               :key="`category-${category.id}`"
               :name="category.name"
-              :to="{ path: `/c/${category.slug}` }">
+              :to="{ path: `/c/${category.slug}` }"
+            >
               <template #icon>
                 <ForumIcon :size="20" />
               </template>
@@ -63,7 +67,8 @@
   </NcContent>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { t } from '@nextcloud/l10n'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
@@ -76,9 +81,9 @@ import ForumIcon from '@icons/Forum.vue'
 import FolderIcon from '@icons/Folder.vue'
 import PuzzleIcon from '@icons/Puzzle.vue'
 import InfoIcon from '@icons/Information.vue'
-import { useCategories } from '@/composables/useCategories.js'
+import { useCategories } from '@/composables/useCategories'
 
-export default {
+export default defineComponent({
   name: 'AppUserWrapper',
   components: {
     NcContent,
@@ -108,7 +113,7 @@ export default {
     return {
       searchValue: '',
       isRouterLoading: false,
-      openHeaders: {}, // Track which headers are open
+      openHeaders: {} as Record<number, boolean>, // Track which headers are open
       // Mount path for this app section; adjust to your mount.
       basePath: '/apps/forum',
       strings: {
@@ -126,8 +131,8 @@ export default {
         navExamples: t('forum', 'Examples'),
         navAbout: t('forum', 'About'),
       },
-      _removeBeforeEach: null,
-      _removeAfterEach: null,
+      _removeBeforeEach: null as (() => void) | null,
+      _removeAfterEach: null as (() => void) | null,
     }
   },
   async created() {
@@ -136,7 +141,7 @@ export default {
       await this.fetchCategories()
 
       // Initialize all headers as open by default
-      const openState = {}
+      const openState: Record<number, boolean> = {}
       this.categoryHeaders.forEach((header) => {
         openState[header.id] = true
       })
@@ -160,23 +165,23 @@ export default {
     if (typeof this._removeAfterEach === 'function') this._removeAfterEach()
   },
   methods: {
-    isPrefixRoute(prefix) {
+    isPrefixRoute(prefix: string): boolean {
       return this.$route.path.startsWith(prefix)
     },
 
-    toggleHeader(headerId) {
+    toggleHeader(headerId: number): void {
       // Vue 3 doesn't need $set - direct assignment works with reactivity
       this.openHeaders = {
         ...this.openHeaders,
-        [headerId]: !this.openHeaders[headerId]
+        [headerId]: !this.openHeaders[headerId],
       }
     },
 
-    isHeaderOpen(headerId) {
+    isHeaderOpen(headerId: number): boolean {
       return this.openHeaders[headerId] !== false
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

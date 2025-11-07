@@ -18,8 +18,12 @@
     </div>
 
     <!-- Empty state -->
-    <NcEmptyContent v-else-if="categoryHeaders.length === 0" :title="strings.emptyTitle"
-      :description="strings.emptyDesc" class="mt-16" />
+    <NcEmptyContent
+      v-else-if="categoryHeaders.length === 0"
+      :title="strings.emptyTitle"
+      :description="strings.emptyDesc"
+      class="mt-16"
+    />
 
     <!-- Categories list -->
     <section v-else class="mt-16">
@@ -28,8 +32,12 @@
 
         <!-- Categories grid -->
         <div v-if="header.categories && header.categories.length > 0" class="categories-grid">
-          <CategoryCard v-for="category in header.categories" :key="category.id" :category="category"
-            @click="navigateToCategory(category)" />
+          <CategoryCard
+            v-for="category in header.categories"
+            :key="category.id"
+            :category="category"
+            @click="navigateToCategory(category)"
+          />
         </div>
 
         <!-- Empty state for header with no categories -->
@@ -39,16 +47,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import CategoryCard from '@/components/CategoryCard.vue'
-import { useCategories } from '@/composables/useCategories.js'
-
+import { useCategories } from '@/composables/useCategories'
+import type { Category } from '@/types'
 import { t } from '@nextcloud/l10n'
 
-export default {
+export default defineComponent({
   name: 'CategoriesView',
   components: {
     NcButton,
@@ -94,11 +103,11 @@ export default {
       }
     },
 
-    navigateToCategory(category) {
+    navigateToCategory(category: Category) {
       this.$router.push(`/c/${category.slug}`)
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

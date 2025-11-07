@@ -4,8 +4,12 @@
       <div class="thread-header">
         <div class="thread-title-row">
           <h4 class="thread-title">
-            <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">📌</span>
-            <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">🔒</span>
+            <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
+              <PinIcon :size="16" />
+            </span>
+            <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">
+              <LockIcon :size="16" />
+            </span>
             {{ thread.title }}
           </h4>
         </div>
@@ -23,12 +27,16 @@
 
       <div class="thread-stats">
         <div class="stat">
-          <span class="stat-icon">💬</span>
+          <span class="stat-icon">
+            <CommentIcon :size="20" />
+          </span>
           <span class="stat-value">{{ thread.postCount || 0 }}</span>
           <span class="stat-label">{{ strings.posts }}</span>
         </div>
         <div class="stat">
-          <span class="stat-icon">👁️</span>
+          <span class="stat-icon">
+            <EyeIcon :size="20" />
+          </span>
           <span class="stat-value">{{ thread.viewCount || 0 }}</span>
           <span class="stat-label">{{ strings.views }}</span>
         </div>
@@ -39,12 +47,20 @@
 
 <script>
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import PinIcon from '@icons/Pin.vue'
+import LockIcon from '@icons/Lock.vue'
+import CommentIcon from '@icons/Comment.vue'
+import EyeIcon from '@icons/Eye.vue'
 import { t } from '@nextcloud/l10n'
 
 export default {
   name: 'ThreadCard',
   components: {
     NcDateTime,
+    PinIcon,
+    LockIcon,
+    CommentIcon,
+    EyeIcon,
   },
   props: {
     thread: {

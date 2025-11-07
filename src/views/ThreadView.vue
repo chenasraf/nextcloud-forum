@@ -31,8 +31,12 @@
     <div v-else-if="thread" class="thread-header mt-16">
       <div class="thread-title-section">
         <h2 class="thread-title">
-          <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">📌</span>
-          <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">🔒</span>
+          <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
+            <PinIcon :size="20" />
+          </span>
+          <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">
+            <LockIcon :size="20" />
+          </span>
           {{ thread.title }}
         </h2>
         <div class="thread-meta">
@@ -46,7 +50,9 @@
           </span>
           <span class="meta-divider">·</span>
           <span class="meta-item">
-            <span class="stat-icon">👁️</span>
+            <span class="stat-icon">
+              <EyeIcon :size="16" />
+            </span>
             <span class="stat-label">{{ strings.views(thread.viewCount) }}</span>
           </span>
         </div>
@@ -82,6 +88,9 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import PostCard from '@/components/PostCard.vue'
+import PinIcon from '@icons/Pin.vue'
+import LockIcon from '@icons/Lock.vue'
+import EyeIcon from '@icons/Eye.vue'
 
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
@@ -94,6 +103,9 @@ export default {
     NcLoadingIcon,
     NcDateTime,
     PostCard,
+    PinIcon,
+    LockIcon,
+    EyeIcon,
   },
   data() {
     return {

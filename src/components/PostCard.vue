@@ -18,19 +18,19 @@
         <NcActions>
           <NcActionButton @click="$emit('reply', post)">
             <template #icon>
-              <span class="icon">💬</span>
+              <ReplyIcon :size="20" />
             </template>
             {{ strings.reply }}
           </NcActionButton>
           <NcActionButton v-if="canEdit" @click="$emit('edit', post)">
             <template #icon>
-              <span class="icon">✏️</span>
+              <PencilIcon :size="20" />
             </template>
             {{ strings.edit }}
           </NcActionButton>
           <NcActionButton v-if="canDelete" @click="$emit('delete', post)">
             <template #icon>
-              <span class="icon">🗑️</span>
+              <DeleteIcon :size="20" />
             </template>
             {{ strings.delete }}
           </NcActionButton>
@@ -49,6 +49,9 @@ import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+import ReplyIcon from '@icons/Reply.vue'
+import PencilIcon from '@icons/Pencil.vue'
+import DeleteIcon from '@icons/Delete.vue'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 
@@ -59,6 +62,9 @@ export default {
     NcDateTime,
     NcActions,
     NcActionButton,
+    ReplyIcon,
+    PencilIcon,
+    DeleteIcon,
   },
   props: {
     post: {

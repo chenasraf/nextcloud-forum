@@ -575,13 +575,30 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 				'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 			])
 			->executeStatement();
-		$categoryId = $qb->getLastInsertId();
+		$generalCategoryId = $qb->getLastInsertId();
+
+		// Create "Support" category
+		$qb = $db->getQueryBuilder();
+		$qb->insert('forum_categories')
+			->values([
+				'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'name' => $qb->createNamedParameter('Support'),
+				'description' => $qb->createNamedParameter('Ask questions about the forum, provide feedback or report issues.'),
+				'slug' => $qb->createNamedParameter('support'),
+				'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+			])
+			->executeStatement();
+		$supportCategoryId = $qb->getLastInsertId();
 
 		// Create category permissions for user role
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_category_perms')
 			->values([
-				'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'category_id' => $qb->createNamedParameter($generalCategoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -594,7 +611,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_category_perms')
 			->values([
-				'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'category_id' => $qb->createNamedParameter($generalCategoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'role_id' => $qb->createNamedParameter($adminRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -674,7 +691,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_threads')
 			->values([
-				'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'category_id' => $qb->createNamedParameter($generalCategoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'author_id' => $qb->createNamedParameter('admin'),
 				'title' => $qb->createNamedParameter('Welcome to Nextcloud Forums'),
 				'slug' => $qb->createNamedParameter('welcome-to-nextcloud-forums'),

@@ -3,22 +3,39 @@
     <!-- Left sidebar -->
     <NcAppNavigation>
       <template #search>
-        <NcAppNavigationSearch
-          v-model="searchValue"
-          :label="strings.searchLabel"
-          :placeholder="strings.searchPlaceholder"
-        />
+        <NcAppNavigationSearch v-model="searchValue" :label="strings.searchLabel"
+          :placeholder="strings.searchPlaceholder" />
       </template>
 
       <template #list>
-        <NcAppNavigationItem
-          :name="strings.navHome"
-          :to="{ path: '/' }"
-          :active="$route.path === '/' || $route.path === ''"
-        >
+        <NcAppNavigationItem :name="strings.navHome" :to="{ path: '/' }"
+          :open="true">
           <template #icon>
             <HomeIcon :size="20" />
           </template>
+
+          <!-- Category headers as collapsible submenus -->
+          <NcAppNavigationItem
+            v-for="header in categoryHeaders"
+            :key="`header-${header.id}`"
+            :name="header.name"
+            :open="isHeaderOpen(header.id)"
+            @click.native.prevent="toggleHeader(header.id)">
+            <template #icon>
+              <FolderIcon :size="20" />
+            </template>
+
+            <!-- Categories under each header -->
+            <NcAppNavigationItem
+              v-for="category in header.categories"
+              :key="`category-${category.id}`"
+              :name="category.name"
+              :to="{ path: `/c/${category.slug}` }">
+              <template #icon>
+                <ForumIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+          </NcAppNavigationItem>
         </NcAppNavigationItem>
       </template>
 
@@ -55,8 +72,11 @@ import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSearch'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import HomeIcon from '@icons/Home.vue'
+import ForumIcon from '@icons/Forum.vue'
+import FolderIcon from '@icons/Folder.vue'
 import PuzzleIcon from '@icons/Puzzle.vue'
 import InfoIcon from '@icons/Information.vue'
+import { useCategories } from '@/composables/useCategories.js'
 
 export default {
   name: 'AppUserWrapper',
@@ -68,8 +88,17 @@ export default {
     NcAppNavigationSearch,
     NcLoadingIcon,
     HomeIcon,
+    ForumIcon,
+    FolderIcon,
     PuzzleIcon,
     InfoIcon,
+  },
+  setup() {
+    const { categoryHeaders, fetchCategories } = useCategories()
+    return {
+      categoryHeaders,
+      fetchCategories,
+    }
   },
   // Tell NcContent we *do* have a sidebar so it arranges layout properly
   provide() {
@@ -79,6 +108,7 @@ export default {
     return {
       searchValue: '',
       isRouterLoading: false,
+      openHeaders: {}, // Track which headers are open
       // Mount path for this app section; adjust to your mount.
       basePath: '/apps/forum',
       strings: {
@@ -100,7 +130,21 @@ export default {
       _removeAfterEach: null,
     }
   },
-  created() {
+  async created() {
+    // Fetch categories for sidebar
+    try {
+      await this.fetchCategories()
+
+      // Initialize all headers as open by default
+      const openState = {}
+      this.categoryHeaders.forEach((header) => {
+        openState[header.id] = true
+      })
+      this.openHeaders = openState
+    } catch (e) {
+      console.error('Failed to load categories for sidebar:', e)
+    }
+
     // Show a loading overlay while routes are changing
     this._removeBeforeEach = this.$router.beforeEach((to, from, next) => {
       this.isRouterLoading = true
@@ -118,6 +162,18 @@ export default {
   methods: {
     isPrefixRoute(prefix) {
       return this.$route.path.startsWith(prefix)
+    },
+
+    toggleHeader(headerId) {
+      // Vue 3 doesn't need $set - direct assignment works with reactivity
+      this.openHeaders = {
+        ...this.openHeaders,
+        [headerId]: !this.openHeaders[headerId]
+      }
+    },
+
+    isHeaderOpen(headerId) {
+      return this.openHeaders[headerId] !== false
     },
   },
 }

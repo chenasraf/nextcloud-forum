@@ -44,8 +44,8 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import CategoryCard from '@/components/CategoryCard.vue'
+import { useCategories } from '@/composables/useCategories.js'
 
-import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 
 export default {
@@ -56,11 +56,17 @@ export default {
     NcLoadingIcon,
     CategoryCard,
   },
+  setup() {
+    const { categoryHeaders, loading, fetchCategories, refresh } = useCategories()
+    return {
+      categoryHeaders,
+      loading,
+      fetchCategories,
+      refreshCategories: refresh,
+    }
+  },
   data() {
     return {
-      loading: false,
-      categoryHeaders: [],
-
       strings: {
         title: t('forum', 'Categories'),
         refresh: t('forum', 'Refresh'),
@@ -71,20 +77,20 @@ export default {
       },
     }
   },
-  created() {
-    this.refresh()
+  async created() {
+    // Fetch categories if not already loaded
+    try {
+      await this.fetchCategories()
+    } catch (e) {
+      console.error('Failed to fetch categories', e)
+    }
   },
   methods: {
     async refresh() {
       try {
-        this.loading = true
-        const resp = await ocs.get('/categories')
-        this.categoryHeaders = resp.data || []
+        await this.refreshCategories()
       } catch (e) {
-        console.error('Failed to fetch categories', e)
-        this.categoryHeaders = []
-      } finally {
-        this.loading = false
+        console.error('Failed to refresh categories', e)
       }
     },
 

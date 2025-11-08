@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Db\CategoryPerm;
+use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\RoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -22,6 +24,7 @@ class RoleController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private RoleMapper $roleMapper,
+		private CategoryPermMapper $categoryPermMapper,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -73,17 +76,29 @@ class RoleController extends OCSController {
 	 *
 	 * @param string $name Role name
 	 * @param string|null $description Role description
+	 * @param bool $canAccessAdminTools Can access admin tools
+	 * @param bool $canEditRoles Can edit roles
+	 * @param bool $canEditCategories Can edit categories
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Role created
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/roles')]
-	public function create(string $name, ?string $description = null): DataResponse {
+	public function create(
+		string $name,
+		?string $description = null,
+		bool $canAccessAdminTools = false,
+		bool $canEditRoles = false,
+		bool $canEditCategories = false,
+	): DataResponse {
 		try {
 			$role = new \OCA\Forum\Db\Role();
 			$role->setName($name);
 			$role->setDescription($description);
+			$role->setCanAccessAdminTools($canAccessAdminTools);
+			$role->setCanEditRoles($canEditRoles);
+			$role->setCanEditCategories($canEditCategories);
 			$role->setCreatedAt(time());
 
 			/** @var \OCA\Forum\Db\Role */
@@ -101,13 +116,23 @@ class RoleController extends OCSController {
 	 * @param int $id Role ID
 	 * @param string|null $name Role name
 	 * @param string|null $description Role description
+	 * @param bool|null $canAccessAdminTools Can access admin tools
+	 * @param bool|null $canEditRoles Can edit roles
+	 * @param bool|null $canEditCategories Can edit categories
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Role updated
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/roles/{id}')]
-	public function update(int $id, ?string $name = null, ?string $description = null): DataResponse {
+	public function update(
+		int $id,
+		?string $name = null,
+		?string $description = null,
+		?bool $canAccessAdminTools = null,
+		?bool $canEditRoles = null,
+		?bool $canEditCategories = null,
+	): DataResponse {
 		try {
 			$role = $this->roleMapper->find($id);
 
@@ -116,6 +141,15 @@ class RoleController extends OCSController {
 			}
 			if ($description !== null) {
 				$role->setDescription($description);
+			}
+			if ($canAccessAdminTools !== null) {
+				$role->setCanAccessAdminTools($canAccessAdminTools);
+			}
+			if ($canEditRoles !== null) {
+				$role->setCanEditRoles($canEditRoles);
+			}
+			if ($canEditCategories !== null) {
+				$role->setCanEditCategories($canEditCategories);
 			}
 
 			/** @var \OCA\Forum\Db\Role */
@@ -141,7 +175,16 @@ class RoleController extends OCSController {
 	#[ApiRoute(verb: 'DELETE', url: '/api/roles/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {
+			// Prevent deleting system roles (Admin, Moderator, Member)
+			if ($id == 3) {
+				return new DataResponse(['error' => 'System roles cannot be deleted'], Http::STATUS_FORBIDDEN);
+			}
+
 			$role = $this->roleMapper->find($id);
+
+			// Delete associated permissions
+			$this->categoryPermMapper->deleteByRoleId($id);
+
 			$this->roleMapper->delete($role);
 			return new DataResponse(['success' => true]);
 		} catch (DoesNotExistException $e) {
@@ -149,6 +192,67 @@ class RoleController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error deleting role: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to delete role'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Get permissions for a role
+	 *
+	 * @param int $id Role ID
+	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
+	 *
+	 * 200: Permissions returned
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}/permissions')]
+	public function getPermissions(int $id): DataResponse {
+		try {
+			$permissions = $this->categoryPermMapper->findByRoleId($id);
+			return new DataResponse(array_map(fn ($perm) => $perm->jsonSerialize(), $permissions));
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching role permissions: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch permissions'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Update permissions for a role
+	 *
+	 * @param int $id Role ID
+	 * @param list<array{categoryId: int, canView: bool, canModerate: bool}> $permissions Permissions array
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 *
+	 * 200: Permissions updated
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'POST', url: '/api/roles/{id}/permissions')]
+	public function updatePermissions(int $id, array $permissions): DataResponse {
+		try {
+			// Verify role exists
+			$this->roleMapper->find($id);
+
+			// Delete existing permissions for this role
+			$this->categoryPermMapper->deleteByRoleId($id);
+
+			// Insert new permissions
+			foreach ($permissions as $perm) {
+				$categoryPerm = new CategoryPerm();
+				$categoryPerm->setCategoryId($perm['categoryId']);
+				$categoryPerm->setRoleId($id);
+				$categoryPerm->setCanView($perm['canView'] ?? false);
+				$categoryPerm->setCanPost($perm['canView'] ?? false); // Default: can post if can view
+				$categoryPerm->setCanReply($perm['canView'] ?? false); // Default: can reply if can view
+				$categoryPerm->setCanModerate($perm['canModerate'] ?? false);
+
+				$this->categoryPermMapper->insert($categoryPerm);
+			}
+
+			return new DataResponse(['success' => true]);
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Role not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error updating role permissions: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to update permissions'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 }

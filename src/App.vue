@@ -51,6 +51,43 @@
             </template>
           </NcAppNavigationItem>
         </NcAppNavigationItem>
+
+        <!-- Admin menu item - only visible to admins -->
+        <NcAppNavigationItem v-if="isAdmin" :name="strings.navAdmin" @click="toggleAdmin">
+          <template #icon>
+            <ShieldCheckIcon :size="20" />
+          </template>
+
+          <template #actions>
+            <NcActionButton>
+              <template #icon>
+                <ChevronDownIcon v-if="isAdminOpen" :size="20" />
+                <ChevronRightIcon v-else :size="20" />
+              </template>
+            </NcActionButton>
+          </template>
+
+          <!-- Admin sub-items -->
+          <template v-if="isAdminOpen">
+            <NcAppNavigationItem :name="strings.navAdminDashboard" :to="{ path: '/admin' }">
+              <template #icon>
+                <ChartLineIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+
+            <NcAppNavigationItem :name="strings.navAdminUsers" :to="{ path: '/admin/users' }">
+              <template #icon>
+                <AccountMultipleIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+
+            <NcAppNavigationItem :name="strings.navAdminRoles" :to="{ path: '/admin/roles' }">
+              <template #icon>
+                <ShieldAccountIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+          </template>
+        </NcAppNavigationItem>
       </template>
 
       <template #footer>
@@ -64,11 +101,6 @@
     <!-- Main content -->
     <NcAppContent id="forum-main">
       <div id="forum-content">
-        <header class="page-header">
-          <h2>{{ strings.title }}</h2>
-          <p class="muted" v-html="strings.subtitle"></p>
-        </header>
-
         <div id="forum-router">
           <div v-if="isRouterLoading" class="router-loading">
             <NcLoadingIcon :size="48" />
@@ -97,9 +129,14 @@ import PuzzleIcon from '@icons/Puzzle.vue'
 import InfoIcon from '@icons/Information.vue'
 import ChevronDownIcon from '@icons/ChevronDown.vue'
 import ChevronRightIcon from '@icons/ChevronRight.vue'
+import ShieldCheckIcon from '@icons/ShieldCheck.vue'
+import ShieldAccountIcon from '@icons/ShieldAccount.vue'
+import ChartLineIcon from '@icons/ChartLine.vue'
+import AccountMultipleIcon from '@icons/AccountMultiple.vue'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import { useCategories } from '@/composables/useCategories'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useUserRole } from '@/composables/useUserRole'
 
 export default defineComponent({
   name: 'AppUserWrapper',
@@ -119,19 +156,29 @@ export default defineComponent({
     InfoIcon,
     ChevronDownIcon,
     ChevronRightIcon,
+    ShieldCheckIcon,
+    ShieldAccountIcon,
+    ChartLineIcon,
+    AccountMultipleIcon,
   },
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
     const { userId, displayName, fetchCurrentUser } = useCurrentUser()
+    const { isAdmin, fetchUserRoles } = useUserRole()
 
-    // Fetch current user on mount
-    fetchCurrentUser()
+    // Fetch current user and their roles on mount
+    fetchCurrentUser().then((user) => {
+      if (user) {
+        fetchUserRoles(user.userId)
+      }
+    })
 
     return {
       categoryHeaders,
       fetchCategories,
       userId,
       displayName,
+      isAdmin,
     }
   },
   // Tell NcContent we *do* have a sidebar so it arranges layout properly
@@ -143,20 +190,17 @@ export default defineComponent({
       searchValue: '',
       isRouterLoading: false,
       openHeaders: {} as Record<number, boolean>, // Track which headers are open
+      isAdminOpen: true, // Track admin menu state
       // Mount path for this app section; adjust to your mount.
       basePath: '/apps/forum',
       strings: {
-        title: t('forum', 'Hello World — App'),
-        subtitle: t(
-          'forum',
-          'Use the sidebar to navigate between views. Backend calls use {cStart}axios{cEnd} and OCS responses.',
-          { cStart: '<code>', cEnd: '</code>' },
-          undefined,
-          { escape: false },
-        ),
         searchLabel: t('forum', 'Search'),
         searchPlaceholder: t('forum', 'Type to filter…'),
         navHome: t('forum', 'Home'),
+        navAdmin: t('forum', 'Admin'),
+        navAdminDashboard: t('forum', 'Dashboard'),
+        navAdminUsers: t('forum', 'Users'),
+        navAdminRoles: t('forum', 'Roles'),
         navExamples: t('forum', 'Examples'),
         navAbout: t('forum', 'About'),
       },
@@ -208,6 +252,10 @@ export default defineComponent({
 
     isHeaderOpen(headerId: number): boolean {
       return this.openHeaders[headerId] !== false
+    },
+
+    toggleAdmin(): void {
+      this.isAdminOpen = !this.isAdminOpen
     },
   },
 })

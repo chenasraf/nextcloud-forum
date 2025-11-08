@@ -65,6 +65,18 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addColumn('description', 'text', [
 			'notnull' => false,
 		]);
+		$table->addColumn('can_access_admin_tools', 'boolean', [
+			'notnull' => true,
+			'default' => false,
+		]);
+		$table->addColumn('can_edit_roles', 'boolean', [
+			'notnull' => true,
+			'default' => false,
+		]);
+		$table->addColumn('can_edit_categories', 'boolean', [
+			'notnull' => true,
+			'default' => false,
+		]);
 		$table->addColumn('created_at', 'integer', [
 			'notnull' => true,
 			'unsigned' => true,
@@ -528,25 +540,45 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$timestamp = time();
 
 		// Create default roles
-		$qb = $db->getQueryBuilder();
-		$qb->insert('forum_roles')
-			->values([
-				'name' => $qb->createNamedParameter('User'),
-				'description' => $qb->createNamedParameter('Default user role with basic permissions'),
-				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-			])
-			->executeStatement();
-		$userRoleId = $qb->getLastInsertId();
 
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_roles')
 			->values([
 				'name' => $qb->createNamedParameter('Admin'),
 				'description' => $qb->createNamedParameter('Administrator role with full permissions'),
+				'can_access_admin_tools' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'can_edit_roles' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'can_edit_categories' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 			])
 			->executeStatement();
 		$adminRoleId = $qb->getLastInsertId();
+
+		$qb = $db->getQueryBuilder();
+		$qb->insert('forum_roles')
+			->values([
+				'name' => $qb->createNamedParameter('Moderator'),
+				'description' => $qb->createNamedParameter('Moderator role with elevated permissions'),
+				'can_access_admin_tools' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'can_edit_roles' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'can_edit_categories' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+			])
+			->executeStatement();
+		$moderatorRoleId = $qb->getLastInsertId();
+
+		$qb = $db->getQueryBuilder();
+		$qb->insert('forum_roles')
+			->values([
+				'name' => $qb->createNamedParameter('User'),
+				'description' => $qb->createNamedParameter('Default user role with basic permissions'),
+				'can_access_admin_tools' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'can_edit_roles' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'can_edit_categories' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+			])
+			->executeStatement();
+		$userRoleId = $qb->getLastInsertId();
 
 		// Create category header
 		$qb = $db->getQueryBuilder();
@@ -594,31 +626,49 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			->executeStatement();
 		$supportCategoryId = $qb->getLastInsertId();
 
-		// Create category permissions for user role
-		$qb = $db->getQueryBuilder();
-		$qb->insert('forum_category_perms')
-			->values([
-				'category_id' => $qb->createNamedParameter($generalCategoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-				'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-				'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-				'can_moderate' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-			])
-			->executeStatement();
+		// Create default category permissions
+		$categoryIds = [$generalCategoryId, $supportCategoryId];
 
-		// Create category permissions for admin role
-		$qb = $db->getQueryBuilder();
-		$qb->insert('forum_category_perms')
-			->values([
-				'category_id' => $qb->createNamedParameter($generalCategoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'role_id' => $qb->createNamedParameter($adminRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-				'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-				'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-				'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-			])
-			->executeStatement();
+		foreach ($categoryIds as $categoryId) {
+			// Admin role - full access to all categories
+			$qb = $db->getQueryBuilder();
+			$qb->insert('forum_category_perms')
+				->values([
+					'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'role_id' => $qb->createNamedParameter($adminRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				])
+				->executeStatement();
+
+			// Moderator role - can view, post, reply, and moderate
+			$qb = $db->getQueryBuilder();
+			$qb->insert('forum_category_perms')
+				->values([
+					'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'role_id' => $qb->createNamedParameter($moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				])
+				->executeStatement();
+
+			// User role - can view, post, and reply (no moderation)
+			$qb = $db->getQueryBuilder();
+			$qb->insert('forum_category_perms')
+				->values([
+					'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'can_moderate' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				])
+				->executeStatement();
+		}
 
 		// Create default BBCodes
 		$bbcodes = [
@@ -630,6 +680,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			['tag' => 'code', 'replacement' => '<pre><code>{content}</code></pre>', 'description' => 'Code block', 'parse_inner' => false],
 			['tag' => 'icode', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false],
 			['tag' => 'quote', 'replacement' => '<blockquote>{content}</blockquote>', 'description' => 'Quote', 'parse_inner' => true],
+			['tag' => 'spoiler', 'replacement' => '<details><summary>{title}</summary>{content}</details>', 'description' => 'Spoiler', 'parse_inner' => true],
 		];
 
 		foreach ($bbcodes as $bbcode) {
@@ -720,9 +771,9 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			. "• React to posts\n"
 			. "• Track read/unread threads\n\n"
 			. "[b]BBCode Examples:[/b]\n"
-			. "• [b]Bold text[/b] - Use [code][b]text[/b][/code]\n"
-			. "• [i]Italic text[/i] - Use [code][i]text[/i][/code]\n"
-			. "• [u]Underlined text[/u] - Use [code][u]text[/u][/code]\n\n"
+			. "• [b]Bold text[/b] - Use [icode][b]text[/b][/icode]\n"
+			. "• [i]Italic text[/i] - Use [icode][i]text[/i][/icode]\n"
+			. "• [u]Underlined text[/u] - Use [icode][u]text[/u][/icode]\n\n"
 			. 'Feel free to start a new discussion or reply to existing threads. Happy posting!';
 
 		$qb = $db->getQueryBuilder();

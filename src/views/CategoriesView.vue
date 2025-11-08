@@ -1,5 +1,10 @@
 <template>
   <div class="categories-view">
+    <header class="page-header">
+      <h2>{{ strings.mainTitle }}</h2>
+      <p class="muted" v-html="strings.subtitle"></p>
+    </header>
+
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
@@ -18,12 +23,8 @@
     </div>
 
     <!-- Empty state -->
-    <NcEmptyContent
-      v-else-if="categoryHeaders.length === 0"
-      :title="strings.emptyTitle"
-      :description="strings.emptyDesc"
-      class="mt-16"
-    />
+    <NcEmptyContent v-else-if="categoryHeaders.length === 0" :title="strings.emptyTitle"
+      :description="strings.emptyDesc" class="mt-16" />
 
     <!-- Categories list -->
     <section v-else class="mt-16">
@@ -32,12 +33,8 @@
 
         <!-- Categories grid -->
         <div v-if="header.categories && header.categories.length > 0" class="categories-grid">
-          <CategoryCard
-            v-for="category in header.categories"
-            :key="category.id"
-            :category="category"
-            @click="navigateToCategory(category)"
-          />
+          <CategoryCard v-for="category in header.categories" :key="category.id" :category="category"
+            @click="navigateToCategory(category)" />
         </div>
 
         <!-- Empty state for header with no categories -->
@@ -77,6 +74,14 @@ export default defineComponent({
   data() {
     return {
       strings: {
+        mainTitle: t('forum', 'Hello World — App'),
+        subtitle: t(
+          'forum',
+          'Use the sidebar to navigate between views. Backend calls use {cStart}axios{cEnd} and OCS responses.',
+          { cStart: '<code>', cEnd: '</code>' },
+          undefined,
+          { escape: false },
+        ),
         title: t('forum', 'Categories'),
         refresh: t('forum', 'Refresh'),
         loading: t('forum', 'Loading…'),

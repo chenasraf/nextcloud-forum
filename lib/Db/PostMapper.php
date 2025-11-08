@@ -100,4 +100,31 @@ class PostMapper extends QBMapper {
 			->orderBy('created_at', 'DESC');
 		return $this->findEntities($qb);
 	}
+
+	/**
+	 * Count all posts
+	 */
+	public function countAll(): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName());
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['count'] ?? 0);
+	}
+
+	/**
+	 * Count posts created since a timestamp
+	 */
+	public function countSince(int $timestamp): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb->expr()->gte('created_at', $qb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)));
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['count'] ?? 0);
+	}
 }

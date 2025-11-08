@@ -64,4 +64,54 @@ class ForumUserMapper extends QBMapper {
 		$qb->select('*')->from($this->getTableName());
 		return $this->findEntities($qb);
 	}
+
+	/**
+	 * Count all forum users
+	 */
+	public function countAll(): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName());
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['count'] ?? 0);
+	}
+
+	/**
+	 * Count users created since a timestamp
+	 */
+	public function countSince(int $timestamp): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb->expr()->gte('created_at', $qb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)));
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['count'] ?? 0);
+	}
+
+	/**
+	 * Get top contributors by post count
+	 *
+	 * @return array<array<string, mixed>>
+	 */
+	public function getTopContributors(int $limit = 5): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('user_id', 'post_count')
+			->from($this->getTableName())
+			->orderBy('post_count', 'DESC')
+			->setMaxResults($limit);
+		$result = $qb->executeQuery();
+		$contributors = [];
+		while ($row = $result->fetch()) {
+			$contributors[] = [
+				'userId' => $row['user_id'],
+				'postCount' => (int)$row['post_count'],
+			];
+		}
+		$result->closeCursor();
+		return $contributors;
+	}
 }

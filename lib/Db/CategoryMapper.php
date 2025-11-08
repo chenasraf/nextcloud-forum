@@ -161,4 +161,17 @@ class CategoryMapper extends QBMapper {
 		$categories = $this->findEntities($qb);
 		return $this->filterByPermissions($categories);
 	}
+
+	/**
+	 * Count all categories
+	 */
+	public function countAll(): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName());
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['count'] ?? 0);
+	}
 }

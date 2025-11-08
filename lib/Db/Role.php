@@ -18,18 +18,30 @@ use OCP\AppFramework\Db\Entity;
  * @method void setName(string $value)
  * @method string|null getDescription()
  * @method void setDescription(?string $value)
+ * @method bool getCanAccessAdminTools()
+ * @method void setCanAccessAdminTools(bool $value)
+ * @method bool getCanEditRoles()
+ * @method void setCanEditRoles(bool $value)
+ * @method bool getCanEditCategories()
+ * @method void setCanEditCategories(bool $value)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $value)
  */
 class Role extends Entity implements JsonSerializable {
 	protected $name;
 	protected $description;
+	protected $canAccessAdminTools;
+	protected $canEditRoles;
+	protected $canEditCategories;
 	protected $createdAt;
 
 	public function __construct() {
 		$this->addType('id', 'integer');
 		$this->addType('name', 'string');
 		$this->addType('description', 'string');
+		$this->addType('canAccessAdminTools', 'boolean');
+		$this->addType('canEditRoles', 'boolean');
+		$this->addType('canEditCategories', 'boolean');
 		$this->addType('createdAt', 'integer');
 	}
 
@@ -38,6 +50,9 @@ class Role extends Entity implements JsonSerializable {
 			'id' => $this->getId(),
 			'name' => $this->getName(),
 			'description' => $this->getDescription(),
+			'canAccessAdminTools' => $this->getCanAccessAdminTools(),
+			'canEditRoles' => $this->getCanEditRoles(),
+			'canEditCategories' => $this->getCanEditCategories(),
 			'createdAt' => $this->getCreatedAt(),
 		];
 	}

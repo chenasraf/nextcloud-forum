@@ -76,4 +76,45 @@ class ReactionMapper extends QBMapper {
 		$qb->select('*')->from($this->getTableName());
 		return $this->findEntities($qb);
 	}
+
+	/**
+	 * Find reactions for multiple posts at once (for performance)
+	 * @param array<int> $postIds Array of post IDs
+	 * @return array<Reaction>
+	 */
+	public function findByPostIds(array $postIds): array {
+		if (empty($postIds)) {
+			return [];
+		}
+
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->in('post_id', $qb->createNamedParameter($postIds, IQueryBuilder::PARAM_INT_ARRAY))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find a reaction by post ID, user ID, and reaction type
+	 * @throws DoesNotExistException
+	 */
+	public function findByPostUserAndType(int $postId, string $userId, string $reactionType): Reaction {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('post_id', $qb->createNamedParameter($postId, IQueryBuilder::PARAM_INT))
+			)
+			->andWhere(
+				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('reaction_type', $qb->createNamedParameter($reactionType, IQueryBuilder::PARAM_STR))
+			);
+		return $this->findEntity($qb);
+	}
 }

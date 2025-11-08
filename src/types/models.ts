@@ -59,6 +59,13 @@ export interface Post {
   // Enriched fields (added by Post::enrichPostContent)
   authorDisplayName?: string
   authorIsDeleted?: boolean
+  // Client-side enrichment
+  reactions?: Array<{
+    emoji: string
+    count: number
+    userIds: string[]
+    hasReacted: boolean
+  }>
 }
 
 export interface ForumUser {

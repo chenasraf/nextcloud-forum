@@ -68,7 +68,12 @@ class Post extends Entity implements JsonSerializable {
 		];
 	}
 
-	public static function enrichPostContent(mixed $post, array $bbcodes = []): array {
+	public static function enrichPostContent(
+		mixed $post,
+		array $bbcodes = [],
+		array $reactions = [],
+		?string $currentUserId = null,
+	): array {
 		if (!is_array($post)) {
 			$post = $post->jsonSerialize();
 		}
@@ -93,6 +98,52 @@ class Post extends Entity implements JsonSerializable {
 			$post['authorIsDeleted'] = false;
 		}
 
+		// Add reactions (grouped by emoji)
+		$post['reactions'] = self::groupReactions($reactions, $currentUserId);
+
 		return $post;
+	}
+
+	/**
+	 * Group reactions by emoji and calculate counts
+	 *
+	 * @param array<\OCA\Forum\Db\Reaction> $reactions
+	 * @param string|null $currentUserId
+	 * @return array<array{emoji: string, count: int, userIds: string[], hasReacted: bool}>
+	 */
+	private static function groupReactions(array $reactions, ?string $currentUserId): array {
+		$groups = [];
+
+		foreach ($reactions as $reaction) {
+			$emoji = $reaction->getReactionType();
+			$userId = $reaction->getUserId();
+
+			if (!isset($groups[$emoji])) {
+				$groups[$emoji] = [
+					'emoji' => $emoji,
+					'count' => 0,
+					'userIds' => [],
+					'hasReacted' => false,
+				];
+			}
+
+			$groups[$emoji]['count']++;
+			$groups[$emoji]['userIds'][] = $userId;
+
+			if ($currentUserId && $userId === $currentUserId) {
+				$groups[$emoji]['hasReacted'] = true;
+			}
+		}
+
+		// Convert to array and sort by count (descending), then alphabetically
+		$result = array_values($groups);
+		usort($result, function ($a, $b) {
+			if ($a['count'] !== $b['count']) {
+				return $b['count'] - $a['count'];
+			}
+			return strcmp($a['emoji'], $b['emoji']);
+		});
+
+		return $result;
 	}
 }

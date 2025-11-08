@@ -44,6 +44,13 @@
     <div class="post-content">
       <div class="content-text" v-html="formattedContent"></div>
     </div>
+
+    <!-- Reactions -->
+    <PostReactions
+      :post-id="post.id"
+      :reactions="post.reactions || []"
+      @update="handleReactionsUpdate"
+    />
   </div>
 </template>
 
@@ -56,9 +63,11 @@ import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import ReplyIcon from '@icons/Reply.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
+import PostReactions from './PostReactions.vue'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 import type { Post } from '@/types'
+import type { ReactionGroup } from '@/composables/useReactions'
 
 export default defineComponent({
   name: 'PostCard',
@@ -70,6 +79,7 @@ export default defineComponent({
     ReplyIcon,
     PencilIcon,
     DeleteIcon,
+    PostReactions,
   },
   props: {
     post: {
@@ -109,7 +119,14 @@ export default defineComponent({
       return this.post.content
     },
   },
-  methods: {},
+  methods: {
+    handleReactionsUpdate(reactions: ReactionGroup[]) {
+      // Update the post's reactions locally
+      if (this.post.reactions !== undefined) {
+        this.post.reactions = reactions
+      }
+    },
+  },
 })
 </script>
 

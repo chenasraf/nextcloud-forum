@@ -50,6 +50,26 @@ class ReactionController extends OCSController {
 	}
 
 	/**
+	 * Get reactions for multiple posts (for performance)
+	 *
+	 * @param list<int> $postIds Array of post IDs
+	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
+	 *
+	 * 200: Reactions returned
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'POST', url: '/api/reactions/by-posts')]
+	public function byPosts(array $postIds): DataResponse {
+		try {
+			$reactions = $this->reactionMapper->findByPostIds($postIds);
+			return new DataResponse(array_map(fn ($r) => $r->jsonSerialize(), $reactions));
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching reactions by posts: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch reactions'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Get a single reaction
 	 *
 	 * @param int $id Reaction ID
@@ -124,6 +144,53 @@ class ReactionController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error deleting reaction: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to delete reaction'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Toggle a reaction (add if not exists, remove if exists)
+	 *
+	 * @param int $postId Post ID
+	 * @param string $reactionType Type of reaction (emoji)
+	 * @return DataResponse<Http::STATUS_OK, array{action: string, reaction?: array<string, mixed>}, array{}>
+	 *
+	 * 200: Reaction toggled
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'POST', url: '/api/reactions/toggle')]
+	public function toggle(int $postId, string $reactionType): DataResponse {
+		try {
+			$user = $this->userSession->getUser();
+			if (!$user) {
+				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+			}
+
+			$userId = $user->getUID();
+
+			// Try to find existing reaction
+			try {
+				$existingReaction = $this->reactionMapper->findByPostUserAndType($postId, $userId, $reactionType);
+				// Reaction exists, remove it
+				$this->reactionMapper->delete($existingReaction);
+				return new DataResponse(['action' => 'removed']);
+			} catch (DoesNotExistException $e) {
+				// Reaction doesn't exist, create it
+				$reaction = new \OCA\Forum\Db\Reaction();
+				$reaction->setPostId($postId);
+				$reaction->setUserId($userId);
+				$reaction->setReactionType($reactionType);
+				$reaction->setCreatedAt(time());
+
+				/** @var \OCA\Forum\Db\Reaction */
+				$createdReaction = $this->reactionMapper->insert($reaction);
+				return new DataResponse([
+					'action' => 'added',
+					'reaction' => $createdReaction->jsonSerialize()
+				]);
+			}
+		} catch (\Exception $e) {
+			$this->logger->error('Error toggling reaction: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to toggle reaction'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 }

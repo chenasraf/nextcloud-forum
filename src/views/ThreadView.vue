@@ -276,7 +276,9 @@ export default defineComponent({
 
         // Append the new post to the existing posts array
         if (response.data) {
-          this.posts.push(response.data)
+          // Add empty reactions array to the new post
+          const newPost = { ...response.data, reactions: [] }
+          this.posts.push(newPost)
 
           // Clear the form only on success
           if (replyForm && typeof replyForm.clear === 'function') {

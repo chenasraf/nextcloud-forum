@@ -13,6 +13,7 @@ use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -33,6 +34,7 @@ class PostController extends OCSController {
 		private ThreadMapper $threadMapper,
 		private CategoryMapper $categoryMapper,
 		private ForumUserMapper $forumUserMapper,
+		private ReactionMapper $reactionMapper,
 		private BBCodeService $bbCodeService,
 		private BBCodeMapper $bbCodeMapper,
 		private IUserSession $userSession,
@@ -57,9 +59,32 @@ class PostController extends OCSController {
 	public function byThread(int $threadId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
 			$posts = $this->postMapper->findByThreadId($threadId, $limit, $offset);
+
 			// Prefetch BBCodes once for all posts to avoid repeated queries
 			$bbcodes = $this->bbCodeMapper->findAllEnabled();
-			return new DataResponse(array_map(fn ($p) => Post::enrichPostContent($p, $bbcodes), $posts));
+
+			// Fetch reactions for all posts at once (performance optimization)
+			$postIds = array_map(fn ($p) => $p->getId(), $posts);
+			$reactions = $this->reactionMapper->findByPostIds($postIds);
+
+			// Group reactions by post ID
+			$reactionsByPostId = [];
+			foreach ($reactions as $reaction) {
+				$postId = $reaction->getPostId();
+				if (!isset($reactionsByPostId[$postId])) {
+					$reactionsByPostId[$postId] = [];
+				}
+				$reactionsByPostId[$postId][] = $reaction;
+			}
+
+			// Get current user ID to mark user's reactions
+			$currentUserId = $this->userSession->getUser()?->getUID();
+
+			// Enrich posts with content and reactions
+			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId) {
+				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
+				return Post::enrichPostContent($p, $bbcodes, $postReactions, $currentUserId);
+			}, $posts));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch posts'], Http::STATUS_INTERNAL_SERVER_ERROR);

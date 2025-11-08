@@ -53,16 +53,47 @@
           </div>
 
           <div class="col-roles">
-            <div class="roles-list">
-              <span
-                v-for="roleId in user.roles"
-                :key="roleId"
-                class="role-badge"
-                :class="getRoleBadgeClass(roleId)"
-              >
-                {{ getRoleName(roleId) }}
-              </span>
-              <span v-if="user.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
+            <div v-if="editingUserId === user.userId" class="roles-editor">
+              <NcSelect
+                v-model="editingRoles"
+                :options="roleOptions"
+                :placeholder="strings.selectRoles"
+                :multiple="true"
+                label="name"
+                track-by="id"
+                input-label="name"
+                class="roles-select"
+              />
+              <div class="edit-actions">
+                <NcButton @click="cancelEdit">
+                  <template #icon>
+                    <CloseIcon :size="20" />
+                  </template>
+                </NcButton>
+                <NcButton type="primary" @click="saveRoles(user.userId)">
+                  <template #icon>
+                    <CheckIcon :size="20" />
+                  </template>
+                </NcButton>
+              </div>
+            </div>
+            <div v-else class="roles-display">
+              <div class="roles-list">
+                <span
+                  v-for="roleId in user.roles"
+                  :key="roleId"
+                  class="role-badge"
+                  :class="getRoleBadgeClass(roleId)"
+                >
+                  {{ getRoleName(roleId) }}
+                </span>
+                <span v-if="user.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
+              </div>
+              <NcButton @click="startEdit(user.userId, user.roles)">
+                <template #icon>
+                  <PencilIcon :size="20" />
+                </template>
+              </NcButton>
             </div>
           </div>
 
@@ -99,8 +130,13 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import NcSelect from '@nextcloud/vue/components/NcSelect'
+import PencilIcon from '@icons/Pencil.vue'
+import CheckIcon from '@icons/Check.vue'
+import CloseIcon from '@icons/Close.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import type { Role } from '@/types'
 
 interface AdminUser {
   id: number
@@ -113,6 +149,11 @@ interface AdminUser {
   roles: number[]
 }
 
+interface RoleOption {
+  id: number
+  name: string
+}
+
 export default defineComponent({
   name: 'AdminUserList',
   components: {
@@ -121,12 +162,20 @@ export default defineComponent({
     NcLoadingIcon,
     NcAvatar,
     NcDateTime,
+    NcSelect,
+    PencilIcon,
+    CheckIcon,
+    CloseIcon,
   },
   data() {
     return {
       loading: false,
       users: [] as AdminUser[],
+      allRoles: [] as Role[],
       error: null as string | null,
+      editingUserId: null as string | null,
+      editingRoles: [] as RoleOption[],
+      originalRoles: [] as number[],
 
       strings: {
         title: t('forum', 'User Management'),
@@ -144,8 +193,17 @@ export default defineComponent({
         active: t('forum', 'Active'),
         deleted: t('forum', 'Deleted'),
         noRoles: t('forum', 'No roles'),
+        selectRoles: t('forum', 'Select roles'),
       },
     }
+  },
+  computed: {
+    roleOptions(): RoleOption[] {
+      return this.allRoles.map((role) => ({
+        id: role.id,
+        name: role.name,
+      }))
+    },
   },
   created() {
     this.refresh()
@@ -156,8 +214,14 @@ export default defineComponent({
         this.loading = true
         this.error = null
 
-        const response = await ocs.get<{ users: AdminUser[] }>('/admin/users')
-        this.users = response.data.users || []
+        // Load users and roles in parallel
+        const [usersResponse, rolesResponse] = await Promise.all([
+          ocs.get<{ users: AdminUser[] }>('/admin/users'),
+          ocs.get<Role[]>('/roles'),
+        ])
+
+        this.users = usersResponse.data.users || []
+        this.allRoles = rolesResponse.data || []
       } catch (e) {
         console.error('Failed to load users', e)
         this.error = (e as Error).message || t('forum', 'An unexpected error occurred')
@@ -167,13 +231,8 @@ export default defineComponent({
     },
 
     getRoleName(roleId: number): string {
-      // Role ID mapping from migration
-      const roleNames: Record<number, string> = {
-        1: t('forum', 'Admin'),
-        2: t('forum', 'Moderator'),
-        3: t('forum', 'Member'),
-      }
-      return roleNames[roleId] || t('forum', 'Unknown Role')
+      const role = this.allRoles.find((r) => r.id === roleId)
+      return role?.name || t('forum', 'Unknown Role')
     },
 
     getRoleBadgeClass(roleId: number): string {
@@ -183,6 +242,60 @@ export default defineComponent({
         3: 'role-member',
       }
       return roleClasses[roleId] || 'role-unknown'
+    },
+
+    startEdit(userId: string, currentRoles: number[]): void {
+      this.editingUserId = userId
+      this.originalRoles = [...currentRoles]
+
+      // Convert role IDs to role options for NcSelectTags
+      // IMPORTANT: Must use the same object references from roleOptions
+      this.editingRoles = this.roleOptions.filter((option) => currentRoles.includes(option.id))
+    },
+
+    cancelEdit(): void {
+      this.editingUserId = null
+      this.editingRoles = []
+      this.originalRoles = []
+    },
+
+    async saveRoles(userId: string): Promise<void> {
+      try {
+        const newRoleIds = this.editingRoles.map((r) => r.id)
+        const removedRoles = this.originalRoles.filter((id) => !newRoleIds.includes(id))
+        const addedRoles = newRoleIds.filter((id) => !this.originalRoles.includes(id))
+
+        // Get existing user role assignments for this user
+        const userRolesResponse = await ocs.get<Array<{ id: number; roleId: number; userId: string }>>(`/users/${userId}/roles`)
+        const existingUserRoles = userRolesResponse.data || []
+
+        // Remove roles
+        for (const roleId of removedRoles) {
+          const userRole = existingUserRoles.find((ur) => ur.roleId === roleId && ur.userId === userId)
+          if (userRole) {
+            await ocs.delete(`/user-roles/${userRole.id}`)
+          }
+        }
+
+        // Add new roles
+        for (const roleId of addedRoles) {
+          await ocs.post('/user-roles', {
+            userId,
+            roleId,
+          })
+        }
+
+        // Update local user data
+        const user = this.users.find((u) => u.userId === userId)
+        if (user) {
+          user.roles = newRoleIds
+        }
+
+        this.cancelEdit()
+      } catch (e) {
+        console.error('Failed to save roles', e)
+        // TODO: Show error notification
+      }
     },
   },
 })
@@ -229,7 +342,7 @@ export default defineComponent({
       .table-header,
       .table-row {
         display: grid;
-        grid-template-columns: 2fr 100px 150px 150px 100px;
+        grid-template-columns: 2fr 100px 2fr 150px 100px;
         gap: 16px;
         padding: 16px;
         background: var(--color-main-background);
@@ -284,36 +397,59 @@ export default defineComponent({
         }
 
         .col-roles {
-          .roles-list {
+          .roles-editor {
             display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
+            align-items: center;
+            gap: 8px;
 
-            .role-badge {
-              padding: 4px 10px;
-              border-radius: 12px;
-              font-size: 0.75rem;
-              font-weight: 500;
-              white-space: nowrap;
+            .roles-select {
+              flex: 1;
+              min-width: 200px;
+            }
 
-              &.role-admin {
-                background: var(--color-error-light);
-                color: var(--color-error-dark);
-              }
+            .edit-actions {
+              display: flex;
+              gap: 4px;
+            }
+          }
 
-              &.role-moderator {
-                background: var(--color-warning-light);
-                color: var(--color-warning-dark);
-              }
+          .roles-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
 
-              &.role-member {
-                background: var(--color-primary-light);
-                color: var(--color-primary-dark);
-              }
+            .roles-list {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 6px;
+              flex: 1;
 
-              &.role-unknown {
-                background: var(--color-background-dark);
-                color: var(--color-text-maxcontrast);
+              .role-badge {
+                padding: 4px 10px;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 500;
+                white-space: nowrap;
+
+                &.role-admin {
+                  background: var(--color-error-light);
+                  color: var(--color-error-dark);
+                }
+
+                &.role-moderator {
+                  background: var(--color-warning-light);
+                  color: var(--color-warning-dark);
+                }
+
+                &.role-member {
+                  background: var(--color-primary-light);
+                  color: var(--color-primary-dark);
+                }
+
+                &.role-unknown {
+                  background: var(--color-background-dark);
+                  color: var(--color-text-maxcontrast);
+                }
               }
             }
           }

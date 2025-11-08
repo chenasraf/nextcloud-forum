@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\PostMapper;
@@ -44,17 +45,13 @@ class AdminController extends OCSController {
 	 * 200: Dashboard stats returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/admin/dashboard')]
 	public function dashboard(): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
-			}
-
-			// Check if user has admin role
-			if (!$this->isUserAdmin($user->getUID())) {
-				return new DataResponse(['error' => 'Access denied'], Http::STATUS_FORBIDDEN);
 			}
 
 			// Get total counts
@@ -100,18 +97,10 @@ class AdminController extends OCSController {
 	 * 200: Users list returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/admin/users')]
 	public function users(): DataResponse {
 		try {
-			$user = $this->userSession->getUser();
-			if (!$user) {
-				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
-			}
-
-			// Check if user has admin role
-			if (!$this->isUserAdmin($user->getUID())) {
-				return new DataResponse(['error' => 'Access denied'], Http::STATUS_FORBIDDEN);
-			}
 
 			// Get all forum users
 			$forumUsers = $this->forumUserMapper->findAll();

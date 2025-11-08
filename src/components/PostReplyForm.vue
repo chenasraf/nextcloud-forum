@@ -9,14 +9,8 @@
     </div>
 
     <div class="reply-body">
-      <NcTextArea
-        v-model="content"
-        :placeholder="strings.placeholder"
-        :rows="4"
-        :disabled="submitting"
-        @keydown.ctrl.enter="submitReply"
-        @keydown.meta.enter="submitReply"
-      />
+      <NcTextArea v-model="content" :placeholder="strings.placeholder" :rows="4" :disabled="submitting"
+        @keydown.ctrl.enter="submitReply" @keydown.meta.enter="submitReply" class="reply-textarea" />
 
       <div class="reply-footer">
         <div class="reply-footer-left">
@@ -57,10 +51,7 @@ export default defineComponent({
   },
   emits: ['submit', 'cancel'],
   setup() {
-    const { userId, displayName, fetchCurrentUser } = useCurrentUser()
-
-    // Fetch current user on mount
-    fetchCurrentUser()
+    const { userId, displayName } = useCurrentUser()
 
     return {
       userId,
@@ -152,6 +143,17 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.reply-textarea {
+  min-height: 6.125rem;
+  resize: vertical;
+
+  :global(.textarea__main-wrapper),
+  textarea {
+    min-height: calc(var(--default-clickable-area) * 2);
+    height: unset !important;
+  }
 }
 
 .reply-footer {

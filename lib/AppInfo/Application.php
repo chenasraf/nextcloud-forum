@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Forum\AppInfo;
 
 use OCA\Forum\Listener\UserEventListener;
+use OCA\Forum\Middleware\PermissionMiddleware;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -25,6 +26,9 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function register(IRegistrationContext $context): void {
+		// Register middleware for permission checks
+		$context->registerMiddleware(PermissionMiddleware::class);
+
 		// Register user event listeners for syncing forum users with Nextcloud users
 		$context->registerEventListener(UserCreatedEvent::class, UserEventListener::class);
 		$context->registerEventListener(UserDeletedEvent::class, UserEventListener::class);

@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -81,6 +82,7 @@ class CatHeaderController extends OCSController {
 	 * 201: Category header created
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'POST', url: '/api/headers')]
 	public function create(string $name, ?string $description = null, int $sortOrder = 0): DataResponse {
 		try {
@@ -111,6 +113,7 @@ class CatHeaderController extends OCSController {
 	 * 200: Category header updated
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'PUT', url: '/api/headers/{id}')]
 	public function update(int $id, ?string $name = null, ?string $description = null, ?int $sortOrder = null): DataResponse {
 		try {
@@ -147,6 +150,7 @@ class CatHeaderController extends OCSController {
 	 * 200: Category header deleted
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/headers/{id}')]
 	public function destroy(int $id, ?int $migrateToHeaderId = null): DataResponse {
 		try {

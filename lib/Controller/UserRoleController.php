@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -36,6 +37,7 @@ class UserRoleController extends OCSController {
 	 * 200: User roles returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/users/{userId}/roles')]
 	public function byUser(string $userId): DataResponse {
 		try {
@@ -56,6 +58,7 @@ class UserRoleController extends OCSController {
 	 * 200: User roles returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{roleId}/users')]
 	public function byRole(int $roleId): DataResponse {
 		try {
@@ -77,6 +80,7 @@ class UserRoleController extends OCSController {
 	 * 201: Role assigned to user
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'POST', url: '/api/user-roles')]
 	public function create(string $userId, int $roleId): DataResponse {
 		try {
@@ -103,6 +107,7 @@ class UserRoleController extends OCSController {
 	 * 200: Role removed from user
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/user-roles/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

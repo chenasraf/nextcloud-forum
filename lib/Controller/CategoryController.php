@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCA\Forum\Db\ThreadMapper;
@@ -148,6 +149,7 @@ class CategoryController extends OCSController {
 	 * 201: Category created
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'POST', url: '/api/categories')]
 	public function create(int $headerId, string $name, string $slug, ?string $description = null, int $sortOrder = 0): DataResponse {
 		try {
@@ -184,6 +186,7 @@ class CategoryController extends OCSController {
 	 * 200: Category updated
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'PUT', url: '/api/categories/{id}')]
 	public function update(int $id, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null): DataResponse {
 		try {
@@ -247,6 +250,7 @@ class CategoryController extends OCSController {
 	 * 200: Category deleted
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/categories/{id}')]
 	public function destroy(int $id, ?int $migrateToCategoryId = null): DataResponse {
 		try {

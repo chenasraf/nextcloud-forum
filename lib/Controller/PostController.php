@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\ForumUserMapper;
@@ -51,6 +52,7 @@ class PostController extends OCSController {
 	 * 200: Posts returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts')]
 	public function byThread(int $threadId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
@@ -73,6 +75,7 @@ class PostController extends OCSController {
 	 * 200: Post returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canView', resourceType: 'category', resourceIdFromPostId: 'id')]
 	#[ApiRoute(verb: 'GET', url: '/api/posts/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -119,6 +122,7 @@ class PostController extends OCSController {
 	 * 201: Post created
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canReply', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
 	#[ApiRoute(verb: 'POST', url: '/api/posts')]
 	public function create(int $threadId, string $content, ?string $slug = null): DataResponse {
 		try {
@@ -201,6 +205,7 @@ class PostController extends OCSController {
 	 * 200: Post updated
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromPostId: 'id')]
 	#[ApiRoute(verb: 'PUT', url: '/api/posts/{id}')]
 	public function update(int $id, ?string $content = null): DataResponse {
 		try {
@@ -233,6 +238,7 @@ class PostController extends OCSController {
 	 * 200: Post deleted
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromPostId: 'id')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/posts/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

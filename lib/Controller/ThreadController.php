@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
@@ -62,6 +63,7 @@ class ThreadController extends OCSController {
 	 * 200: Threads returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canView', resourceType: 'category', resourceIdParam: 'categoryId')]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{categoryId}/threads')]
 	public function byCategory(int $categoryId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
@@ -82,6 +84,7 @@ class ThreadController extends OCSController {
 	 * 200: Thread returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'id')]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -140,6 +143,7 @@ class ThreadController extends OCSController {
 	 * 201: Thread created
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canPost', resourceType: 'category', resourceIdBody: 'categoryId')]
 	#[ApiRoute(verb: 'POST', url: '/api/threads')]
 	public function create(int $categoryId, string $title, string $slug): DataResponse {
 		try {
@@ -196,6 +200,7 @@ class ThreadController extends OCSController {
 	 * 200: Thread updated
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromThreadId: 'id')]
 	#[ApiRoute(verb: 'PUT', url: '/api/threads/{id}')]
 	public function update(int $id, ?string $title = null, ?bool $isLocked = null, ?bool $isPinned = null, ?bool $isHidden = null): DataResponse {
 		try {
@@ -235,6 +240,7 @@ class ThreadController extends OCSController {
 	 * 200: Thread deleted
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromThreadId: 'id')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/threads/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

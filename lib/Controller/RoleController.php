@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\RoleMapper;
@@ -38,6 +39,7 @@ class RoleController extends OCSController {
 	 * 200: Roles returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles')]
 	public function index(): DataResponse {
 		try {
@@ -58,6 +60,7 @@ class RoleController extends OCSController {
 	 * 200: Role returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -84,6 +87,7 @@ class RoleController extends OCSController {
 	 * 201: Role created
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'POST', url: '/api/roles')]
 	public function create(
 		string $name,
@@ -124,6 +128,7 @@ class RoleController extends OCSController {
 	 * 200: Role updated
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'PUT', url: '/api/roles/{id}')]
 	public function update(
 		int $id,
@@ -172,6 +177,7 @@ class RoleController extends OCSController {
 	 * 200: Role deleted
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/roles/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {
@@ -204,6 +210,7 @@ class RoleController extends OCSController {
 	 * 200: Permissions returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}/permissions')]
 	public function getPermissions(int $id): DataResponse {
 		try {
@@ -225,6 +232,7 @@ class RoleController extends OCSController {
 	 * 200: Permissions updated
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'POST', url: '/api/roles/{id}/permissions')]
 	public function updatePermissions(int $id, array $permissions): DataResponse {
 		try {

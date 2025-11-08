@@ -43,8 +43,8 @@ importers:
         specifier: ^9.39.1
         version: 9.39.1
       '@nextcloud/browserslist-config':
-        specifier: ^3.1.1
-        version: 3.1.1(browserslist@4.27.0)
+        specifier: ^3.1.2
+        version: 3.1.2(browserslist@4.27.0)
       '@nextcloud/eslint-config':
         specifier: ^8.4.2
         version: 8.4.2(@babel/core@7.26.0)(@babel/eslint-parser@7.25.9(@babel/core@7.26.0)(eslint@9.39.1))(@nextcloud/eslint-plugin@2.2.1(eslint@9.39.1))(@vue/eslint-config-typescript@13.0.0(eslint-plugin-vue@9.32.0(eslint@9.39.1))(eslint@9.39.1)(typescript@5.9.2))(eslint-config-standard@17.1.0(eslint-plugin-import@2.31.0)(eslint-plugin-n@16.6.2(eslint@9.39.1))(eslint-plugin-promise@6.6.0(eslint@9.39.1))(eslint@9.39.1))(eslint-import-resolver-exports@1.0.0-beta.5(eslint-plugin-import@2.31.0)(eslint@9.39.1))(eslint-import-resolver-typescript@3.6.3)(eslint-plugin-import@2.31.0)(eslint-plugin-jsdoc@46.10.1(eslint@9.39.1))(eslint-plugin-n@16.6.2(eslint@9.39.1))(eslint-plugin-promise@6.6.0(eslint@9.39.1))(eslint-plugin-vue@9.32.0(eslint@9.39.1))(eslint@9.39.1)(typescript@5.9.2)
@@ -496,9 +496,9 @@ packages:
     resolution: {integrity: sha512-usYr4GlJQlK3hgZURvklqWb9ivi7sgsSuFqXrs7s4hl1LTS4enzPrnkQumm6nRsQruf0ITS+OBsK+oELEbvYPA==}
     engines: {node: ^24 || ^22 || ^20}
 
-  '@nextcloud/browserslist-config@3.1.1':
-    resolution: {integrity: sha512-JzjBEW/M9Qe6s4i37AQlvzfp9QGxprQnaM/06de5WJG9q7RXtNDyM5kEJylAg7AzG4yApdOum9ggtA6m/yVR1w==}
-    engines: {node: ^20.0.0, npm: ^10.0.0}
+  '@nextcloud/browserslist-config@3.1.2':
+    resolution: {integrity: sha512-2iXl1rqQOHvggFIl/V3J5OpbodVazOsO38Gz/2sUAmtWXuOpGZG+7i6zQcVqGVaT1VzyPJ1gPiMpyyZi/XRWNA==}
+    engines: {node: ^20 || ^22 || ^24, npm: '>=10.5.0'}
     peerDependencies:
       browserslist: ^4.26.3
 
@@ -4289,7 +4289,7 @@ snapshots:
 
   '@nextcloud/browser-storage@0.5.0': {}
 
-  '@nextcloud/browserslist-config@3.1.1(browserslist@4.27.0)':
+  '@nextcloud/browserslist-config@3.1.2(browserslist@4.27.0)':
     dependencies:
       browserslist: 4.27.0
 

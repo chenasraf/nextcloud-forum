@@ -9,15 +9,14 @@
     </div>
 
     <div class="reply-body">
-      <textarea
+      <NcTextArea
         v-model="content"
-        class="reply-textarea"
         :placeholder="strings.placeholder"
-        rows="4"
+        :rows="4"
         :disabled="submitting"
         @keydown.ctrl.enter="submitReply"
         @keydown.meta.enter="submitReply"
-      ></textarea>
+      />
 
       <div class="reply-footer">
         <div class="reply-footer-left">
@@ -44,6 +43,7 @@ import { defineComponent } from 'vue'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 
@@ -53,6 +53,7 @@ export default defineComponent({
     NcAvatar,
     NcButton,
     NcLoadingIcon,
+    NcTextArea,
   },
   emits: ['submit', 'cancel'],
   setup() {
@@ -151,31 +152,6 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.reply-textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-main-background);
-  color: var(--color-main-text);
-  font-family: inherit;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  resize: vertical;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: var(--color-primary-element);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 }
 
 .reply-footer {

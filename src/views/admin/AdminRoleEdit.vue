@@ -35,18 +35,25 @@
         <h3>{{ strings.basicInfo }}</h3>
         <div class="form-grid">
           <div class="form-group">
-            <label for="role-name">{{ strings.name }} *</label>
-            <input id="role-name" v-model="formData.name" type="text" :placeholder="strings.namePlaceholder"
-              :disabled="isSystemRole" required />
+            <NcTextField
+              v-model="formData.name"
+              :label="strings.name"
+              :placeholder="strings.namePlaceholder"
+              :disabled="isSystemRole"
+              :required="true"
+            />
             <p v-if="isSystemRole" class="help-text muted">
               {{ strings.systemRoleNameWarning }}
             </p>
           </div>
 
           <div class="form-group">
-            <label for="role-description">{{ strings.description }}</label>
-            <textarea id="role-description" v-model="formData.description" :placeholder="strings.descriptionPlaceholder"
-              rows="3" />
+            <NcTextArea
+              v-model="formData.description"
+              :label="strings.description"
+              :placeholder="strings.descriptionPlaceholder"
+              :rows="3"
+            />
           </div>
         </div>
       </section>
@@ -154,6 +161,8 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import NcTextField from '@nextcloud/vue/components/NcTextField'
+import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import InformationIcon from '@icons/Information.vue'
 import { ocs } from '@/axios'
@@ -172,6 +181,8 @@ export default defineComponent({
     NcCheckboxRadioSwitch,
     NcEmptyContent,
     NcLoadingIcon,
+    NcTextField,
+    NcTextArea,
     ArrowLeftIcon,
     InformationIcon,
   },
@@ -469,43 +480,6 @@ export default defineComponent({
       display: flex;
       flex-direction: column;
       gap: 6px;
-
-      label {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--color-main-text);
-      }
-
-      input,
-      textarea {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid var(--color-border);
-        border-radius: 4px;
-        background: var(--color-main-background);
-        color: var(--color-main-text);
-        font-family: inherit;
-        font-size: 1rem;
-
-        &:focus {
-          outline: none;
-          border-color: var(--color-primary-element);
-        }
-
-        &:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        &::placeholder {
-          color: var(--color-text-maxcontrast);
-        }
-      }
-
-      textarea {
-        resize: vertical;
-        min-height: 60px;
-      }
 
       .help-text {
         font-size: 0.85rem;

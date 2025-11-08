@@ -86,6 +86,15 @@
                 <ShieldAccountIcon :size="20" />
               </template>
             </NcAppNavigationItem>
+
+            <NcAppNavigationItem
+              :name="strings.navAdminCategories"
+              :to="{ path: '/admin/categories' }"
+            >
+              <template #icon>
+                <FolderIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
           </template>
         </NcAppNavigationItem>
       </template>
@@ -201,6 +210,7 @@ export default defineComponent({
         navAdminDashboard: t('forum', 'Dashboard'),
         navAdminUsers: t('forum', 'Users'),
         navAdminRoles: t('forum', 'Roles'),
+        navAdminCategories: t('forum', 'Categories'),
         navExamples: t('forum', 'Examples'),
         navAbout: t('forum', 'About'),
       },

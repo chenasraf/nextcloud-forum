@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -22,6 +23,7 @@ class CatHeaderController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private CatHeaderMapper $catHeaderMapper,
+		private CategoryMapper $categoryMapper,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -139,17 +141,46 @@ class CatHeaderController extends OCSController {
 	 * Delete a category header
 	 *
 	 * @param int $id Category header ID
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 * @param int|null $migrateToHeaderId Header ID to migrate categories to (null to delete categories)
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, categoriesAffected?: int}, array{}>
 	 *
 	 * 200: Category header deleted
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'DELETE', url: '/api/headers/{id}')]
-	public function destroy(int $id): DataResponse {
+	public function destroy(int $id, ?int $migrateToHeaderId = null): DataResponse {
 		try {
 			$header = $this->catHeaderMapper->find($id);
+
+			$categoriesAffected = 0;
+
+			// Handle categories migration or deletion
+			if ($migrateToHeaderId !== null) {
+				// Verify target header exists
+				try {
+					$this->catHeaderMapper->find($migrateToHeaderId);
+				} catch (DoesNotExistException $e) {
+					return new DataResponse(['error' => 'Target header not found'], Http::STATUS_NOT_FOUND);
+				}
+
+				// Move categories to the target header
+				$categoriesAffected = $this->categoryMapper->moveToHeaderId($id, $migrateToHeaderId);
+			} else {
+				// Delete all categories in this header (cascade will handle threads)
+				$categories = $this->categoryMapper->findByHeaderId($id);
+				foreach ($categories as $category) {
+					$this->categoryMapper->delete($category);
+				}
+				$categoriesAffected = count($categories);
+			}
+
+			// Delete the header
 			$this->catHeaderMapper->delete($header);
-			return new DataResponse(['success' => true]);
+
+			return new DataResponse([
+				'success' => true,
+				'categoriesAffected' => $categoriesAffected,
+			]);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Category header not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

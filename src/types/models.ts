@@ -93,6 +93,9 @@ export interface Role {
   id: number
   name: string
   description: string | null
+  canAccessAdminTools: boolean
+  canEditRoles: boolean
+  canEditCategories: boolean
   createdAt: number
 }
 
@@ -122,6 +125,7 @@ export interface Attachment {
 export interface CatHeader {
   id: number
   name: string
+  description: string | null
   sortOrder: number
   createdAt: number
 }

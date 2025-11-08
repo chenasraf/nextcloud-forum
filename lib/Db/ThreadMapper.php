@@ -115,4 +115,43 @@ class ThreadMapper extends QBMapper {
 		$result->closeCursor();
 		return (int)($row['count'] ?? 0);
 	}
+
+	/**
+	 * Move all threads from one category to another
+	 */
+	public function moveToCategoryId(int $fromCategoryId, int $toCategoryId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update($this->getTableName())
+			->set('category_id', $qb->createNamedParameter($toCategoryId, IQueryBuilder::PARAM_INT))
+			->set('updated_at', $qb->createNamedParameter(time(), IQueryBuilder::PARAM_INT))
+			->where($qb->expr()->eq('category_id', $qb->createNamedParameter($fromCategoryId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
+
+	/**
+	 * Soft delete all threads in a category (set is_hidden = true)
+	 */
+	public function softDeleteByCategoryId(int $categoryId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update($this->getTableName())
+			->set('is_hidden', $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL))
+			->set('updated_at', $qb->createNamedParameter(time(), IQueryBuilder::PARAM_INT))
+			->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
+
+	/**
+	 * Count threads in a category
+	 */
+	public function countByCategoryId(int $categoryId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['count'] ?? 0);
+	}
 }

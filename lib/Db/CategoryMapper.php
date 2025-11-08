@@ -174,4 +174,20 @@ class CategoryMapper extends QBMapper {
 		$result->closeCursor();
 		return (int)($row['count'] ?? 0);
 	}
+
+	/**
+	 * Move all categories from one header to another
+	 *
+	 * @param int $fromHeaderId Source header ID
+	 * @param int $toHeaderId Target header ID
+	 * @return int Number of categories moved
+	 */
+	public function moveToHeaderId(int $fromHeaderId, int $toHeaderId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update($this->getTableName())
+			->set('header_id', $qb->createNamedParameter($toHeaderId, IQueryBuilder::PARAM_INT))
+			->set('updated_at', $qb->createNamedParameter(time(), IQueryBuilder::PARAM_INT))
+			->where($qb->expr()->eq('header_id', $qb->createNamedParameter($fromHeaderId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
 }

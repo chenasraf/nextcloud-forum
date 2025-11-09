@@ -46,11 +46,7 @@
     </div>
 
     <!-- Reactions -->
-    <PostReactions
-      :post-id="post.id"
-      :reactions="post.reactions || []"
-      @update="handleReactionsUpdate"
-    />
+    <PostReactions :post-id="post.id" :reactions="post.reactions || []" @update="handleReactionsUpdate" />
   </div>
 </template>
 
@@ -140,7 +136,7 @@ export default defineComponent({
 
   &.first-post {
     background: var(--color-background-hover);
-    border-left: 3px solid var(--color-primary-element);
+    border-left: 4px solid var(--color-primary-element);
   }
 
   &:hover {
@@ -217,6 +213,11 @@ export default defineComponent({
     font-size: 0.95rem;
     word-wrap: break-word;
     overflow-wrap: break-word;
+
+    :deep(em) {
+      font-style: italic;
+      color: inherit;
+    }
 
     :deep(br) {
       line-height: 1.6;

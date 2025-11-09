@@ -9,6 +9,8 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\CategoryPerm;
+use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -26,6 +28,7 @@ class CategoryController extends OCSController {
 		IRequest $request,
 		private CatHeaderMapper $catHeaderMapper,
 		private CategoryMapper $categoryMapper,
+		private CategoryPermMapper $categoryPermMapper,
 		private ThreadMapper $threadMapper,
 		private LoggerInterface $logger,
 	) {
@@ -286,6 +289,68 @@ class CategoryController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error deleting category: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to delete category'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Get permissions for a category
+	 *
+	 * @param int $id Category ID
+	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
+	 *
+	 * 200: Permissions returned
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
+	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}/permissions')]
+	public function getPermissions(int $id): DataResponse {
+		try {
+			$permissions = $this->categoryPermMapper->findByCategoryId($id);
+			return new DataResponse(array_map(fn ($perm) => $perm->jsonSerialize(), $permissions));
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching category permissions: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch permissions'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Update permissions for a category
+	 *
+	 * @param int $id Category ID
+	 * @param list<array{roleId: int, canView: bool, canModerate: bool}> $permissions Permissions array
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 *
+	 * 200: Permissions updated
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
+	#[ApiRoute(verb: 'POST', url: '/api/categories/{id}/permissions')]
+	public function updatePermissions(int $id, array $permissions): DataResponse {
+		try {
+			// Verify category exists
+			$this->categoryMapper->find($id);
+
+			// Delete existing permissions for this category
+			$this->categoryPermMapper->deleteByCategoryId($id);
+
+			// Insert new permissions
+			foreach ($permissions as $perm) {
+				$categoryPerm = new CategoryPerm();
+				$categoryPerm->setCategoryId($id);
+				$categoryPerm->setRoleId($perm['roleId']);
+				$categoryPerm->setCanView($perm['canView'] ?? false);
+				$categoryPerm->setCanPost($perm['canView'] ?? false); // Default: can post if can view
+				$categoryPerm->setCanReply($perm['canView'] ?? false); // Default: can reply if can view
+				$categoryPerm->setCanModerate($perm['canModerate'] ?? false);
+				$this->categoryPermMapper->insert($categoryPerm);
+			}
+
+			return new DataResponse(['success' => true]);
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Category not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error updating category permissions: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to update permissions'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 }

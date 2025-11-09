@@ -99,6 +99,44 @@
         </div>
       </section>
 
+      <!-- Permissions Section -->
+      <section class="form-section">
+        <h3>{{ strings.permissions }}</h3>
+        <p class="muted">{{ strings.permissionsDescription }}</p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>{{ strings.viewRoles }}</label>
+            <NcSelect
+              v-model="selectedViewRoles"
+              :options="roleOptions"
+              :placeholder="strings.selectRoles"
+              label="label"
+              track-by="id"
+              :multiple="true"
+              :taggable="false"
+              :close-on-select="false"
+            />
+            <p class="help-text muted">{{ strings.viewRolesHelp }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>{{ strings.moderateRoles }}</label>
+            <NcSelect
+              v-model="selectedModerateRoles"
+              :options="roleOptions"
+              :placeholder="strings.selectRoles"
+              label="label"
+              track-by="id"
+              :multiple="true"
+              :taggable="false"
+              :close-on-select="false"
+            />
+            <p class="help-text muted">{{ strings.moderateRolesHelp }}</p>
+          </div>
+        </div>
+      </section>
+
       <!-- Actions -->
       <div class="form-actions">
         <NcButton @click="goBack">{{ strings.cancel }}</NcButton>
@@ -180,7 +218,7 @@ import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
-import type { Category, CatHeader } from '@/types'
+import type { Category, CatHeader, Role } from '@/types'
 
 export default defineComponent({
   name: 'AdminCategoryEdit',
@@ -202,7 +240,10 @@ export default defineComponent({
       submitting: false,
       error: null as string | null,
       headers: [] as CatHeader[],
+      roles: [] as Role[],
       selectedHeader: null as { id: number; label: string } | null,
+      selectedViewRoles: [] as Array<{ id: number; label: string }>,
+      selectedModerateRoles: [] as Array<{ id: number; label: string }>,
       formData: {
         headerId: null as number | null,
         name: '',
@@ -253,6 +294,13 @@ export default defineComponent({
         headerDescription: t('forum', 'Header Description'),
         headerDescriptionPlaceholder: t('forum', 'Enter header description (optional)'),
         headerSortOrder: t('forum', 'Sort Order'),
+        permissions: t('forum', 'Permissions'),
+        permissionsDescription: t('forum', 'Control which roles can access and moderate this category'),
+        viewRoles: t('forum', 'Roles that can view'),
+        viewRolesHelp: t('forum', 'Select roles that can view this category and its threads'),
+        moderateRoles: t('forum', 'Roles that can moderate'),
+        moderateRolesHelp: t('forum', 'Select roles that can moderate (edit/delete) content in this category'),
+        selectRoles: t('forum', 'Select roles...'),
       },
     }
   },
@@ -276,6 +324,12 @@ export default defineComponent({
         label: header.name,
       }))
     },
+    roleOptions(): Array<{ id: number; label: string }> {
+      return this.roles.map((role) => ({
+        id: role.id,
+        label: role.name,
+      }))
+    },
   },
   watch: {
     selectedHeader(newVal: { id: number; label: string } | null) {
@@ -295,9 +349,14 @@ export default defineComponent({
         const headersResponse = await ocs.get<CatHeader[]>('/headers')
         this.headers = headersResponse.data || []
 
-        // If editing, load category data
+        // Load roles
+        const rolesResponse = await ocs.get<Role[]>('/roles')
+        this.roles = rolesResponse.data || []
+
+        // If editing, load category data and permissions
         if (this.isEditing && this.categoryId) {
           await this.loadCategory()
+          await this.loadPermissions()
         }
       } catch (e) {
         console.error('Failed to load category', e)
@@ -329,6 +388,46 @@ export default defineComponent({
       }
     },
 
+    async loadPermissions(): Promise<void> {
+      if (!this.categoryId) return
+
+      try {
+        const permsResponse = await ocs.get<Array<{
+          id: number
+          categoryId: number
+          roleId: number
+          canView: boolean
+          canModerate: boolean
+        }>>(`/categories/${this.categoryId}/permissions`)
+
+        const perms = permsResponse.data || []
+
+        // Map permissions to role selections
+        const viewRoleIds = new Set<number>()
+        const moderateRoleIds = new Set<number>()
+
+        perms.forEach((perm) => {
+          if (perm.canView) {
+            viewRoleIds.add(perm.roleId)
+          }
+          if (perm.canModerate) {
+            moderateRoleIds.add(perm.roleId)
+          }
+        })
+
+        // Set selected roles
+        this.selectedViewRoles = this.roles
+          .filter((role) => viewRoleIds.has(role.id))
+          .map((role) => ({ id: role.id, label: role.name }))
+
+        this.selectedModerateRoles = this.roles
+          .filter((role) => moderateRoleIds.has(role.id))
+          .map((role) => ({ id: role.id, label: role.name }))
+      } catch (e) {
+        console.error('Failed to load category permissions', e)
+      }
+    },
+
     async submitForm(): Promise<void> {
       if (!this.canSubmit) return
 
@@ -343,13 +442,20 @@ export default defineComponent({
           sortOrder: this.formData.sortOrder,
         }
 
+        let categoryId: number
+
         if (this.isEditing && this.categoryId !== null) {
           // Update existing category
           await ocs.put(`/categories/${this.categoryId}`, categoryData)
+          categoryId = this.categoryId
         } else {
           // Create new category
-          await ocs.post('/categories', categoryData)
+          const response = await ocs.post<Category>('/categories', categoryData)
+          categoryId = response.data.id
         }
+
+        // Update permissions
+        await this.updatePermissions(categoryId)
 
         // Navigate back to category list
         this.$router.push('/admin/categories')
@@ -359,6 +465,27 @@ export default defineComponent({
       } finally {
         this.submitting = false
       }
+    },
+
+    async updatePermissions(categoryId: number): Promise<void> {
+      // Build permissions array combining view and moderate roles
+      const allRoleIds = new Set<number>()
+      const viewRoleIds = new Set(this.selectedViewRoles.map((r) => r.id))
+      const moderateRoleIds = new Set(this.selectedModerateRoles.map((r) => r.id))
+
+      // Add all selected role IDs to the set
+      this.selectedViewRoles.forEach((r) => allRoleIds.add(r.id))
+      this.selectedModerateRoles.forEach((r) => allRoleIds.add(r.id))
+
+      const permissionsData = Array.from(allRoleIds).map((roleId) => ({
+        roleId,
+        canView: viewRoleIds.has(roleId),
+        canModerate: moderateRoleIds.has(roleId),
+      }))
+
+      await ocs.post(`/categories/${categoryId}/permissions`, {
+        permissions: permissionsData,
+      })
     },
 
     goBack(): void {

@@ -78,11 +78,46 @@ export default defineComponent({
   },
   computed: {
     // All emojis to show: default emojis + custom emojis that have been used
+    // Sorted by count (descending), with default emoji order preserved for equal counts
     allVisibleEmojis(): string[] {
       const customEmojis = this.reactionGroups
         .map((g) => g.emoji)
         .filter((emoji) => !this.defaultEmojis.includes(emoji))
-      return [...this.defaultEmojis, ...customEmojis]
+
+      const allEmojis = [...this.defaultEmojis, ...customEmojis]
+
+      // Sort by count (descending), preserving default order for equal counts
+      return allEmojis.sort((a, b) => {
+        const countA = this.getCount(a)
+        const countB = this.getCount(b)
+
+        // If counts differ, sort by count (descending)
+        if (countA !== countB) {
+          return countB - countA
+        }
+
+        // If counts are equal, preserve default emoji order
+        const indexA = this.defaultEmojis.indexOf(a)
+        const indexB = this.defaultEmojis.indexOf(b)
+
+        // Both are default emojis - use their default order
+        if (indexA !== -1 && indexB !== -1) {
+          return indexA - indexB
+        }
+
+        // A is default, B is custom - default comes first
+        if (indexA !== -1) {
+          return -1
+        }
+
+        // B is default, A is custom - default comes first
+        if (indexB !== -1) {
+          return 1
+        }
+
+        // Both are custom - maintain current order (stable sort)
+        return 0
+      })
     },
   },
   watch: {

@@ -283,12 +283,37 @@ export default defineComponent({
     },
 
     async handleDelete(post: Post): Promise<void> {
-      console.log('Delete post:', post.id)
-      // TODO: Implement delete functionality with confirmation
-      // if (confirm(t('forum', 'Are you sure you want to delete this post?'))) {
-      //   await ocs.delete(`/posts/${post.id}`)
-      //   await this.refresh()
-      // }
+      try {
+        // If this is the first post, we're deleting the entire thread
+        const isFirstPost = this.posts.length > 0 && this.posts[0].id === post.id
+
+        if (isFirstPost) {
+          // Delete thread
+          const response = await ocs.delete<{ success: boolean; categorySlug: string }>(
+            `/threads/${this.thread!.id}`
+          )
+
+          if (response.data?.success && response.data.categorySlug) {
+            showSuccess(t('forum', 'Thread deleted successfully'))
+            // Navigate to the category
+            this.$router.push(`/c/${response.data.categorySlug}`)
+          }
+        } else {
+          // Delete post optimistically
+          await ocs.delete(`/posts/${post.id}`)
+
+          // Remove the post from the local array without refreshing
+          const index = this.posts.findIndex((p) => p.id === post.id)
+          if (index !== -1) {
+            this.posts.splice(index, 1)
+          }
+
+          showSuccess(t('forum', 'Post deleted successfully'))
+        }
+      } catch (e) {
+        console.error('Failed to delete post', e)
+        showError(t('forum', 'Failed to delete post'))
+      }
     },
 
     replyToThread(): void {

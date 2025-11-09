@@ -270,7 +270,7 @@ class PostController extends OCSController {
 	}
 
 	/**
-	 * Delete a post
+	 * Delete a post (soft delete)
 	 *
 	 * @param int $id Post ID
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
@@ -278,12 +278,41 @@ class PostController extends OCSController {
 	 * 200: Post deleted
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromPostId: 'id')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/posts/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {
+			$user = $this->userSession->getUser();
+			if (!$user) {
+				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+			}
+
 			$post = $this->postMapper->find($id);
-			$this->postMapper->delete($post);
+
+			// Check if user is the author OR has moderator permission
+			$isAuthor = $post->getAuthorId() === $user->getUID();
+			$categoryId = $this->permissionService->getCategoryIdFromPost($id);
+			$isModerator = $this->permissionService->hasCategoryPermission($user->getUID(), $categoryId, 'canModerate');
+
+			if (!$isAuthor && !$isModerator) {
+				return new DataResponse(['error' => 'Insufficient permissions to delete this post'], Http::STATUS_FORBIDDEN);
+			}
+
+			// Soft delete the post
+			$post->setDeletedAt(time());
+			$post->setUpdatedAt(time());
+			$this->postMapper->update($post);
+
+			// Update thread post count
+			try {
+				$thread = $this->threadMapper->find($post->getThreadId());
+				$thread->setPostCount(max(0, $thread->getPostCount() - 1));
+				$thread->setUpdatedAt(time());
+				$this->threadMapper->update($thread);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update thread post count after post deletion: ' . $e->getMessage());
+				// Don't fail the request if thread update fails
+			}
+
 			return new DataResponse(['success' => true]);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);

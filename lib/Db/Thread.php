@@ -38,6 +38,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCreatedAt(int $value)
  * @method int getUpdatedAt()
  * @method void setUpdatedAt(int $value)
+ * @method int|null getDeletedAt()
+ * @method void setDeletedAt(?int $value)
  */
 class Thread extends Entity implements JsonSerializable {
 	protected $categoryId;
@@ -52,6 +54,7 @@ class Thread extends Entity implements JsonSerializable {
 	protected $isHidden;
 	protected $createdAt;
 	protected $updatedAt;
+	protected $deletedAt;
 
 	public function __construct() {
 		$this->addType('id', 'integer');
@@ -67,6 +70,7 @@ class Thread extends Entity implements JsonSerializable {
 		$this->addType('isHidden', 'boolean');
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
+		$this->addType('deletedAt', 'integer');
 	}
 
 	public function jsonSerialize(): array {

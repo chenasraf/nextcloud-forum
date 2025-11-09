@@ -4399,7 +4399,7 @@
             },
             "delete": {
                 "operationId": "post-destroy",
-                "summary": "Delete a post",
+                "summary": "Delete a post (soft delete)",
                 "tags": [
                     "post"
                 ],
@@ -7224,7 +7224,7 @@
             },
             "delete": {
                 "operationId": "thread-destroy",
-                "summary": "Delete a thread",
+                "summary": "Delete a thread (soft delete)",
                 "tags": [
                     "thread"
                 ],
@@ -7282,11 +7282,15 @@
                                                 "data": {
                                                     "type": "object",
                                                     "required": [
-                                                        "success"
+                                                        "success",
+                                                        "categorySlug"
                                                     ],
                                                     "properties": {
                                                         "success": {
                                                             "type": "boolean"
+                                                        },
+                                                        "categorySlug": {
+                                                            "type": "string"
                                                         }
                                                     }
                                                 }

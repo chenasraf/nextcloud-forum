@@ -374,6 +374,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'notnull' => true,
 			'unsigned' => true,
 		]);
+		$table->addColumn('deleted_at', 'integer', [
+			'notnull' => false,
+			'unsigned' => true,
+			'default' => null,
+		]);
 		$table->setPrimaryKey(['id']);
 		$table->addUniqueIndex(['slug'], 'forum_threads_slug_idx');
 		$table->addIndex(['category_id'], 'forum_threads_category_id_idx');
@@ -423,6 +428,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addColumn('updated_at', 'integer', [
 			'notnull' => true,
 			'unsigned' => true,
+		]);
+		$table->addColumn('deleted_at', 'integer', [
+			'notnull' => false,
+			'unsigned' => true,
+			'default' => null,
 		]);
 		$table->setPrimaryKey(['id']);
 		$table->addUniqueIndex(['slug'], 'forum_posts_slug_idx');

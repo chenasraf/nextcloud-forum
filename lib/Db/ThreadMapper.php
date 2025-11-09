@@ -35,6 +35,9 @@ class ThreadMapper extends QBMapper {
 			->where(
 				$qb->expr()
 					->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT))
+			)
+			->andWhere(
+				$qb->expr()->isNull('deleted_at')
 			);
 		return $this->findEntity($qb);
 	}
@@ -51,6 +54,9 @@ class ThreadMapper extends QBMapper {
 			->where(
 				$qb->expr()
 					->eq('slug', $qb->createNamedParameter($slug, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->isNull('deleted_at')
 			);
 		return $this->findEntity($qb);
 	}
@@ -69,6 +75,9 @@ class ThreadMapper extends QBMapper {
 			->andWhere(
 				$qb->expr()->eq('is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL))
 			)
+			->andWhere(
+				$qb->expr()->isNull('deleted_at')
+			)
 			->orderBy('is_pinned', 'DESC')
 			->addOrderBy('updated_at', 'DESC')
 			->setMaxResults($limit)
@@ -84,6 +93,9 @@ class ThreadMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from($this->getTableName())
+			->where(
+				$qb->expr()->isNull('deleted_at')
+			)
 			->orderBy('is_pinned', 'DESC')
 			->addOrderBy('updated_at', 'DESC');
 		return $this->findEntities($qb);
@@ -95,7 +107,10 @@ class ThreadMapper extends QBMapper {
 	public function countAll(): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select($qb->func()->count('*', 'count'))
-			->from($this->getTableName());
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->isNull('deleted_at')
+			);
 		$result = $qb->executeQuery();
 		$row = $result->fetch();
 		$result->closeCursor();
@@ -109,7 +124,10 @@ class ThreadMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select($qb->func()->count('*', 'count'))
 			->from($this->getTableName())
-			->where($qb->expr()->gte('created_at', $qb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)));
+			->where($qb->expr()->gte('created_at', $qb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)))
+			->andWhere(
+				$qb->expr()->isNull('deleted_at')
+			);
 		$result = $qb->executeQuery();
 		$row = $result->fetch();
 		$result->closeCursor();
@@ -148,7 +166,10 @@ class ThreadMapper extends QBMapper {
 		$qb->select($qb->func()->count('*', 'count'))
 			->from($this->getTableName())
 			->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT)))
-			->andWhere($qb->expr()->eq('is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
+			->andWhere($qb->expr()->eq('is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere(
+				$qb->expr()->isNull('deleted_at')
+			);
 		$result = $qb->executeQuery();
 		$row = $result->fetch();
 		$result->closeCursor();

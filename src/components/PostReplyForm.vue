@@ -26,7 +26,7 @@
             {{ strings.cancel }}
           </NcButton>
           <NcButton @click="submitReply" :disabled="!canSubmit || submitting">
-            <template v-if="submitting">
+            <template v-if="submitting" #icon>
               <NcLoadingIcon :size="20" />
             </template>
             {{ strings.submit }}

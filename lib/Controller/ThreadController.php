@@ -275,10 +275,10 @@ class ThreadController extends OCSController {
 	}
 
 	/**
-	 * Delete a thread
+	 * Delete a thread (soft delete)
 	 *
 	 * @param int $id Thread ID
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, categorySlug: string}, array{}>
 	 *
 	 * 200: Thread deleted
 	 */
@@ -288,8 +288,30 @@ class ThreadController extends OCSController {
 	public function destroy(int $id): DataResponse {
 		try {
 			$thread = $this->threadMapper->find($id);
-			$this->threadMapper->delete($thread);
-			return new DataResponse(['success' => true]);
+
+			// Get category for slug and count updates
+			$category = $this->categoryMapper->find($thread->getCategoryId());
+			$categorySlug = $category->getSlug();
+
+			// Soft delete the thread
+			$thread->setDeletedAt(time());
+			$thread->setUpdatedAt(time());
+			$this->threadMapper->update($thread);
+
+			// Update category counts (decrement thread count and post count)
+			try {
+				$category->setThreadCount(max(0, $category->getThreadCount() - 1));
+				$category->setPostCount(max(0, $category->getPostCount() - $thread->getPostCount()));
+				$this->categoryMapper->update($category);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update category counts after thread deletion: ' . $e->getMessage());
+				// Don't fail the request if category update fails
+			}
+
+			return new DataResponse([
+				'success' => true,
+				'categorySlug' => $categorySlug,
+			]);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

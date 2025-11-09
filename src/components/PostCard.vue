@@ -18,20 +18,20 @@
         </div>
       </div>
       <div class="post-actions">
-        <NcActions>
-          <NcActionButton @click="$emit('reply', post)">
+        <NcActions ref="actionsMenu">
+          <NcActionButton @click="handleReply">
             <template #icon>
               <ReplyIcon :size="20" />
             </template>
             {{ strings.reply }}
           </NcActionButton>
-          <NcActionButton v-if="canEdit" @click="startEdit">
+          <NcActionButton v-if="canEdit" @click="handleEditClick">
             <template #icon>
               <PencilIcon :size="20" />
             </template>
             {{ strings.edit }}
           </NcActionButton>
-          <NcActionButton v-if="canDelete" @click="$emit('delete', post)">
+          <NcActionButton v-if="canDelete" @click="handleDelete">
             <template #icon>
               <DeleteIcon :size="20" />
             </template>
@@ -104,6 +104,7 @@ export default defineComponent({
         reply: t('forum', 'Reply'),
         edit: t('forum', 'Edit'),
         delete: t('forum', 'Delete'),
+        confirmDelete: t('forum', 'Are you sure you want to delete this post? This action cannot be undone.'),
       },
     }
   },
@@ -125,6 +126,35 @@ export default defineComponent({
     },
   },
   methods: {
+    closeActionsMenu() {
+      const menu = this.$refs.actionsMenu as any
+      if (menu && typeof menu.closeMenu === 'function') {
+        menu.closeMenu()
+      }
+    },
+
+    handleReply() {
+      this.closeActionsMenu()
+      this.$emit('reply', this.post)
+    },
+
+    handleEditClick() {
+      this.closeActionsMenu()
+      this.startEdit()
+    },
+
+    handleDelete() {
+      this.closeActionsMenu()
+
+      // Confirm deletion
+      // eslint-disable-next-line no-alert
+      if (!confirm(this.strings.confirmDelete)) {
+        return
+      }
+
+      this.$emit('delete', this.post)
+    },
+
     handleReactionsUpdate(reactions: ReactionGroup[]) {
       // Update the post's reactions locally
       if (this.post.reactions !== undefined) {

@@ -19,6 +19,7 @@ use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\BBCodeService;
+use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -36,6 +37,7 @@ class PostControllerTest extends TestCase {
 	private ReactionMapper $reactionMapper;
 	private BBCodeService $bbCodeService;
 	private BBCodeMapper $bbCodeMapper;
+	private PermissionService $permissionService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -49,6 +51,7 @@ class PostControllerTest extends TestCase {
 		$this->reactionMapper = $this->createMock(ReactionMapper::class);
 		$this->bbCodeService = $this->createMock(BBCodeService::class);
 		$this->bbCodeMapper = $this->createMock(BBCodeMapper::class);
+		$this->permissionService = $this->createMock(PermissionService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -62,6 +65,7 @@ class PostControllerTest extends TestCase {
 			$this->reactionMapper,
 			$this->bbCodeService,
 			$this->bbCodeMapper,
+			$this->permissionService,
 			$this->userSession,
 			$this->logger
 		);
@@ -283,10 +287,27 @@ class PostControllerTest extends TestCase {
 		$this->assertEquals(['error' => 'User not registered in forum'], $response->getData());
 	}
 
-	public function testUpdatePostSuccessfully(): void {
+	public function testUpdatePostSuccessfullyAsAuthor(): void {
 		$postId = 1;
+		$userId = 'user1';
 		$newContent = 'Updated content';
-		$post = $this->createMockPost($postId, 1, 'user1', 'Original content');
+		$post = $this->createMockPost($postId, 1, $userId, 'Original content');
+
+		// Mock user (author)
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock permission service
+		$this->permissionService->expects($this->once())
+			->method('getCategoryIdFromPost')
+			->with($postId)
+			->willReturn(1);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, 1, 'canModerate')
+			->willReturn(false); // User is not a moderator, but is the author
 
 		$this->postMapper->expects($this->once())
 			->method('find')
@@ -295,7 +316,10 @@ class PostControllerTest extends TestCase {
 
 		$this->postMapper->expects($this->once())
 			->method('update')
-			->willReturnCallback(function ($updatedPost) {
+			->willReturnCallback(function ($updatedPost) use ($newContent) {
+				$this->assertEquals($newContent, $updatedPost->getContent());
+				$this->assertTrue($updatedPost->getIsEdited());
+				$this->assertNotNull($updatedPost->getEditedAt());
 				return $updatedPost;
 			});
 
@@ -306,9 +330,105 @@ class PostControllerTest extends TestCase {
 		$this->assertEquals($postId, $data['id']);
 	}
 
+	public function testUpdatePostSuccessfullyAsModerator(): void {
+		$postId = 1;
+		$userId = 'moderator1';
+		$postAuthorId = 'user1';
+		$newContent = 'Updated content';
+		$post = $this->createMockPost($postId, 1, $postAuthorId, 'Original content');
+
+		// Mock user (moderator, not author)
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock permission service
+		$this->permissionService->expects($this->once())
+			->method('getCategoryIdFromPost')
+			->with($postId)
+			->willReturn(1);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, 1, 'canModerate')
+			->willReturn(true); // User is a moderator
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->with($postId)
+			->willReturn($post);
+
+		$this->postMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedPost) use ($newContent) {
+				$this->assertEquals($newContent, $updatedPost->getContent());
+				$this->assertTrue($updatedPost->getIsEdited());
+				$this->assertNotNull($updatedPost->getEditedAt());
+				return $updatedPost;
+			});
+
+		$response = $this->controller->update($postId, $newContent);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($postId, $data['id']);
+	}
+
+	public function testUpdatePostReturnsForbiddenWhenNotAuthorOrModerator(): void {
+		$postId = 1;
+		$userId = 'user2';
+		$postAuthorId = 'user1';
+		$newContent = 'Updated content';
+		$post = $this->createMockPost($postId, 1, $postAuthorId, 'Original content');
+
+		// Mock user (not author, not moderator)
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock permission service
+		$this->permissionService->expects($this->once())
+			->method('getCategoryIdFromPost')
+			->with($postId)
+			->willReturn(1);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, 1, 'canModerate')
+			->willReturn(false); // User is neither author nor moderator
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->with($postId)
+			->willReturn($post);
+
+		$response = $this->controller->update($postId, $newContent);
+
+		$this->assertEquals(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertEquals(['error' => 'Insufficient permissions to edit this post'], $response->getData());
+	}
+
+	public function testUpdatePostReturnsUnauthorizedWhenUserNotAuthenticated(): void {
+		$postId = 1;
+		$newContent = 'Updated content';
+
+		$this->userSession->method('getUser')->willReturn(null);
+
+		$response = $this->controller->update($postId, $newContent);
+
+		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
+	}
+
 	public function testUpdatePostReturnsNotFoundWhenPostDoesNotExist(): void {
 		$postId = 999;
+		$userId = 'user1';
 		$newContent = 'Updated content';
+
+		// Mock user
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
 
 		$this->postMapper->expects($this->once())
 			->method('find')

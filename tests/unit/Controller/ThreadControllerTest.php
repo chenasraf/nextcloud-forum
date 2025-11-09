@@ -160,7 +160,6 @@ class ThreadControllerTest extends TestCase {
 	public function testCreateThreadSuccessfully(): void {
 		$categoryId = 1;
 		$title = 'New Thread';
-		$slug = 'new-thread';
 		$userId = 'user1';
 
 		$user = $this->createMock(IUser::class);
@@ -173,7 +172,12 @@ class ThreadControllerTest extends TestCase {
 		$category->setPostCount(20);
 
 		$createdThread = $this->createMockThread(1, $categoryId, $userId, $title);
-		$createdThread->setSlug($slug);
+		$createdThread->setSlug('new-thread');
+
+		// Mock findBySlug to return DoesNotExistException (slug doesn't exist yet)
+		$this->threadMapper->expects($this->once())
+			->method('findBySlug')
+			->willThrowException(new DoesNotExistException('Thread not found'));
 
 		$this->threadMapper->expects($this->once())
 			->method('insert')
@@ -194,7 +198,7 @@ class ThreadControllerTest extends TestCase {
 				return $updatedCategory;
 			});
 
-		$response = $this->controller->create($categoryId, $title, $slug);
+		$response = $this->controller->create($categoryId, $title);
 
 		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
 		$data = $response->getData();
@@ -202,17 +206,17 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals($categoryId, $data['categoryId']);
 		$this->assertEquals($userId, $data['authorId']);
 		$this->assertEquals($title, $data['title']);
-		$this->assertEquals($slug, $data['slug']);
+		$this->assertNotEmpty($data['slug']);
+		$this->assertEquals('new-thread', $data['slug']);
 	}
 
 	public function testCreateThreadReturnsUnauthorizedWhenUserNotAuthenticated(): void {
 		$categoryId = 1;
 		$title = 'New Thread';
-		$slug = 'new-thread';
 
 		$this->userSession->method('getUser')->willReturn(null);
 
-		$response = $this->controller->create($categoryId, $title, $slug);
+		$response = $this->controller->create($categoryId, $title);
 
 		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());

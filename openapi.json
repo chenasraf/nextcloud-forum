@@ -5405,7 +5405,7 @@
         "/ocs/v2.php/apps/forum/api/read-markers": {
             "get": {
                 "operationId": "read_marker-index",
-                "summary": "Get read markers for current user",
+                "summary": "Get read markers for multiple threads",
                 "tags": [
                     "read_marker"
                 ],
@@ -5419,6 +5419,15 @@
                 ],
                 "parameters": [
                     {
+                        "name": "threadIds",
+                        "in": "query",
+                        "description": "Array of thread IDs (comma-separated in query string)",
+                        "schema": {
+                            "type": "string",
+                            "default": ""
+                        }
+                    },
+                    {
                         "name": "OCS-APIRequest",
                         "in": "header",
                         "description": "Required to be true for the API request to pass",
@@ -5431,7 +5440,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Read markers returned",
+                        "description": "Read markers returned (keyed by thread ID)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -5451,11 +5460,27 @@
                                                     "$ref": "#/components/schemas/OCSMeta"
                                                 },
                                                 "data": {
-                                                    "type": "array",
-                                                    "items": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
                                                         "type": "object",
-                                                        "additionalProperties": {
-                                                            "type": "object"
+                                                        "required": [
+                                                            "threadId",
+                                                            "lastReadPostId",
+                                                            "readAt"
+                                                        ],
+                                                        "properties": {
+                                                            "threadId": {
+                                                                "type": "integer",
+                                                                "format": "int64"
+                                                            },
+                                                            "lastReadPostId": {
+                                                                "type": "integer",
+                                                                "format": "int64"
+                                                            },
+                                                            "readAt": {
+                                                                "type": "integer",
+                                                                "format": "int64"
+                                                            }
                                                         }
                                                     }
                                                 }

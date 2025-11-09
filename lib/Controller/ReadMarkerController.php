@@ -32,8 +32,8 @@ class ReadMarkerController extends OCSController {
 	/**
 	 * Get read markers for multiple threads
 	 *
-	 * @param array<int> $threadIds Array of thread IDs (comma-separated in query string)
-	 * @return DataResponse<Http::STATUS_OK, array<int, array{threadId: int, lastReadPostId: int, readAt: int}>, array{}>
+	 * @param string $threadIds Array of thread IDs (comma-separated in query string)
+	 * @return DataResponse<Http::STATUS_OK, array<string, array{threadId: int, lastReadPostId: int, readAt: int}>, array{}>
 	 *
 	 * 200: Read markers returned (keyed by thread ID)
 	 */

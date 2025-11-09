@@ -197,6 +197,93 @@ class BBCodeServiceTest extends TestCase {
 		$this->assertStringContainsString('<a href="https://example.com">Link</a>', $result2);
 	}
 
+	public function testParseWithShorthandSyntaxWhenParameterMatchesTag(): void {
+		// When parameter name matches tag name, support shorthand [color="red"]
+		$colorCode = $this->createBBCode('color', '<span style="color:{color}">{content}</span>', true, true);
+		$content = '[color="red"]Red text[/color]';
+		$expected = '<span style="color:red">Red text</span>';
+
+		$result = $this->service->parse($content, [$colorCode]);
+
+		$this->assertEquals($expected, $result);
+	}
+
+	public function testParseWithExplicitSyntaxStillWorksWhenParameterMatchesTag(): void {
+		// Explicit syntax should still work: [color color="red"]
+		$colorCode = $this->createBBCode('color', '<span style="color:{color}">{content}</span>', true, true);
+		$content = '[color color="blue"]Blue text[/color]';
+		$expected = '<span style="color:blue">Blue text</span>';
+
+		$result = $this->service->parse($content, [$colorCode]);
+
+		$this->assertEquals($expected, $result);
+	}
+
+	public function testParseShorthandDoesNotApplyWhenParameterDoesNotMatchTag(): void {
+		// If parameter doesn't match tag name, shorthand should not work
+		$urlCode = $this->createBBCode('link', '<a href="{url}">{content}</a>', true, true);
+		// This should NOT match because parameter is "url" but tag is "link"
+		$content = '[link="https://example.com"]Link[/link]';
+
+		$result = $this->service->parse($content, [$urlCode]);
+
+		// Should not be parsed because shorthand doesn't apply
+		$this->assertStringContainsString('[link=', $result);
+	}
+
+	public function testParseShorthandWithMultipleColors(): void {
+		$colorCode = $this->createBBCode('color', '<span style="color:{color}">{content}</span>', true, true);
+		$content = 'This is [color="red"]red[/color] and [color="green"]green[/color] text.';
+		$expected = 'This is <span style="color:red">red</span> and <span style="color:green">green</span> text.';
+
+		$result = $this->service->parse($content, [$colorCode]);
+
+		$this->assertEquals($expected, $result);
+	}
+
+	public function testParsePreventsCSS_InjectionInColorParameter(): void {
+		// Attempt to inject additional CSS through color parameter
+		$colorCode = $this->createBBCode('color', '<span style="color:{color}">{content}</span>', true, true);
+		$content = '[color="red;font-weight:bold"]text[/color]';
+
+		$result = $this->service->parse($content, [$colorCode]);
+
+		// Should not contain the injected font-weight style
+		$this->assertStringNotContainsString('font-weight:bold', $result);
+		// Should strip the injection and only use valid color or remove the tag entirely
+		$this->assertStringNotContainsString('style="color:red;font-weight:bold"', $result);
+	}
+
+	public function testParsePreventsJavaScriptInjectionInURLParameter(): void {
+		// Attempt to inject JavaScript through URL parameter
+		$urlCode = $this->createBBCode('url', '<a href="{url}">{content}</a>', true, true);
+		$content = '[url url="javascript:alert(\'XSS\')"]Click me[/url]';
+
+		$result = $this->service->parse($content, [$urlCode]);
+
+		// Should not contain javascript: protocol
+		$this->assertStringNotContainsString('javascript:', $result);
+	}
+
+	public function testParseAllowsValidColorValues(): void {
+		$colorCode = $this->createBBCode('color', '<span style="color:{color}">{content}</span>', true, true);
+
+		// Test various valid color formats
+		$tests = [
+			'[color="red"]text[/color]' => 'red',
+			'[color="#ff0000"]text[/color]' => '#ff0000',
+			'[color="#f00"]text[/color]' => '#f00',
+			'[color="rgb(255, 0, 0)"]text[/color]' => 'rgb(255, 0, 0)',
+			'[color="rgba(255, 0, 0, 0.5)"]text[/color]' => 'rgba(255, 0, 0, 0.5)',
+			'[color="hsl(0, 100%, 50%)"]text[/color]' => 'hsl(0, 100%, 50%)',
+		];
+
+		foreach ($tests as $input => $expectedColor) {
+			$result = $this->service->parse($input, [$colorCode]);
+			$this->assertStringContainsString("color:$expectedColor", $result, "Failed for: $input");
+		}
+	}
+
 	private function createBBCode(string $tag, string $replacement, bool $enabled, bool $parseInner): BBCode {
 		$bbCode = new BBCode();
 		$bbCode->setTag($tag);

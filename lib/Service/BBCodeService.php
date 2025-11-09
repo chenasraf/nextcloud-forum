@@ -59,13 +59,13 @@ class BBCodeService {
 
 			$escapedContent = preg_replace_callback(
 				$pattern,
-				function ($matches) use ($replacement, $params, &$protectedContent, &$placeholderIndex) {
+				function ($matches) use ($replacement, $params, $tag, &$protectedContent, &$placeholderIndex) {
 					// // Convert newlines to <br /> in the content before replacing
 					// $contentIndex = count($matches) - 1;
 					// $matches[$contentIndex] = nl2br($matches[$contentIndex]);
 
 					// Replace this BBCode but don't allow nested parsing
-					$result = $this->replaceBBCode($matches, $replacement, $params);
+					$result = $this->replaceBBCode($matches, $replacement, $params, $tag);
 
 					// Store the result and use a placeholder
 					$placeholder = "___BBCODE_PROTECTED_{$placeholderIndex}___";
@@ -87,8 +87,8 @@ class BBCodeService {
 
 			$escapedContent = preg_replace_callback(
 				$pattern,
-				function ($matches) use ($replacement, $params) {
-					return $this->replaceBBCode($matches, $replacement, $params);
+				function ($matches) use ($replacement, $params, $tag) {
+					return $this->replaceBBCode($matches, $replacement, $params, $tag);
 				},
 				$escapedContent
 			);
@@ -156,16 +156,28 @@ class BBCodeService {
 		// Build pattern to capture each parameter
 		$paramPattern = '';
 		$isFirst = true;
+		$quotePattern = '(?:&quot;|&#039;|&apos;)';
+
 		foreach ($params as $param) {
 			$escapedParam = preg_quote($param, '/');
-			// Match: param="value" or param='value' (after HTML escaping: &quot;, &#039;, or &apos;)
-			// First parameter: must be preceded by whitespace
-			// Subsequent parameters: optional and preceded by whitespace
-			$quotePattern = '(?:&quot;|&#039;|&apos;)';
+
 			if ($isFirst) {
-				$paramPattern .= '\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern;
+				// First parameter: if it matches the tag name, support shorthand [tag="value"]
+				// Otherwise require explicit [tag param="value"]
+				if ($param === $tag) {
+					// Support both [color="red"] and [color color="red"]
+					$paramPattern .= '(?:';
+					$paramPattern .= '\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern;  // Explicit
+					$paramPattern .= '|';
+					$paramPattern .= '=' . $quotePattern . '(.*?)' . $quotePattern;  // Shorthand
+					$paramPattern .= ')';
+				} else {
+					// Regular first parameter
+					$paramPattern .= '\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern;
+				}
 				$isFirst = false;
 			} else {
+				// Subsequent parameters are always optional
 				$paramPattern .= '(?:\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern . ')?';
 			}
 		}
@@ -179,9 +191,10 @@ class BBCodeService {
 	 * @param array<string> $matches Regex matches
 	 * @param string $replacement The replacement template
 	 * @param array<string> $params Array of parameter names
+	 * @param string $tag The BBCode tag name
 	 * @return string The replaced HTML
 	 */
-	private function replaceBBCode(array $matches, string $replacement, array $params): string {
+	private function replaceBBCode(array $matches, string $replacement, array $params, string $tag): string {
 		// The content is always the last match
 		$content = end($matches);
 
@@ -192,12 +205,87 @@ class BBCodeService {
 		$result = str_replace('{content}', $content, $result);
 
 		// Replace parameter placeholders with their values
-		foreach ($params as $index => $param) {
-			// Parameter values are in matches starting from index 1
-			$value = $matches[$index + 1] ?? '';
+		$matchIndex = 1;
+		foreach ($params as $paramIndex => $param) {
+			$value = '';
+
+			// First parameter might have shorthand syntax (two capture groups)
+			if ($paramIndex === 0 && $param === $tag) {
+				// Check both capture groups (explicit and shorthand)
+				$value = ($matches[$matchIndex] ?? '') ?: ($matches[$matchIndex + 1] ?? '');
+				$matchIndex += 2; // Skip both capture groups
+			} else {
+				// Regular parameter
+				$value = $matches[$matchIndex] ?? '';
+				$matchIndex++;
+			}
+
+			// Sanitize the parameter value to prevent injection attacks
+			$value = $this->sanitizeParameterValue($param, $value);
+
 			$result = str_replace('{' . $param . '}', $value, $result);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Sanitize a parameter value to prevent XSS/injection attacks
+	 *
+	 * @param string $paramName The parameter name
+	 * @param string $value The parameter value
+	 * @return string The sanitized value (empty string if invalid)
+	 */
+	private function sanitizeParameterValue(string $paramName, string $value): string {
+		// Trim whitespace
+		$value = trim($value);
+
+		// Parameter-specific validation
+		switch ($paramName) {
+			case 'color':
+				// Validate color values - only allow valid CSS colors
+				// Hex colors: #RGB or #RRGGBB
+				if (preg_match('/^#[0-9a-fA-F]{3}$/', $value) || preg_match('/^#[0-9a-fA-F]{6}$/', $value)) {
+					return $value;
+				}
+				// Named colors (basic validation - alphanumeric only)
+				if (preg_match('/^[a-z]+$/i', $value)) {
+					return $value;
+				}
+				// RGB/RGBA: rgb(r, g, b) or rgba(r, g, b, a)
+				if (preg_match('/^rgba?\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)$/i', $value)) {
+					return $value;
+				}
+				// HSL/HSLA: hsl(h, s%, l%) or hsla(h, s%, l%, a)
+				if (preg_match('/^hsla?\s*\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*[\d.]+\s*)?\)$/i', $value)) {
+					return $value;
+				}
+				// Invalid color - return empty to remove the attribute
+				return '';
+
+			case 'url':
+			case 'href':
+			case 'src':
+				// Block dangerous protocols
+				$dangerousProtocols = ['javascript:', 'data:', 'vbscript:', 'file:', 'about:'];
+				foreach ($dangerousProtocols as $protocol) {
+					if (stripos($value, $protocol) === 0) {
+						return ''; // Invalid URL - return empty
+					}
+				}
+				// Only allow http://, https://, //, or relative paths
+				if (preg_match('/^(https?:\/\/|\/\/|\/|[a-z0-9.-]+)/i', $value)) {
+					return $value;
+				}
+				return '';
+
+			default:
+				// For unknown parameters, strip any characters that could break out of HTML attributes
+				// Remove quotes, angle brackets, and other dangerous characters
+				$value = str_replace(['"', "'", '<', '>', '`', '\\'], '', $value);
+				// Also remove semicolons to prevent CSS injection in style attributes
+				$value = str_replace(';', '', $value);
+				return $value;
+		}
 	}
 }

@@ -5,7 +5,12 @@
 
     <div class="edit-footer">
       <div class="edit-footer-left">
-        <span class="hint">{{ strings.hint }}</span>
+        <NcButton type="tertiary" @click="showHelp = true">
+          <template #icon>
+            <HelpCircleIcon :size="20" />
+          </template>
+          {{ strings.help }}
+        </NcButton>
       </div>
       <div class="edit-footer-right">
         <NcButton @click="cancel" :disabled="submitting">
@@ -19,6 +24,9 @@
         </NcButton>
       </div>
     </div>
+
+    <!-- BBCode Help Dialog -->
+    <BBCodeHelpDialog v-model:open="showHelp" />
   </div>
 </template>
 
@@ -27,6 +35,8 @@ import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
+import HelpCircleIcon from '@icons/HelpCircle.vue'
+import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
 import { t } from '@nextcloud/l10n'
 
 export default defineComponent({
@@ -35,6 +45,8 @@ export default defineComponent({
     NcButton,
     NcLoadingIcon,
     NcTextArea,
+    HelpCircleIcon,
+    BBCodeHelpDialog,
   },
   props: {
     initialContent: {
@@ -47,12 +59,13 @@ export default defineComponent({
     return {
       content: this.initialContent,
       submitting: false,
+      showHelp: false,
       strings: {
         placeholder: t('forum', 'Edit your post...'),
-        hint: t('forum', 'Ctrl+Enter to save'),
         cancel: t('forum', 'Cancel'),
         save: t('forum', 'Save'),
         confirmCancel: t('forum', 'Are you sure you want to discard your changes?'),
+        help: t('forum', 'BBCode Help'),
       },
     }
   },

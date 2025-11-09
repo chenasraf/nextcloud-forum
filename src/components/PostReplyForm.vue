@@ -14,7 +14,12 @@
 
       <div class="reply-footer">
         <div class="reply-footer-left">
-          <span class="hint">{{ strings.hint }}</span>
+          <NcButton type="tertiary" @click="showHelp = true">
+            <template #icon>
+              <HelpCircleIcon :size="20" />
+            </template>
+            {{ strings.help }}
+          </NcButton>
         </div>
         <div class="reply-footer-right">
           <NcButton @click="cancel" :disabled="submitting || !hasContent">
@@ -29,6 +34,9 @@
         </div>
       </div>
     </div>
+
+    <!-- BBCode Help Dialog -->
+    <BBCodeHelpDialog v-model:open="showHelp" />
   </div>
 </template>
 
@@ -38,6 +46,8 @@ import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
+import HelpCircleIcon from '@icons/HelpCircle.vue'
+import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 
@@ -48,6 +58,8 @@ export default defineComponent({
     NcButton,
     NcLoadingIcon,
     NcTextArea,
+    HelpCircleIcon,
+    BBCodeHelpDialog,
   },
   emits: ['submit', 'cancel'],
   setup() {
@@ -62,12 +74,13 @@ export default defineComponent({
     return {
       content: '',
       submitting: false,
+      showHelp: false,
       strings: {
         placeholder: t('forum', 'Write your reply...'),
-        hint: t('forum', 'Ctrl+Enter to submit'),
         cancel: t('forum', 'Cancel'),
         submit: t('forum', 'Post Reply'),
         confirmCancel: t('forum', 'Are you sure you want to discard your reply?'),
+        help: t('forum', 'BBCode Help'),
       },
     }
   },

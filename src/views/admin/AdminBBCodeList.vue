@@ -6,6 +6,12 @@
         <p class="muted">{{ strings.subtitle }}</p>
       </div>
       <div class="header-actions">
+        <NcButton @click="showHelp = true">
+          <template #icon>
+            <HelpCircleIcon :size="20" />
+          </template>
+          {{ strings.help }}
+        </NcButton>
         <NcButton type="primary" @click="createBBCode">
           <template #icon>
             <PlusIcon :size="20" />
@@ -14,6 +20,9 @@
         </NcButton>
       </div>
     </div>
+
+    <!-- BBCode Help Dialog -->
+    <BBCodeHelpDialog v-model:open="showHelp" :show-custom="false" />
 
     <!-- Loading state -->
     <div v-if="loading" class="center mt-16">
@@ -233,6 +242,8 @@ import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import EyeIcon from '@icons/Eye.vue'
 import EyeOffIcon from '@icons/EyeOff.vue'
+import HelpCircleIcon from '@icons/HelpCircle.vue'
+import BBCodeHelpDialog from '@/components/BBCodeHelpDialog.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 
@@ -261,12 +272,15 @@ export default defineComponent({
     DeleteIcon,
     EyeIcon,
     EyeOffIcon,
+    HelpCircleIcon,
+    BBCodeHelpDialog,
   },
   data() {
     return {
       loading: false,
       error: null as string | null,
       bbcodes: [] as BBCode[],
+      showHelp: false,
       deleteDialog: {
         show: false,
         bbcode: null as BBCode | null,
@@ -286,6 +300,7 @@ export default defineComponent({
       strings: {
         title: t('forum', 'BBCode Management'),
         subtitle: t('forum', 'Manage custom BBCode tags for post formatting'),
+        help: t('forum', 'BBCode Help'),
         loading: t('forum', 'Loading…'),
         errorTitle: t('forum', 'Error loading BBCodes'),
         retry: t('forum', 'Retry'),

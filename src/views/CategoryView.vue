@@ -57,6 +57,7 @@
           v-for="thread in sortedThreads"
           :key="thread.id"
           :thread="thread"
+          :is-unread="isThreadUnread(thread)"
           @click="navigateToThread(thread)"
         />
       </div>
@@ -92,6 +93,7 @@ export default defineComponent({
       loading: false,
       category: null as Category | null,
       threads: [] as Thread[],
+      readMarkers: {} as Record<number, { lastReadPostId: number; readAt: number }>,
       error: null as string | null,
       limit: 50,
       offset: 0,
@@ -142,6 +144,8 @@ export default defineComponent({
         // Fetch threads
         if (this.category) {
           await this.fetchThreads()
+          // Fetch read markers after threads are loaded
+          await this.fetchReadMarkers()
         }
       } catch (e) {
         console.error('Failed to refresh', e)
@@ -181,6 +185,36 @@ export default defineComponent({
         console.error('Failed to fetch threads', e)
         throw new Error(t('forum', 'Failed to load threads'))
       }
+    },
+
+    async fetchReadMarkers() {
+      try {
+        if (this.threads.length === 0) {
+          return
+        }
+
+        const threadIds = this.threads.map((t) => t.id).join(',')
+        const resp = await ocs.get<Record<number, { threadId: number; lastReadPostId: number; readAt: number }>>(
+          '/read-markers',
+          {
+            params: { threadIds },
+          }
+        )
+        this.readMarkers = resp.data || {}
+      } catch (e) {
+        // Silently fail - read markers are not critical
+        console.debug('Failed to fetch read markers', e)
+      }
+    },
+
+    isThreadUnread(thread: Thread): boolean {
+      const marker = this.readMarkers[thread.id]
+      if (!marker) {
+        // No read marker means thread is unread
+        return true
+      }
+      // Thread is unread if last post ID > last read post ID
+      return thread.lastPostId ? thread.lastPostId > marker.lastReadPostId : false
     },
 
     navigateToThread(thread: Thread) {

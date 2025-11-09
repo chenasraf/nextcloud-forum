@@ -65,7 +65,7 @@
     <section v-if="!loading && !error && posts.length > 0" class="mt-16">
       <div class="posts-list">
         <PostCard v-for="(post, index) in posts" :key="post.id" :ref="el => setPostCardRef(el, post.id)" :post="post"
-          :is-first-post="index === 0" @reply="handleReply" @update="handleUpdate" @delete="handleDelete" />
+          :is-first-post="index === 0" :is-unread="isPostUnread(post)" @reply="handleReply" @update="handleUpdate" @delete="handleDelete" />
       </div>
 
       <!-- Pagination info -->
@@ -134,6 +134,7 @@ export default defineComponent({
     return {
       loading: false,
       posts: [] as Post[],
+      lastReadPostId: null as number | null,
       error: null as string | null,
       limit: 50,
       offset: 0,
@@ -199,6 +200,9 @@ export default defineComponent({
 
     async fetchPosts(): Promise<void> {
       try {
+        // Fetch existing read marker before loading posts
+        await this.fetchReadMarker()
+
         const resp = await ocs.get<Post[]>(`/threads/${this.thread!.id}/posts`, {
           params: {
             limit: this.limit,
@@ -215,6 +219,32 @@ export default defineComponent({
         console.error('Failed to fetch posts', e)
         throw new Error(t('forum', 'Failed to load posts'))
       }
+    },
+
+    async fetchReadMarker(): Promise<void> {
+      try {
+        if (!this.thread) {
+          return
+        }
+
+        const resp = await ocs.get<{ threadId: number; lastReadPostId: number; readAt: number }>(
+          `/threads/${this.thread.id}/read-marker`
+        )
+        this.lastReadPostId = resp.data?.lastReadPostId || null
+      } catch (e) {
+        // Not found or error - treat as no read marker
+        this.lastReadPostId = null
+        console.debug('No read marker found', e)
+      }
+    },
+
+    isPostUnread(post: Post): boolean {
+      if (this.lastReadPostId === null) {
+        // No read marker means all posts are unread
+        return true
+      }
+      // Post is unread if its ID is greater than last read post ID
+      return post.id > this.lastReadPostId
     },
 
     async markAsRead(): Promise<void> {

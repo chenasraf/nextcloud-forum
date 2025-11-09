@@ -72,6 +72,54 @@ class ReadMarkerMapper extends QBMapper {
 	}
 
 	/**
+	 * Find read markers for a user across multiple threads
+	 *
+	 * @param string $userId
+	 * @param array<int> $threadIds
+	 * @return array<ReadMarker>
+	 */
+	public function findByUserAndThreads(string $userId, array $threadIds): array {
+		if (empty($threadIds)) {
+			return [];
+		}
+
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->in('thread_id', $qb->createNamedParameter($threadIds, IQueryBuilder::PARAM_INT_ARRAY))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Create or update a read marker
+	 */
+	public function createOrUpdate(string $userId, int $threadId, int $lastReadPostId): ReadMarker {
+		try {
+			// Try to find existing marker
+			$marker = $this->findByUserAndThread($userId, $threadId);
+
+			// Update existing marker
+			$marker->setLastReadPostId($lastReadPostId);
+			$marker->setReadAt(time());
+			return $this->update($marker);
+		} catch (DoesNotExistException $e) {
+			// Create new marker
+			$marker = new ReadMarker();
+			$marker->setUserId($userId);
+			$marker->setThreadId($threadId);
+			$marker->setLastReadPostId($lastReadPostId);
+			$marker->setReadAt(time());
+			return $this->insert($marker);
+		}
+	}
+
+	/**
 	 * @return array<ReadMarker>
 	 */
 	public function findAll(): array {

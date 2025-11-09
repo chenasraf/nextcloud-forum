@@ -1,10 +1,11 @@
 <template>
-  <div class="post-card" :class="{ 'first-post': isFirstPost }">
+  <div class="post-card" :class="{ 'first-post': isFirstPost, 'unread': isUnread }">
     <div class="post-header">
       <div class="author-info">
         <NcAvatar v-if="!post.authorIsDeleted" :user="post.authorId" :size="32" />
         <NcAvatar v-else :display-name="post.authorDisplayName" :size="32" />
         <div class="author-details">
+          <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
           <span class="author-name" :class="{ 'deleted-user': post.authorIsDeleted }">
             {{ post.authorDisplayName || post.authorId }}
           </span>
@@ -94,6 +95,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    isUnread: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['reply', 'edit', 'delete', 'update'],
   data() {
@@ -105,6 +110,7 @@ export default defineComponent({
         edit: t('forum', 'Edit'),
         delete: t('forum', 'Delete'),
         confirmDelete: t('forum', 'Are you sure you want to delete this post? This action cannot be undone.'),
+        unread: t('forum', 'Unread'),
       },
     }
   },
@@ -211,8 +217,23 @@ export default defineComponent({
     border-left: 4px solid var(--color-primary-element);
   }
 
+  &.unread:not(.first-post) {
+    border-left: 3px solid var(--color-primary-element);
+    background: var(--color-primary-element-light-hover);
+  }
+
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .unread-indicator {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--color-primary-element);
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
   }
 
   .post-header {
@@ -234,6 +255,13 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     gap: 4px;
+    position: relative;
+
+    .unread-indicator {
+      position: absolute;
+      left: -14px;
+      top: 6px;
+    }
   }
 
   .author-name {

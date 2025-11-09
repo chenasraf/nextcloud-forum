@@ -1,8 +1,9 @@
 <template>
-  <div class="thread-card" :class="{ pinned: thread.isPinned, locked: thread.isLocked }">
+  <div class="thread-card" :class="{ pinned: thread.isPinned, locked: thread.isLocked, unread: isUnread }">
     <div class="thread-main">
       <div class="thread-header">
         <div class="thread-title-row">
+          <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
           <h4 class="thread-title">
             <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
               <PinIcon :size="16" />
@@ -71,6 +72,10 @@ export default defineComponent({
       type: Object as PropType<Thread>,
       required: true,
     },
+    isUnread: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -80,6 +85,7 @@ export default defineComponent({
         views: t('forum', 'Views'),
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
+        unread: t('forum', 'Unread'),
       },
     }
   },
@@ -114,11 +120,25 @@ export default defineComponent({
     opacity: 0.85;
   }
 
+  &.unread {
+    border-left: 4px solid var(--color-primary-element);
+    background: var(--color-primary-element-light-hover);
+  }
+
   .thread-main {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 16px;
+  }
+
+  .unread-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary-element);
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .thread-header {

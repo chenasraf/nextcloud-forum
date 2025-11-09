@@ -30,23 +30,55 @@ class ReadMarkerController extends OCSController {
 	}
 
 	/**
-	 * Get read markers for current user
+	 * Get read markers for multiple threads
 	 *
-	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
+	 * @param array<int> $threadIds Array of thread IDs (comma-separated in query string)
+	 * @return DataResponse<Http::STATUS_OK, array<int, array{threadId: int, lastReadPostId: int, readAt: int}>, array{}>
 	 *
-	 * 200: Read markers returned
+	 * 200: Read markers returned (keyed by thread ID)
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/read-markers')]
-	public function index(): DataResponse {
+	public function index(string $threadIds = ''): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
-			$markers = $this->readMarkerMapper->findByUserId($user->getUID());
-			return new DataResponse(array_map(fn ($m) => $m->jsonSerialize(), $markers));
+			// Parse thread IDs from query parameter
+			$threadIdArray = [];
+			if (!empty($threadIds)) {
+				$threadIdArray = array_map('intval', explode(',', $threadIds));
+			}
+
+			if (empty($threadIdArray)) {
+				// Return all markers if no specific threads requested
+				$markers = $this->readMarkerMapper->findByUserId($user->getUID());
+				$result = [];
+				foreach ($markers as $marker) {
+					$result[$marker->getThreadId()] = [
+						'threadId' => $marker->getThreadId(),
+						'lastReadPostId' => $marker->getLastReadPostId(),
+						'readAt' => $marker->getReadAt(),
+					];
+				}
+				return new DataResponse($result);
+			}
+
+			$markers = $this->readMarkerMapper->findByUserAndThreads($user->getUID(), $threadIdArray);
+
+			// Convert to associative array keyed by thread ID for easier frontend lookup
+			$result = [];
+			foreach ($markers as $marker) {
+				$result[$marker->getThreadId()] = [
+					'threadId' => $marker->getThreadId(),
+					'lastReadPostId' => $marker->getLastReadPostId(),
+					'readAt' => $marker->getReadAt(),
+				];
+			}
+
+			return new DataResponse($result);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching read markers: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch read markers'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -98,26 +130,13 @@ class ReadMarkerController extends OCSController {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
-			// Check if marker already exists, if so update it
-			try {
-				$marker = $this->readMarkerMapper->findByUserAndThread($user->getUID(), $threadId);
-				$marker->setLastReadPostId($lastReadPostId);
-				$marker->setReadAt(time());
-				/** @var \OCA\Forum\Db\ReadMarker */
-				$updatedMarker = $this->readMarkerMapper->update($marker);
-				return new DataResponse($updatedMarker->jsonSerialize());
-			} catch (DoesNotExistException $e) {
-				// Create new marker
-				$marker = new \OCA\Forum\Db\ReadMarker();
-				$marker->setUserId($user->getUID());
-				$marker->setThreadId($threadId);
-				$marker->setLastReadPostId($lastReadPostId);
-				$marker->setReadAt(time());
+			$marker = $this->readMarkerMapper->createOrUpdate(
+				$user->getUID(),
+				$threadId,
+				$lastReadPostId
+			);
 
-				/** @var \OCA\Forum\Db\ReadMarker */
-				$createdMarker = $this->readMarkerMapper->insert($marker);
-				return new DataResponse($createdMarker->jsonSerialize());
-			}
+			return new DataResponse($marker->jsonSerialize());
 		} catch (\Exception $e) {
 			$this->logger->error('Error marking thread as read: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to mark thread as read'], Http::STATUS_INTERNAL_SERVER_ERROR);

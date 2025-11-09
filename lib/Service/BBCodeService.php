@@ -7,11 +7,14 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use ChrisKonnertz\BBCode\BBCode as BBCodeParser;
 use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
 use Psr\Log\LoggerInterface;
 
 class BBCodeService {
+	private ?BBCodeParser $parser = null;
+
 	public function __construct(
 		private BBCodeMapper $bbCodeMapper,
 		private LoggerInterface $logger,
@@ -26,83 +29,112 @@ class BBCodeService {
 	 * @return string The parsed content with BBCodes replaced by HTML
 	 */
 	public function parse(string $content, array $bbCodes): string {
-		// First, HTML escape the entire content to prevent XSS
-		$escapedContent = htmlspecialchars($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+		$parser = $this->getParser($bbCodes);
 
-		// Separate BBCodes into those that parse inner content and those that don't
-		$noParseInner = [];
-		$parseInner = [];
+		// Preprocess [code] blocks to prevent nl2br and trim whitespace
+		// The built-in [code] tag wraps content in <pre><code>, so we don't want <br/> tags inside
+		$codePlaceholders = [];
+		$content = preg_replace_callback('/\[code\](.*?)\[\/code\]/s', function ($matches) use (&$codePlaceholders) {
+			$placeholder = '___CODE_BLOCK_' . count($codePlaceholders) . '___';
+			// Trim leading and trailing newlines, then HTML-escape
+			$innerContent = trim($matches[1], "\r\n");
+			$innerContent = htmlspecialchars($innerContent, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$codePlaceholders[$placeholder] = '<pre><code>' . $innerContent . '</code></pre>';
+			return $placeholder;
+		}, $content);
 
+		// Preprocess disabled tags - escape them so they appear as literal text
+		$disabledPlaceholders = [];
 		foreach ($bbCodes as $bbCode) {
-			if (!$bbCode->getEnabled()) {
+			if ($bbCode->getEnabled()) {
 				continue;
 			}
 
-			if ($bbCode->getParseInner()) {
-				$parseInner[] = $bbCode;
-			} else {
-				$noParseInner[] = $bbCode;
+			$tag = $bbCode->getTag();
+			// Match [tag]content[/tag] or [tag=param]content[/tag]
+			$pattern = '/\[' . preg_quote($tag, '/') . '(=[^\]]+)?\](.*?)\[\/' . preg_quote($tag, '/') . '\]/s';
+
+			$content = preg_replace_callback($pattern, function ($matches) use (&$disabledPlaceholders, $tag) {
+				$placeholder = '___DISABLED_BBCODE_' . count($disabledPlaceholders) . '___';
+				// Store the original tag text to restore it after parsing
+				$disabledPlaceholders[$placeholder] = $matches[0];
+				return $placeholder;
+			}, $content);
+		}
+
+		// Preprocess tags with parseInner = false
+		// We need to protect their content from being parsed
+		$placeholders = [];
+		foreach ($bbCodes as $bbCode) {
+			if (!$bbCode->getEnabled() || $bbCode->getParseInner()) {
+				continue;
 			}
-		}
 
-		// Storage for protected content (BBCodes that don't parse inner)
-		$protectedContent = [];
-		$placeholderIndex = 0;
-
-		// First pass: Process BBCodes that don't parse inner content
-		// Replace them with placeholders to protect from further processing
-		foreach ($noParseInner as $bbCode) {
 			$tag = $bbCode->getTag();
-			$replacement = $bbCode->getReplacement();
-			$params = $this->extractParameters($replacement);
-			$pattern = $this->buildPattern($tag, $params);
+			// Match [tag]content[/tag] or [tag=param]content[/tag]
+			$pattern = '/\[' . preg_quote($tag, '/') . '(?:=[^\]]+)?\](.*?)\[\/' . preg_quote($tag, '/') . '\]/s';
 
-			$escapedContent = preg_replace_callback(
-				$pattern,
-				function ($matches) use ($replacement, $params, $tag, &$protectedContent, &$placeholderIndex) {
-					// // Convert newlines to <br /> in the content before replacing
-					// $contentIndex = count($matches) - 1;
-					// $matches[$contentIndex] = nl2br($matches[$contentIndex]);
+			$content = preg_replace_callback($pattern, function ($matches) use (&$placeholders, $bbCode) {
+				$placeholder = '___BBCODE_PLACEHOLDER_' . count($placeholders) . '___';
 
-					// Replace this BBCode but don't allow nested parsing
-					$result = $this->replaceBBCode($matches, $replacement, $params, $tag);
+				// Process the tag manually without parsing inner content
+				$tag = $bbCode->getTag();
+				$replacement = $bbCode->getReplacement();
+				$innerContent = $matches[1];
 
-					// Store the result and use a placeholder
-					$placeholder = "___BBCODE_PROTECTED_{$placeholderIndex}___";
-					$protectedContent[$placeholder] = $result;
-					$placeholderIndex++;
+				// If the replacement wraps in <pre>, trim leading/trailing newlines
+				if (stripos($replacement, '<pre>') !== false) {
+					$innerContent = trim($innerContent, "\r\n");
+				}
 
-					return $placeholder;
-				},
-				$escapedContent
-			);
+				// HTML-escape the inner content to prevent any HTML injection
+				$innerContent = htmlspecialchars($innerContent, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+				// Replace {content} with the escaped inner content
+				$html = str_replace('{content}', $innerContent, $replacement);
+
+				// Extract and process parameters if present
+				$params = $this->extractParameters($replacement);
+				foreach ($params as $param) {
+					// Extract parameter value from the opening tag
+					preg_match('/\[' . preg_quote($tag, '/') . '=([^\]]+)\]/', $matches[0], $paramMatches);
+					$value = $paramMatches[1] ?? '';
+					$value = $this->sanitizeParameterValue($param, $value);
+					$html = str_replace('{' . $param . '}', $value, $html);
+				}
+
+				$placeholders[$placeholder] = $html;
+				return $placeholder;
+			}, $content);
 		}
 
-		// Second pass: Process BBCodes that do parse inner content
-		foreach ($parseInner as $bbCode) {
-			$tag = $bbCode->getTag();
-			$replacement = $bbCode->getReplacement();
-			$params = $this->extractParameters($replacement);
-			$pattern = $this->buildPattern($tag, $params);
+		// Render BBCode
+		// Note: The library's render() method has $escape = true and $keepLines = true by default
+		// which handles HTML escaping and newline conversion
+		try {
+			$html = $parser->render($content);
 
-			$escapedContent = preg_replace_callback(
-				$pattern,
-				function ($matches) use ($replacement, $params, $tag) {
-					return $this->replaceBBCode($matches, $replacement, $params, $tag);
-				},
-				$escapedContent
-			);
+			// Replace code block placeholders (must be done before other placeholders to avoid double-escaping)
+			foreach ($codePlaceholders as $placeholder => $replacement) {
+				$html = str_replace($placeholder, $replacement, $html);
+			}
+
+			// Replace placeholders back
+			foreach ($placeholders as $placeholder => $replacement) {
+				$html = str_replace($placeholder, $replacement, $html);
+			}
+
+			// Restore disabled tags as literal text
+			foreach ($disabledPlaceholders as $placeholder => $original) {
+				$html = str_replace($placeholder, htmlspecialchars($original, ENT_QUOTES | ENT_HTML5, 'UTF-8'), $html);
+			}
+
+			return $html;
+		} catch (\Exception $e) {
+			$this->logger->error('BBCode parsing error: ' . $e->getMessage());
+			// Return escaped content as fallback
+			return htmlspecialchars($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 		}
-
-		// Convert newlines to <br /> tags
-		$escapedContent = nl2br($escapedContent);
-
-		// Restore protected content
-		foreach ($protectedContent as $placeholder => $content) {
-			$escapedContent = str_replace($placeholder, $content, $escapedContent);
-		}
-
-		return $escapedContent;
 	}
 
 	/**
@@ -114,6 +146,66 @@ class BBCodeService {
 	public function parseWithEnabled(string $content): string {
 		$bbCodes = $this->bbCodeMapper->findAllEnabled();
 		return $this->parse($content, $bbCodes);
+	}
+
+	/**
+	 * Get or create the BBCode parser instance with custom tags
+	 *
+	 * @param array<BBCode> $bbCodes Array of custom BBCode entities
+	 * @return BBCodeParser
+	 */
+	private function getParser(array $bbCodes): BBCodeParser {
+		// Create a new parser instance each time to ensure fresh state
+		$parser = new BBCodeParser();
+
+		// Register custom BBCodes from database
+		foreach ($bbCodes as $bbCode) {
+			// Skip disabled tags (handled in preprocessing)
+			if (!$bbCode->getEnabled()) {
+				continue;
+			}
+
+			// Tags with parseInner = false are handled in preprocessing, don't register them
+			if (!$bbCode->getParseInner()) {
+				continue;
+			}
+
+			$tag = $bbCode->getTag();
+			$replacement = $bbCode->getReplacement();
+
+			// Extract the opening and closing HTML from the replacement template
+			// Our templates use {content} as a placeholder, e.g., "<code>{content}</code>"
+			$parts = explode('{content}', $replacement);
+			$openingHtml = $parts[0] ?? '';
+			$closingHtml = $parts[1] ?? '';
+
+			// Extract parameters from replacement template
+			$params = $this->extractParameters($replacement);
+
+			// Add the custom tag
+			$parser->addTag($tag, function ($tagObj, &$html, $openingTag) use ($openingHtml, $closingHtml, $params) {
+				if ($tagObj->opening) {
+					// Opening tag - process parameters and return opening HTML
+					$result = $openingHtml;
+
+					// Replace parameters using the property value from the opening tag
+					foreach ($params as $param) {
+						// For opening tags, use $tagObj->property; $openingTag is null here
+						$value = $tagObj->property ?? '';
+						// Sanitize parameter value
+						$value = $this->sanitizeParameterValue($param, $value);
+						$result = str_replace('{' . $param . '}', $value, $result);
+					}
+
+					return $result;
+				} else {
+					// Closing tag - return closing HTML
+					return $closingHtml;
+				}
+			});
+		}
+
+		return $parser;
 	}
 
 	/**
@@ -134,99 +226,6 @@ class BBCodeService {
 			}
 		}
 		return array_unique($params);
-	}
-
-	/**
-	 * Build a regex pattern for matching a BBCode tag with parameters
-	 *
-	 * @param string $tag The BBCode tag name
-	 * @param array<string> $params Array of parameter names
-	 * @return string The regex pattern
-	 */
-	private function buildPattern(string $tag, array $params): string {
-		$escapedTag = preg_quote($tag, '/');
-
-		if (empty($params)) {
-			// Simple tag without parameters: [tag]content[/tag]
-			return '/\[' . $escapedTag . '\](.*?)\[\/' . $escapedTag . '\]/s';
-		}
-
-		// Tag with parameters: [tag param1="value1" param2="value2"]content[/tag]
-		// Note: Content is already HTML-escaped, so quotes become &quot;, &#039;, or &apos;
-		// Build pattern to capture each parameter
-		$paramPattern = '';
-		$isFirst = true;
-		$quotePattern = '(?:&quot;|&#039;|&apos;)';
-
-		foreach ($params as $param) {
-			$escapedParam = preg_quote($param, '/');
-
-			if ($isFirst) {
-				// First parameter: if it matches the tag name, support shorthand [tag="value"]
-				// Otherwise require explicit [tag param="value"]
-				if ($param === $tag) {
-					// Support both [color="red"] and [color color="red"]
-					$paramPattern .= '(?:';
-					$paramPattern .= '\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern;  // Explicit
-					$paramPattern .= '|';
-					$paramPattern .= '=' . $quotePattern . '(.*?)' . $quotePattern;  // Shorthand
-					$paramPattern .= ')';
-				} else {
-					// Regular first parameter
-					$paramPattern .= '\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern;
-				}
-				$isFirst = false;
-			} else {
-				// Subsequent parameters are always optional
-				$paramPattern .= '(?:\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern . ')?';
-			}
-		}
-
-		return '/\[' . $escapedTag . $paramPattern . '\](.*?)\[\/' . $escapedTag . '\]/s';
-	}
-
-	/**
-	 * Replace a single BBCode match with its HTML replacement
-	 *
-	 * @param array<string> $matches Regex matches
-	 * @param string $replacement The replacement template
-	 * @param array<string> $params Array of parameter names
-	 * @param string $tag The BBCode tag name
-	 * @return string The replaced HTML
-	 */
-	private function replaceBBCode(array $matches, string $replacement, array $params, string $tag): string {
-		// The content is always the last match
-		$content = end($matches);
-
-		// Start with the replacement template
-		$result = $replacement;
-
-		// Replace {content} with the actual content
-		$result = str_replace('{content}', $content, $result);
-
-		// Replace parameter placeholders with their values
-		$matchIndex = 1;
-		foreach ($params as $paramIndex => $param) {
-			$value = '';
-
-			// First parameter might have shorthand syntax (two capture groups)
-			if ($paramIndex === 0 && $param === $tag) {
-				// Check both capture groups (explicit and shorthand)
-				$value = ($matches[$matchIndex] ?? '') ?: ($matches[$matchIndex + 1] ?? '');
-				$matchIndex += 2; // Skip both capture groups
-			} else {
-				// Regular parameter
-				$value = $matches[$matchIndex] ?? '';
-				$matchIndex++;
-			}
-
-			// Sanitize the parameter value to prevent injection attacks
-			$value = $this->sanitizeParameterValue($param, $value);
-
-			$result = str_replace('{' . $param . '}', $value, $result);
-		}
-
-		return $result;
 	}
 
 	/**

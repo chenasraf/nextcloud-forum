@@ -671,17 +671,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		}
 
 		// Create default BBCodes
+		// Note: Most BBCode tags (b, i, u, s, code, email, url, img, quote, youtube, font, size, color, etc.)
+		// are now provided by the chriskonnertz/bbcode library and don't need to be stored in the database.
+		// We only store custom BBCodes that extend the library's functionality.
 		$bbcodes = [
-			['tag' => 'b', 'replacement' => '<b>{content}</b>', 'description' => 'Bold text', 'parse_inner' => true],
-			['tag' => 'i', 'replacement' => '<i>{content}</i>', 'description' => 'Italic text', 'parse_inner' => true],
-			['tag' => 'u', 'replacement' => '<u>{content}</u>', 'description' => 'Underlined text', 'parse_inner' => true],
-			['tag' => 'color', 'replacement' => '<span style="color:{color}">{content}</span>', 'description' => 'Colored text', 'parse_inner' => true],
-			['tag' => 'url', 'replacement' => '<a href="{href}" target="_blank" rel="noopener noreferrer">{content}</a>', 'description' => 'URL link', 'parse_inner' => true],
-			['tag' => 'img', 'replacement' => '<img src="{url}" alt="Image" class="forum-image" />', 'description' => 'Image', 'parse_inner' => true],
-			['tag' => 'code', 'replacement' => '<pre><code>{content}</code></pre>', 'description' => 'Code block', 'parse_inner' => false],
 			['tag' => 'icode', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false],
-			['tag' => 'quote', 'replacement' => '<blockquote>{content}</blockquote>', 'description' => 'Quote', 'parse_inner' => true],
-			['tag' => 'spoiler', 'replacement' => '<details><summary>{title}</summary>{content}</details>', 'description' => 'Spoiler', 'parse_inner' => true],
 		];
 
 		foreach ($bbcodes as $bbcode) {

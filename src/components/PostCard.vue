@@ -25,7 +25,7 @@
             </template>
             {{ strings.reply }}
           </NcActionButton>
-          <NcActionButton v-if="canEdit" @click="$emit('edit', post)">
+          <NcActionButton v-if="canEdit" @click="startEdit">
             <template #icon>
               <PencilIcon :size="20" />
             </template>
@@ -42,11 +42,17 @@
     </div>
 
     <div class="post-content">
-      <div class="content-text" v-html="formattedContent"></div>
+      <!-- Edit mode -->
+      <PostEditForm v-if="isEditing" ref="editForm" :initial-content="post.contentRaw"
+        @submit="handleEditSubmit" @cancel="cancelEdit" />
+
+      <!-- View mode -->
+      <div v-else class="content-text" v-html="formattedContent"></div>
     </div>
 
-    <!-- Reactions -->
-    <PostReactions :post-id="post.id" :reactions="post.reactions || []" @update="handleReactionsUpdate" />
+    <!-- Reactions (hidden when editing) -->
+    <PostReactions v-if="!isEditing" :post-id="post.id" :reactions="post.reactions || []"
+      @update="handleReactionsUpdate" />
   </div>
 </template>
 
@@ -60,6 +66,7 @@ import ReplyIcon from '@icons/Reply.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import PostReactions from './PostReactions.vue'
+import PostEditForm from './PostEditForm.vue'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 import type { Post } from '@/types'
@@ -76,6 +83,7 @@ export default defineComponent({
     PencilIcon,
     DeleteIcon,
     PostReactions,
+    PostEditForm,
   },
   props: {
     post: {
@@ -87,9 +95,10 @@ export default defineComponent({
       default: false,
     },
   },
-  emits: ['reply', 'edit', 'delete'],
+  emits: ['reply', 'edit', 'delete', 'update'],
   data() {
     return {
+      isEditing: false,
       strings: {
         edited: t('forum', 'Edited'),
         reply: t('forum', 'Reply'),
@@ -120,6 +129,39 @@ export default defineComponent({
       // Update the post's reactions locally
       if (this.post.reactions !== undefined) {
         this.post.reactions = reactions
+      }
+    },
+
+    startEdit() {
+      this.isEditing = true
+      // Focus the edit form after it mounts
+      this.$nextTick(() => {
+        const editForm = this.$refs.editForm as any
+        if (editForm && typeof editForm.focus === 'function') {
+          editForm.focus()
+        }
+      })
+    },
+
+    handleEditSubmit(content: string) {
+      // Emit event to parent with post and new content
+      this.$emit('update', { post: this.post, content })
+    },
+
+    cancelEdit() {
+      this.isEditing = false
+    },
+
+    finishEdit() {
+      // Called by parent when edit is successfully saved
+      this.isEditing = false
+    },
+
+    setEditSubmitting(value: boolean) {
+      // Update the submitting state of the edit form
+      const editForm = this.$refs.editForm as any
+      if (editForm && typeof editForm.setSubmitting === 'function') {
+        editForm.setSubmitting(value)
       }
     },
   },

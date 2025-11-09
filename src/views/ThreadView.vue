@@ -64,8 +64,8 @@
     <!-- Posts list -->
     <section v-if="!loading && !error && posts.length > 0" class="mt-16">
       <div class="posts-list">
-        <PostCard v-for="(post, index) in posts" :key="post.id" :post="post" :is-first-post="index === 0"
-          @reply="handleReply" @edit="handleEdit" @delete="handleDelete" />
+        <PostCard v-for="(post, index) in posts" :key="post.id" :ref="el => setPostCardRef(el, post.id)" :post="post"
+          :is-first-post="index === 0" @reply="handleReply" @update="handleUpdate" @delete="handleDelete" />
       </div>
 
       <!-- Pagination info -->
@@ -106,6 +106,7 @@ import EyeIcon from '@icons/Eye.vue'
 import type { Thread, Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
+import { showError, showSuccess } from '@nextcloud/dialogs'
 
 export default defineComponent({
   name: 'ThreadView',
@@ -128,6 +129,7 @@ export default defineComponent({
       error: null as string | null,
       limit: 50,
       offset: 0,
+      postCardRefs: new Map<number, any>(),
 
       strings: {
         back: t('forum', 'Back'),
@@ -240,10 +242,46 @@ export default defineComponent({
       // Could open a reply form or navigate to a reply page
     },
 
-    handleEdit(post: Post): void {
-      console.log('Edit post:', post.id)
-      // TODO: Implement edit functionality
-      // Could open an edit dialog or navigate to edit page
+    setPostCardRef(el: any, postId: number) {
+      if (el) {
+        this.postCardRefs.set(postId, el)
+      } else {
+        this.postCardRefs.delete(postId)
+      }
+    },
+
+    async handleUpdate(data: { post: Post; content: string }): Promise<void> {
+      const postCard = this.postCardRefs.get(data.post.id)
+
+      try {
+        const response = await ocs.put<Post>(`/posts/${data.post.id}`, {
+          content: data.content,
+        })
+
+        if (response.data) {
+          // Update the post in the local posts array
+          const index = this.posts.findIndex((p) => p.id === data.post.id)
+          if (index !== -1) {
+            // Preserve reactions when updating
+            this.posts[index] = { ...response.data, reactions: this.posts[index].reactions }
+          }
+
+          // Exit edit mode
+          if (postCard && typeof postCard.finishEdit === 'function') {
+            postCard.finishEdit()
+          }
+
+          showSuccess(t('forum', 'Post updated successfully'))
+        }
+      } catch (e) {
+        console.error('Failed to update post', e)
+        showError(t('forum', 'Failed to update post'))
+
+        // Reset submitting state on error
+        if (postCard && typeof postCard.setEditSubmitting === 'function') {
+          postCard.setEditSubmitting(false)
+        }
+      }
     },
 
     async handleDelete(post: Post): Promise<void> {

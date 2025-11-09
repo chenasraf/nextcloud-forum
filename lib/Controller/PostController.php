@@ -16,6 +16,7 @@ use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\BBCodeService;
+use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -37,6 +38,7 @@ class PostController extends OCSController {
 		private ReactionMapper $reactionMapper,
 		private BBCodeService $bbCodeService,
 		private BBCodeMapper $bbCodeMapper,
+		private PermissionService $permissionService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -230,11 +232,24 @@ class PostController extends OCSController {
 	 * 200: Post updated
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromPostId: 'id')]
 	#[ApiRoute(verb: 'PUT', url: '/api/posts/{id}')]
 	public function update(int $id, ?string $content = null): DataResponse {
 		try {
+			$user = $this->userSession->getUser();
+			if (!$user) {
+				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+			}
+
 			$post = $this->postMapper->find($id);
+
+			// Check if user is the author OR has moderator permission
+			$isAuthor = $post->getAuthorId() === $user->getUID();
+			$categoryId = $this->permissionService->getCategoryIdFromPost($id);
+			$isModerator = $this->permissionService->hasCategoryPermission($user->getUID(), $categoryId, 'canModerate');
+
+			if (!$isAuthor && !$isModerator) {
+				return new DataResponse(['error' => 'Insufficient permissions to edit this post'], Http::STATUS_FORBIDDEN);
+			}
 
 			if ($content !== null) {
 				$post->setContent($content);

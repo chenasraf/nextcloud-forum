@@ -95,6 +95,12 @@
                 <FolderIcon :size="20" />
               </template>
             </NcAppNavigationItem>
+
+            <NcAppNavigationItem :name="strings.navAdminBBCodes" :to="{ path: '/admin/bbcodes' }">
+              <template #icon>
+                <CodeBracketsIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
           </template>
         </NcAppNavigationItem>
       </template>
@@ -142,6 +148,7 @@ import ShieldCheckIcon from '@icons/ShieldCheck.vue'
 import ShieldAccountIcon from '@icons/ShieldAccount.vue'
 import ChartLineIcon from '@icons/ChartLine.vue'
 import AccountMultipleIcon from '@icons/AccountMultiple.vue'
+import CodeBracketsIcon from '@icons/CodeBrackets.vue'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import { useCategories } from '@/composables/useCategories'
 import { useCurrentUser } from '@/composables/useCurrentUser'
@@ -169,6 +176,7 @@ export default defineComponent({
     ShieldAccountIcon,
     ChartLineIcon,
     AccountMultipleIcon,
+    CodeBracketsIcon,
   },
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
@@ -211,6 +219,7 @@ export default defineComponent({
         navAdminUsers: t('forum', 'Users'),
         navAdminRoles: t('forum', 'Roles'),
         navAdminCategories: t('forum', 'Categories'),
+        navAdminBBCodes: t('forum', 'BBCodes'),
         navExamples: t('forum', 'Examples'),
         navAbout: t('forum', 'About'),
       },

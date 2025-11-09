@@ -814,6 +814,11 @@
                                         "type": "boolean",
                                         "default": true,
                                         "description": "Whether BBCode is enabled"
+                                    },
+                                    "parseInner": {
+                                        "type": "boolean",
+                                        "default": true,
+                                        "description": "Whether to parse inner BBCode tags"
                                     }
                                 }
                             }
@@ -1137,6 +1142,12 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Whether BBCode is enabled"
+                                    },
+                                    "parseInner": {
+                                        "type": "boolean",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Whether to parse inner BBCode tags"
                                     }
                                 }
                             }

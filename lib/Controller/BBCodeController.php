@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\BBCodeMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -35,6 +36,7 @@ class BBCodeController extends OCSController {
 	 * 200: BBCodes returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes')]
 	public function index(): DataResponse {
 		try {
@@ -94,19 +96,22 @@ class BBCodeController extends OCSController {
 	 * @param string $replacement Replacement pattern
 	 * @param string|null $description Optional description
 	 * @param bool $enabled Whether BBCode is enabled
+	 * @param bool $parseInner Whether to parse inner BBCode tags
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: BBCode created
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'POST', url: '/api/bbcodes')]
-	public function create(string $tag, string $replacement, ?string $description = null, bool $enabled = true): DataResponse {
+	public function create(string $tag, string $replacement, ?string $description = null, bool $enabled = true, bool $parseInner = true): DataResponse {
 		try {
 			$bbcode = new \OCA\Forum\Db\BBCode();
 			$bbcode->setTag($tag);
 			$bbcode->setReplacement($replacement);
 			$bbcode->setDescription($description);
 			$bbcode->setEnabled($enabled);
+			$bbcode->setParseInner($parseInner);
 			$bbcode->setCreatedAt(time());
 
 			/** @var \OCA\Forum\Db\BBCode */
@@ -126,13 +131,15 @@ class BBCodeController extends OCSController {
 	 * @param string|null $replacement Replacement pattern
 	 * @param string|null $description Description
 	 * @param bool|null $enabled Whether BBCode is enabled
+	 * @param bool|null $parseInner Whether to parse inner BBCode tags
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: BBCode updated
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'PUT', url: '/api/bbcodes/{id}')]
-	public function update(int $id, ?string $tag = null, ?string $replacement = null, ?string $description = null, ?bool $enabled = null): DataResponse {
+	public function update(int $id, ?string $tag = null, ?string $replacement = null, ?string $description = null, ?bool $enabled = null, ?bool $parseInner = null): DataResponse {
 		try {
 			$bbcode = $this->bbCodeMapper->find($id);
 
@@ -147,6 +154,9 @@ class BBCodeController extends OCSController {
 			}
 			if ($enabled !== null) {
 				$bbcode->setEnabled($enabled);
+			}
+			if ($parseInner !== null) {
+				$bbcode->setParseInner($parseInner);
 			}
 
 			/** @var \OCA\Forum\Db\BBCode */
@@ -169,6 +179,7 @@ class BBCodeController extends OCSController {
 	 * 200: BBCode deleted
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/bbcodes/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

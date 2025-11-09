@@ -256,9 +256,23 @@ export default defineComponent({
     },
 
     replyToThread(): void {
-      console.log('Reply to thread:', this.thread?.id)
-      // TODO: Implement reply to thread functionality
-      // Could scroll to the reply form at the bottom
+      const replyForm = this.$refs.replyForm as any
+      if (!replyForm) {
+        return
+      }
+
+      // Scroll to the reply form
+      const element = replyForm.$el as HTMLElement
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+
+      // Focus the textarea after a small delay to ensure scroll completes
+      setTimeout(() => {
+        if (replyForm && typeof replyForm.focus === 'function') {
+          replyForm.focus()
+        }
+      }, 300)
     },
 
     async handleSubmitReply(content: string): Promise<void> {

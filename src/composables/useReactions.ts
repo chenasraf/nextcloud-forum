@@ -1,4 +1,4 @@
-import { ref, Ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { ocs } from '@/axios'
 import type { Reaction } from '@/types'
 

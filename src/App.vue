@@ -43,6 +43,7 @@
                 :key="`category-${category.id}`"
                 :name="category.name"
                 :to="{ path: `/c/${category.slug}` }"
+                :active="isCategoryActive(category)"
               >
                 <template #icon>
                   <ForumIcon :size="20" />
@@ -69,19 +70,31 @@
 
           <!-- Admin sub-items -->
           <template v-if="isAdminOpen">
-            <NcAppNavigationItem :name="strings.navAdminDashboard" :to="{ path: '/admin' }">
+            <NcAppNavigationItem
+              :name="strings.navAdminDashboard"
+              :to="{ path: '/admin' }"
+              :active="isAdminDashboardActive"
+            >
               <template #icon>
                 <ChartLineIcon :size="20" />
               </template>
             </NcAppNavigationItem>
 
-            <NcAppNavigationItem :name="strings.navAdminUsers" :to="{ path: '/admin/users' }">
+            <NcAppNavigationItem
+              :name="strings.navAdminUsers"
+              :to="{ path: '/admin/users' }"
+              :active="isAdminUsersActive"
+            >
               <template #icon>
                 <AccountMultipleIcon :size="20" />
               </template>
             </NcAppNavigationItem>
 
-            <NcAppNavigationItem :name="strings.navAdminRoles" :to="{ path: '/admin/roles' }">
+            <NcAppNavigationItem
+              :name="strings.navAdminRoles"
+              :to="{ path: '/admin/roles' }"
+              :active="isAdminRolesActive"
+            >
               <template #icon>
                 <ShieldAccountIcon :size="20" />
               </template>
@@ -90,13 +103,18 @@
             <NcAppNavigationItem
               :name="strings.navAdminCategories"
               :to="{ path: '/admin/categories' }"
+              :active="isAdminCategoriesActive"
             >
               <template #icon>
                 <FolderIcon :size="20" />
               </template>
             </NcAppNavigationItem>
 
-            <NcAppNavigationItem :name="strings.navAdminBBCodes" :to="{ path: '/admin/bbcodes' }">
+            <NcAppNavigationItem
+              :name="strings.navAdminBBCodes"
+              :to="{ path: '/admin/bbcodes' }"
+              :active="isAdminBBCodesActive"
+            >
               <template #icon>
                 <CodeBracketsIcon :size="20" />
               </template>
@@ -154,6 +172,8 @@ import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import { useCategories } from '@/composables/useCategories'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useUserRole } from '@/composables/useUserRole'
+import { useCurrentThread } from '@/composables/useCurrentThread'
+import type { Category } from '@/types'
 
 export default defineComponent({
   name: 'AppUserWrapper',
@@ -183,6 +203,7 @@ export default defineComponent({
     const { categoryHeaders, fetchCategories } = useCategories()
     const { userId, displayName, fetchCurrentUser } = useCurrentUser()
     const { isAdmin, fetchUserRoles } = useUserRole()
+    const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
 
     // Fetch current user and their roles on mount
     fetchCurrentUser().then((user) => {
@@ -197,6 +218,9 @@ export default defineComponent({
       userId,
       displayName,
       isAdmin,
+      currentThreadCategoryId,
+      fetchThread,
+      clearThread,
     }
   },
   // Tell NcContent we *do* have a sidebar so it arranges layout properly
@@ -227,6 +251,23 @@ export default defineComponent({
       _removeBeforeEach: null as (() => void) | null,
       _removeAfterEach: null as (() => void) | null,
     }
+  },
+  computed: {
+    isAdminDashboardActive(): boolean {
+      return this.$route.path === '/admin'
+    },
+    isAdminUsersActive(): boolean {
+      return this.$route.path.startsWith('/admin/users')
+    },
+    isAdminRolesActive(): boolean {
+      return this.$route.path.startsWith('/admin/roles')
+    },
+    isAdminCategoriesActive(): boolean {
+      return this.$route.path.startsWith('/admin/categories')
+    },
+    isAdminBBCodesActive(): boolean {
+      return this.$route.path.startsWith('/admin/bbcodes')
+    },
   },
   async created() {
     // Fetch categories for sidebar
@@ -276,6 +317,57 @@ export default defineComponent({
 
     toggleAdmin(): void {
       this.isAdminOpen = !this.isAdminOpen
+    },
+
+    isCategoryActive(category: Category): boolean {
+      // Check if we're on the category page itself
+      if (
+        this.$route.path === `/c/${category.slug}` ||
+        this.$route.path === `/category/${category.id}`
+      ) {
+        return true
+      }
+
+      // Check if we're creating a thread in this category
+      if (
+        this.$route.path === `/c/${category.slug}/new` ||
+        this.$route.path === `/category/${category.id}/new`
+      ) {
+        return true
+      }
+
+      // Check if we're viewing a thread that belongs to this category
+      if (
+        (this.$route.path.startsWith('/thread/') || this.$route.path.startsWith('/t/')) &&
+        this.currentThreadCategoryId === category.id
+      ) {
+        return true
+      }
+
+      return false
+    },
+
+    async updateThreadCategory(): Promise<void> {
+      // Reset when not on a thread page
+      if (!this.$route.path.startsWith('/thread/') && !this.$route.path.startsWith('/t/')) {
+        this.clearThread()
+        return
+      }
+
+      // Fetch thread data to get category using the composable
+      if (this.$route.params.slug) {
+        await this.fetchThread(this.$route.params.slug as string, true)
+      } else if (this.$route.params.id) {
+        await this.fetchThread(this.$route.params.id as string, false)
+      }
+    },
+  },
+  watch: {
+    $route: {
+      handler() {
+        this.updateThreadCategory()
+      },
+      immediate: true,
     },
   },
 })

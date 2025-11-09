@@ -103,10 +103,11 @@ import PostReplyForm from '@/components/PostReplyForm.vue'
 import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import EyeIcon from '@icons/Eye.vue'
-import type { Thread, Post } from '@/types'
+import type { Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 import { showError, showSuccess } from '@nextcloud/dialogs'
+import { useCurrentThread } from '@/composables/useCurrentThread'
 
 export default defineComponent({
   name: 'ThreadView',
@@ -121,10 +122,17 @@ export default defineComponent({
     LockIcon,
     EyeIcon,
   },
+  setup() {
+    const { currentThread: thread, fetchThread } = useCurrentThread()
+
+    return {
+      thread,
+      fetchThread,
+    }
+  },
   data() {
     return {
       loading: false,
-      thread: null as Thread | null,
       posts: [] as Post[],
       error: null as string | null,
       limit: 50,
@@ -165,11 +173,18 @@ export default defineComponent({
         this.loading = true
         this.error = null
 
-        // Fetch thread details
-        await this.fetchThread()
+        // Fetch thread details using the composable
+        let threadData
+        if (this.threadSlug) {
+          threadData = await this.fetchThread(this.threadSlug, true)
+        } else if (this.threadId) {
+          threadData = await this.fetchThread(this.threadId, false)
+        } else {
+          throw new Error(t('forum', 'No thread ID or slug provided'))
+        }
 
         // Fetch posts
-        if (this.thread) {
+        if (threadData) {
           await this.fetchPosts()
         }
       } catch (e) {
@@ -177,23 +192,6 @@ export default defineComponent({
         this.error = (e as Error).message || t('forum', 'An unexpected error occurred')
       } finally {
         this.loading = false
-      }
-    },
-
-    async fetchThread(): Promise<void> {
-      try {
-        let resp
-        if (this.threadSlug) {
-          resp = await ocs.get<Thread>(`/threads/slug/${this.threadSlug}`)
-        } else if (this.threadId) {
-          resp = await ocs.get<Thread>(`/threads/${this.threadId}`)
-        } else {
-          throw new Error(t('forum', 'No thread ID or slug provided'))
-        }
-        this.thread = resp.data
-      } catch (e) {
-        console.error('Failed to fetch thread', e)
-        throw new Error(t('forum', 'Thread not found'))
       }
     },
 

@@ -6741,7 +6741,7 @@
             },
             "post": {
                 "operationId": "thread-create",
-                "summary": "Create a new thread",
+                "summary": "Create a new thread with initial post",
                 "tags": [
                     "thread"
                 ],
@@ -6761,7 +6761,8 @@
                                 "type": "object",
                                 "required": [
                                     "categoryId",
-                                    "title"
+                                    "title",
+                                    "content"
                                 ],
                                 "properties": {
                                     "categoryId": {
@@ -6772,6 +6773,10 @@
                                     "title": {
                                         "type": "string",
                                         "description": "Thread title"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "description": "Initial post content"
                                     }
                                 }
                             }

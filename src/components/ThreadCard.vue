@@ -32,8 +32,8 @@
           <span class="stat-icon">
             <CommentIcon :size="20" />
           </span>
-          <span class="stat-value">{{ thread.postCount || 0 }}</span>
-          <span class="stat-label">{{ strings.posts }}</span>
+          <span class="stat-value">{{ (thread.postCount || 1) - 1 }}</span>
+          <span class="stat-label">{{ strings.replies }}</span>
         </div>
         <div class="stat">
           <span class="stat-icon">
@@ -76,7 +76,7 @@ export default defineComponent({
     return {
       strings: {
         by: t('forum', 'by'),
-        posts: t('forum', 'Posts'),
+        replies: t('forum', 'Replies'),
         views: t('forum', 'Views'),
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),

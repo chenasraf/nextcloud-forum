@@ -8,6 +8,10 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\ThreadController;
 use OCA\Forum\Db\Category;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\ForumUser;
+use OCA\Forum\Db\ForumUserMapper;
+use OCA\Forum\Db\Post;
+use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -22,6 +26,8 @@ class ThreadControllerTest extends TestCase {
 	private ThreadController $controller;
 	private ThreadMapper $threadMapper;
 	private CategoryMapper $categoryMapper;
+	private PostMapper $postMapper;
+	private ForumUserMapper $forumUserMapper;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -30,6 +36,8 @@ class ThreadControllerTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
+		$this->postMapper = $this->createMock(PostMapper::class);
+		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -38,6 +46,8 @@ class ThreadControllerTest extends TestCase {
 			$this->request,
 			$this->threadMapper,
 			$this->categoryMapper,
+			$this->postMapper,
+			$this->forumUserMapper,
 			$this->userSession,
 			$this->logger
 		);
@@ -160,11 +170,21 @@ class ThreadControllerTest extends TestCase {
 	public function testCreateThreadSuccessfully(): void {
 		$categoryId = 1;
 		$title = 'New Thread';
+		$content = 'This is the initial post content';
 		$userId = 'user1';
 
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
+
+		$forumUser = new ForumUser();
+		$forumUser->setUserId($userId);
+		$forumUser->setPostCount(10);
+
+		$this->forumUserMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn($forumUser);
 
 		$category = new Category();
 		$category->setId($categoryId);
@@ -173,6 +193,12 @@ class ThreadControllerTest extends TestCase {
 
 		$createdThread = $this->createMockThread(1, $categoryId, $userId, $title);
 		$createdThread->setSlug('new-thread');
+
+		$createdPost = new Post();
+		$createdPost->setId(1);
+		$createdPost->setThreadId(1);
+		$createdPost->setAuthorId($userId);
+		$createdPost->setContent($content);
 
 		// Mock findBySlug to return DoesNotExistException (slug doesn't exist yet)
 		$this->threadMapper->expects($this->once())
@@ -183,6 +209,17 @@ class ThreadControllerTest extends TestCase {
 			->method('insert')
 			->willReturnCallback(function ($thread) use ($createdThread) {
 				return $createdThread;
+			});
+
+		$this->postMapper->expects($this->once())
+			->method('insert')
+			->willReturn($createdPost);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($thread) {
+				$this->assertEquals(1, $thread->getPostCount());
+				return $thread;
 			});
 
 		$this->categoryMapper->expects($this->once())
@@ -198,7 +235,14 @@ class ThreadControllerTest extends TestCase {
 				return $updatedCategory;
 			});
 
-		$response = $this->controller->create($categoryId, $title);
+		$this->forumUserMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedUser) {
+				$this->assertEquals(11, $updatedUser->getPostCount());
+				return $updatedUser;
+			});
+
+		$response = $this->controller->create($categoryId, $title, $content);
 
 		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
 		$data = $response->getData();
@@ -213,13 +257,35 @@ class ThreadControllerTest extends TestCase {
 	public function testCreateThreadReturnsUnauthorizedWhenUserNotAuthenticated(): void {
 		$categoryId = 1;
 		$title = 'New Thread';
+		$content = 'Initial post content';
 
 		$this->userSession->method('getUser')->willReturn(null);
 
-		$response = $this->controller->create($categoryId, $title);
+		$response = $this->controller->create($categoryId, $title, $content);
 
 		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
+	}
+
+	public function testCreateThreadReturnsForbiddenWhenForumUserNotRegistered(): void {
+		$categoryId = 1;
+		$title = 'New Thread';
+		$content = 'Initial post content';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->forumUserMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willThrowException(new DoesNotExistException('User not found'));
+
+		$response = $this->controller->create($categoryId, $title, $content);
+
+		$this->assertEquals(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertEquals(['error' => 'User not registered in forum'], $response->getData());
 	}
 
 	public function testUpdateThreadSuccessfully(): void {

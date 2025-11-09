@@ -9,6 +9,9 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\ForumUserMapper;
+use OCA\Forum\Db\Post;
+use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -27,6 +30,8 @@ class ThreadController extends OCSController {
 		IRequest $request,
 		private ThreadMapper $threadMapper,
 		private CategoryMapper $categoryMapper,
+		private PostMapper $postMapper,
+		private ForumUserMapper $forumUserMapper,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -133,10 +138,11 @@ class ThreadController extends OCSController {
 	}
 
 	/**
-	 * Create a new thread
+	 * Create a new thread with initial post
 	 *
 	 * @param int $categoryId Category ID
 	 * @param string $title Thread title
+	 * @param string $content Initial post content
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Thread created
@@ -144,11 +150,18 @@ class ThreadController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canPost', resourceType: 'category', resourceIdBody: 'categoryId')]
 	#[ApiRoute(verb: 'POST', url: '/api/threads')]
-	public function create(int $categoryId, string $title): DataResponse {
+	public function create(int $categoryId, string $title, string $content): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+			}
+
+			// Ensure forum user exists
+			try {
+				$forumUser = $this->forumUserMapper->findByUserId($user->getUID());
+			} catch (DoesNotExistException $e) {
+				return new DataResponse(['error' => 'User not registered in forum'], Http::STATUS_FORBIDDEN);
 			}
 
 			// Generate slug from title
@@ -173,8 +186,25 @@ class ThreadController extends OCSController {
 			/** @var \OCA\Forum\Db\Thread */
 			$createdThread = $this->threadMapper->insert($thread);
 
-			// Update the category's thread and post counts
-			// A new thread includes an initial post, so increment both
+			// Create the initial post
+			$post = new \OCA\Forum\Db\Post();
+			$post->setThreadId($createdThread->getId());
+			$post->setAuthorId($user->getUID());
+			$post->setContent($content);
+			$post->setSlug('post-' . uniqid());
+			$post->setIsEdited(false);
+			$post->setCreatedAt(time());
+			$post->setUpdatedAt(time());
+
+			/** @var \OCA\Forum\Db\Post */
+			$createdPost = $this->postMapper->insert($post);
+
+			// Update thread with post count and last post
+			$createdThread->setPostCount(1);
+			$createdThread->setLastPostId($createdPost->getId());
+			$this->threadMapper->update($createdThread);
+
+			// Update category counts (thread count and post count)
 			try {
 				$category = $this->categoryMapper->find($categoryId);
 				$category->setThreadCount($category->getThreadCount() + 1);
@@ -182,7 +212,15 @@ class ThreadController extends OCSController {
 				$this->categoryMapper->update($category);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update category counts: ' . $e->getMessage());
-				// Don't fail the request if category update fails
+			}
+
+			// Update forum user's post count
+			try {
+				$forumUser->setPostCount($forumUser->getPostCount() + 1);
+				$forumUser->setUpdatedAt(time());
+				$this->forumUserMapper->update($forumUser);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update forum user post count: ' . $e->getMessage());
 			}
 
 			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);

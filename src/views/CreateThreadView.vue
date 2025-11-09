@@ -117,19 +117,14 @@ export default defineComponent({
       form?.setSubmitting(true)
 
       try {
-        // Step 1: Create the thread (backend will generate slug)
+        // Create the thread with initial post in a single request
         const threadResp = await ocs.post<Thread>('/threads', {
           categoryId: this.category.id,
           title: data.title,
+          content: data.content,
         })
 
         const newThread = threadResp.data
-
-        // Step 2: Create the initial post
-        await ocs.post('/posts', {
-          threadId: newThread.id,
-          content: data.content,
-        })
 
         showSuccess(this.strings.success)
 

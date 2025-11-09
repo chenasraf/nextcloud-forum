@@ -86,16 +86,6 @@
               :rows="3"
             />
           </div>
-
-          <div class="form-group">
-            <NcTextField
-              v-model.number="formData.sortOrder"
-              :label="strings.sortOrder"
-              :placeholder="strings.sortOrderPlaceholder"
-              type="number"
-            />
-            <p class="help-text muted">{{ strings.sortOrderHelp }}</p>
-          </div>
         </div>
       </section>
 
@@ -173,16 +163,6 @@
             :rows="2"
           />
         </div>
-
-        <div class="form-group">
-          <NcTextField
-            v-model.number="headerDialog.sortOrder"
-            :label="strings.headerSortOrder"
-            :placeholder="strings.sortOrderPlaceholder"
-            type="number"
-          />
-          <p class="help-text muted">{{ strings.sortOrderHelp }}</p>
-        </div>
       </div>
 
       <template #actions>
@@ -249,7 +229,6 @@ export default defineComponent({
         name: '',
         slug: '',
         description: '',
-        sortOrder: 0,
       },
       headerDialog: {
         show: false,
@@ -258,7 +237,6 @@ export default defineComponent({
         id: null as number | null,
         name: '',
         description: '',
-        sortOrder: 0,
       },
 
       strings: {
@@ -376,7 +354,6 @@ export default defineComponent({
       this.formData.name = category.name
       this.formData.slug = category.slug
       this.formData.description = category.description || ''
-      this.formData.sortOrder = category.sortOrder || 0
 
       // Set selectedHeader based on headerId
       const header = this.headers.find((h) => h.id === category.headerId)
@@ -439,7 +416,6 @@ export default defineComponent({
           name: this.formData.name.trim(),
           slug: this.formData.slug.trim(),
           description: this.formData.description.trim() || null,
-          sortOrder: this.formData.sortOrder,
         }
 
         let categoryId: number
@@ -498,7 +474,6 @@ export default defineComponent({
       this.headerDialog.id = null
       this.headerDialog.name = ''
       this.headerDialog.description = ''
-      this.headerDialog.sortOrder = 0
     },
 
     editHeader(): void {
@@ -512,7 +487,6 @@ export default defineComponent({
       this.headerDialog.id = header.id
       this.headerDialog.name = header.name
       this.headerDialog.description = header.description || ''
-      this.headerDialog.sortOrder = header.sortOrder || 0
     },
 
     async saveHeader(): Promise<void> {
@@ -524,7 +498,6 @@ export default defineComponent({
         const headerData = {
           name: this.headerDialog.name.trim(),
           description: this.headerDialog.description.trim() || null,
-          sortOrder: this.headerDialog.sortOrder,
         }
 
         let headerId: number
@@ -541,7 +514,6 @@ export default defineComponent({
               ...this.headers[index],
               name: headerData.name,
               description: headerData.description,
-              sortOrder: headerData.sortOrder,
             }
           }
         } else {

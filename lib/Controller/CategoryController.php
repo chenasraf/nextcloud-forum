@@ -353,4 +353,32 @@ class CategoryController extends OCSController {
 			return new DataResponse(['error' => 'Failed to update permissions'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	/**
+	 * Reorder categories
+	 *
+	 * @param list<array{id: int, sortOrder: int}> $categories Array of categories with new sort orders
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 *
+	 * 200: Categories reordered successfully
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
+	#[ApiRoute(verb: 'POST', url: '/api/categories/reorder')]
+	public function reorder(array $categories): DataResponse {
+		try {
+			foreach ($categories as $categoryData) {
+				$category = $this->categoryMapper->find($categoryData['id']);
+				$category->setSortOrder($categoryData['sortOrder']);
+				$this->categoryMapper->update($category);
+			}
+
+			return new DataResponse(['success' => true]);
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Category not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error reordering categories: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to reorder categories'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
 }

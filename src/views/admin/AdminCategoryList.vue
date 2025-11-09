@@ -44,13 +44,24 @@
         </div>
 
         <div v-if="categoryHeaders.length > 0" class="headers-table">
-          <div v-for="header in categoryHeaders" :key="`header-manage-${header.id}`" class="header-manage-row">
+          <div v-for="(header, index) in categoryHeaders" :key="`header-manage-${header.id}`" class="header-manage-row">
+            <div class="header-sort-buttons">
+              <NcButton v-if="index > 0" type="tertiary" @click="moveHeaderUp(index)" :aria-label="strings.moveUp" :title="strings.moveUp">
+                <template #icon>
+                  <ChevronUpIcon :size="20" />
+                </template>
+              </NcButton>
+              <NcButton v-if="index < categoryHeaders.length - 1" type="tertiary" @click="moveHeaderDown(index)"
+                :aria-label="strings.moveDown" :title="strings.moveDown">
+                <template #icon>
+                  <ChevronDownIcon :size="20" />
+                </template>
+              </NcButton>
+            </div>
             <div class="header-info">
               <div class="header-name">{{ header.name }}</div>
               <div v-if="header.description" class="header-desc muted">{{ header.description }}</div>
               <div class="header-meta muted">
-                <span>Sort: {{ header.sortOrder || 0 }}</span>
-                <span>•</span>
                 <span>{{ (header.categories?.length || 0) }} {{ strings.categoriesCount }}</span>
               </div>
             </div>
@@ -61,11 +72,7 @@
                 </template>
                 {{ strings.edit }}
               </NcButton>
-              <NcButton
-                type="error"
-                :disabled="categoryHeaders.length <= 1"
-                @click="confirmDeleteHeader(header)"
-              >
+              <NcButton type="error" :disabled="categoryHeaders.length <= 1" @click="confirmDeleteHeader(header)">
                 <template #icon>
                   <DeleteIcon :size="20" />
                 </template>
@@ -91,48 +98,58 @@
             <span v-if="header.description" class="muted">{{ header.description }}</span>
           </div>
 
-        <div v-if="header.categories && header.categories.length > 0" class="categories-table">
-          <div v-for="category in header.categories" :key="category.id" class="category-row">
-            <div class="category-info">
-              <div class="category-name">{{ category.name }}</div>
-              <div v-if="category.description" class="category-desc muted">{{ category.description }}</div>
-              <div class="category-meta muted">
-                <span>Slug: {{ category.slug }}</span>
-                <span>•</span>
-                <span>Threads: {{ category.threadCount || 0 }}</span>
-                <span>•</span>
-                <span>Posts: {{ category.postCount || 0 }}</span>
+          <div v-if="header.categories && header.categories.length > 0" class="categories-table">
+            <div v-for="(category, index) in header.categories" :key="category.id" class="category-row">
+              <div class="category-sort-buttons">
+                <NcButton v-if="index > 0" type="tertiary" @click="moveCategoryUp(header.id, index)"
+                  :aria-label="strings.moveUp" :title="strings.moveUp">
+                  <template #icon>
+                    <ChevronUpIcon :size="20" />
+                  </template>
+                </NcButton>
+                <NcButton v-if="index < header.categories.length - 1" type="tertiary"
+                  @click="moveCategoryDown(header.id, index)" :aria-label="strings.moveDown" :title="strings.moveDown">
+                  <template #icon>
+                    <ChevronDownIcon :size="20" />
+                  </template>
+                </NcButton>
+              </div>
+              <div class="category-info">
+                <div class="category-name">{{ category.name }}</div>
+                <div v-if="category.description" class="category-desc muted">{{ category.description }}</div>
+                <div class="category-meta muted">
+                  <span>Slug: {{ category.slug }}</span>
+                  <span>•</span>
+                  <span>Threads: {{ category.threadCount || 0 }}</span>
+                  <span>•</span>
+                  <span>Posts: {{ category.postCount || 0 }}</span>
+                </div>
+              </div>
+              <div class="category-actions">
+                <NcButton @click="editCategory(category.id)">
+                  <template #icon>
+                    <PencilIcon :size="20" />
+                  </template>
+                  {{ strings.edit }}
+                </NcButton>
+                <NcButton type="error" @click="confirmDelete(category)">
+                  <template #icon>
+                    <DeleteIcon :size="20" />
+                  </template>
+                  {{ strings.delete }}
+                </NcButton>
               </div>
             </div>
-            <div class="category-actions">
-              <NcButton @click="editCategory(category.id)">
-                <template #icon>
-                  <PencilIcon :size="20" />
-                </template>
-                {{ strings.edit }}
-              </NcButton>
-              <NcButton type="error" @click="confirmDelete(category)">
-                <template #icon>
-                  <DeleteIcon :size="20" />
-                </template>
-                {{ strings.delete }}
-              </NcButton>
-            </div>
           </div>
-        </div>
-        <div v-else class="no-categories muted">
-          {{ strings.noCategories }}
-        </div>
-      </template>
+          <div v-else class="no-categories muted">
+            {{ strings.noCategories }}
+          </div>
+        </template>
       </section>
     </div>
 
     <!-- Delete confirmation dialog -->
-    <NcDialog
-      v-if="deleteDialog.show"
-      :name="strings.deleteDialogTitle"
-      @close="deleteDialog.show = false"
-    >
+    <NcDialog v-if="deleteDialog.show" :name="strings.deleteDialogTitle" @close="deleteDialog.show = false">
       <div class="delete-dialog-content">
         <p>{{ strings.deleteConfirmMessage(deleteDialog.category?.name || '') }}</p>
 
@@ -145,34 +162,19 @@
           <h4>{{ strings.whatToDoWithThreads }}</h4>
 
           <div class="radio-group">
-            <NcCheckboxRadioSwitch
-              v-model="deleteDialog.action"
-              value="migrate"
-              type="radio"
-              name="delete-action"
-            >
+            <NcCheckboxRadioSwitch v-model="deleteDialog.action" value="migrate" type="radio" name="delete-action">
               {{ strings.migrateThreads }}
             </NcCheckboxRadioSwitch>
 
             <div v-if="deleteDialog.action === 'migrate'" class="category-select">
               <label>{{ strings.selectTargetCategory }}</label>
-              <NcSelect
-                v-model="selectedTargetCategory"
-                :options="targetCategoryOptions"
-                :placeholder="strings.selectCategory"
-                label="label"
-                track-by="id"
-              />
+              <NcSelect v-model="selectedTargetCategory" :options="targetCategoryOptions"
+                :placeholder="strings.selectCategory" label="label" track-by="id" />
             </div>
           </div>
 
           <div class="radio-group">
-            <NcCheckboxRadioSwitch
-              v-model="deleteDialog.action"
-              value="delete"
-              type="radio"
-              name="delete-action"
-            >
+            <NcCheckboxRadioSwitch v-model="deleteDialog.action" value="delete" type="radio" name="delete-action">
               {{ strings.softDeleteThreads }}
             </NcCheckboxRadioSwitch>
             <p class="help-text muted">{{ strings.softDeleteHelp }}</p>
@@ -184,48 +186,31 @@
         <NcButton @click="deleteDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton
-          type="error"
-          :disabled="deleteDialog.action === 'migrate' && !selectedTargetCategory"
-          @click="executeDelete"
-        >
+        <NcButton type="error" :disabled="deleteDialog.action === 'migrate' && !selectedTargetCategory"
+          @click="executeDelete">
           {{ strings.deleteCategory }}
         </NcButton>
       </template>
     </NcDialog>
 
     <!-- Header Edit/Create Dialog -->
-    <NcDialog
-      v-if="headerDialog.show"
+    <NcDialog v-if="headerDialog.show"
       :name="headerDialog.isEditing ? strings.editHeaderTitle : strings.createHeaderTitle"
-      @close="headerDialog.show = false"
-    >
+      @close="headerDialog.show = false">
       <div class="header-dialog-content">
         <div class="form-group">
-          <NcTextField
-            v-model="headerDialog.name"
-            :label="strings.headerName"
-            :placeholder="strings.headerNamePlaceholder"
-            :required="true"
-          />
+          <NcTextField v-model="headerDialog.name" :label="strings.headerName"
+            :placeholder="strings.headerNamePlaceholder" :required="true" />
         </div>
 
         <div class="form-group">
-          <NcTextArea
-            v-model="headerDialog.description"
-            :label="strings.headerDescription"
-            :placeholder="strings.headerDescriptionPlaceholder"
-            :rows="2"
-          />
+          <NcTextArea v-model="headerDialog.description" :label="strings.headerDescription"
+            :placeholder="strings.headerDescriptionPlaceholder" :rows="2" />
         </div>
 
         <div class="form-group">
-          <NcTextField
-            v-model.number="headerDialog.sortOrder"
-            :label="strings.headerSortOrder"
-            :placeholder="strings.sortOrderPlaceholder"
-            type="number"
-          />
+          <NcTextField v-model.number="headerDialog.sortOrder" :label="strings.headerSortOrder"
+            :placeholder="strings.sortOrderPlaceholder" type="number" />
           <p class="help-text muted">{{ strings.sortOrderHelp }}</p>
         </div>
       </div>
@@ -234,11 +219,7 @@
         <NcButton @click="headerDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton
-          type="primary"
-          :disabled="!headerDialog.name.trim()"
-          @click="saveHeader"
-        >
+        <NcButton type="primary" :disabled="!headerDialog.name.trim()" @click="saveHeader">
           <template v-if="headerDialog.submitting" #icon>
             <NcLoadingIcon :size="20" />
           </template>
@@ -248,11 +229,7 @@
     </NcDialog>
 
     <!-- Header Delete Confirmation Dialog -->
-    <NcDialog
-      v-if="deleteHeaderDialog.show"
-      :name="strings.deleteHeaderTitle"
-      @close="deleteHeaderDialog.show = false"
-    >
+    <NcDialog v-if="deleteHeaderDialog.show" :name="strings.deleteHeaderTitle" @close="deleteHeaderDialog.show = false">
       <div class="delete-dialog-content">
         <p>{{ strings.deleteHeaderMessage(deleteHeaderDialog.header?.name || '') }}</p>
 
@@ -265,34 +242,21 @@
           <h4>{{ strings.whatToDoWithCategories }}</h4>
 
           <div class="radio-group">
-            <NcCheckboxRadioSwitch
-              v-model="deleteHeaderDialog.action"
-              value="migrate"
-              type="radio"
-              name="delete-header-action"
-            >
+            <NcCheckboxRadioSwitch v-model="deleteHeaderDialog.action" value="migrate" type="radio"
+              name="delete-header-action">
               {{ strings.migrateCategories }}
             </NcCheckboxRadioSwitch>
 
             <div v-if="deleteHeaderDialog.action === 'migrate'" class="category-select">
               <label>{{ strings.selectTargetHeader }}</label>
-              <NcSelect
-                v-model="selectedTargetHeader"
-                :options="targetHeaderOptions"
-                :placeholder="strings.selectHeader"
-                label="label"
-                track-by="id"
-              />
+              <NcSelect v-model="selectedTargetHeader" :options="targetHeaderOptions"
+                :placeholder="strings.selectHeader" label="label" track-by="id" />
             </div>
           </div>
 
           <div class="radio-group">
-            <NcCheckboxRadioSwitch
-              v-model="deleteHeaderDialog.action"
-              value="delete"
-              type="radio"
-              name="delete-header-action"
-            >
+            <NcCheckboxRadioSwitch v-model="deleteHeaderDialog.action" value="delete" type="radio"
+              name="delete-header-action">
               {{ strings.deleteCategories }}
             </NcCheckboxRadioSwitch>
             <p class="help-text muted">{{ strings.deleteCategoriesHelp }}</p>
@@ -304,11 +268,8 @@
         <NcButton @click="deleteHeaderDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton
-          type="error"
-          :disabled="deleteHeaderDialog.action === 'migrate' && !selectedTargetHeader"
-          @click="executeDeleteHeader"
-        >
+        <NcButton type="error" :disabled="deleteHeaderDialog.action === 'migrate' && !selectedTargetHeader"
+          @click="executeDeleteHeader">
           {{ strings.deleteHeader }}
         </NcButton>
       </template>
@@ -325,6 +286,8 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
+import ChevronUpIcon from '@icons/ChevronUp.vue'
+import ChevronDownIcon from '@icons/ChevronDown.vue'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
@@ -349,6 +312,8 @@ export default defineComponent({
     PencilIcon,
     DeleteIcon,
     InformationIcon,
+    ChevronUpIcon,
+    ChevronDownIcon,
   },
   data() {
     return {
@@ -430,6 +395,8 @@ export default defineComponent({
         deleteCategoriesHelp: t('forum', 'All categories and their threads will be permanently deleted'),
         selectTargetHeader: t('forum', 'Select target header'),
         selectHeader: t('forum', '-- Select a header --'),
+        moveUp: t('forum', 'Move up'),
+        moveDown: t('forum', 'Move down'),
       },
     }
   },
@@ -611,6 +578,85 @@ export default defineComponent({
       } catch (e) {
         console.error('Failed to delete header', e)
         // TODO: Show error notification
+      }
+    },
+
+    async moveHeaderUp(index: number): Promise<void> {
+      if (index <= 0) return
+
+      // Update sort orders on backend
+      await this.updateHeaderSortOrders(index, -1)
+    },
+
+    async moveHeaderDown(index: number): Promise<void> {
+      if (index >= this.categoryHeaders.length - 1) return
+
+      // Update sort orders on backend
+      await this.updateHeaderSortOrders(index, 1)
+    },
+
+    async updateHeaderSortOrders(index: number, amount: number): Promise<void> {
+      // Swap positions locally
+      const temp = this.categoryHeaders[index]
+      this.categoryHeaders[index] = this.categoryHeaders[index + amount]
+      this.categoryHeaders[index + amount] = temp
+
+      try {
+        // Build array of header IDs in their current order
+        const sortOrders = this.categoryHeaders.map((header, idx) => ({
+          id: header.id,
+          sortOrder: idx,
+        }))
+
+        await ocs.post('/headers/reorder', { headers: sortOrders })
+      } catch (e) {
+        console.error('Failed to update header sort orders', e)
+        // Revert the swap on error
+        const revertTemp = this.categoryHeaders[index + amount]
+        this.categoryHeaders[index + amount] = this.categoryHeaders[index]
+        this.categoryHeaders[index] = revertTemp
+      }
+    },
+
+    async moveCategoryUp(headerId: number, index: number): Promise<void> {
+      const header = this.categoryHeaders.find((h) => h.id === headerId)
+      if (!header || !header.categories || index <= 0) return
+
+      // Update sort orders on backend
+      await this.updateCategorySortOrders(headerId, index, -1)
+    },
+
+    async moveCategoryDown(headerId: number, index: number): Promise<void> {
+      const header = this.categoryHeaders.find((h) => h.id === headerId)
+      if (!header || !header.categories || index >= header.categories.length - 1) return
+
+      // Update sort orders on backend
+      await this.updateCategorySortOrders(headerId, index, 1)
+    },
+
+    async updateCategorySortOrders(headerId: number, index: number, amount: number): Promise<void> {
+      const header = this.categoryHeaders.find((h) => h.id === headerId)
+      if (!header || !header.categories) return
+
+      // Swap positions locally
+      const temp = header.categories[index]
+      header.categories[index] = header.categories[index + amount]
+      header.categories[index + amount] = temp
+
+      try {
+        // Build array of category IDs in their current order
+        const sortOrders = header.categories.map((category, idx) => ({
+          id: category.id,
+          sortOrder: idx,
+        }))
+
+        await ocs.post('/categories/reorder', { categories: sortOrders })
+      } catch (e) {
+        console.error('Failed to update category sort orders', e)
+        // Revert the swap on error
+        const revertTemp = header.categories[index + amount]
+        header.categories[index + amount] = header.categories[index]
+        header.categories[index] = revertTemp
       }
     },
   },

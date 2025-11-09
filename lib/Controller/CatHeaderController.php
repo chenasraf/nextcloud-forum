@@ -192,4 +192,32 @@ class CatHeaderController extends OCSController {
 			return new DataResponse(['error' => 'Failed to delete category header'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	/**
+	 * Reorder category headers
+	 *
+	 * @param list<array{id: int, sortOrder: int}> $headers Array of headers with new sort orders
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 *
+	 * 200: Headers reordered successfully
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canEditCategories')]
+	#[ApiRoute(verb: 'POST', url: '/api/headers/reorder')]
+	public function reorder(array $headers): DataResponse {
+		try {
+			foreach ($headers as $headerData) {
+				$header = $this->catHeaderMapper->find($headerData['id']);
+				$header->setSortOrder($headerData['sortOrder']);
+				$this->catHeaderMapper->update($header);
+			}
+
+			return new DataResponse(['success' => true]);
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Header not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error reordering headers: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to reorder headers'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
 }

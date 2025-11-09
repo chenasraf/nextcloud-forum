@@ -188,8 +188,9 @@ export default defineComponent({
     },
 
     createThread() {
-      console.log('Create new thread in category:', this.category?.id)
-      // Example: this.$router.push({ name: 'new-thread', params: { categoryId: this.category.id } })
+      if (this.category) {
+        this.$router.push(`/c/${this.category.slug || this.category.id}/new`)
+      }
     },
 
     goBack(): void {

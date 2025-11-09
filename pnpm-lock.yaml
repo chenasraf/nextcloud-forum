@@ -14,6 +14,9 @@ importers:
       '@nextcloud/axios':
         specifier: ^2.5.2
         version: 2.5.2
+      '@nextcloud/dialogs':
+        specifier: ^7.1.0
+        version: 7.1.0(rollup@4.52.5)(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.93.3)(yaml@2.8.1))
       '@nextcloud/l10n':
         specifier: ^3.4.0
         version: 3.4.0
@@ -467,6 +470,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
+  '@mdi/js@7.4.47':
+    resolution: {integrity: sha512-KPnNOtm5i2pMabqZxpUz7iQf+mfrYZyKCZ8QNz85czgEt7cuHcGorWfdzUMWYA0SD+a6Hn4FmJ+YhzzzjkTZrQ==}
+
   '@microsoft/api-extractor-model@7.31.3':
     resolution: {integrity: sha512-dv4quQI46p0U03TCEpasUf6JrJL3qjMN7JUAobsPElxBv4xayYYvWW9aPpfYV+Jx6hqUcVaLVOeV7+5hxsyoFQ==}
 
@@ -505,6 +511,10 @@ packages:
   '@nextcloud/capabilities@1.2.0':
     resolution: {integrity: sha512-L1NQtOfHWzkfj0Ple1MEJt6HmOHWAi3y4qs+OnwSWexqJT0DtXTVPyRxi7ADyITwRxS5H9R/HMl6USAj4Nr1nQ==}
     engines: {node: ^20.0.0, npm: ^10.0.0}
+
+  '@nextcloud/dialogs@7.1.0':
+    resolution: {integrity: sha512-/q4vr4AqJkQhCf8r1i89c9g3A49HgrBkqUCLc9sDUZFLqpTHxC4eqP8zO5/G9iTdVttq8RHva/u8XV8EtGHf3A==}
+    engines: {node: ^20 || ^22 || ^24}
 
   '@nextcloud/eslint-config@8.4.2':
     resolution: {integrity: sha512-zsDcBxvp2Vr/BgasK/vNYJ84LOXjl4RseJPrcp93zcnaB2WnygV50Sd0nQ5JN0ngTyPjiIlGd92MMzrMTofjRA==}
@@ -910,6 +920,9 @@ packages:
 
   '@types/sizzle@2.3.10':
     resolution: {integrity: sha512-TC0dmN0K8YcWEAEfiPi5gJP14eJe30TTGjkvek3iM/1NdHHsdCA/Td6GvNndMOo/iSnIsZ4HuuhrYPDAmbxzww==}
+
+  '@types/toastify-js@1.12.4':
+    resolution: {integrity: sha512-zfZHU4tKffPCnZRe7pjv/eFKzTVHozKewFCKaCjZ4gFinKgJRz/t0bkZiMCXJxPhv/ZoeDGNOeRD09R0kQZ/nw==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -3583,6 +3596,9 @@ packages:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
 
+  toastify-js@1.12.0:
+    resolution: {integrity: sha512-HeMHCO9yLPvP9k0apGSdPUWrUbLnxUKNFzgUoZp1PHCLploIX/4DSQ7V8H25ef+h4iO9n0he7ImfcndnN6nDrQ==}
+
   tributejs@5.1.3:
     resolution: {integrity: sha512-B5CXihaVzXw+1UHhNFyAwUTMDk1EfoLP5Tj1VhD9yybZ1I8DZJEv8tZ1l0RJo0t0tk9ZhR8eG5tEsaCvRigmdQ==}
 
@@ -3748,6 +3764,11 @@ packages:
     resolution: {integrity: sha512-4n+Ys+2bKHQohPBKigFlndwWQ5fFKwaGY6muNDMTb0fSQLyBzS+jjUNRZG9sKF0S/Go4ApG6LFnUGopjkILg3w==}
     peerDependencies:
       vite: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0
+
+  vite-plugin-node-polyfills@0.24.0:
+    resolution: {integrity: sha512-GA9QKLH+vIM8NPaGA+o2t8PDfFUl32J8rUp1zQfMKVJQiNkOX4unE51tR6ppl6iKw5yOrDAdSH7r/UIFLCVhLw==}
+    peerDependencies:
+      vite: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
   vite@6.4.1:
     resolution: {integrity: sha512-+Oxm7q9hDoLMyJOYfUYBuHQo+dkAloi33apOPP56pzj+vsdJDzr+j1NISE5pyaAuKL4A3UD34qd0lx5+kfKp2g==}
@@ -4026,7 +4047,6 @@ snapshots:
   '@buttercup/fetch@0.2.1':
     optionalDependencies:
       node-fetch: 3.3.2
-    optional: true
 
   '@ckpack/vue-color@1.6.0(vue@3.5.22(typescript@5.9.2))':
     dependencies:
@@ -4234,6 +4254,8 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@mdi/js@7.4.47': {}
+
   '@microsoft/api-extractor-model@7.31.3(@types/node@20.17.10)':
     dependencies:
       '@microsoft/tsdoc': 0.15.1
@@ -4297,6 +4319,37 @@ snapshots:
     dependencies:
       '@nextcloud/initial-state': 2.2.0
 
+  '@nextcloud/dialogs@7.1.0(rollup@4.52.5)(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.93.3)(yaml@2.8.1))':
+    dependencies:
+      '@mdi/js': 7.4.47
+      '@nextcloud/auth': 2.5.3
+      '@nextcloud/axios': 2.5.2
+      '@nextcloud/browser-storage': 0.5.0
+      '@nextcloud/event-bus': 3.3.2
+      '@nextcloud/files': 3.12.0
+      '@nextcloud/initial-state': 3.0.0
+      '@nextcloud/l10n': 3.4.0
+      '@nextcloud/paths': 2.2.1
+      '@nextcloud/router': 3.0.1
+      '@nextcloud/sharing': 0.3.0
+      '@nextcloud/typings': 1.9.1
+      '@nextcloud/vue': 9.0.1(typescript@5.9.2)
+      '@types/toastify-js': 1.12.4
+      '@vueuse/core': 13.9.0(vue@3.5.22(typescript@5.9.2))
+      cancelable-promise: 4.3.1
+      p-queue: 9.0.0
+      toastify-js: 1.12.0
+      vite-plugin-node-polyfills: 0.24.0(rollup@4.52.5)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.93.3)(yaml@2.8.1))
+      vue: 3.5.22(typescript@5.9.2)
+      webdav: 5.8.0
+    transitivePeerDependencies:
+      - '@nuxt/kit'
+      - debug
+      - rollup
+      - supports-color
+      - typescript
+      - vite
+
   '@nextcloud/eslint-config@8.4.2(@babel/core@7.26.0)(@babel/eslint-parser@7.25.9(@babel/core@7.26.0)(eslint@9.39.1))(@nextcloud/eslint-plugin@2.2.1(eslint@9.39.1))(@vue/eslint-config-typescript@13.0.0(eslint-plugin-vue@9.32.0(eslint@9.39.1))(eslint@9.39.1)(typescript@5.9.2))(eslint-config-standard@17.1.0(eslint-plugin-import@2.31.0)(eslint-plugin-n@16.6.2(eslint@9.39.1))(eslint-plugin-promise@6.6.0(eslint@9.39.1))(eslint@9.39.1))(eslint-import-resolver-exports@1.0.0-beta.5(eslint-plugin-import@2.31.0)(eslint@9.39.1))(eslint-import-resolver-typescript@3.6.3)(eslint-plugin-import@2.31.0)(eslint-plugin-jsdoc@46.10.1(eslint@9.39.1))(eslint-plugin-n@16.6.2(eslint@9.39.1))(eslint-plugin-promise@6.6.0(eslint@9.39.1))(eslint-plugin-vue@9.32.0(eslint@9.39.1))(eslint@9.39.1)(typescript@5.9.2)':
     dependencies:
       '@babel/core': 7.26.0
@@ -4339,7 +4392,6 @@ snapshots:
       is-svg: 6.1.0
       typescript-event-target: 1.1.1
       webdav: 5.8.0
-    optional: true
 
   '@nextcloud/initial-state@2.2.0': {}
 
@@ -4357,8 +4409,7 @@ snapshots:
     dependencies:
       '@nextcloud/auth': 2.5.3
 
-  '@nextcloud/paths@2.2.1':
-    optional: true
+  '@nextcloud/paths@2.2.1': {}
 
   '@nextcloud/router@3.0.1':
     dependencies:
@@ -4367,7 +4418,6 @@ snapshots:
   '@nextcloud/sharing@0.2.5':
     dependencies:
       '@nextcloud/initial-state': 2.2.0
-    optional: true
 
   '@nextcloud/sharing@0.3.0':
     dependencies:
@@ -4714,6 +4764,8 @@ snapshots:
   '@types/semver@7.7.1': {}
 
   '@types/sizzle@2.3.10': {}
+
+  '@types/toastify-js@1.12.4': {}
 
   '@types/trusted-types@2.0.7':
     optional: true
@@ -5217,8 +5269,7 @@ snapshots:
 
   balanced-match@2.0.0: {}
 
-  base-64@1.0.0:
-    optional: true
+  base-64@1.0.0: {}
 
   base64-js@1.5.1: {}
 
@@ -5325,8 +5376,7 @@ snapshots:
     dependencies:
       semver: 7.7.3
 
-  byte-length@1.0.2:
-    optional: true
+  byte-length@1.0.2: {}
 
   call-bind-apply-helpers@1.0.2:
     dependencies:
@@ -5347,8 +5397,7 @@ snapshots:
 
   callsites@3.1.0: {}
 
-  cancelable-promise@4.3.1:
-    optional: true
+  cancelable-promise@4.3.1: {}
 
   caniuse-lite@1.0.30001753: {}
 
@@ -5367,8 +5416,7 @@ snapshots:
 
   character-reference-invalid@2.0.1: {}
 
-  charenc@0.0.2:
-    optional: true
+  charenc@0.0.2: {}
 
   chokidar@4.0.3:
     dependencies:
@@ -5478,8 +5526,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  crypt@0.0.2:
-    optional: true
+  crypt@0.0.2: {}
 
   crypto-browserify@3.12.1:
     dependencies:
@@ -5507,8 +5554,7 @@ snapshots:
 
   csstype@3.1.3: {}
 
-  data-uri-to-buffer@4.0.1:
-    optional: true
+  data-uri-to-buffer@4.0.1: {}
 
   data-view-buffer@1.0.2:
     dependencies:
@@ -5651,8 +5697,7 @@ snapshots:
 
   entities@4.5.0: {}
 
-  entities@6.0.1:
-    optional: true
+  entities@6.0.1: {}
 
   env-paths@2.2.1: {}
 
@@ -6063,7 +6108,6 @@ snapshots:
     dependencies:
       node-domexception: 1.0.0
       web-streams-polyfill: 3.3.3
-    optional: true
 
   file-entry-cache@8.0.0:
     dependencies:
@@ -6121,7 +6165,6 @@ snapshots:
   formdata-polyfill@4.0.10:
     dependencies:
       fetch-blob: 3.2.0
-    optional: true
 
   fs-extra@11.3.2:
     dependencies:
@@ -6309,8 +6352,7 @@ snapshots:
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
 
-  hot-patcher@2.0.1:
-    optional: true
+  hot-patcher@2.0.1: {}
 
   html-tags@3.3.1: {}
 
@@ -6395,8 +6437,7 @@ snapshots:
       call-bound: 1.0.4
       has-tostringtag: 1.0.2
 
-  is-buffer@1.1.6:
-    optional: true
+  is-buffer@1.1.6: {}
 
   is-builtin-module@3.2.1:
     dependencies:
@@ -6570,8 +6611,7 @@ snapshots:
 
   kolorist@1.8.0: {}
 
-  layerr@3.0.0:
-    optional: true
+  layerr@3.0.0: {}
 
   levn@0.4.1:
     dependencies:
@@ -6662,7 +6702,6 @@ snapshots:
       charenc: 0.0.2
       crypt: 0.0.2
       is-buffer: 1.1.6
-    optional: true
 
   mdast-squeeze-paragraphs@6.0.0:
     dependencies:
@@ -6964,21 +7003,18 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  nested-property@4.0.0:
-    optional: true
+  nested-property@4.0.0: {}
 
   node-addon-api@7.1.1:
     optional: true
 
-  node-domexception@1.0.0:
-    optional: true
+  node-domexception@1.0.0: {}
 
   node-fetch@3.3.2:
     dependencies:
       data-uri-to-buffer: 4.0.1
       fetch-blob: 3.2.0
       formdata-polyfill: 4.0.10
-    optional: true
 
   node-releases@2.0.27: {}
 
@@ -7133,8 +7169,7 @@ snapshots:
 
   path-parse@1.0.7: {}
 
-  path-posix@1.0.0:
-    optional: true
+  path-posix@1.0.0: {}
 
   path-type@4.0.0: {}
 
@@ -7253,8 +7288,7 @@ snapshots:
 
   querystring-es3@0.2.1: {}
 
-  querystringify@2.2.0:
-    optional: true
+  querystringify@2.2.0: {}
 
   queue-microtask@1.2.3: {}
 
@@ -7363,8 +7397,7 @@ snapshots:
 
   requireindex@1.2.0: {}
 
-  requires-port@1.0.0:
-    optional: true
+  requires-port@1.0.0: {}
 
   resolve-from@4.0.0: {}
 
@@ -7955,6 +7988,8 @@ snapshots:
     dependencies:
       is-number: 7.0.0
 
+  toastify-js@1.12.0: {}
+
   tributejs@5.1.3: {}
 
   trim-lines@3.0.1: {}
@@ -8030,8 +8065,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  typescript-event-target@1.1.1:
-    optional: true
+  typescript-event-target@1.1.1: {}
 
   typescript@5.8.2: {}
 
@@ -8103,14 +8137,12 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  url-join@5.0.0:
-    optional: true
+  url-join@5.0.0: {}
 
   url-parse@1.5.10:
     dependencies:
       querystringify: 2.2.0
       requires-port: 1.0.0
-    optional: true
 
   url@0.11.4:
     dependencies:
@@ -8163,6 +8195,14 @@ snapshots:
       - supports-color
 
   vite-plugin-node-polyfills@0.23.0(rollup@4.52.5)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.93.3)(yaml@2.8.1)):
+    dependencies:
+      '@rollup/plugin-inject': 5.0.5(rollup@4.52.5)
+      node-stdlib-browser: 1.3.1
+      vite: 6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.93.3)(yaml@2.8.1)
+    transitivePeerDependencies:
+      - rollup
+
+  vite-plugin-node-polyfills@0.24.0(rollup@4.52.5)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.93.3)(yaml@2.8.1)):
     dependencies:
       '@rollup/plugin-inject': 5.0.5(rollup@4.52.5)
       node-stdlib-browser: 1.3.1
@@ -8233,8 +8273,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.2
 
-  web-streams-polyfill@3.3.3:
-    optional: true
+  web-streams-polyfill@3.3.3: {}
 
   webdav@5.8.0:
     dependencies:
@@ -8252,7 +8291,6 @@ snapshots:
       path-posix: 1.0.0
       url-join: 5.0.0
       url-parse: 1.5.10
-    optional: true
 
   which-boxed-primitive@1.1.1:
     dependencies:

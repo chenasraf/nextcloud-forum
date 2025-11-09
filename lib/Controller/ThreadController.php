@@ -137,7 +137,6 @@ class ThreadController extends OCSController {
 	 *
 	 * @param int $categoryId Category ID
 	 * @param string $title Thread title
-	 * @param string $slug Thread slug
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Thread created
@@ -145,12 +144,18 @@ class ThreadController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canPost', resourceType: 'category', resourceIdBody: 'categoryId')]
 	#[ApiRoute(verb: 'POST', url: '/api/threads')]
-	public function create(int $categoryId, string $title, string $slug): DataResponse {
+	public function create(int $categoryId, string $title): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
+
+			// Generate slug from title
+			$slug = $this->generateSlug($title);
+
+			// Ensure slug is unique
+			$slug = $this->ensureUniqueSlug($slug);
 
 			$thread = new \OCA\Forum\Db\Thread();
 			$thread->setCategoryId($categoryId);
@@ -252,6 +257,61 @@ class ThreadController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error deleting thread: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to delete thread'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Generate a URL-friendly slug from a string
+	 *
+	 * @param string $text The text to convert to a slug
+	 * @return string A URL-friendly slug
+	 */
+	private function generateSlug(string $text): string {
+		// Convert to lowercase
+		$slug = mb_strtolower($text, 'UTF-8');
+
+		// Replace spaces and underscores with hyphens
+		$slug = preg_replace('/[\s_]+/', '-', $slug);
+
+		// Remove all non-word chars except hyphens
+		$slug = preg_replace('/[^\w\-]+/u', '', $slug);
+
+		// Replace multiple hyphens with single hyphen
+		$slug = preg_replace('/-+/', '-', $slug);
+
+		// Remove leading/trailing hyphens
+		$slug = trim($slug, '-');
+
+		// If slug is empty after processing, generate a random one
+		if (empty($slug)) {
+			$slug = 'thread-' . uniqid();
+		}
+
+		return $slug;
+	}
+
+	/**
+	 * Ensure slug is unique by appending a number if necessary
+	 *
+	 * @param string $slug The base slug to make unique
+	 * @return string A unique slug
+	 */
+	private function ensureUniqueSlug(string $slug): string {
+		$originalSlug = $slug;
+		$counter = 1;
+
+		// Keep trying until we find a unique slug
+		while (true) {
+			try {
+				// Try to find a thread with this slug
+				$this->threadMapper->findBySlug($slug);
+				// If we get here, slug exists, try the next one
+				$slug = $originalSlug . '-' . $counter;
+				$counter++;
+			} catch (DoesNotExistException $e) {
+				// Slug doesn't exist, we can use it
+				return $slug;
+			}
 		}
 	}
 }

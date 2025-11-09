@@ -6246,8 +6246,7 @@
                                 "type": "object",
                                 "required": [
                                     "categoryId",
-                                    "title",
-                                    "slug"
+                                    "title"
                                 ],
                                 "properties": {
                                     "categoryId": {
@@ -6258,10 +6257,6 @@
                                     "title": {
                                         "type": "string",
                                         "description": "Thread title"
-                                    },
-                                    "slug": {
-                                        "type": "string",
-                                        "description": "Thread slug"
                                     }
                                 }
                             }

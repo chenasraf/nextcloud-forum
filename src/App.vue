@@ -121,6 +121,7 @@
             <NcLoadingIcon :size="48" />
           </div>
           <router-view v-else />
+          <div class="bottom-spacer"></div>
         </div>
       </div>
     </NcAppContent>
@@ -282,7 +283,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 #forum-main {
-  height: 100vh;
   overflow: auto;
 }
 
@@ -311,8 +311,12 @@ export default defineComponent({
 #forum-router {
   flex: 1;
   padding: 1rem;
-  padding-bottom: 3rem; // Add extra bottom padding
   min-height: 0;
+}
+
+.bottom-spacer {
+  height: 3rem;
+  flex-shrink: 0;
 }
 
 .router-loading {

@@ -36,34 +36,28 @@
 
     <!-- Category list -->
     <div v-else class="category-list">
-      <!-- Headers Management Section -->
-      <section class="headers-section">
-        <div class="section-header">
-          <h3>{{ strings.headersTitle }}</h3>
-          <p class="muted">{{ strings.headersSubtitle }}</p>
-        </div>
-
-        <div v-if="categoryHeaders.length > 0" class="headers-table">
-          <div v-for="(header, index) in categoryHeaders" :key="`header-manage-${header.id}`" class="header-manage-row">
+      <!-- Categories by Header -->
+      <section class="categories-section">
+        <template v-for="(header, headerIndex) in categoryHeaders" :key="header.id">
+          <div class="header-row">
             <div class="header-sort-buttons">
-              <NcButton v-if="index > 0" type="tertiary" @click="moveHeaderUp(index)" :aria-label="strings.moveUp" :title="strings.moveUp">
+              <NcButton v-if="headerIndex > 0" type="tertiary" @click="moveHeaderUp(headerIndex)"
+                :aria-label="strings.moveUp" :title="strings.moveUp">
                 <template #icon>
                   <ChevronUpIcon :size="20" />
                 </template>
               </NcButton>
-              <NcButton v-if="index < categoryHeaders.length - 1" type="tertiary" @click="moveHeaderDown(index)"
-                :aria-label="strings.moveDown" :title="strings.moveDown">
+              <NcButton v-if="headerIndex < categoryHeaders.length - 1" type="tertiary"
+                @click="moveHeaderDown(headerIndex)" :aria-label="strings.moveDown" :title="strings.moveDown">
                 <template #icon>
                   <ChevronDownIcon :size="20" />
                 </template>
               </NcButton>
             </div>
             <div class="header-info">
-              <div class="header-name">{{ header.name }}</div>
-              <div v-if="header.description" class="header-desc muted">{{ header.description }}</div>
-              <div class="header-meta muted">
-                <span>{{ (header.categories?.length || 0) }} {{ strings.categoriesCount }}</span>
-              </div>
+              <h3>{{ header.name }}</h3>
+              <span v-if="header.description" class="muted">{{ header.description }}</span>
+              <span class="muted category-count">{{ (header.categories?.length || 0) }} {{ strings.categoriesCount }}</span>
             </div>
             <div class="header-actions">
               <NcButton @click="editHeaderById(header.id)">
@@ -79,23 +73,6 @@
                 {{ strings.delete }}
               </NcButton>
             </div>
-          </div>
-        </div>
-        <div v-else class="no-headers muted">
-          {{ strings.noHeaders }}
-        </div>
-      </section>
-
-      <!-- Categories by Header -->
-      <section class="categories-section">
-        <div class="section-header">
-          <h3>{{ strings.categoriesTitle }}</h3>
-        </div>
-
-        <template v-for="header in categoryHeaders" :key="header.id">
-          <div class="header-row">
-            <h3>{{ header.name }}</h3>
-            <span v-if="header.description" class="muted">{{ header.description }}</span>
           </div>
 
           <div v-if="header.categories && header.categories.length > 0" class="categories-table">
@@ -355,8 +332,7 @@ export default defineComponent({
         createCategory: t('forum', 'Create Category'),
         edit: t('forum', 'Edit'),
         delete: t('forum', 'Delete'),
-        noCategories: t('forum', 'No categories in this section'),
-        noHeaders: t('forum', 'No category headers found'),
+        noCategories: t('forum', 'No categories in this header'),
         deleteDialogTitle: t('forum', 'Delete Category'),
         deleteConfirmMessage: (name: string) => t('forum', `Are you sure you want to delete the category "{name}"?`, { name }),
         threadWarning: (count: number) => t('forum', `This category contains {count} thread(s).`, { count }),
@@ -369,9 +345,6 @@ export default defineComponent({
         cancel: t('forum', 'Cancel'),
         deleteCategory: t('forum', 'Delete Category'),
         createHeader: t('forum', 'Create Header'),
-        headersTitle: t('forum', 'Category Headers'),
-        headersSubtitle: t('forum', 'Organize categories into sections'),
-        categoriesTitle: t('forum', 'Categories'),
         categoriesCount: t('forum', 'categories'),
         createHeaderTitle: t('forum', 'Create Category Header'),
         editHeaderTitle: t('forum', 'Edit Category Header'),
@@ -703,95 +676,57 @@ export default defineComponent({
   }
 
   .category-list {
-    display: flex;
-    flex-direction: column;
-    gap: 48px;
-
-    .section-header {
-      margin-bottom: 16px;
-
-      h3 {
-        margin: 0 0 6px 0;
-        font-size: 1.4rem;
-        font-weight: 600;
-      }
-
-      p {
-        font-size: 0.9rem;
-      }
-    }
-
-    .headers-section,
     .categories-section {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-    }
-
-    .headers-table {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      background: var(--color-border);
-      border-radius: 8px;
-      overflow: hidden;
-
-      .header-manage-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        padding: 16px;
-        background: var(--color-main-background);
-
-        &:hover {
-          background: var(--color-background-hover);
-        }
-
-        .header-info {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-
-          .header-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-          }
-
-          .header-desc {
-            font-size: 0.9rem;
-          }
-
-          .header-meta {
-            display: flex;
-            gap: 8px;
-            font-size: 0.85rem;
-          }
-        }
-
-        .header-actions {
-          display: flex;
-          gap: 8px;
-        }
-      }
-    }
-
-    .no-headers {
-      padding: 16px;
-      text-align: center;
-      font-style: italic;
+      gap: 32px;
     }
 
     .header-row {
-      h3 {
-        margin: 0 0 6px 0;
-        font-size: 1.3rem;
-        font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--color-main-background);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+
+      &:hover {
+        background: var(--color-background-hover);
       }
 
-      span {
-        font-size: 0.9rem;
+      .header-sort-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .header-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        h3 {
+          margin: 0;
+          font-size: 1.3rem;
+          font-weight: 600;
+        }
+
+        span {
+          font-size: 0.9rem;
+        }
+
+        .category-count {
+          font-size: 0.85rem;
+        }
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 8px;
       }
     }
 
@@ -813,6 +748,12 @@ export default defineComponent({
 
         &:hover {
           background: var(--color-background-hover);
+        }
+
+        .category-sort-buttons {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
         }
 
         .category-info {

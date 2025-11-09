@@ -1,0 +1,379 @@
+<?php
+
+declare(strict_types=1);
+
+namespace OCA\Forum\Tests\Controller;
+
+use OCA\Forum\AppInfo\Application;
+use OCA\Forum\Controller\PostController;
+use OCA\Forum\Db\BBCode;
+use OCA\Forum\Db\BBCodeMapper;
+use OCA\Forum\Db\Category;
+use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\ForumUser;
+use OCA\Forum\Db\ForumUserMapper;
+use OCA\Forum\Db\Post;
+use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Db\Reaction;
+use OCA\Forum\Db\ReactionMapper;
+use OCA\Forum\Db\Thread;
+use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Service\BBCodeService;
+use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\AppFramework\Http;
+use OCP\IRequest;
+use OCP\IUser;
+use OCP\IUserSession;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+
+class PostControllerTest extends TestCase {
+	private PostController $controller;
+	private PostMapper $postMapper;
+	private ThreadMapper $threadMapper;
+	private CategoryMapper $categoryMapper;
+	private ForumUserMapper $forumUserMapper;
+	private ReactionMapper $reactionMapper;
+	private BBCodeService $bbCodeService;
+	private BBCodeMapper $bbCodeMapper;
+	private IUserSession $userSession;
+	private LoggerInterface $logger;
+	private IRequest $request;
+
+	protected function setUp(): void {
+		$this->request = $this->createMock(IRequest::class);
+		$this->postMapper = $this->createMock(PostMapper::class);
+		$this->threadMapper = $this->createMock(ThreadMapper::class);
+		$this->categoryMapper = $this->createMock(CategoryMapper::class);
+		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
+		$this->reactionMapper = $this->createMock(ReactionMapper::class);
+		$this->bbCodeService = $this->createMock(BBCodeService::class);
+		$this->bbCodeMapper = $this->createMock(BBCodeMapper::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->logger = $this->createMock(LoggerInterface::class);
+
+		$this->controller = new PostController(
+			Application::APP_ID,
+			$this->request,
+			$this->postMapper,
+			$this->threadMapper,
+			$this->categoryMapper,
+			$this->forumUserMapper,
+			$this->reactionMapper,
+			$this->bbCodeService,
+			$this->bbCodeMapper,
+			$this->userSession,
+			$this->logger
+		);
+	}
+
+	public function testByThreadReturnsPostsSuccessfully(): void {
+		$threadId = 1;
+		$limit = 50;
+		$offset = 0;
+
+		// Create mock posts
+		$post1 = $this->createMockPost(1, $threadId, 'user1', 'Test content 1');
+		$post2 = $this->createMockPost(2, $threadId, 'user2', 'Test content 2');
+		$posts = [$post1, $post2];
+
+		// Create mock BBCode
+		$bbcode = new BBCode();
+		$bbcode->setId(1);
+		$bbcode->setTag('b');
+		$bbcode->setReplacement('<strong>{content}</strong>');
+		$bbcode->setEnabled(true);
+
+		// Create mock reactions
+		$reaction1 = $this->createMockReaction(1, 1, 'user1', '👍');
+		$reaction2 = $this->createMockReaction(2, 1, 'user2', '👍');
+
+		// Mock user session
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Set up expectations
+		$this->postMapper->expects($this->once())
+			->method('findByThreadId')
+			->with($threadId, $limit, $offset)
+			->willReturn($posts);
+
+		$this->bbCodeMapper->expects($this->once())
+			->method('findAllEnabled')
+			->willReturn([$bbcode]);
+
+		$this->reactionMapper->expects($this->once())
+			->method('findByPostIds')
+			->with([1, 2])
+			->willReturn([$reaction1, $reaction2]);
+
+		// Execute
+		$response = $this->controller->byThread($threadId, $limit, $offset);
+
+		// Assert
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertIsArray($data);
+		$this->assertCount(2, $data);
+		$this->assertEquals(1, $data[0]['id']);
+		$this->assertEquals(2, $data[1]['id']);
+		$this->assertArrayHasKey('reactions', $data[0]);
+		$this->assertArrayHasKey('reactions', $data[1]);
+	}
+
+	public function testByThreadHandlesEmptyPosts(): void {
+		$threadId = 1;
+
+		$this->postMapper->expects($this->once())
+			->method('findByThreadId')
+			->willReturn([]);
+
+		$this->bbCodeMapper->expects($this->once())
+			->method('findAllEnabled')
+			->willReturn([]);
+
+		$this->reactionMapper->expects($this->once())
+			->method('findByPostIds')
+			->with([])
+			->willReturn([]);
+
+		$response = $this->controller->byThread($threadId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertIsArray($response->getData());
+		$this->assertCount(0, $response->getData());
+	}
+
+	public function testShowReturnsPostSuccessfully(): void {
+		$postId = 1;
+		$post = $this->createMockPost($postId, 1, 'user1', 'Test content');
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->with($postId)
+			->willReturn($post);
+
+		$response = $this->controller->show($postId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($postId, $data['id']);
+		$this->assertEquals('user1', $data['authorId']);
+	}
+
+	public function testShowReturnsNotFoundWhenPostDoesNotExist(): void {
+		$postId = 999;
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->with($postId)
+			->willThrowException(new DoesNotExistException('Post not found'));
+
+		$response = $this->controller->show($postId);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'Post not found'], $response->getData());
+	}
+
+	public function testCreatePostSuccessfully(): void {
+		$threadId = 1;
+		$content = 'New post content';
+		$userId = 'user1';
+
+		// Mock user
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock forum user
+		$forumUser = new ForumUser();
+		$forumUser->setId(1);
+		$forumUser->setUserId($userId);
+		$forumUser->setPostCount(0);
+		$forumUser->setCreatedAt(time());
+		$forumUser->setUpdatedAt(time());
+
+		// Mock thread
+		$thread = new Thread();
+		$thread->setId($threadId);
+		$thread->setCategoryId(1);
+		$thread->setPostCount(1);
+		$thread->setCreatedAt(time());
+		$thread->setUpdatedAt(time());
+
+		// Mock category
+		$category = new Category();
+		$category->setId(1);
+		$category->setPostCount(1);
+
+		// Mock created post
+		$createdPost = $this->createMockPost(1, $threadId, $userId, $content);
+
+		$this->forumUserMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn($forumUser);
+
+		$this->postMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function ($post) use ($createdPost) {
+				return $createdPost;
+			});
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturn($thread);
+
+		$this->forumUserMapper->expects($this->once())
+			->method('update')
+			->willReturn($forumUser);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->willReturn($category);
+
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturn($category);
+
+		$response = $this->controller->create($threadId, $content);
+
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(1, $data['id']);
+		$this->assertEquals($threadId, $data['threadId']);
+		$this->assertEquals($userId, $data['authorId']);
+	}
+
+	public function testCreatePostReturnsUnauthorizedWhenUserNotAuthenticated(): void {
+		$threadId = 1;
+		$content = 'New post content';
+
+		$this->userSession->method('getUser')->willReturn(null);
+
+		$response = $this->controller->create($threadId, $content);
+
+		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
+	}
+
+	public function testCreatePostReturnsForbiddenWhenForumUserDoesNotExist(): void {
+		$threadId = 1;
+		$content = 'New post content';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->forumUserMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willThrowException(new DoesNotExistException('Forum user not found'));
+
+		$response = $this->controller->create($threadId, $content);
+
+		$this->assertEquals(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertEquals(['error' => 'User not registered in forum'], $response->getData());
+	}
+
+	public function testUpdatePostSuccessfully(): void {
+		$postId = 1;
+		$newContent = 'Updated content';
+		$post = $this->createMockPost($postId, 1, 'user1', 'Original content');
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->with($postId)
+			->willReturn($post);
+
+		$this->postMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedPost) {
+				return $updatedPost;
+			});
+
+		$response = $this->controller->update($postId, $newContent);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($postId, $data['id']);
+	}
+
+	public function testUpdatePostReturnsNotFoundWhenPostDoesNotExist(): void {
+		$postId = 999;
+		$newContent = 'Updated content';
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->with($postId)
+			->willThrowException(new DoesNotExistException('Post not found'));
+
+		$response = $this->controller->update($postId, $newContent);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'Post not found'], $response->getData());
+	}
+
+	public function testDestroyPostSuccessfully(): void {
+		$postId = 1;
+		$post = $this->createMockPost($postId, 1, 'user1', 'Test content');
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->with($postId)
+			->willReturn($post);
+
+		$this->postMapper->expects($this->once())
+			->method('delete')
+			->with($post);
+
+		$response = $this->controller->destroy($postId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertEquals(['success' => true], $response->getData());
+	}
+
+	public function testDestroyPostReturnsNotFoundWhenPostDoesNotExist(): void {
+		$postId = 999;
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->with($postId)
+			->willThrowException(new DoesNotExistException('Post not found'));
+
+		$response = $this->controller->destroy($postId);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'Post not found'], $response->getData());
+	}
+
+	private function createMockPost(int $id, int $threadId, string $authorId, string $content): Post {
+		$post = new Post();
+		$post->setId($id);
+		$post->setThreadId($threadId);
+		$post->setAuthorId($authorId);
+		$post->setContent($content);
+		$post->setSlug("post-$id");
+		$post->setIsEdited(false);
+		$post->setCreatedAt(time());
+		$post->setUpdatedAt(time());
+		return $post;
+	}
+
+	private function createMockReaction(int $id, int $postId, string $userId, string $reactionType): Reaction {
+		$reaction = new Reaction();
+		$reaction->setId($id);
+		$reaction->setPostId($postId);
+		$reaction->setUserId($userId);
+		$reaction->setReactionType($reactionType);
+		$reaction->setCreatedAt(time());
+		return $reaction;
+	}
+}

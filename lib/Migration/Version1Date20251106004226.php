@@ -672,9 +672,10 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 
 		// Create default BBCodes
 		$bbcodes = [
-			['tag' => 'b', 'replacement' => '<strong>{content}</strong>', 'description' => 'Bold text', 'parse_inner' => true],
-			['tag' => 'i', 'replacement' => '<em>{content}</em>', 'description' => 'Italic text', 'parse_inner' => true],
+			['tag' => 'b', 'replacement' => '<b>{content}</b>', 'description' => 'Bold text', 'parse_inner' => true],
+			['tag' => 'i', 'replacement' => '<i>{content}</i>', 'description' => 'Italic text', 'parse_inner' => true],
 			['tag' => 'u', 'replacement' => '<u>{content}</u>', 'description' => 'Underlined text', 'parse_inner' => true],
+			['tag' => 'color', 'replacement' => '<span style="color:{color}">{content}</span>', 'description' => 'Colored text', 'parse_inner' => true],
 			['tag' => 'url', 'replacement' => '<a href="{href}" target="_blank" rel="noopener noreferrer">{content}</a>', 'description' => 'URL link', 'parse_inner' => true],
 			['tag' => 'img', 'replacement' => '<img src="{url}" alt="Image" class="forum-image" />', 'description' => 'Image', 'parse_inner' => true],
 			['tag' => 'code', 'replacement' => '<pre><code>{content}</code></pre>', 'description' => 'Code block', 'parse_inner' => false],

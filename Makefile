@@ -203,9 +203,35 @@ test: composer
 
 # test-docker:
 #  - Run PHP unit tests inside a Nextcloud Docker container
+#  - Automatically finds the running Nextcloud container and app directory
+#  - Works with various Nextcloud dev environments (nextcloud-dev, custom setups, etc.)
 .PHONY: test-docker
 test-docker:
-	docker-compose exec nextcloud phpunit -c apps-shared/autocurrency/tests/phpunit.xml
+	@echo "\x1b[33mSearching for Nextcloud container...\x1b[0m"; \
+	CONTAINER_ID=$$(docker ps --format "{{.ID}}\t{{.Image}}" | grep -iE 'nextcloud.*php|php.*nextcloud' | head -1 | cut -f1); \
+	if [ -z "$$CONTAINER_ID" ]; then \
+		CONTAINER_ID=$$(docker ps --format "{{.ID}}\t{{.Image}}" | grep -i nextcloud | head -1 | cut -f1); \
+	fi; \
+	if [ -z "$$CONTAINER_ID" ]; then \
+		CONTAINER_ID=$$(docker ps --format "{{.ID}}\t{{.Names}}" | grep -i nextcloud | head -1 | cut -f1); \
+	fi; \
+	if [ -z "$$CONTAINER_ID" ]; then \
+		echo "\x1b[31mError: No running Nextcloud container found\x1b[0m"; \
+		echo "Looking for containers with 'nextcloud' in image or container name"; \
+		exit 1; \
+	fi; \
+	if ! docker exec $$CONTAINER_ID which phpunit >/dev/null 2>&1; then \
+		echo "\x1b[31mError: Container $$CONTAINER_ID does not have phpunit installed\x1b[0m"; \
+		echo "Found container but it may not be the Nextcloud PHP container"; \
+		exit 1; \
+	fi; \
+	APP_DIR=$$(basename $(CURDIR)); \
+	if ! docker exec $$CONTAINER_ID test -d "apps-shared/$$APP_DIR/tests"; then \
+		echo "\x1b[31mError: App directory apps-shared/$$APP_DIR not found in container\x1b[0m"; \
+		exit 1; \
+	fi; \
+	echo "\x1b[33mRunning tests in container $$CONTAINER_ID for app $$APP_DIR\x1b[0m"; \
+	docker exec $$CONTAINER_ID phpunit -c apps-shared/$$APP_DIR/tests/phpunit.xml
 
 # lint:
 #   - Lint JS via pnpm and PHP via composer script "lint"

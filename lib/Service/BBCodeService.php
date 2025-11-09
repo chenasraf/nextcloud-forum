@@ -152,15 +152,25 @@ class BBCodeService {
 		}
 
 		// Tag with parameters: [tag param1="value1" param2="value2"]content[/tag]
+		// Note: Content is already HTML-escaped, so quotes become &quot;, &#039;, or &apos;
 		// Build pattern to capture each parameter
 		$paramPattern = '';
+		$isFirst = true;
 		foreach ($params as $param) {
 			$escapedParam = preg_quote($param, '/');
-			// Match: param="value" or param='value'
-			$paramPattern .= '(?:.*?' . $escapedParam . '=["\']([^"\']*)["\'])?';
+			// Match: param="value" or param='value' (after HTML escaping: &quot;, &#039;, or &apos;)
+			// First parameter: must be preceded by whitespace
+			// Subsequent parameters: optional and preceded by whitespace
+			$quotePattern = '(?:&quot;|&#039;|&apos;)';
+			if ($isFirst) {
+				$paramPattern .= '\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern;
+				$isFirst = false;
+			} else {
+				$paramPattern .= '(?:\s+' . $escapedParam . '=' . $quotePattern . '(.*?)' . $quotePattern . ')?';
+			}
 		}
 
-		return '/\[' . $escapedTag . $paramPattern . '.*?\](.*?)\[\/' . $escapedTag . '\]/s';
+		return '/\[' . $escapedTag . $paramPattern . '\](.*?)\[\/' . $escapedTag . '\]/s';
 	}
 
 	/**

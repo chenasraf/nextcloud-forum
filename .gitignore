@@ -18,3 +18,4 @@ tsconfig.app.tsbuildinfo
 .env
 .env.keys
 .envrc
+tests/.phpunit.result.cache

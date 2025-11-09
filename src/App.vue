@@ -355,10 +355,11 @@ export default defineComponent({
       }
 
       // Fetch thread data to get category using the composable
+      // Don't increment view count when fetching for sidebar navigation
       if (this.$route.params.slug) {
-        await this.fetchThread(this.$route.params.slug as string, true)
+        await this.fetchThread(this.$route.params.slug as string, true, false)
       } else if (this.$route.params.id) {
-        await this.fetchThread(this.$route.params.id as string, false)
+        await this.fetchThread(this.$route.params.id as string, false, false)
       }
     },
   },

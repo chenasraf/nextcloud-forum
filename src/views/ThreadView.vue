@@ -174,11 +174,13 @@ export default defineComponent({
         this.error = null
 
         // Fetch thread details using the composable
+        // Increment view count on initial load, but not on manual refresh
+        const incrementView = !this.thread
         let threadData
         if (this.threadSlug) {
-          threadData = await this.fetchThread(this.threadSlug, true)
+          threadData = await this.fetchThread(this.threadSlug, true, incrementView)
         } else if (this.threadId) {
-          threadData = await this.fetchThread(this.threadId, false)
+          threadData = await this.fetchThread(this.threadId, false, incrementView)
         } else {
           throw new Error(t('forum', 'No thread ID or slug provided'))
         }

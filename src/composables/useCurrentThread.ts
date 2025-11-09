@@ -7,13 +7,17 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 
 export function useCurrentThread() {
-  const fetchThread = async (idOrSlug: string | number, isSlug: boolean = false): Promise<Thread | null> => {
+  const fetchThread = async (idOrSlug: string | number, isSlug: boolean = false, incrementView: boolean = true): Promise<Thread | null> => {
     try {
       isLoading.value = true
       error.value = null
 
       const endpoint = isSlug ? `/threads/slug/${idOrSlug}` : `/threads/${idOrSlug}`
-      const resp = await ocs.get<Thread>(endpoint)
+      const resp = await ocs.get<Thread>(endpoint, {
+        params: {
+          incrementView: incrementView ? '1' : '0',
+        },
+      })
 
       currentThread.value = resp.data
       return resp.data

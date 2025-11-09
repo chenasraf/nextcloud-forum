@@ -84,6 +84,7 @@ class ThreadController extends OCSController {
 	 * Get a single thread
 	 *
 	 * @param int $id Thread ID
+	 * @param string $incrementView Whether to increment view count (1 or 0)
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Thread returned
@@ -91,14 +92,16 @@ class ThreadController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'id')]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{id}')]
-	public function show(int $id): DataResponse {
+	public function show(int $id, string $incrementView = '1'): DataResponse {
 		try {
 			$thread = $this->threadMapper->find($id);
 
-			// Increment view count
-			$thread->setViewCount($thread->getViewCount() + 1);
-			/** @var \OCA\Forum\Db\Thread */
-			$thread = $this->threadMapper->update($thread);
+			// Increment view count only if requested
+			if ($incrementView === '1') {
+				$thread->setViewCount($thread->getViewCount() + 1);
+				/** @var \OCA\Forum\Db\Thread */
+				$thread = $this->threadMapper->update($thread);
+			}
 
 			return new DataResponse(Thread::enrichThread($thread));
 		} catch (DoesNotExistException $e) {
@@ -113,20 +116,23 @@ class ThreadController extends OCSController {
 	 * Get a thread by slug
 	 *
 	 * @param string $slug Thread slug
+	 * @param string $incrementView Whether to increment view count (1 or 0)
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Thread returned
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/slug/{slug}')]
-	public function bySlug(string $slug): DataResponse {
+	public function bySlug(string $slug, string $incrementView = '1'): DataResponse {
 		try {
 			$thread = $this->threadMapper->findBySlug($slug);
 
-			// Increment view count
-			$thread->setViewCount($thread->getViewCount() + 1);
-			/** @var \OCA\Forum\Db\Thread */
-			$thread = $this->threadMapper->update($thread);
+			// Increment view count only if requested
+			if ($incrementView === '1') {
+				$thread->setViewCount($thread->getViewCount() + 1);
+				/** @var \OCA\Forum\Db\Thread */
+				$thread = $this->threadMapper->update($thread);
+			}
 
 			return new DataResponse(Thread::enrichThread($thread));
 		} catch (DoesNotExistException $e) {

@@ -120,7 +120,7 @@
 
               <div class="col-permission">
                 <NcCheckboxRadioSwitch
-                  v-model="permissions[category.id].canView"
+                  v-model="ensurePermission(category.id).canView"
                   :disabled="isAdmin"
                 >
                   {{ strings.allow }}
@@ -129,7 +129,7 @@
 
               <div class="col-permission">
                 <NcCheckboxRadioSwitch
-                  v-model="permissions[category.id].canModerate"
+                  v-model="ensurePermission(category.id).canModerate"
                   :disabled="isAdmin"
                 >
                   {{ strings.allow }}
@@ -144,7 +144,7 @@
       <!-- Actions -->
       <div class="form-actions">
         <NcButton @click="goBack">{{ strings.cancel }}</NcButton>
-        <NcButton type="primary" :disabled="!canSubmit || submitting" @click="submitForm">
+        <NcButton variant="primary" :disabled="!canSubmit || submitting" @click="submitForm">
           <template v-if="submitting" #icon>
             <NcLoadingIcon :size="20" />
           </template>
@@ -260,6 +260,15 @@ export default defineComponent({
     this.refresh()
   },
   methods: {
+    ensurePermission(categoryId: number): CategoryPermission {
+      if (!this.permissions[categoryId]) {
+        this.permissions[categoryId] = {
+          canView: false,
+          canModerate: false,
+        }
+      }
+      return this.permissions[categoryId]
+    },
     async refresh(): Promise<void> {
       try {
         this.loading = true
@@ -331,9 +340,10 @@ export default defineComponent({
 
       // Apply loaded permissions
       perms.forEach((perm) => {
-        if (this.permissions[perm.categoryId]) {
-          this.permissions[perm.categoryId].canView = perm.canView
-          this.permissions[perm.categoryId].canModerate = perm.canModerate
+        const categoryPerm = this.permissions[perm.categoryId]
+        if (categoryPerm) {
+          categoryPerm.canView = perm.canView
+          categoryPerm.canModerate = perm.canModerate
         }
       })
 

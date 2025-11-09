@@ -18,7 +18,7 @@
 
       <div class="form-footer">
         <div class="form-footer-left">
-          <NcButton type="tertiary" @click="showHelp = true">
+          <NcButton variant="tertiary" @click="showHelp = true">
             <template #icon>
               <HelpCircleIcon :size="20" />
             </template>
@@ -29,7 +29,7 @@
           <NcButton @click="cancel" :disabled="submitting">
             {{ strings.cancel }}
           </NcButton>
-          <NcButton @click="submitThread" :disabled="!canSubmit || submitting" type="primary">
+          <NcButton @click="submitThread" :disabled="!canSubmit || submitting" variant="primary">
             <template v-if="submitting" #icon>
               <NcLoadingIcon :size="20" />
             </template>

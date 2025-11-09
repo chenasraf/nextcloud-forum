@@ -23,9 +23,10 @@ export function useCurrentUser() {
       currentUser.value = response.data
       loaded.value = true
       return currentUser.value
-    } catch (e: any) {
+    } catch (e: unknown) {
       // If 404, user hasn't been created yet - this is OK, we'll use Nextcloud user info
-      if (e?.response?.status === 404) {
+      const err = e as { response?: { status?: number } }
+      if (err?.response?.status === 404) {
         console.debug('Forum user not found')
         currentUser.value = null
         loaded.value = true

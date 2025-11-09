@@ -34,7 +34,7 @@ router.beforeEach(async (to, from, next) => {
   // Check if the route is an admin route
   if (to.path.startsWith('/admin')) {
     const { isAdmin, fetchUserRoles, loaded } = useUserRole()
-    const { userId, fetchCurrentUser } = useCurrentUser()
+    const { fetchCurrentUser } = useCurrentUser()
 
     // Fetch user and roles if not already loaded
     if (!loaded.value) {

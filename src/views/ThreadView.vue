@@ -293,7 +293,7 @@ export default defineComponent({
           const index = this.posts.findIndex((p) => p.id === data.post.id)
           if (index !== -1) {
             // Preserve reactions when updating
-            this.posts[index] = { ...response.data, reactions: this.posts[index].reactions }
+            this.posts[index] = { ...response.data, reactions: this.posts[index]?.reactions || [] }
           }
 
           // Exit edit mode
@@ -317,12 +317,16 @@ export default defineComponent({
     async handleDelete(post: Post): Promise<void> {
       try {
         // If this is the first post, we're deleting the entire thread
-        const isFirstPost = this.posts.length > 0 && this.posts[0].id === post.id
+        const isFirstPost = this.posts.length > 0 && this.posts[0]?.id === post.id
 
         if (isFirstPost) {
           // Delete thread
+          if (!this.thread) {
+            return
+          }
+
           const response = await ocs.delete<{ success: boolean; categorySlug: string }>(
-            `/threads/${this.thread!.id}`
+            `/threads/${this.thread.id}`
           )
 
           if (response.data?.success && response.data.categorySlug) {

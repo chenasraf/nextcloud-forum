@@ -19,6 +19,7 @@ export interface Category {
 export interface CategoryHeader {
   id: number
   name: string
+  description: string | null
   sortOrder: number
   createdAt: number
   categories?: Category[]

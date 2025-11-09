@@ -70,7 +70,7 @@
                     <CloseIcon :size="20" />
                   </template>
                 </NcButton>
-                <NcButton type="primary" @click="saveRoles(user.userId)">
+                <NcButton variant="primary" @click="saveRoles(user.userId)">
                   <template #icon>
                     <CheckIcon :size="20" />
                   </template>

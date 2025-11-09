@@ -12,7 +12,7 @@
           </template>
           {{ strings.help }}
         </NcButton>
-        <NcButton type="primary" @click="createBBCode">
+        <NcButton variant="primary" @click="createBBCode">
           <template #icon>
             <PlusIcon :size="20" />
           </template>
@@ -72,7 +72,7 @@
                 </template>
                 {{ strings.disable }}
               </NcButton>
-              <NcButton type="error" @click="confirmDelete(bbcode)">
+              <NcButton variant="error" @click="confirmDelete(bbcode)">
                 <template #icon>
                   <DeleteIcon :size="20" />
                 </template>
@@ -113,13 +113,13 @@
                 </template>
                 {{ strings.edit }}
               </NcButton>
-              <NcButton type="primary" @click="toggleEnabled(bbcode)">
+              <NcButton variant="primary" @click="toggleEnabled(bbcode)">
                 <template #icon>
                   <EyeIcon :size="20" />
                 </template>
                 {{ strings.enable }}
               </NcButton>
-              <NcButton type="error" @click="confirmDelete(bbcode)">
+              <NcButton variant="error" @click="confirmDelete(bbcode)">
                 <template #icon>
                   <DeleteIcon :size="20" />
                 </template>
@@ -146,7 +146,7 @@
         <NcButton @click="deleteDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton type="error" @click="executeDelete">
+        <NcButton variant="error" @click="executeDelete">
           {{ strings.deleteBBCode }}
         </NcButton>
       </template>
@@ -214,7 +214,7 @@
           {{ strings.cancel }}
         </NcButton>
         <NcButton
-          type="primary"
+          variant="primary"
           :disabled="!editDialog.tag.trim() || !editDialog.replacement.trim()"
           @click="saveBBCode"
         >

@@ -14,7 +14,7 @@
 
       <div class="reply-footer">
         <div class="reply-footer-left">
-          <NcButton type="tertiary" @click="showHelp = true">
+          <NcButton variant="tertiary" @click="showHelp = true">
             <template #icon>
               <HelpCircleIcon :size="20" />
             </template>

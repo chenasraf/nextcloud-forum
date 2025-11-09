@@ -12,7 +12,7 @@
           </template>
           {{ strings.createHeader }}
         </NcButton>
-        <NcButton type="primary" @click="createCategory">
+        <NcButton variant="primary" @click="createCategory">
           <template #icon>
             <PlusIcon :size="20" />
           </template>
@@ -41,13 +41,13 @@
         <template v-for="(header, headerIndex) in categoryHeaders" :key="header.id">
           <div class="header-row">
             <div class="header-sort-buttons">
-              <NcButton v-if="headerIndex > 0" type="tertiary" @click="moveHeaderUp(headerIndex)"
+              <NcButton v-if="headerIndex > 0" variant="tertiary" @click="moveHeaderUp(headerIndex)"
                 :aria-label="strings.moveUp" :title="strings.moveUp">
                 <template #icon>
                   <ChevronUpIcon :size="20" />
                 </template>
               </NcButton>
-              <NcButton v-if="headerIndex < categoryHeaders.length - 1" type="tertiary"
+              <NcButton v-if="headerIndex < categoryHeaders.length - 1" variant="tertiary"
                 @click="moveHeaderDown(headerIndex)" :aria-label="strings.moveDown" :title="strings.moveDown">
                 <template #icon>
                   <ChevronDownIcon :size="20" />
@@ -66,7 +66,7 @@
                 </template>
                 {{ strings.edit }}
               </NcButton>
-              <NcButton type="error" :disabled="categoryHeaders.length <= 1" @click="confirmDeleteHeader(header)">
+              <NcButton variant="error" :disabled="categoryHeaders.length <= 1" @click="confirmDeleteHeader(header)">
                 <template #icon>
                   <DeleteIcon :size="20" />
                 </template>
@@ -78,13 +78,13 @@
           <div v-if="header.categories && header.categories.length > 0" class="categories-table">
             <div v-for="(category, index) in header.categories" :key="category.id" class="category-row">
               <div class="category-sort-buttons">
-                <NcButton v-if="index > 0" type="tertiary" @click="moveCategoryUp(header.id, index)"
+                <NcButton v-if="index > 0" variant="tertiary" @click="moveCategoryUp(header.id, index)"
                   :aria-label="strings.moveUp" :title="strings.moveUp">
                   <template #icon>
                     <ChevronUpIcon :size="20" />
                   </template>
                 </NcButton>
-                <NcButton v-if="index < header.categories.length - 1" type="tertiary"
+                <NcButton v-if="index < header.categories.length - 1" variant="tertiary"
                   @click="moveCategoryDown(header.id, index)" :aria-label="strings.moveDown" :title="strings.moveDown">
                   <template #icon>
                     <ChevronDownIcon :size="20" />
@@ -109,7 +109,7 @@
                   </template>
                   {{ strings.edit }}
                 </NcButton>
-                <NcButton type="error" @click="confirmDelete(category)">
+                <NcButton variant="error" @click="confirmDelete(category)">
                   <template #icon>
                     <DeleteIcon :size="20" />
                   </template>
@@ -163,7 +163,7 @@
         <NcButton @click="deleteDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton type="error" :disabled="deleteDialog.action === 'migrate' && !selectedTargetCategory"
+        <NcButton variant="error" :disabled="deleteDialog.action === 'migrate' && !selectedTargetCategory"
           @click="executeDelete">
           {{ strings.deleteCategory }}
         </NcButton>
@@ -196,7 +196,7 @@
         <NcButton @click="headerDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton type="primary" :disabled="!headerDialog.name.trim()" @click="saveHeader">
+        <NcButton variant="primary" :disabled="!headerDialog.name.trim()" @click="saveHeader">
           <template v-if="headerDialog.submitting" #icon>
             <NcLoadingIcon :size="20" />
           </template>
@@ -245,7 +245,7 @@
         <NcButton @click="deleteHeaderDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton type="error" :disabled="deleteHeaderDialog.action === 'migrate' && !selectedTargetHeader"
+        <NcButton variant="error" :disabled="deleteHeaderDialog.action === 'migrate' && !selectedTargetHeader"
           @click="executeDeleteHeader">
           {{ strings.deleteHeader }}
         </NcButton>
@@ -571,7 +571,10 @@ export default defineComponent({
     async updateHeaderSortOrders(index: number, amount: number): Promise<void> {
       // Swap positions locally
       const temp = this.categoryHeaders[index]
-      this.categoryHeaders[index] = this.categoryHeaders[index + amount]
+      const swapTarget = this.categoryHeaders[index + amount]
+      if (!temp || !swapTarget) return
+
+      this.categoryHeaders[index] = swapTarget
       this.categoryHeaders[index + amount] = temp
 
       try {
@@ -586,8 +589,10 @@ export default defineComponent({
         console.error('Failed to update header sort orders', e)
         // Revert the swap on error
         const revertTemp = this.categoryHeaders[index + amount]
-        this.categoryHeaders[index + amount] = this.categoryHeaders[index]
-        this.categoryHeaders[index] = revertTemp
+        if (revertTemp && this.categoryHeaders[index]) {
+          this.categoryHeaders[index + amount] = this.categoryHeaders[index]
+          this.categoryHeaders[index] = revertTemp
+        }
       }
     },
 
@@ -613,7 +618,10 @@ export default defineComponent({
 
       // Swap positions locally
       const temp = header.categories[index]
-      header.categories[index] = header.categories[index + amount]
+      const swapTarget = header.categories[index + amount]
+      if (!temp || !swapTarget) return
+
+      header.categories[index] = swapTarget
       header.categories[index + amount] = temp
 
       try {
@@ -628,8 +636,11 @@ export default defineComponent({
         console.error('Failed to update category sort orders', e)
         // Revert the swap on error
         const revertTemp = header.categories[index + amount]
-        header.categories[index + amount] = header.categories[index]
-        header.categories[index] = revertTemp
+        const revertCurrent = header.categories[index]
+        if (revertTemp && revertCurrent) {
+          header.categories[index + amount] = revertCurrent
+          header.categories[index] = revertTemp
+        }
       }
     },
   },

@@ -130,7 +130,7 @@
       <!-- Actions -->
       <div class="form-actions">
         <NcButton @click="goBack">{{ strings.cancel }}</NcButton>
-        <NcButton type="primary" :disabled="!canSubmit || submitting" @click="submitForm">
+        <NcButton variant="primary" :disabled="!canSubmit || submitting" @click="submitForm">
           <template v-if="submitting" #icon>
             <NcLoadingIcon :size="20" />
           </template>
@@ -170,7 +170,7 @@
           {{ strings.cancel }}
         </NcButton>
         <NcButton
-          type="primary"
+          variant="primary"
           :disabled="!headerDialog.name.trim()"
           @click="saveHeader"
         >
@@ -509,9 +509,11 @@ export default defineComponent({
 
           // Update in local headers array
           const index = this.headers.findIndex((h) => h.id === headerId)
-          if (index !== -1) {
+          if (index !== -1 && this.headers[index]) {
             this.headers[index] = {
-              ...this.headers[index],
+              id: this.headers[index].id,
+              sortOrder: this.headers[index].sortOrder,
+              createdAt: this.headers[index].createdAt,
               name: headerData.name,
               description: headerData.description,
             }

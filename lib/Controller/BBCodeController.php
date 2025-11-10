@@ -120,6 +120,7 @@ class BBCodeController extends OCSController {
 	 *
 	 * @param string $tag BBCode tag name
 	 * @param string $replacement Replacement pattern
+	 * @param string $example Example usage
 	 * @param string|null $description Optional description
 	 * @param bool $enabled Whether BBCode is enabled
 	 * @param bool $parseInner Whether to parse inner BBCode tags
@@ -130,11 +131,12 @@ class BBCodeController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'POST', url: '/api/bbcodes')]
-	public function create(string $tag, string $replacement, ?string $description = null, bool $enabled = true, bool $parseInner = true): DataResponse {
+	public function create(string $tag, string $replacement, string $example, ?string $description = null, bool $enabled = true, bool $parseInner = true): DataResponse {
 		try {
 			$bbcode = new \OCA\Forum\Db\BBCode();
 			$bbcode->setTag($tag);
 			$bbcode->setReplacement($replacement);
+			$bbcode->setExample($example);
 			$bbcode->setDescription($description);
 			$bbcode->setEnabled($enabled);
 			$bbcode->setParseInner($parseInner);
@@ -156,6 +158,7 @@ class BBCodeController extends OCSController {
 	 * @param int $id BBCode ID
 	 * @param string|null $tag BBCode tag name
 	 * @param string|null $replacement Replacement pattern
+	 * @param string|null $example Example usage
 	 * @param string|null $description Description
 	 * @param bool|null $enabled Whether BBCode is enabled
 	 * @param bool|null $parseInner Whether to parse inner BBCode tags
@@ -166,7 +169,7 @@ class BBCodeController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'PUT', url: '/api/bbcodes/{id}')]
-	public function update(int $id, ?string $tag = null, ?string $replacement = null, ?string $description = null, ?bool $enabled = null, ?bool $parseInner = null): DataResponse {
+	public function update(int $id, ?string $tag = null, ?string $replacement = null, ?string $example = null, ?string $description = null, ?bool $enabled = null, ?bool $parseInner = null): DataResponse {
 		try {
 			$bbcode = $this->bbCodeMapper->find($id);
 
@@ -180,6 +183,9 @@ class BBCodeController extends OCSController {
 			}
 			if ($replacement !== null) {
 				$bbcode->setReplacement($replacement);
+			}
+			if ($example !== null) {
+				$bbcode->setExample($example);
 			}
 			if ($description !== null) {
 				$bbcode->setDescription($description);

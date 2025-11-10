@@ -1502,7 +1502,8 @@
                                 "type": "object",
                                 "required": [
                                     "tag",
-                                    "replacement"
+                                    "replacement",
+                                    "example"
                                 ],
                                 "properties": {
                                     "tag": {
@@ -1512,6 +1513,10 @@
                                     "replacement": {
                                         "type": "string",
                                         "description": "Replacement pattern"
+                                    },
+                                    "example": {
+                                        "type": "string",
+                                        "description": "Example usage"
                                     },
                                     "description": {
                                         "type": "string",
@@ -1934,6 +1939,12 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Replacement pattern"
+                                    },
+                                    "example": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Example usage"
                                     },
                                     "description": {
                                         "type": "string",

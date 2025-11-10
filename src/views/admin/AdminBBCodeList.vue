@@ -199,6 +199,17 @@
 
         <div class="form-group">
           <NcTextArea
+            v-model="editDialog.example"
+            :label="strings.exampleLabel"
+            :placeholder="strings.examplePlaceholder"
+            :rows="2"
+            :required="true"
+          />
+          <p class="help-text muted">{{ strings.exampleHelp }}</p>
+        </div>
+
+        <div class="form-group">
+          <NcTextArea
             v-model="editDialog.description"
             :label="strings.description"
             :placeholder="strings.descriptionPlaceholder"
@@ -226,7 +237,9 @@
         </NcButton>
         <NcButton
           variant="primary"
-          :disabled="!editDialog.tag.trim() || !editDialog.replacement.trim()"
+          :disabled="
+            !editDialog.tag.trim() || !editDialog.replacement.trim() || !editDialog.example.trim()
+          "
           @click="saveBBCode"
         >
           <template v-if="editDialog.submitting" #icon>
@@ -262,6 +275,7 @@ interface BBCode {
   id: number
   tag: string
   replacement: string
+  example: string
   description: string | null
   enabled: boolean
   parseInner: boolean
@@ -303,6 +317,7 @@ export default defineComponent({
         id: null as number | null,
         tag: '',
         replacement: '',
+        example: '',
         description: '',
         enabled: true,
         parseInner: true,
@@ -344,6 +359,9 @@ export default defineComponent({
           'forum',
           'Use {content} for the tag content and {paramName} for parameters',
         ),
+        exampleLabel: t('forum', 'Example'),
+        examplePlaceholder: t('forum', 'e.g., [b]Hello world[/b]'),
+        exampleHelp: t('forum', 'Example usage of this BBCode tag'),
         description: t('forum', 'Description'),
         descriptionPlaceholder: t('forum', 'Brief description of what this BBCode does'),
         enabledLabel: t('forum', 'Enabled'),
@@ -387,6 +405,7 @@ export default defineComponent({
       this.editDialog.id = null
       this.editDialog.tag = ''
       this.editDialog.replacement = ''
+      this.editDialog.example = ''
       this.editDialog.description = ''
       this.editDialog.enabled = true
       this.editDialog.parseInner = true
@@ -398,13 +417,19 @@ export default defineComponent({
       this.editDialog.id = bbcode.id
       this.editDialog.tag = bbcode.tag
       this.editDialog.replacement = bbcode.replacement
+      this.editDialog.example = bbcode.example
       this.editDialog.description = bbcode.description || ''
       this.editDialog.enabled = bbcode.enabled
       this.editDialog.parseInner = bbcode.parseInner
     },
 
     async saveBBCode(): Promise<void> {
-      if (!this.editDialog.tag.trim() || !this.editDialog.replacement.trim()) return
+      if (
+        !this.editDialog.tag.trim() ||
+        !this.editDialog.replacement.trim() ||
+        !this.editDialog.example.trim()
+      )
+        return
 
       try {
         this.editDialog.submitting = true
@@ -412,6 +437,7 @@ export default defineComponent({
         const bbcodeData = {
           tag: this.editDialog.tag.trim(),
           replacement: this.editDialog.replacement.trim(),
+          example: this.editDialog.example.trim(),
           description: this.editDialog.description.trim() || null,
           enabled: this.editDialog.enabled,
           parseInner: this.editDialog.parseInner,

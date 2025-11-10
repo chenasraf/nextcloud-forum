@@ -87,6 +87,7 @@ export interface BBCode {
   id: number
   tag: string
   replacement: string
+  example: string
   description: string | null
   enabled: boolean
   parseInner: boolean

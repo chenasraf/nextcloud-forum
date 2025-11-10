@@ -25,9 +25,9 @@
               <code class="bbcode-tag">[{{ code.tag }}]</code>
               <span v-if="code.description" class="bbcode-name">{{ code.description }}</span>
             </div>
-            <div class="bbcode-replacement">
-              <span class="replacement-label">{{ strings.replacement }}:</span>
-              <code class="replacement-code">{{ code.replacement }}</code>
+            <div class="bbcode-example">
+              <span class="example-label">{{ strings.example }}:</span>
+              <code class="example-code">{{ code.example }}</code>
             </div>
           </div>
         </div>
@@ -61,9 +61,9 @@
               <code class="bbcode-tag">[{{ code.tag }}]</code>
               <span v-if="code.description" class="bbcode-name">{{ code.description }}</span>
             </div>
-            <div class="bbcode-replacement">
-              <span class="replacement-label">{{ strings.replacement }}:</span>
-              <code class="replacement-code">{{ code.replacement }}</code>
+            <div class="bbcode-example">
+              <span class="example-label">{{ strings.example }}:</span>
+              <code class="example-code">{{ code.example }}</code>
             </div>
           </div>
         </div>

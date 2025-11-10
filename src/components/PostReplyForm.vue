@@ -9,46 +9,30 @@
     </div>
 
     <div class="reply-body">
-      <div class="reply-textarea-container">
-        <BBCodeToolbar :textarea-ref="textareaElement" @insert="handleBBCodeInsert" />
-        <NcTextArea
-          v-model="content"
-          :placeholder="strings.placeholder"
-          :rows="4"
-          :disabled="submitting"
-          @keydown.ctrl.enter="submitReply"
-          @keydown.meta.enter="submitReply"
-          class="reply-textarea"
-          ref="textarea"
-        />
-      </div>
+      <BBCodeEditor
+        v-model="content"
+        :placeholder="strings.placeholder"
+        :rows="4"
+        :disabled="submitting"
+        min-height="6.125rem"
+        @keydown.ctrl.enter="submitReply"
+        @keydown.meta.enter="submitReply"
+        ref="editor"
+      />
 
       <div class="reply-footer">
-        <div class="reply-footer-left">
-          <NcButton variant="tertiary" @click="showHelp = true">
-            <template #icon>
-              <HelpCircleIcon :size="20" />
-            </template>
-            {{ strings.help }}
-          </NcButton>
-        </div>
-        <div class="reply-footer-right">
-          <NcButton @click="cancel" :disabled="submitting || !hasContent">
-            {{ strings.cancel }}
-          </NcButton>
-          <NcButton @click="submitReply" :disabled="!canSubmit || submitting" variant="primary">
-            <template #icon>
-              <NcLoadingIcon v-if="submitting" :size="20" />
-              <SendIcon v-else :size="20" />
-            </template>
-            {{ strings.submit }}
-          </NcButton>
-        </div>
+        <NcButton @click="cancel" :disabled="submitting || !hasContent">
+          {{ strings.cancel }}
+        </NcButton>
+        <NcButton @click="submitReply" :disabled="!canSubmit || submitting" variant="primary">
+          <template #icon>
+            <NcLoadingIcon v-if="submitting" :size="20" />
+            <SendIcon v-else :size="20" />
+          </template>
+          {{ strings.submit }}
+        </NcButton>
       </div>
     </div>
-
-    <!-- BBCode Help Dialog -->
-    <BBCodeHelpDialog v-model:open="showHelp" />
   </div>
 </template>
 
@@ -57,11 +41,8 @@ import { defineComponent } from 'vue'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
-import NcTextArea from '@nextcloud/vue/components/NcTextArea'
-import HelpCircleIcon from '@icons/HelpCircle.vue'
 import SendIcon from '@icons/Send.vue'
-import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
-import BBCodeToolbar from './BBCodeToolbar.vue'
+import BBCodeEditor from './BBCodeEditor.vue'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 
@@ -71,11 +52,8 @@ export default defineComponent({
     NcAvatar,
     NcButton,
     NcLoadingIcon,
-    NcTextArea,
-    HelpCircleIcon,
     SendIcon,
-    BBCodeHelpDialog,
-    BBCodeToolbar,
+    BBCodeEditor,
   },
   emits: ['submit', 'cancel'],
   setup() {
@@ -90,24 +68,13 @@ export default defineComponent({
     return {
       content: '',
       submitting: false,
-      showHelp: false,
-      textareaElement: null as HTMLTextAreaElement | null,
       strings: {
         placeholder: t('forum', 'Write your reply...'),
         cancel: t('forum', 'Cancel'),
         submit: t('forum', 'Post Reply'),
         confirmCancel: t('forum', 'Are you sure you want to discard your reply?'),
-        help: t('forum', 'BBCode Help'),
       },
     }
-  },
-  mounted() {
-    // Get reference to the actual textarea DOM element
-    this.updateTextareaRef()
-  },
-  updated() {
-    // Update textarea ref if it changes
-    this.updateTextareaRef()
   },
   computed: {
     canSubmit(): boolean {
@@ -150,29 +117,16 @@ export default defineComponent({
     },
 
     focus(): void {
-      // Focus the textarea
-      const textarea = this.$refs.textarea as any
-      if (textarea?.$el?.querySelector('textarea')) {
-        textarea.$el.querySelector('textarea').focus()
+      // Focus the editor
+      const editor = this.$refs.editor as any
+      if (editor?.focus) {
+        editor.focus()
       }
     },
 
     setQuotedContent(contentRaw: string): void {
       // Set the textarea content with a quoted version of the provided content
       this.content = `[quote]${contentRaw}[/quote]\n`
-    },
-
-    updateTextareaRef(): void {
-      const textarea = this.$refs.textarea as any
-      if (textarea?.$el?.querySelector('textarea')) {
-        this.textareaElement = textarea.$el.querySelector('textarea')
-      }
-    },
-
-    handleBBCodeInsert(data: { text: string; cursorPos: number }): void {
-      // Update the content with the new text
-      this.content = data.text
-      // The cursor position is handled by the BBCodeToolbar component
     },
   },
 })
@@ -209,39 +163,10 @@ export default defineComponent({
   gap: 12px;
 }
 
-.reply-textarea-container {
-  background: var(--color-background-hover);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  padding: 4px;
-}
-
-.reply-textarea {
-  min-height: 6.125rem;
-  resize: vertical;
-  margin-top: 0;
-
-  :global(.textarea__main-wrapper),
-  textarea {
-    min-height: calc(var(--default-clickable-area) * 2);
-    height: unset !important;
-  }
-}
-
 .reply-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.reply-footer-left {
-  flex: 1;
-}
-
-.reply-footer-right {
-  display: flex;
   gap: 8px;
 }
 

@@ -300,6 +300,9 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addColumn('replacement', 'text', [
 			'notnull' => true,
 		]);
+		$table->addColumn('example', 'text', [
+			'notnull' => true,
+		]);
 		$table->addColumn('description', 'text', [
 			'notnull' => false,
 		]);
@@ -719,9 +722,33 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		// are provided by the chriskonnertz/bbcode library and don't need to be stored in the database.
 		// We only store custom BBCodes that extend the library's functionality.
 		$bbcodes = [
-			['tag' => 'icode', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false, 'is_builtin' => true, 'special_handler' => null],
-			['tag' => 'spoiler', 'replacement' => '<details><summary>{title}</summary>{content}</details>', 'description' => 'Spoilers', 'parse_inner' => false, 'is_builtin' => true, 'special_handler' => null],
-			['tag' => 'attachment', 'replacement' => '', 'description' => 'Attachment', 'parse_inner' => false, 'is_builtin' => true, 'special_handler' => 'attachment'],
+			[
+				'tag' => 'icode',
+				'replacement' => '<code>{content}</code>',
+				'example' => '[icode]inline code[/icode]',
+				'description' => 'Inline code',
+				'parse_inner' => false,
+				'is_builtin' => true,
+				'special_handler' => null,
+			],
+			[
+				'tag' => 'spoiler',
+				'replacement' => '<details><summary>{title}</summary>{content}</details>',
+				'example' => '[spoiler="Spoiler Title"]Hidden content[/spoiler]',
+				'description' => 'Spoilers',
+				'parse_inner' => false,
+				'is_builtin' => true,
+				'special_handler' => null,
+			],
+			[
+				'tag' => 'attachment',
+				'replacement' => '[attachment]/file/path.txt[/attachment]',
+				'example' => '',
+				'description' => 'Attachment',
+				'parse_inner' => false,
+				'is_builtin' => true,
+				'special_handler' => 'attachment',
+			],
 		];
 
 		foreach ($bbcodes as $bbcode) {
@@ -730,6 +757,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 				->values([
 					'tag' => $qb->createNamedParameter($bbcode['tag']),
 					'replacement' => $qb->createNamedParameter($bbcode['replacement']),
+					'example' => $qb->createNamedParameter($bbcode['example']),
 					'description' => $qb->createNamedParameter($bbcode['description']),
 					'enabled' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 					'parse_inner' => $qb->createNamedParameter($bbcode['parse_inner'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),

@@ -3,7 +3,7 @@
     <NcButton
       v-for="button in bbcodeButtons"
       :key="button.tag"
-      type="tertiary"
+      variant="tertiary"
       :aria-label="button.label"
       :title="button.label"
       @click="insertBBCode(button)"
@@ -13,6 +13,23 @@
         <component :is="button.icon" :size="20" />
       </template>
     </NcButton>
+
+    <div class="toolbar-spacer"></div>
+
+    <NcButton
+      variant="tertiary"
+      :aria-label="helpLabel"
+      :title="helpLabel"
+      @click="showHelp = true"
+      class="bbcode-button bbcode-help-button"
+    >
+      <template #icon>
+        <HelpCircleIcon :size="20" />
+      </template>
+    </NcButton>
+
+    <!-- BBCode Help Dialog -->
+    <BBCodeHelpDialog v-model:open="showHelp" />
   </div>
 </template>
 
@@ -39,6 +56,8 @@ import FormatAlignRightIcon from '@icons/FormatAlignRight.vue'
 import EyeOffIcon from '@icons/EyeOff.vue'
 import FormatListBulletedIcon from '@icons/FormatListBulleted.vue'
 import PaperclipIcon from '@icons/Paperclip.vue'
+import HelpCircleIcon from '@icons/HelpCircle.vue'
+import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
 import { t } from '@nextcloud/l10n'
 
 interface BBCodeButton {
@@ -57,6 +76,8 @@ export default defineComponent({
   name: 'BBCodeToolbar',
   components: {
     NcButton,
+    BBCodeHelpDialog,
+    HelpCircleIcon,
   },
   props: {
     textareaRef: {
@@ -67,7 +88,15 @@ export default defineComponent({
   emits: ['insert'],
   data() {
     return {
-      bbcodeButtons: [
+      showHelp: false,
+    }
+  },
+  computed: {
+    helpLabel(): string {
+      return t('forum', 'BBCode Help')
+    },
+    bbcodeButtons(): BBCodeButton[] {
+      return [
         {
           tag: 'b',
           label: 'Bold',
@@ -201,12 +230,10 @@ export default defineComponent({
           label: 'Attachment',
           icon: PaperclipIcon,
           template: '[attachment]{text}[/attachment]',
-          handler: async () => {
-            await this.handleAttachment()
-          },
+          handler: this.handleAttachment,
         },
-      ] as BBCodeButton[],
-    }
+      ]
+    },
   },
   methods: {
     async insertBBCode(button: BBCodeButton): Promise<void> {
@@ -281,7 +308,6 @@ export default defineComponent({
       try {
         const picker = getFilePickerBuilder(t('forum', 'Pick a file to attach'))
           .setMultiSelect(false)
-          // .setModal(true)
           .setType(1) // TYPE_FILE
           .build()
 
@@ -328,7 +354,16 @@ export default defineComponent({
           textarea.setSelectionRange(cursorPos, cursorPos)
         })
       } catch (error) {
-        console.error('Error picking file:', error)
+        // Silently ignore if user canceled the dialog
+        // The file picker throws "No nodes selected" when canceled, which is expected behavior
+        if (
+          error instanceof Error &&
+          error.message &&
+          !error.message.includes('No nodes selected')
+        ) {
+          console.error('Error picking file:', error)
+        }
+        // Otherwise, user simply canceled - no need to log
       }
     },
   },
@@ -342,12 +377,21 @@ export default defineComponent({
   gap: 4px;
 }
 
+.toolbar-spacer {
+  flex: 1;
+  min-width: 8px;
+}
+
 .bbcode-button {
   min-width: auto !important;
   padding: 4px 8px !important;
 
   &:hover {
-    background: var(--color-background-dark);
+    background-color: var(--color-background-dark) !important;
   }
+}
+
+.bbcode-help-button {
+  margin-left: auto;
 }
 </style>

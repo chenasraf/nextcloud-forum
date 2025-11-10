@@ -18,6 +18,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setTag(string $value)
  * @method string getReplacement()
  * @method void setReplacement(string $value)
+ * @method string getExample()
+ * @method void setExample(string $value)
  * @method string|null getDescription()
  * @method void setDescription(?string $value)
  * @method bool getEnabled()
@@ -34,6 +36,7 @@ use OCP\AppFramework\Db\Entity;
 class BBCode extends Entity implements JsonSerializable {
 	protected $tag;
 	protected $replacement;
+	protected $example;
 	protected $description;
 	protected $enabled;
 	protected $parseInner;
@@ -45,6 +48,7 @@ class BBCode extends Entity implements JsonSerializable {
 		$this->addType('id', 'integer');
 		$this->addType('tag', 'string');
 		$this->addType('replacement', 'string');
+		$this->addType('example', 'string');
 		$this->addType('description', 'string');
 		$this->addType('enabled', 'boolean');
 		$this->addType('parseInner', 'boolean');
@@ -58,6 +62,7 @@ class BBCode extends Entity implements JsonSerializable {
 			'id' => $this->getId(),
 			'tag' => $this->getTag(),
 			'replacement' => $this->getReplacement(),
+			'example' => $this->getExample(),
 			'description' => $this->getDescription(),
 			'enabled' => $this->getEnabled(),
 			'parseInner' => $this->getParseInner(),

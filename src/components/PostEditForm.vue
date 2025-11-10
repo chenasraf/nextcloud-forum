@@ -1,17 +1,19 @@
 <template>
   <div class="post-edit-form">
-    <BBCodeToolbar :textarea-ref="textareaElement" @insert="handleBBCodeInsert" />
+    <div class="edit-textarea-container">
+      <BBCodeToolbar :textarea-ref="textareaElement" @insert="handleBBCodeInsert" />
 
-    <NcTextArea
-      v-model="content"
-      :placeholder="strings.placeholder"
-      :rows="6"
-      :disabled="submitting"
-      @keydown.ctrl.enter="submitEdit"
-      @keydown.meta.enter="submitEdit"
-      class="edit-textarea"
-      ref="textarea"
-    />
+      <NcTextArea
+        v-model="content"
+        :placeholder="strings.placeholder"
+        :rows="6"
+        :disabled="submitting"
+        @keydown.ctrl.enter="submitEdit"
+        @keydown.meta.enter="submitEdit"
+        class="edit-textarea"
+        ref="textarea"
+      />
+    </div>
 
     <div class="edit-footer">
       <div class="edit-footer-left">
@@ -155,9 +157,17 @@ export default defineComponent({
   gap: 12px;
 }
 
+.edit-textarea-container {
+  background: var(--color-background-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px;
+}
+
 .edit-textarea {
   min-height: 8rem;
   resize: vertical;
+  margin-top: 0;
 
   :global(.textarea__main-wrapper),
   textarea {

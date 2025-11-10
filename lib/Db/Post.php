@@ -93,7 +93,7 @@ class Post extends Entity implements JsonSerializable {
 			$mapper = \OC::$server->get(\OCA\Forum\Db\BBCodeMapper::class);
 			$bbcodes = $mapper->findAllEnabled();
 		}
-		$post['content'] = $service->parse($post['content'], $bbcodes);
+		$post['content'] = $service->parse($post['content'], $bbcodes, $post['authorId'], $post['id']);
 
 		// Add author display name (obfuscated if user is deleted)
 		$userService = \OC::$server->get(\OCA\Forum\Service\UserService::class);

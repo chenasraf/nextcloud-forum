@@ -10,6 +10,9 @@ namespace OCA\Forum\Service;
 use ChrisKonnertz\BBCode\BBCode as BBCodeParser;
 use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
+use OCP\Files\IRootFolder;
+use OCP\Files\NotFoundException;
+use OCP\IURLGenerator;
 use Psr\Log\LoggerInterface;
 
 class BBCodeService {
@@ -18,6 +21,8 @@ class BBCodeService {
 	public function __construct(
 		private BBCodeMapper $bbCodeMapper,
 		private LoggerInterface $logger,
+		private IRootFolder $rootFolder,
+		private IURLGenerator $urlGenerator,
 	) {
 	}
 
@@ -26,10 +31,40 @@ class BBCodeService {
 	 *
 	 * @param string $content The content to parse
 	 * @param array<BBCode> $bbCodes Array of BBCode entities to use for parsing
+	 * @param string|null $authorId The author ID for file ownership verification (optional)
+	 * @param int|null $postId The post ID for generating attachment URLs (optional)
 	 * @return string The parsed content with BBCodes replaced by HTML
 	 */
-	public function parse(string $content, array $bbCodes): string {
+	public function parse(string $content, array $bbCodes, ?string $authorId = null, ?int $postId = null): string {
 		$parser = $this->getParser($bbCodes);
+
+		// Preprocess tags with special handlers (like attachments)
+		$specialHandlerPlaceholders = [];
+		foreach ($bbCodes as $bbCode) {
+			if (!$bbCode->getEnabled() || !$bbCode->getSpecialHandler()) {
+				continue;
+			}
+
+			$tag = $bbCode->getTag();
+			$handler = $bbCode->getSpecialHandler();
+
+			// Match [tag]content[/tag]
+			$pattern = '/\[' . preg_quote($tag, '/') . '\](.*?)\[\/' . preg_quote($tag, '/') . '\]/s';
+
+			$content = preg_replace_callback($pattern, function ($matches) use (&$specialHandlerPlaceholders, $handler, $authorId, $postId) {
+				$placeholder = '___SPECIAL_HANDLER_' . count($specialHandlerPlaceholders) . '___';
+				$innerContent = $matches[1];
+
+				// Handle based on the special handler type
+				$html = match ($handler) {
+					'attachment' => $this->renderAttachment($innerContent, $authorId, $postId),
+					default => htmlspecialchars($matches[0], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+				};
+
+				$specialHandlerPlaceholders[$placeholder] = $html;
+				return $placeholder;
+			}, $content);
+		}
 
 		// Preprocess [code] blocks to prevent nl2br and trim whitespace
 		// The built-in [code] tag wraps content in <pre><code>, so we don't want <br/> tags inside
@@ -67,6 +102,11 @@ class BBCodeService {
 		$placeholders = [];
 		foreach ($bbCodes as $bbCode) {
 			if (!$bbCode->getEnabled() || $bbCode->getParseInner()) {
+				continue;
+			}
+
+			// Skip tags with special handlers - they're already handled above
+			if ($bbCode->getSpecialHandler()) {
 				continue;
 			}
 
@@ -114,6 +154,11 @@ class BBCodeService {
 		try {
 			$html = $parser->render($content);
 
+			// Replace special handler placeholders first (before code blocks to preserve their HTML)
+			foreach ($specialHandlerPlaceholders as $placeholder => $replacement) {
+				$html = str_replace($placeholder, $replacement, $html);
+			}
+
 			// Replace code block placeholders (must be done before other placeholders to avoid double-escaping)
 			foreach ($codePlaceholders as $placeholder => $replacement) {
 				$html = str_replace($placeholder, $replacement, $html);
@@ -141,11 +186,13 @@ class BBCodeService {
 	 * Parse content using all enabled BBCodes from the database
 	 *
 	 * @param string $content The content to parse
+	 * @param string|null $authorId The author ID for file ownership verification (optional)
+	 * @param int|null $postId The post ID for generating attachment URLs (optional)
 	 * @return string The parsed content with BBCodes replaced by HTML
 	 */
-	public function parseWithEnabled(string $content): string {
+	public function parseWithEnabled(string $content, ?string $authorId = null, ?int $postId = null): string {
 		$bbCodes = $this->bbCodeMapper->findAllEnabled();
-		return $this->parse($content, $bbCodes);
+		return $this->parse($content, $bbCodes, $authorId, $postId);
 	}
 
 	/**
@@ -286,5 +333,152 @@ class BBCodeService {
 				$value = str_replace(';', '', $value);
 				return $value;
 		}
+	}
+
+	/**
+	 * Render an attachment BBCode tag
+	 *
+	 * @param string $filePath The file path from the BBCode tag
+	 * @param string|null $authorId The post author's user ID for ownership verification
+	 * @param int|null $postId The post ID for generating proxy URLs
+	 * @return string The rendered HTML for the attachment
+	 */
+	private function renderAttachment(string $filePath, ?string $authorId, ?int $postId): string {
+		// Trim whitespace from file path
+		$filePath = trim($filePath);
+
+		if (empty($filePath)) {
+			$this->logger->warning('Empty file path in attachment tag');
+			return '<span class="attachment-error">Invalid attachment</span>';
+		}
+
+		// If no author ID provided, we can't verify ownership
+		if (empty($authorId)) {
+			$this->logger->warning('Attachment rendering attempted without author ID: ' . $filePath);
+			return '<span class="attachment-error">Attachment unavailable</span>';
+		}
+
+		// If no post ID provided, we can't generate proxy URLs
+		if (empty($postId)) {
+			$this->logger->warning('Attachment rendering attempted without post ID: ' . $filePath);
+			return '<span class="attachment-error">Attachment unavailable</span>';
+		}
+
+		try {
+			// Get the user's folder
+			$userFolder = $this->rootFolder->getUserFolder($authorId);
+
+			$this->logger->debug('Attempting to load attachment', [
+				'filePath' => $filePath,
+				'authorId' => $authorId,
+			]);
+
+			// Get the file - path is relative to user's home directory
+			$file = $userFolder->get($filePath);
+
+			// Verify it's actually a file (not a folder)
+			if (!($file instanceof \OCP\Files\File)) {
+				$this->logger->warning('Attachment path is not a file: ' . $filePath);
+				return '<span class="attachment-error">Invalid attachment</span>';
+			}
+
+			// Get file metadata
+			$fileName = $file->getName();
+			$mimeType = $file->getMimeType();
+			$fileSize = $file->getSize();
+			$fileId = $file->getId();
+
+			// Check if it's an image
+			if (str_starts_with($mimeType, 'image/')) {
+				// Generate preview URL for images using proxy endpoint
+				$previewUrl = $this->urlGenerator->linkToRouteAbsolute(
+					'forum.attachment.preview',
+					['postId' => $postId, 'filePath' => $filePath, 'x' => 1920, 'y' => 1080]
+				);
+
+				// Render as image
+				$escapedFileName = htmlspecialchars($fileName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+				$escapedUrl = htmlspecialchars($previewUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+				return sprintf(
+					'<div class="attachment attachment-image"><img src="%s" alt="%s" title="%s" loading="lazy" /></div>',
+					$escapedUrl,
+					$escapedFileName,
+					$escapedFileName
+				);
+			} else {
+				// Generate download URL for non-image files using proxy endpoint
+				$downloadUrl = $this->urlGenerator->linkToRouteAbsolute(
+					'forum.attachment.download',
+					['postId' => $postId, 'filePath' => $filePath]
+				);
+
+				// Render as file link with icon
+				$escapedFileName = htmlspecialchars($fileName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+				$escapedUrl = htmlspecialchars($downloadUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+				$formattedSize = $this->formatFileSize($fileSize);
+
+				// Get appropriate icon for file type
+				$iconClass = $this->getFileIconClass($mimeType);
+
+				return sprintf(
+					'<div class="attachment attachment-file">'
+					. '<span class="attachment-icon %s"></span>'
+					. '<div class="attachment-info">'
+					. '<a href="%s" class="attachment-name" download="%s">%s</a>'
+					. '<span class="attachment-size">%s</span>'
+					. '</div>'
+					. '</div>',
+					$iconClass,
+					$escapedUrl,
+					$escapedFileName,
+					$escapedFileName,
+					$formattedSize
+				);
+			}
+		} catch (NotFoundException $e) {
+			$this->logger->warning('Attachment file not found: ' . $filePath);
+			return '<span class="attachment-error">Attachment not found</span>';
+		} catch (\Exception $e) {
+			$this->logger->error('Error rendering attachment: ' . $e->getMessage());
+			return '<span class="attachment-error">Error loading attachment</span>';
+		}
+	}
+
+	/**
+	 * Format file size in human-readable format
+	 *
+	 * @param int $bytes File size in bytes
+	 * @return string Formatted file size (e.g., "1.5 MB")
+	 */
+	private function formatFileSize(int $bytes): string {
+		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
+		$bytes = max($bytes, 0);
+		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+		$pow = min($pow, count($units) - 1);
+		$bytes /= (1 << (10 * $pow));
+		return round($bytes, 2) . ' ' . $units[$pow];
+	}
+
+	/**
+	 * Get CSS class for file icon based on mime type
+	 *
+	 * @param string $mimeType The file's mime type
+	 * @return string CSS class for the icon
+	 */
+	private function getFileIconClass(string $mimeType): string {
+		// Map common mime types to icon classes
+		return match (true) {
+			str_starts_with($mimeType, 'image/') => 'icon-image',
+			str_starts_with($mimeType, 'video/') => 'icon-video',
+			str_starts_with($mimeType, 'audio/') => 'icon-audio',
+			str_starts_with($mimeType, 'text/') => 'icon-text',
+			$mimeType === 'application/pdf' => 'icon-pdf',
+			str_contains($mimeType, 'word') || str_contains($mimeType, 'document') => 'icon-document',
+			str_contains($mimeType, 'spreadsheet') || str_contains($mimeType, 'excel') => 'icon-spreadsheet',
+			str_contains($mimeType, 'presentation') || str_contains($mimeType, 'powerpoint') => 'icon-presentation',
+			str_contains($mimeType, 'zip') || str_contains($mimeType, 'compressed') => 'icon-archive',
+			default => 'icon-file',
+		};
 	}
 }

@@ -91,6 +91,7 @@ export interface BBCode {
   enabled: boolean
   parseInner: boolean
   isBuiltin: boolean
+  specialHandler: string | null
   createdAt: number
 }
 

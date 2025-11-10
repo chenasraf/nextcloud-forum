@@ -26,6 +26,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setParseInner(bool $value)
  * @method bool getIsBuiltin()
  * @method void setIsBuiltin(bool $value)
+ * @method string|null getSpecialHandler()
+ * @method void setSpecialHandler(?string $value)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $value)
  */
@@ -36,6 +38,7 @@ class BBCode extends Entity implements JsonSerializable {
 	protected $enabled;
 	protected $parseInner;
 	protected $isBuiltin;
+	protected $specialHandler;
 	protected $createdAt;
 
 	public function __construct() {
@@ -46,6 +49,7 @@ class BBCode extends Entity implements JsonSerializable {
 		$this->addType('enabled', 'boolean');
 		$this->addType('parseInner', 'boolean');
 		$this->addType('isBuiltin', 'boolean');
+		$this->addType('specialHandler', 'string');
 		$this->addType('createdAt', 'integer');
 	}
 
@@ -58,6 +62,7 @@ class BBCode extends Entity implements JsonSerializable {
 			'enabled' => $this->getEnabled(),
 			'parseInner' => $this->getParseInner(),
 			'isBuiltin' => $this->getIsBuiltin(),
+			'specialHandler' => $this->getSpecialHandler(),
 			'createdAt' => $this->getCreatedAt(),
 		];
 	}

@@ -19,6 +19,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
+import { getFilePickerBuilder } from '@nextcloud/dialogs'
 import FormatBoldIcon from '@icons/FormatBold.vue'
 import FormatItalicIcon from '@icons/FormatItalic.vue'
 import FormatStrikethroughIcon from '@icons/FormatStrikethrough.vue'
@@ -37,6 +38,8 @@ import FormatAlignCenterIcon from '@icons/FormatAlignCenter.vue'
 import FormatAlignRightIcon from '@icons/FormatAlignRight.vue'
 import EyeOffIcon from '@icons/EyeOff.vue'
 import FormatListBulletedIcon from '@icons/FormatListBulleted.vue'
+import PaperclipIcon from '@icons/Paperclip.vue'
+import { t } from '@nextcloud/l10n'
 
 interface BBCodeButton {
   tag: string
@@ -47,6 +50,7 @@ interface BBCodeButton {
   placeholder?: string
   promptForContent?: boolean
   contentPlaceholder?: string
+  handler?: () => Promise<void>
 }
 
 export default defineComponent({
@@ -192,11 +196,26 @@ export default defineComponent({
           promptForContent: true,
           contentPlaceholder: 'Spoiler content',
         },
+        {
+          tag: 'attachment',
+          label: 'Attachment',
+          icon: PaperclipIcon,
+          template: '[attachment]{text}[/attachment]',
+          handler: async () => {
+            await this.handleAttachment()
+          },
+        },
       ] as BBCodeButton[],
     }
   },
   methods: {
-    insertBBCode(button: BBCodeButton): void {
+    async insertBBCode(button: BBCodeButton): Promise<void> {
+      // If button has a custom handler, use it instead
+      if (button.handler) {
+        await button.handler()
+        return
+      }
+
       if (!this.textareaRef) {
         return
       }
@@ -252,6 +271,65 @@ export default defineComponent({
         textarea.focus()
         textarea.setSelectionRange(cursorPos, cursorPos)
       })
+    },
+
+    async handleAttachment(): Promise<void> {
+      if (!this.textareaRef) {
+        return
+      }
+
+      try {
+        const picker = getFilePickerBuilder(t('forum', 'Pick a file to attach'))
+          .setMultiSelect(false)
+          // .setModal(true)
+          .setType(1) // TYPE_FILE
+          .build()
+
+        const path = await picker.pick()
+
+        if (!path) {
+          return
+        }
+
+        // Extract relative path from the full path
+        // File picker returns: /username/files/path/to/file.pdf
+        // We need: path/to/file.pdf (relative to user's files directory)
+        let relativePath = path
+
+        // Remove the leading /username/files/ part
+        const pathParts = path.split('/')
+        if (pathParts.length >= 3 && pathParts[2] === 'files') {
+          // Remove first 3 parts: ['', 'username', 'files']
+          relativePath = pathParts.slice(3).join('/')
+        }
+
+        const fileId = relativePath
+
+        const textarea = this.textareaRef
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        const beforeText = textarea.value.substring(0, start)
+        const afterText = textarea.value.substring(end)
+
+        const insertText = `[attachment]${fileId}[/attachment]`
+        const newText = beforeText + insertText + afterText
+        const cursorPos = beforeText.length + insertText.length
+
+        // Emit the insert event so the parent can update the model
+        this.$emit('insert', {
+          text: newText,
+          cursorPos,
+          selectedText: '',
+        })
+
+        // Focus the textarea after insertion
+        this.$nextTick(() => {
+          textarea.focus()
+          textarea.setSelectionRange(cursorPos, cursorPos)
+        })
+      } catch (error) {
+        console.error('Error picking file:', error)
+      }
     },
   },
 })

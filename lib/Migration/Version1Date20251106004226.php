@@ -315,6 +315,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'notnull' => true,
 			'default' => false,
 		]);
+		$table->addColumn('special_handler', 'string', [
+			'notnull' => false,
+			'length' => 64,
+			'default' => null,
+		]);
 		$table->addColumn('created_at', 'integer', [
 			'notnull' => true,
 			'unsigned' => true,
@@ -714,8 +719,9 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		// are provided by the chriskonnertz/bbcode library and don't need to be stored in the database.
 		// We only store custom BBCodes that extend the library's functionality.
 		$bbcodes = [
-			['tag' => 'icode', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false, 'is_builtin' => true],
-			['tag' => 'spoiler', 'replacement' => '<details><summary>{title}</summary>{content}</details>', 'description' => 'Spoilers', 'parse_inner' => false, 'is_builtin' => true],
+			['tag' => 'icode', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false, 'is_builtin' => true, 'special_handler' => null],
+			['tag' => 'spoiler', 'replacement' => '<details><summary>{title}</summary>{content}</details>', 'description' => 'Spoilers', 'parse_inner' => false, 'is_builtin' => true, 'special_handler' => null],
+			['tag' => 'attachment', 'replacement' => '', 'description' => 'Attachment', 'parse_inner' => false, 'is_builtin' => true, 'special_handler' => 'attachment'],
 		];
 
 		foreach ($bbcodes as $bbcode) {
@@ -728,6 +734,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 					'enabled' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 					'parse_inner' => $qb->createNamedParameter($bbcode['parse_inner'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 					'is_builtin' => $qb->createNamedParameter($bbcode['is_builtin'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'special_handler' => $qb->createNamedParameter($bbcode['special_handler']),
 					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				])
 				->executeStatement();

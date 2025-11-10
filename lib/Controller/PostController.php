@@ -10,12 +10,12 @@ namespace OCA\Forum\Controller;
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\CategoryMapper;
-use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -35,7 +35,7 @@ class PostController extends OCSController {
 		private PostMapper $postMapper,
 		private ThreadMapper $threadMapper,
 		private CategoryMapper $categoryMapper,
-		private ForumUserMapper $forumUserMapper,
+		private UserStatsMapper $userStatsMapper,
 		private ReactionMapper $reactionMapper,
 		private BBCodeService $bbCodeService,
 		private BBCodeMapper $bbCodeMapper,
@@ -207,14 +207,6 @@ class PostController extends OCSController {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
-			// Ensure forum user exists - do not auto-create
-			try {
-				$forumUser = $this->forumUserMapper->findByUserId($user->getUID());
-			} catch (DoesNotExistException $e) {
-				// User must be registered in the forum before posting
-				return new DataResponse(['error' => 'User not registered in forum'], Http::STATUS_FORBIDDEN);
-			}
-
 			// Auto-generate slug if not provided
 			if ($slug === null || $slug === '') {
 				$slug = 'post-' . uniqid();
@@ -257,14 +249,12 @@ class PostController extends OCSController {
 				// Don't fail the request if thread update fails
 			}
 
-			// Update the forum user's post count
+			// Update user stats post count (auto-creates stats if needed)
 			try {
-				$forumUser->setPostCount($forumUser->getPostCount() + 1);
-				$forumUser->setUpdatedAt(time());
-				$this->forumUserMapper->update($forumUser);
+				$this->userStatsMapper->incrementPostCount($user->getUID());
 			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update forum user post count: ' . $e->getMessage());
-				// Don't fail the request if user update fails
+				$this->logger->warning('Failed to update user stats post count: ' . $e->getMessage());
+				// Don't fail the request if stats update fails
 			}
 
 			// Update the category's post count

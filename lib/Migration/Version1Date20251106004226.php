@@ -32,7 +32,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$schema = $schemaClosure();
 
 		$this->createForumRolesTable($schema);
-		$this->createForumUsersTable($schema);
+		$this->createUserStatsTable($schema);
 		$this->createForumUserRolesTable($schema);
 		$this->createForumCatHeadersTable($schema);
 		$this->createForumCategoriesTable($schema);
@@ -85,17 +85,12 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addIndex(['name'], 'forum_roles_name_idx');
 	}
 
-	private function createForumUsersTable(ISchemaWrapper $schema): void {
-		if ($schema->hasTable('forum_users')) {
+	private function createUserStatsTable(ISchemaWrapper $schema): void {
+		if ($schema->hasTable('user_stats')) {
 			return;
 		}
 
-		$table = $schema->createTable('forum_users');
-		$table->addColumn('id', 'bigint', [
-			'autoincrement' => true,
-			'notnull' => true,
-			'unsigned' => true,
-		]);
+		$table = $schema->createTable('user_stats');
 		$table->addColumn('user_id', 'string', [
 			'notnull' => true,
 			'length' => 64,
@@ -105,6 +100,21 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'default' => 0,
 			'unsigned' => true,
 		]);
+		$table->addColumn('thread_count', 'integer', [
+			'notnull' => true,
+			'default' => 0,
+			'unsigned' => true,
+		]);
+		$table->addColumn('last_post_at', 'integer', [
+			'notnull' => false,
+			'unsigned' => true,
+			'default' => null,
+		]);
+		$table->addColumn('deleted_at', 'integer', [
+			'notnull' => false,
+			'unsigned' => true,
+			'default' => null,
+		]);
 		$table->addColumn('created_at', 'integer', [
 			'notnull' => true,
 			'unsigned' => true,
@@ -113,13 +123,9 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'notnull' => true,
 			'unsigned' => true,
 		]);
-		$table->addColumn('deleted_at', 'integer', [
-			'notnull' => false,
-			'unsigned' => true,
-			'default' => null,
-		]);
-		$table->setPrimaryKey(['id']);
-		$table->addUniqueIndex(['user_id'], 'forum_users_user_id_idx');
+		$table->setPrimaryKey(['user_id']);
+		$table->addIndex(['post_count'], 'user_stats_post_count_idx');
+		$table->addIndex(['deleted_at'], 'user_stats_deleted_at_idx');
 	}
 
 	private function createForumUserRolesTable(ISchemaWrapper $schema): void {
@@ -707,24 +713,13 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 				->executeStatement();
 		}
 
-		// Create forum users for all Nextcloud users
+		// Assign roles to all Nextcloud users
 		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
 		$adminGroup = $groupManager->get('admin');
 
 		$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $userRoleId, $adminRoleId, $adminGroup) {
 			$userId = $user->getUID();
 			$isAdmin = $adminGroup && $adminGroup->inGroup($user);
-
-			// Create forum user
-			$qb = $db->getQueryBuilder();
-			$qb->insert('forum_users')
-				->values([
-					'user_id' => $qb->createNamedParameter($userId),
-					'post_count' => $qb->createNamedParameter($userId === 'admin' ? 1 : 0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				])
-				->executeStatement();
 
 			// Assign User role to all users
 			$qb = $db->getQueryBuilder();
@@ -807,6 +802,19 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb->update('forum_threads')
 			->set('last_post_id', $qb->createNamedParameter($postId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 			->where($qb->expr()->eq('id', $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+			->executeStatement();
+
+		// Create user stats for admin (who created the welcome post/thread)
+		$qb = $db->getQueryBuilder();
+		$qb->insert('user_stats')
+			->values([
+				'user_id' => $qb->createNamedParameter('admin'),
+				'post_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'thread_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'last_post_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+			])
 			->executeStatement();
 	}
 }

@@ -97,16 +97,10 @@ class Thread extends Entity implements JsonSerializable {
 		}
 
 		// Add author display name (obfuscated if user is deleted)
-		try {
-			$forumUserMapper = \OC::$server->get(\OCA\Forum\Db\ForumUserMapper::class);
-			$forumUser = $forumUserMapper->findByUserId($thread['authorId']);
-			$thread['authorDisplayName'] = $forumUser->getDisplayName();
-			$thread['authorIsDeleted'] = $forumUser->getDeletedAt() !== null;
-		} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
-			// Forum user doesn't exist, use the original authorId
-			$thread['authorDisplayName'] = $thread['authorId'];
-			$thread['authorIsDeleted'] = false;
-		}
+		$userService = \OC::$server->get(\OCA\Forum\Service\UserService::class);
+		$userData = $userService->enrichUserData($thread['authorId']);
+		$thread['authorDisplayName'] = $userData['displayName'];
+		$thread['authorIsDeleted'] = $userData['isDeleted'];
 
 		// Add category information (slug and name) for navigation
 		try {

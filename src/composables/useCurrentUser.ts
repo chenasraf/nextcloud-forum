@@ -1,38 +1,38 @@
 import { ref, computed, type Ref } from 'vue'
 import { ocs } from '@/axios'
-import type { ForumUser } from '@/types'
+import type { UserStats } from '@/types'
 import { getCurrentUser } from '@nextcloud/auth'
 
-const currentUser = ref<ForumUser | null>(null)
+const currentUserStats = ref<UserStats | null>(null)
 const loading = ref<boolean>(false)
 const error = ref<string | null>(null)
 const loaded = ref<boolean>(false)
 
 export function useCurrentUser() {
-  const fetchCurrentUser = async (force = false): Promise<ForumUser | null> => {
+  const fetchCurrentUser = async (force = false): Promise<UserStats | null> => {
     // Don't refetch if already loaded unless forced
     if (loaded.value && !force) {
-      return currentUser.value
+      return currentUserStats.value
     }
 
     try {
       loading.value = true
       error.value = null
 
-      const response = await ocs.get<ForumUser>('/users/me')
-      currentUser.value = response.data
+      const response = await ocs.get<UserStats>('/users/me')
+      currentUserStats.value = response.data
       loaded.value = true
-      return currentUser.value
+      return currentUserStats.value
     } catch (e: unknown) {
-      // If 404, user hasn't been created yet - this is OK, we'll use Nextcloud user info
+      // If 404, user stats don't exist yet (user hasn't posted) - this is OK
       const err = e as { response?: { status?: number } }
       if (err?.response?.status === 404) {
-        console.debug('Forum user not found')
-        currentUser.value = null
+        console.debug('User stats not found - user has not posted yet')
+        currentUserStats.value = null
         loaded.value = true
         return null
       }
-      console.error('Failed to fetch current user', e)
+      console.error('Failed to fetch current user stats', e)
       error.value = (e as Error).message || 'Failed to load user information'
       return null
     } finally {
@@ -40,12 +40,12 @@ export function useCurrentUser() {
     }
   }
 
-  const refresh = async (): Promise<ForumUser | null> => {
+  const refresh = async (): Promise<UserStats | null> => {
     return fetchCurrentUser(true)
   }
 
   const clear = (): void => {
-    currentUser.value = null
+    currentUserStats.value = null
     loaded.value = false
     error.value = null
   }
@@ -58,7 +58,7 @@ export function useCurrentUser() {
   const displayName = computed<string>(() => nextcloudUser.value?.displayName || nextcloudUser.value?.uid || 'Guest')
 
   return {
-    currentUser: currentUser as Ref<ForumUser | null>,
+    currentUserStats: currentUserStats as Ref<UserStats | null>,
     loading: loading as Ref<boolean>,
     error: error as Ref<string | null>,
     loaded: loaded as Ref<boolean>,

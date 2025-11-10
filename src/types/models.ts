@@ -72,14 +72,14 @@ export interface Post {
   }>
 }
 
-export interface ForumUser {
-  id: number
+export interface UserStats {
   userId: string
   postCount: number
+  threadCount: number
+  lastPostAt: number | null
+  deletedAt: number | null
   createdAt: number
   updatedAt: number
-  deletedAt: number | null
-  isDeleted: boolean
 }
 
 export interface BBCode {

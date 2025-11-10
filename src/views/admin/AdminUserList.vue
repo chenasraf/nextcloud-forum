@@ -36,20 +36,30 @@
 
         <div
           v-for="user in users"
-          :key="user.id"
+          :key="user.userId"
           class="table-row"
           :class="{ 'is-deleted': user.isDeleted }"
         >
           <div class="col-user">
             <NcAvatar :user="user.userId" :size="40" />
             <div class="user-info">
-              <div class="user-name">{{ user.userId }}</div>
-              <div class="user-id muted">ID: {{ user.id }}</div>
+              <div class="user-name">{{ user.displayName }}</div>
+              <div class="user-id muted">@{{ user.userId }}</div>
             </div>
           </div>
 
           <div class="col-posts">
-            <span class="post-count">{{ user.postCount }}</span>
+            <div class="post-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ user.threadCount }}</span>
+                <span class="stat-label muted">threads</span>
+              </div>
+              <div class="stat-divider">/</div>
+              <div class="stat-item">
+                <span class="stat-value">{{ user.postCount }}</span>
+                <span class="stat-label muted">posts</span>
+              </div>
+            </div>
           </div>
 
           <div class="col-roles">
@@ -139,9 +149,10 @@ import { t } from '@nextcloud/l10n'
 import type { Role } from '@/types'
 
 interface AdminUser {
-  id: number
   userId: string
+  displayName: string
   postCount: number
+  threadCount: number
   createdAt: number
   updatedAt: number
   deletedAt: number | null
@@ -389,10 +400,34 @@ export default defineComponent({
         }
 
         .col-posts {
-          .post-count {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--color-main-text);
+          .post-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .stat-item {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 2px;
+
+              .stat-value {
+                font-weight: 600;
+                font-size: 1rem;
+                color: var(--color-main-text);
+              }
+
+              .stat-label {
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+              }
+            }
+
+            .stat-divider {
+              color: var(--color-text-maxcontrast);
+              font-weight: 300;
+            }
           }
         }
 

@@ -9,11 +9,11 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
-use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\UserStatsMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -31,7 +31,7 @@ class ThreadController extends OCSController {
 		private ThreadMapper $threadMapper,
 		private CategoryMapper $categoryMapper,
 		private PostMapper $postMapper,
-		private ForumUserMapper $forumUserMapper,
+		private UserStatsMapper $userStatsMapper,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -185,13 +185,6 @@ class ThreadController extends OCSController {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
-			// Ensure forum user exists
-			try {
-				$forumUser = $this->forumUserMapper->findByUserId($user->getUID());
-			} catch (DoesNotExistException $e) {
-				return new DataResponse(['error' => 'User not registered in forum'], Http::STATUS_FORBIDDEN);
-			}
-
 			// Generate slug from title
 			$slug = $this->generateSlug($title);
 
@@ -243,13 +236,12 @@ class ThreadController extends OCSController {
 				$this->logger->warning('Failed to update category counts: ' . $e->getMessage());
 			}
 
-			// Update forum user's post count
+			// Update user stats (post count and thread count, auto-creates stats if needed)
 			try {
-				$forumUser->setPostCount($forumUser->getPostCount() + 1);
-				$forumUser->setUpdatedAt(time());
-				$this->forumUserMapper->update($forumUser);
+				$this->userStatsMapper->incrementPostCount($user->getUID());
+				$this->userStatsMapper->incrementThreadCount($user->getUID());
 			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update forum user post count: ' . $e->getMessage());
+				$this->logger->warning('Failed to update user stats: ' . $e->getMessage());
 			}
 
 			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);

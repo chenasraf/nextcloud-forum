@@ -9,16 +9,18 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
-use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\UserRoleMapper;
+use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
+use OCP\IUserManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
@@ -26,11 +28,13 @@ class AdminController extends OCSController {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private ForumUserMapper $forumUserMapper,
+		private UserStatsMapper $userStatsMapper,
+		private UserService $userService,
 		private ThreadMapper $threadMapper,
 		private PostMapper $postMapper,
 		private CategoryMapper $categoryMapper,
 		private UserRoleMapper $userRoleMapper,
+		private IUserManager $userManager,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -55,19 +59,19 @@ class AdminController extends OCSController {
 			}
 
 			// Get total counts
-			$totalUsers = $this->forumUserMapper->countAll();
+			$totalUsers = $this->userStatsMapper->countAll();
 			$totalThreads = $this->threadMapper->countAll();
 			$totalPosts = $this->postMapper->countAll();
 			$totalCategories = $this->categoryMapper->countAll();
 
 			// Get recent activity (last 7 days)
 			$weekAgo = time() - (7 * 24 * 60 * 60);
-			$recentUsers = $this->forumUserMapper->countSince($weekAgo);
+			$recentUsers = $this->userStatsMapper->countSince($weekAgo);
 			$recentThreads = $this->threadMapper->countSince($weekAgo);
 			$recentPosts = $this->postMapper->countSince($weekAgo);
 
 			// Get top contributors (users with most posts)
-			$topContributors = $this->forumUserMapper->getTopContributors(5);
+			$topContributors = $this->userStatsMapper->getTopContributors(5);
 
 			return new DataResponse([
 				'totals' => [
@@ -101,22 +105,33 @@ class AdminController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/admin/users')]
 	public function users(): DataResponse {
 		try {
+			// Get all user stats indexed by userId for quick lookup
+			$allStats = $this->userStatsMapper->findAll();
+			$statsByUserId = [];
+			foreach ($allStats as $stats) {
+				$statsByUserId[$stats->getUserId()] = $stats;
+			}
 
-			// Get all forum users
-			$forumUsers = $this->forumUserMapper->findAll();
-
-			// Enrich with role information
+			// Get all Nextcloud users and enrich with forum data
 			$enrichedUsers = [];
-			foreach ($forumUsers as $forumUser) {
-				$userId = $forumUser->getUserId();
+			$this->userManager->callForAllUsers(function ($user) use (&$enrichedUsers, $statsByUserId) {
+				$userId = $user->getUID();
+
+				// Get user display name
+				$userInfo = $this->userService->enrichUserData($userId);
+
+				// Get stats if they exist, otherwise use defaults
+				$stats = $statsByUserId[$userId] ?? null;
+
 				$userData = [
-					'id' => $forumUser->getId(),
 					'userId' => $userId,
-					'postCount' => $forumUser->getPostCount(),
-					'createdAt' => $forumUser->getCreatedAt(),
-					'updatedAt' => $forumUser->getUpdatedAt(),
-					'deletedAt' => $forumUser->getDeletedAt(),
-					'isDeleted' => $forumUser->getDeletedAt() !== null,
+					'displayName' => $userInfo['displayName'],
+					'postCount' => $stats ? $stats->getPostCount() : 0,
+					'threadCount' => $stats ? $stats->getThreadCount() : 0,
+					'createdAt' => $stats ? $stats->getCreatedAt() : 0,
+					'updatedAt' => $stats ? $stats->getUpdatedAt() : 0,
+					'deletedAt' => $stats ? $stats->getDeletedAt() : null,
+					'isDeleted' => $userInfo['isDeleted'],
 					'roles' => [],
 				];
 
@@ -130,7 +145,7 @@ class AdminController extends OCSController {
 				}
 
 				$enrichedUsers[] = $userData;
-			}
+			});
 
 			return new DataResponse(['users' => $enrichedUsers]);
 		} catch (\Exception $e) {

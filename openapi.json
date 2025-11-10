@@ -3333,7 +3333,7 @@
         "/ocs/v2.php/apps/forum/api/users": {
             "get": {
                 "operationId": "forum_user-index",
-                "summary": "Get all forum users",
+                "summary": "Get all user statistics",
                 "tags": [
                     "forum_user"
                 ],
@@ -3359,7 +3359,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Forum users returned",
+                        "description": "User statistics returned",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3426,7 +3426,7 @@
             },
             "post": {
                 "operationId": "forum_user-create",
-                "summary": "Create a new forum user",
+                "summary": "Create user stats Note: This is typically not needed as stats are auto-created on first post",
                 "tags": [
                     "forum_user"
                 ],
@@ -3471,7 +3471,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "Forum user created",
+                        "description": "User stats created",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3537,7 +3537,7 @@
         "/ocs/v2.php/apps/forum/api/users/{userId}": {
             "get": {
                 "operationId": "forum_user-show",
-                "summary": "Get forum user by Nextcloud user ID Special case: use \"me\" to get current user",
+                "summary": "Get user statistics by Nextcloud user ID Special case: use \"me\" to get current user stats",
                 "tags": [
                     "forum_user"
                 ],
@@ -3572,7 +3572,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Forum user returned",
+                        "description": "User stats returned",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3604,192 +3604,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Current user is not logged in",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "operationId": "forum_user-update",
-                "summary": "Update a forum user",
-                "tags": [
-                    "forum_user"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "requestBody": {
-                    "required": false,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "postCount": {
-                                        "type": "integer",
-                                        "format": "int64",
-                                        "nullable": true,
-                                        "default": null,
-                                        "description": "Post count"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "description": "Nextcloud user ID or \"me\" for current user",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Forum user updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "type": "object",
-                                                    "additionalProperties": {
-                                                        "type": "object"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Current user is not logged in",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "operationId": "forum_user-destroy",
-                "summary": "Delete a forum user",
-                "tags": [
-                    "forum_user"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "description": "Nextcloud user ID or \"me\" for current user",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Forum user deleted",
+                    "404": {
+                        "description": "User has no stats (hasn't posted yet)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3811,11 +3627,11 @@
                                                 "data": {
                                                     "type": "object",
                                                     "required": [
-                                                        "success"
+                                                        "error"
                                                     ],
                                                     "properties": {
-                                                        "success": {
-                                                            "type": "boolean"
+                                                        "error": {
+                                                            "type": "string"
                                                         }
                                                     }
                                                 }
@@ -3827,29 +3643,64 @@
                         }
                     },
                     "401": {
-                        "description": "Current user is not logged in",
+                        "description": "User not authenticated (when using \"me\")",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
+                                    "anyOf": [
+                                        {
                                             "type": "object",
                                             "required": [
-                                                "meta",
-                                                "data"
+                                                "ocs"
                                             ],
                                             "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
+                                                "ocs": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "meta",
+                                                        "data"
+                                                    ],
+                                                    "properties": {
+                                                        "meta": {
+                                                            "$ref": "#/components/schemas/OCSMeta"
+                                                        },
+                                                        "data": {
+                                                            "type": "object",
+                                                            "required": [
+                                                                "error"
+                                                            ],
+                                                            "properties": {
+                                                                "error": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "ocs"
+                                            ],
+                                            "properties": {
+                                                "ocs": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "meta",
+                                                        "data"
+                                                    ],
+                                                    "properties": {
+                                                        "meta": {
+                                                            "$ref": "#/components/schemas/OCSMeta"
+                                                        },
+                                                        "data": {}
+                                                    }
+                                                }
                                             }
                                         }
-                                    }
+                                    ]
                                 }
                             }
                         }
@@ -8141,5 +7992,10 @@
             }
         }
     },
-    "tags": []
+    "tags": [
+        {
+            "name": "forum_user",
+            "description": "Controller for user statistics Note: User stats are automatically created on first post/thread"
+        }
+    ]
 }

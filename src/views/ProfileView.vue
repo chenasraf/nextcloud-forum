@@ -30,7 +30,7 @@
     </NcEmptyContent>
 
     <!-- Profile content -->
-    <div v-else-if="forumUser" class="profile-content mt-16">
+    <div v-else class="profile-content mt-16">
       <!-- User Header -->
       <div class="user-header">
         <div class="user-avatar">
@@ -39,14 +39,19 @@
         <div class="user-info">
           <h2 class="user-name">{{ displayName }}</h2>
           <div class="user-meta">
+            <span v-if="userStats && userStats.createdAt" class="meta-item">
+              <span class="meta-label">{{ strings.firstPost }}</span>
+              <NcDateTime :timestamp="userStats.createdAt * 1000" />
+            </span>
+            <span v-if="userStats && userStats.createdAt" class="meta-divider">·</span>
             <span class="meta-item">
-              <span class="meta-label">{{ strings.joined }}</span>
-              <NcDateTime v-if="forumUser.createdAt" :timestamp="forumUser.createdAt * 1000" />
+              <span class="meta-label">{{ strings.threads }}</span>
+              <span class="meta-value">{{ userStats?.threadCount || 0 }}</span>
             </span>
             <span class="meta-divider">·</span>
             <span class="meta-item">
               <span class="meta-label">{{ strings.posts }}</span>
-              <span class="meta-value">{{ forumUser.postCount }}</span>
+              <span class="meta-value">{{ userStats?.postCount || 0 }}</span>
             </span>
           </div>
         </div>
@@ -135,7 +140,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import ThreadCard from '@/components/ThreadCard.vue'
-import type { ForumUser, Thread, Post } from '@/types'
+import type { UserStats, Thread, Post } from '@/types'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
@@ -156,7 +161,7 @@ export default defineComponent({
       loading: false,
       loadingThreads: false,
       loadingPosts: false,
-      forumUser: null as ForumUser | null,
+      userStats: null as UserStats | null,
       displayName: '',
       threads: [] as Thread[],
       posts: [] as Post[],
@@ -168,7 +173,7 @@ export default defineComponent({
         loading: t('forum', 'Loading...'),
         errorTitle: t('forum', 'Error'),
         retry: t('forum', 'Retry'),
-        joined: t('forum', 'Joined'),
+        firstPost: t('forum', 'First post'),
         posts: t('forum', 'Posts'),
         threads: t('forum', 'Threads'),
         replies: t('forum', 'Replies'),
@@ -206,12 +211,20 @@ export default defineComponent({
       this.error = null
 
       try {
-        // Load user data
-        const userResponse = await ocs.get(`/api/users/${this.userId}`)
-        this.forumUser = userResponse.data
-
-        // Get display name from Nextcloud
+        // Get display name from Nextcloud first
         this.displayName = await this.getDisplayName(this.userId)
+
+        // Load user stats (may not exist if user hasn't posted)
+        try {
+          const userResponse = await ocs.get(`/api/users/${this.userId}`)
+          this.userStats = userResponse.data
+        } catch (err: any) {
+          // 404 is OK - user hasn't posted yet
+          if (err.response?.status !== 404) {
+            throw err
+          }
+          this.userStats = null
+        }
 
         // Load initial tab data
         if (this.activeTab === 'threads') {

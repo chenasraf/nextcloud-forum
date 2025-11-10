@@ -96,16 +96,10 @@ class Post extends Entity implements JsonSerializable {
 		$post['content'] = $service->parse($post['content'], $bbcodes);
 
 		// Add author display name (obfuscated if user is deleted)
-		try {
-			$forumUserMapper = \OC::$server->get(\OCA\Forum\Db\ForumUserMapper::class);
-			$forumUser = $forumUserMapper->findByUserId($post['authorId']);
-			$post['authorDisplayName'] = $forumUser->getDisplayName();
-			$post['authorIsDeleted'] = $forumUser->getDeletedAt() !== null;
-		} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
-			// Forum user doesn't exist, use the original authorId
-			$post['authorDisplayName'] = $post['authorId'];
-			$post['authorIsDeleted'] = false;
-		}
+		$userService = \OC::$server->get(\OCA\Forum\Service\UserService::class);
+		$userData = $userService->enrichUserData($post['authorId']);
+		$post['authorDisplayName'] = $userData['displayName'];
+		$post['authorIsDeleted'] = $userData['isDeleted'];
 
 		// Add reactions (grouped by emoji)
 		$post['reactions'] = self::groupReactions($reactions, $currentUserId);

@@ -443,7 +443,24 @@ class PostControllerTest extends TestCase {
 
 	public function testDestroyPostSuccessfully(): void {
 		$postId = 1;
-		$post = $this->createMockPost($postId, 1, 'user1', 'Test content');
+		$userId = 'user1';
+		$post = $this->createMockPost($postId, 1, $userId, 'Test content');
+
+		// Mock user session
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock permission service
+		$this->permissionService->expects($this->once())
+			->method('getCategoryIdFromPost')
+			->with($postId)
+			->willReturn(1);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, 1, 'canModerate')
+			->willReturn(false); // User is not moderator but is author
 
 		$this->postMapper->expects($this->once())
 			->method('find')
@@ -451,8 +468,11 @@ class PostControllerTest extends TestCase {
 			->willReturn($post);
 
 		$this->postMapper->expects($this->once())
-			->method('delete')
-			->with($post);
+			->method('update')
+			->willReturnCallback(function ($updatedPost) {
+				$this->assertNotNull($updatedPost->getDeletedAt());
+				return $updatedPost;
+			});
 
 		$response = $this->controller->destroy($postId);
 
@@ -462,6 +482,12 @@ class PostControllerTest extends TestCase {
 
 	public function testDestroyPostReturnsNotFoundWhenPostDoesNotExist(): void {
 		$postId = 999;
+		$userId = 'user1';
+
+		// Mock user session
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
 
 		$this->postMapper->expects($this->once())
 			->method('find')

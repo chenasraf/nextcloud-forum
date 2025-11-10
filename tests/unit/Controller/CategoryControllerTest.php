@@ -8,6 +8,7 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\CategoryController;
 use OCA\Forum\Db\Category;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeader;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCA\Forum\Db\ThreadMapper;
@@ -21,6 +22,7 @@ class CategoryControllerTest extends TestCase {
 	private CategoryController $controller;
 	private CatHeaderMapper $catHeaderMapper;
 	private CategoryMapper $categoryMapper;
+	private CategoryPermMapper $categoryPermMapper;
 	private ThreadMapper $threadMapper;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -29,6 +31,7 @@ class CategoryControllerTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->catHeaderMapper = $this->createMock(CatHeaderMapper::class);
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
+		$this->categoryPermMapper = $this->createMock(CategoryPermMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -37,6 +40,7 @@ class CategoryControllerTest extends TestCase {
 			$this->request,
 			$this->catHeaderMapper,
 			$this->categoryMapper,
+			$this->categoryPermMapper,
 			$this->threadMapper,
 			$this->logger
 		);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Tests\Service;
 
+use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\Post;
@@ -24,6 +25,7 @@ class PermissionServiceTest extends TestCase {
 	private UserRoleMapper $userRoleMapper;
 	private RoleMapper $roleMapper;
 	private CategoryPermMapper $categoryPermMapper;
+	private CategoryMapper $categoryMapper;
 	private ThreadMapper $threadMapper;
 	private PostMapper $postMapper;
 	private LoggerInterface $logger;
@@ -32,6 +34,7 @@ class PermissionServiceTest extends TestCase {
 		$this->userRoleMapper = $this->createMock(UserRoleMapper::class);
 		$this->roleMapper = $this->createMock(RoleMapper::class);
 		$this->categoryPermMapper = $this->createMock(CategoryPermMapper::class);
+		$this->categoryMapper = $this->createMock(CategoryMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->postMapper = $this->createMock(PostMapper::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
@@ -40,6 +43,7 @@ class PermissionServiceTest extends TestCase {
 			$this->userRoleMapper,
 			$this->roleMapper,
 			$this->categoryPermMapper,
+			$this->categoryMapper,
 			$this->threadMapper,
 			$this->postMapper,
 			$this->logger

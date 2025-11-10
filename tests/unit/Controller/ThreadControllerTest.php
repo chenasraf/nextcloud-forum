@@ -391,21 +391,41 @@ class ThreadControllerTest extends TestCase {
 
 	public function testDestroyThreadSuccessfully(): void {
 		$threadId = 1;
-		$thread = $this->createMockThread($threadId, 1, 'user1', 'Test Thread');
+		$categoryId = 1;
+		$thread = $this->createMockThread($threadId, $categoryId, 'user1', 'Test Thread');
+
+		// Mock category
+		$category = new Category();
+		$category->setId($categoryId);
+		$category->setSlug('test-category');
+		$category->setThreadCount(5);
+		$category->setPostCount(20);
 
 		$this->threadMapper->expects($this->once())
 			->method('find')
 			->with($threadId)
 			->willReturn($thread);
 
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($categoryId)
+			->willReturn($category);
+
 		$this->threadMapper->expects($this->once())
-			->method('delete')
-			->with($thread);
+			->method('update')
+			->willReturnCallback(function ($updatedThread) {
+				$this->assertNotNull($updatedThread->getDeletedAt());
+				return $updatedThread;
+			});
+
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturn($category);
 
 		$response = $this->controller->destroy($threadId);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
-		$this->assertEquals(['success' => true], $response->getData());
+		$this->assertEquals(['success' => true, 'categorySlug' => 'test-category'], $response->getData());
 	}
 
 	public function testDestroyThreadReturnsNotFoundWhenThreadDoesNotExist(): void {

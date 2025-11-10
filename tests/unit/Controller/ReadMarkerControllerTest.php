@@ -131,18 +131,11 @@ class ReadMarkerControllerTest extends TestCase {
 
 		$createdMarker = $this->createReadMarker(1, $userId, $threadId, $lastReadPostId);
 
-		// First call: check if exists (throws exception = doesn't exist)
+		// Mock createOrUpdate method
 		$this->readMarkerMapper->expects($this->once())
-			->method('findByUserAndThread')
-			->with($userId, $threadId)
-			->willThrowException(new DoesNotExistException('Read marker not found'));
-
-		// Second call: insert new marker
-		$this->readMarkerMapper->expects($this->once())
-			->method('insert')
-			->willReturnCallback(function ($marker) use ($createdMarker) {
-				return $createdMarker;
-			});
+			->method('createOrUpdate')
+			->with($userId, $threadId, $lastReadPostId)
+			->willReturn($createdMarker);
 
 		$response = $this->controller->create($threadId, $lastReadPostId);
 
@@ -164,19 +157,14 @@ class ReadMarkerControllerTest extends TestCase {
 
 		$existingMarker = $this->createReadMarker(1, $userId, $threadId, $oldPostId);
 
-		// First call: find existing marker
-		$this->readMarkerMapper->expects($this->once())
-			->method('findByUserAndThread')
-			->with($userId, $threadId)
-			->willReturn($existingMarker);
+		// Update the marker with new post ID
+		$existingMarker->setLastReadPostId($newPostId);
 
-		// Second call: update marker
+		// Mock createOrUpdate method
 		$this->readMarkerMapper->expects($this->once())
-			->method('update')
-			->willReturnCallback(function ($marker) use ($newPostId) {
-				$this->assertEquals($newPostId, $marker->getLastReadPostId());
-				return $marker;
-			});
+			->method('createOrUpdate')
+			->with($userId, $threadId, $newPostId)
+			->willReturn($existingMarker);
 
 		$response = $this->controller->create($threadId, $newPostId);
 

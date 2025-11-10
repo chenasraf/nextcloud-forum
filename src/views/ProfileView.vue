@@ -451,8 +451,8 @@ export default defineComponent({
     }
 
     &.active {
-      color: var(--color-primary);
-      border-bottom-color: var(--color-primary);
+      color: var(--color-text-light);
+      border-bottom-color: var(--color-text-light);
     }
   }
 

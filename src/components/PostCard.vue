@@ -396,6 +396,14 @@ export default defineComponent({
       font-size: 0.9rem;
       color: var(--color-main-text);
     }
+
+    // Blockquotes ([quote])
+    :deep(blockquote) {
+      border-left: 4px solid var(--color-border-maxcontrast);
+      margin: 12px 0;
+      padding-left: 12px;
+      color: var(--color-text-secondary);
+    }
   }
 
   .icon {

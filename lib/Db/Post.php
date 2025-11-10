@@ -24,6 +24,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setSlug(string $value)
  * @method bool getIsEdited()
  * @method void setIsEdited(bool $value)
+ * @method bool getIsFirstPost()
+ * @method void setIsFirstPost(bool $value)
  * @method int|null getEditedAt()
  * @method void setEditedAt(?int $value)
  * @method int getCreatedAt()
@@ -39,6 +41,7 @@ class Post extends Entity implements JsonSerializable {
 	protected $content;
 	protected $slug;
 	protected $isEdited;
+	protected $isFirstPost;
 	protected $editedAt;
 	protected $createdAt;
 	protected $updatedAt;
@@ -51,6 +54,7 @@ class Post extends Entity implements JsonSerializable {
 		$this->addType('content', 'string');
 		$this->addType('slug', 'string');
 		$this->addType('isEdited', 'boolean');
+		$this->addType('isFirstPost', 'boolean');
 		$this->addType('editedAt', 'integer');
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
@@ -66,6 +70,7 @@ class Post extends Entity implements JsonSerializable {
 			'contentRaw' => $this->getContent(),
 			'slug' => $this->getSlug(),
 			'isEdited' => $this->getIsEdited(),
+			'isFirstPost' => $this->getIsFirstPost(),
 			'editedAt' => $this->getEditedAt(),
 			'createdAt' => $this->getCreatedAt(),
 			'updatedAt' => $this->getUpdatedAt(),

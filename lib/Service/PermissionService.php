@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\RoleMapper;
@@ -20,6 +21,7 @@ class PermissionService {
 		private UserRoleMapper $userRoleMapper,
 		private RoleMapper $roleMapper,
 		private CategoryPermMapper $categoryPermMapper,
+		private CategoryMapper $categoryMapper,
 		private ThreadMapper $threadMapper,
 		private PostMapper $postMapper,
 		private LoggerInterface $logger,
@@ -188,6 +190,43 @@ class PermissionService {
 			return $thread->getAuthorId() === $userId;
 		} catch (DoesNotExistException $e) {
 			return false;
+		}
+	}
+
+	/**
+	 * Get all category IDs that the user has view permission for
+	 *
+	 * @param string $userId Nextcloud user ID
+	 * @return array<int> Array of category IDs
+	 */
+	public function getAccessibleCategories(string $userId): array {
+		$accessibleCategoryIds = [];
+
+		try {
+			// Get all user roles
+			$userRoles = $this->userRoleMapper->findByUserId($userId);
+			$roleIds = array_map(fn ($role) => $role->getRoleId(), $userRoles);
+
+			if (empty($roleIds)) {
+				$this->logger->warning("User $userId has no role assignments");
+				return [];
+			}
+
+			// Get all categories
+			$categories = $this->categoryMapper->findAll();
+
+			// Check view permission for each category
+			foreach ($categories as $category) {
+				if ($this->hasCategoryPermission($userId, $category->getId(), 'canView')) {
+					$accessibleCategoryIds[] = $category->getId();
+				}
+			}
+
+			$this->logger->debug("User $userId has access to " . count($accessibleCategoryIds) . ' categories');
+			return $accessibleCategoryIds;
+		} catch (\Exception $e) {
+			$this->logger->error("Error getting accessible categories for user $userId: " . $e->getMessage());
+			return [];
 		}
 	}
 }

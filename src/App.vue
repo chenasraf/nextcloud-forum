@@ -53,6 +53,17 @@
           </NcAppNavigationItem>
         </NcAppNavigationItem>
 
+        <!-- Search menu item -->
+        <NcAppNavigationItem
+          :name="strings.navSearch"
+          :to="{ path: '/search' }"
+          :active="isSearchActive"
+        >
+          <template #icon>
+            <MagnifyIcon :size="20" />
+          </template>
+        </NcAppNavigationItem>
+
         <!-- Admin menu item - only visible to admins -->
         <NcAppNavigationItem v-if="isAdmin" :name="strings.navAdmin" @click="toggleAdmin">
           <template #icon>
@@ -159,6 +170,7 @@ import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import HomeIcon from '@icons/Home.vue'
 import ForumIcon from '@icons/Forum.vue'
 import FolderIcon from '@icons/Folder.vue'
+import MagnifyIcon from '@icons/Magnify.vue'
 import PuzzleIcon from '@icons/Puzzle.vue'
 import InfoIcon from '@icons/Information.vue'
 import ChevronDownIcon from '@icons/ChevronDown.vue'
@@ -189,6 +201,7 @@ export default defineComponent({
     HomeIcon,
     ForumIcon,
     FolderIcon,
+    MagnifyIcon,
     PuzzleIcon,
     InfoIcon,
     ChevronDownIcon,
@@ -239,6 +252,7 @@ export default defineComponent({
         searchLabel: t('forum', 'Search'),
         searchPlaceholder: t('forum', 'Type to filter…'),
         navHome: t('forum', 'Home'),
+        navSearch: t('forum', 'Search'),
         navAdmin: t('forum', 'Admin'),
         navAdminDashboard: t('forum', 'Dashboard'),
         navAdminUsers: t('forum', 'Users'),
@@ -253,6 +267,9 @@ export default defineComponent({
     }
   },
   computed: {
+    isSearchActive(): boolean {
+      return this.$route.path === '/search'
+    },
     isAdminDashboardActive(): boolean {
       return this.$route.path === '/admin'
     },

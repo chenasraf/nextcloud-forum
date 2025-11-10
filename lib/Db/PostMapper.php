@@ -148,4 +148,33 @@ class PostMapper extends QBMapper {
 		$result->closeCursor();
 		return (int)($row['count'] ?? 0);
 	}
+
+	/**
+	 * Search posts by content (replies only, excluding first posts)
+	 *
+	 * @param IQueryBuilder $qb QueryBuilder instance (with parameters already bound)
+	 * @param \OCP\DB\QueryBuilder\ICompositeExpression $whereConditions WHERE expression from QueryParser
+	 * @param array<int> $categoryIds Category IDs to search in
+	 * @param int $limit Maximum results
+	 * @param int $offset Results offset
+	 * @return array<Post>
+	 */
+	public function search(IQueryBuilder $qb, \OCP\DB\QueryBuilder\ICompositeExpression $whereConditions, array $categoryIds, int $limit = 50, int $offset = 0): array {
+
+		// Select posts with JOIN to threads for category filtering
+		$qb->select('p.*')
+			->from($this->getTableName(), 'p')
+			->innerJoin('p', 'forum_threads', 't', $qb->expr()->eq('p.thread_id', 't.id'))
+			->where($qb->expr()->in('t.category_id', $qb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)))
+			->andWhere($qb->expr()->eq('p.is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('p.deleted_at'))
+			->andWhere($qb->expr()->isNull('t.deleted_at'))
+			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($whereConditions)
+			->orderBy('p.created_at', 'DESC')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
+
+		return $this->findEntities($qb);
+	}
 }

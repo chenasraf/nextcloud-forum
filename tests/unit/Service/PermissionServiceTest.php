@@ -258,6 +258,7 @@ class PermissionServiceTest extends TestCase {
 		$post = new Post();
 		$post->setId($postId);
 		$post->setThreadId($threadId);
+		$post->setIsFirstPost(false);
 
 		$thread = new Thread();
 		$thread->setId($threadId);
@@ -297,6 +298,7 @@ class PermissionServiceTest extends TestCase {
 		$post = new Post();
 		$post->setId($postId);
 		$post->setAuthorId($userId);
+		$post->setIsFirstPost(false);
 
 		$this->postMapper->expects($this->once())
 			->method('find')
@@ -315,6 +317,7 @@ class PermissionServiceTest extends TestCase {
 		$post = new Post();
 		$post->setId($postId);
 		$post->setAuthorId('user2');
+		$post->setIsFirstPost(false);
 
 		$this->postMapper->expects($this->once())
 			->method('find')

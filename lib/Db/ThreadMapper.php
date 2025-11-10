@@ -175,4 +175,42 @@ class ThreadMapper extends QBMapper {
 		$result->closeCursor();
 		return (int)($row['count'] ?? 0);
 	}
+
+	/**
+	 * Search threads by title and first post content
+	 *
+	 * @param IQueryBuilder $qb QueryBuilder instance (with parameters already bound)
+	 * @param \OCP\DB\QueryBuilder\ICompositeExpression $titleConditions WHERE expression for title field
+	 * @param \OCP\DB\QueryBuilder\ICompositeExpression $contentConditions WHERE expression for content field
+	 * @param array<int> $categoryIds Category IDs to search in
+	 * @param int $limit Maximum results
+	 * @param int $offset Results offset
+	 * @return array<Thread>
+	 */
+	public function search(IQueryBuilder $qb, \OCP\DB\QueryBuilder\ICompositeExpression $titleConditions, \OCP\DB\QueryBuilder\ICompositeExpression $contentConditions, array $categoryIds, int $limit = 50, int $offset = 0): array {
+
+		// Select threads with LEFT JOIN to first post
+		$qb->select('t.*')
+			->from($this->getTableName(), 't')
+			->leftJoin('t', 'forum_posts', 'p', $qb->expr()->andX(
+				$qb->expr()->eq('t.id', 'p.thread_id'),
+				$qb->expr()->eq('p.is_first_post', $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL))
+			))
+			->where($qb->expr()->in('t.category_id', $qb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)))
+			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('t.deleted_at'))
+			->andWhere(
+				// Search in title OR first post content
+				$qb->expr()->orX(
+					$titleConditions,
+					$contentConditions
+				)
+			)
+			->orderBy('t.is_pinned', 'DESC')
+			->addOrderBy('t.updated_at', 'DESC')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
+
+		return $this->findEntities($qb);
+	}
 }

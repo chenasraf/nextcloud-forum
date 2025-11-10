@@ -417,6 +417,10 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'notnull' => true,
 			'default' => false,
 		]);
+		$table->addColumn('is_first_post', 'boolean', [
+			'notnull' => true,
+			'default' => false,
+		]);
 		$table->addColumn('edited_at', 'integer', [
 			'notnull' => false,
 			'unsigned' => true,
@@ -439,6 +443,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addIndex(['thread_id'], 'forum_posts_thread_id_idx');
 		$table->addIndex(['author_id'], 'forum_posts_author_id_idx');
 		$table->addIndex(['created_at'], 'forum_posts_created_at_idx');
+		$table->addIndex(['is_first_post'], 'forum_posts_is_first_post_idx');
 	}
 
 	private function createForumReadMarkersTable(ISchemaWrapper $schema): void {
@@ -789,6 +794,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 				'content' => $qb->createNamedParameter($welcomeContent),
 				'slug' => $qb->createNamedParameter('welcome-to-nextcloud-forums-1'),
 				'is_edited' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'is_first_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'edited_at' => $qb->createNamedParameter(null, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),

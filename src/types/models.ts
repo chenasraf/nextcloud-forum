@@ -60,6 +60,9 @@ export interface Post {
   // Enriched fields (added by Post::enrichPostContent)
   authorDisplayName?: string
   authorIsDeleted?: boolean
+  // Thread context (added by SearchController for search results)
+  threadTitle?: string
+  threadSlug?: string
   // Client-side enrichment
   reactions?: Array<{
     emoji: string
@@ -136,4 +139,21 @@ export interface CatHeader {
   description: string | null
   sortOrder: number
   createdAt: number
+}
+
+export interface SearchResult {
+  threads: Thread[]
+  posts: Post[]
+  threadCount: number
+  postCount: number
+  query: string
+}
+
+export interface SearchParams {
+  q: string
+  searchThreads: boolean
+  searchPosts: boolean
+  categoryId?: number
+  limit: number
+  offset: number
 }

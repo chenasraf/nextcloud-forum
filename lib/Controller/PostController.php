@@ -177,6 +177,7 @@ class PostController extends OCSController {
 			$post->setContent($content);
 			$post->setSlug($slug);
 			$post->setIsEdited(false);
+			$post->setIsFirstPost(false);
 			$post->setCreatedAt(time());
 			$post->setUpdatedAt(time());
 

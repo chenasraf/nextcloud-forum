@@ -19,7 +19,7 @@ export function useCurrentUser() {
       loading.value = true
       error.value = null
 
-      const response = await ocs.get<ForumUser>('/current-user')
+      const response = await ocs.get<ForumUser>('/users/me')
       currentUser.value = response.data
       loaded.value = true
       return currentUser.value

@@ -177,6 +177,26 @@ class ThreadMapper extends QBMapper {
 	}
 
 	/**
+	 * @return array<Thread>
+	 */
+	public function findByAuthorId(string $authorId, int $limit = 50, int $offset = 0): array {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('author_id', $qb->createNamedParameter($authorId, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->isNull('deleted_at')
+			)
+			->orderBy('created_at', 'DESC')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * Search threads by title and first post content
 	 *
 	 * @param IQueryBuilder $qb QueryBuilder instance (with parameters already bound)

@@ -17,7 +17,14 @@
         <div class="thread-meta">
           <span class="meta-item">
             <span class="meta-label">{{ strings.by }}</span>
-            <span class="meta-value" :class="{ 'deleted-user': thread.authorIsDeleted }">
+            <span
+              v-if="!thread.authorIsDeleted"
+              class="meta-value meta-value-link"
+              @click.stop="navigateToProfile"
+            >
+              {{ thread.authorDisplayName || thread.authorId }}
+            </span>
+            <span v-else class="meta-value deleted-user">
               {{ thread.authorDisplayName || thread.authorId }}
             </span>
           </span>
@@ -88,6 +95,11 @@ export default defineComponent({
         unread: t('forum', 'Unread'),
       },
     }
+  },
+  methods: {
+    navigateToProfile() {
+      this.$router.push(`/u/${this.thread.authorId}`)
+    },
   },
 })
 </script>
@@ -203,6 +215,15 @@ export default defineComponent({
   .meta-value {
     font-weight: 500;
     color: var(--color-text-lighter);
+
+    &.meta-value-link {
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--color-primary-element);
+      }
+    }
 
     &.deleted-user {
       font-style: italic;

@@ -2,11 +2,20 @@
   <div class="post-card" :class="{ 'first-post': isFirstPost, 'unread': isUnread }">
     <div class="post-header">
       <div class="author-info">
-        <NcAvatar v-if="!post.authorIsDeleted" :user="post.authorId" :size="32" />
+        <div v-if="!post.authorIsDeleted" class="avatar-link" @click.stop="navigateToProfile">
+          <NcAvatar :user="post.authorId" :size="32" />
+        </div>
         <NcAvatar v-else :display-name="post.authorDisplayName" :size="32" />
         <div class="author-details">
           <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
-          <span class="author-name" :class="{ 'deleted-user': post.authorIsDeleted }">
+          <span
+            v-if="!post.authorIsDeleted"
+            class="author-name author-name-link"
+            @click.stop="navigateToProfile"
+          >
+            {{ post.authorDisplayName || post.authorId }}
+          </span>
+          <span v-else class="author-name deleted-user">
             {{ post.authorDisplayName || post.authorId }}
           </span>
           <div class="post-meta">
@@ -139,6 +148,10 @@ export default defineComponent({
       }
     },
 
+    navigateToProfile() {
+      this.$router.push(`/u/${this.post.authorId}`)
+    },
+
     handleReply() {
       this.closeActionsMenu()
       this.$emit('reply', this.post)
@@ -264,10 +277,27 @@ export default defineComponent({
     }
   }
 
+  .avatar-link {
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
   .author-name {
     font-weight: 600;
     color: var(--color-main-text);
     font-size: 1rem;
+
+    &.author-name-link {
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--color-primary-element);
+      }
+    }
 
     &.deleted-user {
       font-style: italic;

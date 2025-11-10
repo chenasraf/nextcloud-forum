@@ -11,6 +11,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/c/:categorySlug/new', component: () => import('@/views/CreateThreadView.vue') },
   { path: '/thread/:id', component: () => import('@/views/ThreadView.vue') },
   { path: '/t/:slug', component: () => import('@/views/ThreadView.vue') },
+  { path: '/u/:userId', component: () => import('@/views/ProfileView.vue') },
   { path: '/search', component: () => import('@/views/SearchView.vue') },
   { path: '/admin', component: () => import('@/views/admin/AdminDashboard.vue') },
   { path: '/admin/users', component: () => import('@/views/admin/AdminUserList.vue') },

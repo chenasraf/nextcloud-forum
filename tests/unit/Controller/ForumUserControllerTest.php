@@ -55,37 +55,6 @@ class ForumUserControllerTest extends TestCase {
 	}
 
 	public function testShowReturnsForumUserSuccessfully(): void {
-		$userId = 1;
-		$user = $this->createForumUser($userId, 'user1', 10);
-
-		$this->forumUserMapper->expects($this->once())
-			->method('find')
-			->with($userId)
-			->willReturn($user);
-
-		$response = $this->controller->show($userId);
-
-		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
-		$data = $response->getData();
-		$this->assertEquals($userId, $data['id']);
-		$this->assertEquals('user1', $data['userId']);
-	}
-
-	public function testShowReturnsNotFoundWhenUserDoesNotExist(): void {
-		$userId = 999;
-
-		$this->forumUserMapper->expects($this->once())
-			->method('find')
-			->with($userId)
-			->willThrowException(new DoesNotExistException('Forum user not found'));
-
-		$response = $this->controller->show($userId);
-
-		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
-		$this->assertEquals(['error' => 'Forum user not found'], $response->getData());
-	}
-
-	public function testByUserIdReturnsForumUserSuccessfully(): void {
 		$nextcloudUserId = 'user1';
 		$user = $this->createForumUser(1, $nextcloudUserId, 10);
 
@@ -94,14 +63,15 @@ class ForumUserControllerTest extends TestCase {
 			->with($nextcloudUserId)
 			->willReturn($user);
 
-		$response = $this->controller->byUserId($nextcloudUserId);
+		$response = $this->controller->show($nextcloudUserId);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
+		$this->assertEquals(1, $data['id']);
 		$this->assertEquals($nextcloudUserId, $data['userId']);
 	}
 
-	public function testByUserIdReturnsNotFoundWhenUserDoesNotExist(): void {
+	public function testShowReturnsNotFoundWhenUserDoesNotExist(): void {
 		$nextcloudUserId = 'non-existent-user';
 
 		$this->forumUserMapper->expects($this->once())
@@ -109,13 +79,13 @@ class ForumUserControllerTest extends TestCase {
 			->with($nextcloudUserId)
 			->willThrowException(new DoesNotExistException('Forum user not found'));
 
-		$response = $this->controller->byUserId($nextcloudUserId);
+		$response = $this->controller->show($nextcloudUserId);
 
 		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
 		$this->assertEquals(['error' => 'Forum user not found'], $response->getData());
 	}
 
-	public function testMeReturnsCurrentUserSuccessfully(): void {
+	public function testShowWithMeReturnsCurrentUserSuccessfully(): void {
 		$nextcloudUserId = 'current-user';
 		$forumUser = $this->createForumUser(1, $nextcloudUserId, 15);
 
@@ -128,23 +98,23 @@ class ForumUserControllerTest extends TestCase {
 			->with($nextcloudUserId)
 			->willReturn($forumUser);
 
-		$response = $this->controller->me();
+		$response = $this->controller->show('me');
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
 		$this->assertEquals($nextcloudUserId, $data['userId']);
 	}
 
-	public function testMeReturnsUnauthorizedWhenUserNotAuthenticated(): void {
+	public function testShowWithMeReturnsUnauthorizedWhenUserNotAuthenticated(): void {
 		$this->userSession->method('getUser')->willReturn(null);
 
-		$response = $this->controller->me();
+		$response = $this->controller->show('me');
 
 		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
 	}
 
-	public function testMeReturnsNotFoundWhenForumUserDoesNotExist(): void {
+	public function testShowWithMeReturnsNotFoundWhenForumUserDoesNotExist(): void {
 		$nextcloudUserId = 'user-without-forum-profile';
 
 		$user = $this->createMock(IUser::class);
@@ -156,7 +126,7 @@ class ForumUserControllerTest extends TestCase {
 			->with($nextcloudUserId)
 			->willThrowException(new DoesNotExistException('Forum user not found'));
 
-		$response = $this->controller->me();
+		$response = $this->controller->show('me');
 
 		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
 		$this->assertEquals(['error' => 'Forum user not found'], $response->getData());
@@ -182,13 +152,13 @@ class ForumUserControllerTest extends TestCase {
 	}
 
 	public function testUpdateForumUserSuccessfully(): void {
-		$userId = 1;
+		$nextcloudUserId = 'user1';
 		$newPostCount = 50;
-		$user = $this->createForumUser($userId, 'user1', 25);
+		$user = $this->createForumUser(1, $nextcloudUserId, 25);
 
 		$this->forumUserMapper->expects($this->once())
-			->method('find')
-			->with($userId)
+			->method('findByUserId')
+			->with($nextcloudUserId)
 			->willReturn($user);
 
 		$this->forumUserMapper->expects($this->once())
@@ -198,55 +168,55 @@ class ForumUserControllerTest extends TestCase {
 				return $updatedUser;
 			});
 
-		$response = $this->controller->update($userId, $newPostCount);
+		$response = $this->controller->update($nextcloudUserId, $newPostCount);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
-		$this->assertEquals($userId, $data['id']);
+		$this->assertEquals(1, $data['id']);
 	}
 
 	public function testUpdateForumUserReturnsNotFoundWhenUserDoesNotExist(): void {
-		$userId = 999;
+		$nextcloudUserId = 'non-existent-user';
 
 		$this->forumUserMapper->expects($this->once())
-			->method('find')
-			->with($userId)
+			->method('findByUserId')
+			->with($nextcloudUserId)
 			->willThrowException(new DoesNotExistException('Forum user not found'));
 
-		$response = $this->controller->update($userId, 50);
+		$response = $this->controller->update($nextcloudUserId, 50);
 
 		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
 		$this->assertEquals(['error' => 'Forum user not found'], $response->getData());
 	}
 
 	public function testDestroyForumUserSuccessfully(): void {
-		$userId = 1;
-		$user = $this->createForumUser($userId, 'user1', 10);
+		$nextcloudUserId = 'user1';
+		$user = $this->createForumUser(1, $nextcloudUserId, 10);
 
 		$this->forumUserMapper->expects($this->once())
-			->method('find')
-			->with($userId)
+			->method('findByUserId')
+			->with($nextcloudUserId)
 			->willReturn($user);
 
 		$this->forumUserMapper->expects($this->once())
 			->method('delete')
 			->with($user);
 
-		$response = $this->controller->destroy($userId);
+		$response = $this->controller->destroy($nextcloudUserId);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$this->assertEquals(['success' => true], $response->getData());
 	}
 
 	public function testDestroyForumUserReturnsNotFoundWhenUserDoesNotExist(): void {
-		$userId = 999;
+		$nextcloudUserId = 'non-existent-user';
 
 		$this->forumUserMapper->expects($this->once())
-			->method('find')
-			->with($userId)
+			->method('findByUserId')
+			->with($nextcloudUserId)
 			->willThrowException(new DoesNotExistException('Forum user not found'));
 
-		$response = $this->controller->destroy($userId);
+		$response = $this->controller->destroy($nextcloudUserId);
 
 		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
 		$this->assertEquals(['error' => 'Forum user not found'], $response->getData());

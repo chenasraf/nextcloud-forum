@@ -81,6 +81,28 @@ class ThreadController extends OCSController {
 	}
 
 	/**
+	 * Get threads by author
+	 *
+	 * @param string $authorId Author user ID
+	 * @param int $limit Maximum number of threads to return
+	 * @param int $offset Offset for pagination
+	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
+	 *
+	 * 200: Threads returned
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'GET', url: '/api/users/{authorId}/threads')]
+	public function byAuthor(string $authorId, int $limit = 50, int $offset = 0): DataResponse {
+		try {
+			$threads = $this->threadMapper->findByAuthorId($authorId, $limit, $offset);
+			return new DataResponse(array_map(fn ($t) => Thread::enrichThread($t), $threads));
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching threads by author: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Get a single thread
 	 *
 	 * @param int $id Thread ID

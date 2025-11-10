@@ -96,6 +96,53 @@ class PostController extends OCSController {
 	}
 
 	/**
+	 * Get posts by author
+	 *
+	 * @param string $authorId Author user ID
+	 * @param int $limit Maximum number of posts to return
+	 * @param int $offset Offset for pagination
+	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
+	 *
+	 * 200: Posts returned
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'GET', url: '/api/users/{authorId}/posts')]
+	public function byAuthor(string $authorId, int $limit = 50, int $offset = 0): DataResponse {
+		try {
+			$posts = $this->postMapper->findByAuthorId($authorId, $limit, $offset);
+
+			// Prefetch BBCodes once for all posts to avoid repeated queries
+			$bbcodes = $this->bbCodeMapper->findAllEnabled();
+
+			// Fetch reactions for all posts at once (performance optimization)
+			$postIds = array_map(fn ($p) => $p->getId(), $posts);
+			$reactions = $this->reactionMapper->findByPostIds($postIds);
+
+			// Group reactions by post ID
+			$reactionsByPostId = [];
+			foreach ($reactions as $reaction) {
+				$postId = $reaction->getPostId();
+				if (!isset($reactionsByPostId[$postId])) {
+					$reactionsByPostId[$postId] = [];
+				}
+				$reactionsByPostId[$postId][] = $reaction;
+			}
+
+			// Get current user ID to mark user's reactions
+			$currentUserId = $this->userSession->getUser()?->getUID();
+
+			// Enrich posts with content and reactions
+			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId) {
+				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
+				return Post::enrichPostContent($p, $bbcodes, $postReactions, $currentUserId);
+			}, $posts));
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching posts by author: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch posts'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Get a single post
 	 *
 	 * @param int $id Post ID

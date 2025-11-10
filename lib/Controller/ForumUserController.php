@@ -49,72 +49,34 @@ class ForumUserController extends OCSController {
 	}
 
 	/**
-	 * Get a single forum user
+	 * Get forum user by Nextcloud user ID
+	 * Special case: use "me" to get current user
 	 *
-	 * @param int $id Forum user ID
+	 * @param string $userId Nextcloud user ID or "me" for current user
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Forum user returned
 	 */
 	#[NoAdminRequired]
-	#[ApiRoute(verb: 'GET', url: '/api/users/{id}')]
-	public function show(int $id): DataResponse {
+	#[ApiRoute(verb: 'GET', url: '/api/users/{userId}')]
+	public function show(string $userId): DataResponse {
 		try {
-			$user = $this->forumUserMapper->find($id);
+			// Handle "me" as special case for current user
+			if ($userId === 'me') {
+				$currentUser = $this->userSession->getUser();
+				if (!$currentUser) {
+					return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+				}
+				$userId = $currentUser->getUID();
+			}
+
+			$user = $this->forumUserMapper->findByUserId($userId);
 			return new DataResponse($user->jsonSerialize());
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Forum user not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching forum user: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch forum user'], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * Get forum user by Nextcloud user ID
-	 *
-	 * @param string $userId Nextcloud user ID
-	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
-	 *
-	 * 200: Forum user returned
-	 */
-	#[NoAdminRequired]
-	#[ApiRoute(verb: 'GET', url: '/api/users/by-uid/{userId}')]
-	public function byUserId(string $userId): DataResponse {
-		try {
-			$user = $this->forumUserMapper->findByUserId($userId);
-			return new DataResponse($user->jsonSerialize());
-		} catch (DoesNotExistException $e) {
-			return new DataResponse(['error' => 'Forum user not found'], Http::STATUS_NOT_FOUND);
-		} catch (\Exception $e) {
-			$this->logger->error('Error fetching forum user by user ID: ' . $e->getMessage());
-			return new DataResponse(['error' => 'Failed to fetch forum user'], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * Get current user's forum profile
-	 *
-	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
-	 *
-	 * 200: Current user's forum profile returned
-	 */
-	#[NoAdminRequired]
-	#[ApiRoute(verb: 'GET', url: '/api/current-user')]
-	public function me(): DataResponse {
-		try {
-			$user = $this->userSession->getUser();
-			if (!$user) {
-				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
-			}
-
-			$forumUser = $this->forumUserMapper->findByUserId($user->getUID());
-			return new DataResponse($forumUser->jsonSerialize());
-		} catch (DoesNotExistException $e) {
-			return new DataResponse(['error' => 'Forum user not found'], Http::STATUS_NOT_FOUND);
-		} catch (\Exception $e) {
-			$this->logger->error('Error fetching current user: ' . $e->getMessage());
-			return new DataResponse(['error' => 'Failed to fetch current user'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -148,17 +110,26 @@ class ForumUserController extends OCSController {
 	/**
 	 * Update a forum user
 	 *
-	 * @param int $id Forum user ID
+	 * @param string $userId Nextcloud user ID or "me" for current user
 	 * @param int|null $postCount Post count
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Forum user updated
 	 */
 	#[NoAdminRequired]
-	#[ApiRoute(verb: 'PUT', url: '/api/users/{id}')]
-	public function update(int $id, ?int $postCount = null): DataResponse {
+	#[ApiRoute(verb: 'PUT', url: '/api/users/{userId}')]
+	public function update(string $userId, ?int $postCount = null): DataResponse {
 		try {
-			$user = $this->forumUserMapper->find($id);
+			// Handle "me" as special case for current user
+			if ($userId === 'me') {
+				$currentUser = $this->userSession->getUser();
+				if (!$currentUser) {
+					return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+				}
+				$userId = $currentUser->getUID();
+			}
+
+			$user = $this->forumUserMapper->findByUserId($userId);
 
 			if ($postCount !== null) {
 				$user->setPostCount($postCount);
@@ -179,16 +150,25 @@ class ForumUserController extends OCSController {
 	/**
 	 * Delete a forum user
 	 *
-	 * @param int $id Forum user ID
+	 * @param string $userId Nextcloud user ID or "me" for current user
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Forum user deleted
 	 */
 	#[NoAdminRequired]
-	#[ApiRoute(verb: 'DELETE', url: '/api/users/{id}')]
-	public function destroy(int $id): DataResponse {
+	#[ApiRoute(verb: 'DELETE', url: '/api/users/{userId}')]
+	public function destroy(string $userId): DataResponse {
 		try {
-			$user = $this->forumUserMapper->find($id);
+			// Handle "me" as special case for current user
+			if ($userId === 'me') {
+				$currentUser = $this->userSession->getUser();
+				if (!$currentUser) {
+					return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+				}
+				$userId = $currentUser->getUID();
+			}
+
+			$user = $this->forumUserMapper->findByUserId($userId);
 			$this->forumUserMapper->delete($user);
 			return new DataResponse(['success' => true]);
 		} catch (DoesNotExistException $e) {

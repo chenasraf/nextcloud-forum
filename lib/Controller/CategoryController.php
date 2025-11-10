@@ -13,13 +13,16 @@ use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 class CategoryController extends OCSController {
@@ -30,6 +33,9 @@ class CategoryController extends OCSController {
 		private CategoryMapper $categoryMapper,
 		private CategoryPermMapper $categoryPermMapper,
 		private ThreadMapper $threadMapper,
+		private UserRoleMapper $userRoleMapper,
+		private IUserSession $userSession,
+		private IGroupManager $groupManager,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -289,6 +295,79 @@ class CategoryController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error deleting category: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to delete category'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Check if current user has a specific permission on a category
+	 *
+	 * @param int $id Category ID
+	 * @param string $permission Permission name (canView, canPost, canReply, canModerate)
+	 * @return DataResponse<Http::STATUS_OK, array{hasPermission: bool}, array{}>
+	 *
+	 * 200: Permission check result
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}/permissions/{permission}')]
+	public function checkPermission(int $id, string $permission): DataResponse {
+		try {
+			// Get current user
+			$user = $this->userSession->getUser();
+			if (!$user) {
+				return new DataResponse(['hasPermission' => false]);
+			}
+
+			// Check if user is in admin group - admins have all permissions
+			$adminGroup = $this->groupManager->get('admin');
+			if ($adminGroup && $adminGroup->inGroup($user)) {
+				return new DataResponse(['hasPermission' => true]);
+			}
+
+			// Get user's roles
+			$userRoles = $this->userRoleMapper->findByUserId($user->getUID());
+			$roleIds = array_map(fn ($ur) => $ur->getRoleId(), $userRoles);
+
+			if (empty($roleIds)) {
+				return new DataResponse(['hasPermission' => false]);
+			}
+
+			// Get category permissions for user's roles
+			$categoryPerms = $this->categoryPermMapper->findByCategoryAndRoles($id, $roleIds);
+
+			// Check if any role has the requested permission
+			$hasPermission = false;
+			foreach ($categoryPerms as $perm) {
+				switch ($permission) {
+					case 'canView':
+						if ($perm->getCanView()) {
+							$hasPermission = true;
+						}
+						break;
+					case 'canPost':
+						if ($perm->getCanPost()) {
+							$hasPermission = true;
+						}
+						break;
+					case 'canReply':
+						if ($perm->getCanReply()) {
+							$hasPermission = true;
+						}
+						break;
+					case 'canModerate':
+						if ($perm->getCanModerate()) {
+							$hasPermission = true;
+						}
+						break;
+				}
+				if ($hasPermission) {
+					break;
+				}
+			}
+
+			return new DataResponse(['hasPermission' => $hasPermission]);
+		} catch (\Exception $e) {
+			$this->logger->error("Error checking permission {$permission} for category {$id}: " . $e->getMessage());
+			return new DataResponse(['hasPermission' => false]);
 		}
 	}
 

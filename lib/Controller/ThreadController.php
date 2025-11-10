@@ -296,6 +296,64 @@ class ThreadController extends OCSController {
 	}
 
 	/**
+	 * Toggle thread lock status
+	 *
+	 * @param int $id Thread ID
+	 * @param bool $locked New lock status
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 *
+	 * 200: Thread lock status updated
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromThreadId: 'id')]
+	#[ApiRoute(verb: 'PUT', url: '/api/threads/{id}/lock')]
+	public function setLocked(int $id, bool $locked): DataResponse {
+		try {
+			$thread = $this->threadMapper->find($id);
+			$thread->setIsLocked($locked);
+			$thread->setUpdatedAt(time());
+
+			/** @var \OCA\Forum\Db\Thread */
+			$updatedThread = $this->threadMapper->update($thread);
+			return new DataResponse(Thread::enrichThread($updatedThread));
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error updating thread lock status: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to update thread lock status'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Toggle thread pin status
+	 *
+	 * @param int $id Thread ID
+	 * @param bool $pinned New pin status
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 *
+	 * 200: Thread pin status updated
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromThreadId: 'id')]
+	#[ApiRoute(verb: 'PUT', url: '/api/threads/{id}/pin')]
+	public function setPinned(int $id, bool $pinned): DataResponse {
+		try {
+			$thread = $this->threadMapper->find($id);
+			$thread->setIsPinned($pinned);
+			$thread->setUpdatedAt(time());
+
+			/** @var \OCA\Forum\Db\Thread */
+			$updatedThread = $this->threadMapper->update($thread);
+			return new DataResponse(Thread::enrichThread($updatedThread));
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error updating thread pin status: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to update thread pin status'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Delete a thread (soft delete)
 	 *
 	 * @param int $id Thread ID

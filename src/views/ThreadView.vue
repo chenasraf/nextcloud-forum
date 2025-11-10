@@ -17,7 +17,35 @@
             <RefreshIcon :size="20" />
           </template>
         </NcButton>
-        <NcButton @click="replyToThread" :disabled="loading || thread?.isLocked" variant="primary">
+
+        <!-- Moderation buttons (only visible to moderators) -->
+        <template v-if="canModerate && !loading">
+          <NcButton
+            @click="handleToggleLock"
+            :aria-label="thread?.isLocked ? strings.unlockThread : strings.lockThread"
+          >
+            <template #icon>
+              <LockOpenIcon v-if="thread?.isLocked" :size="20" />
+              <LockIcon v-else :size="20" />
+            </template>
+          </NcButton>
+
+          <NcButton
+            @click="handleTogglePin"
+            :aria-label="thread?.isPinned ? strings.unpinThread : strings.pinThread"
+          >
+            <template #icon>
+              <PinOffIcon v-if="thread?.isPinned" :size="20" />
+              <PinIcon v-else :size="20" />
+            </template>
+          </NcButton>
+        </template>
+
+        <NcButton
+          @click="replyToThread"
+          :disabled="loading || (thread?.isLocked && !canModerate)"
+          variant="primary"
+        >
           <template #icon>
             <ReplyIcon :size="20" />
           </template>
@@ -122,9 +150,21 @@
       </template>
     </NcEmptyContent>
 
-    <!-- Reply form -->
+    <!-- Locked message (only shown to non-moderators) -->
+    <div
+      v-if="!loading && !error && thread && thread.isLocked && !canModerate"
+      class="locked-message mt-16"
+    >
+      <NcEmptyContent :title="strings.locked" :description="strings.lockedMessage">
+        <template #icon>
+          <LockIcon :size="64" />
+        </template>
+      </NcEmptyContent>
+    </div>
+
+    <!-- Reply form (moderators can reply even when locked) -->
     <PostReplyForm
-      v-if="!loading && !error && thread && !thread.isLocked"
+      v-if="!loading && !error && thread && (!thread.isLocked || canModerate)"
       ref="replyForm"
       @submit="handleSubmitReply"
       @cancel="handleCancelReply"
@@ -141,7 +181,9 @@ import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import PostCard from '@/components/PostCard.vue'
 import PostReplyForm from '@/components/PostReplyForm.vue'
 import PinIcon from '@icons/Pin.vue'
+import PinOffIcon from '@icons/PinOff.vue'
 import LockIcon from '@icons/Lock.vue'
+import LockOpenIcon from '@icons/LockOpen.vue'
 import EyeIcon from '@icons/Eye.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
@@ -151,6 +193,7 @@ import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { useCurrentThread } from '@/composables/useCurrentThread'
+import { usePermissions } from '@/composables/usePermissions'
 
 export default defineComponent({
   name: 'ThreadView',
@@ -162,7 +205,9 @@ export default defineComponent({
     PostCard,
     PostReplyForm,
     PinIcon,
+    PinOffIcon,
     LockIcon,
+    LockOpenIcon,
     EyeIcon,
     ArrowLeftIcon,
     RefreshIcon,
@@ -170,10 +215,12 @@ export default defineComponent({
   },
   setup() {
     const { currentThread: thread, fetchThread } = useCurrentThread()
+    const { checkCategoryPermission } = usePermissions()
 
     return {
       thread,
       fetchThread,
+      checkCategoryPermission,
     }
   },
   data() {
@@ -185,6 +232,7 @@ export default defineComponent({
       limit: 50,
       offset: 0,
       postCardRefs: new Map<number, any>(),
+      canModerate: false,
 
       strings: {
         back: t('forum', 'Back'),
@@ -201,7 +249,16 @@ export default defineComponent({
         views: (count: number) => n('forum', '%n view', '%n views', count),
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
+        lockedMessage: t('forum', 'This thread is locked. Only moderators can post replies.'),
         showingPosts: (count: number) => n('forum', 'Showing %n post', 'Showing %n posts', count),
+        lockThread: t('forum', 'Lock thread'),
+        unlockThread: t('forum', 'Unlock thread'),
+        pinThread: t('forum', 'Pin thread'),
+        unpinThread: t('forum', 'Unpin thread'),
+        threadLocked: t('forum', 'Thread locked'),
+        threadUnlocked: t('forum', 'Thread unlocked'),
+        threadPinned: t('forum', 'Thread pinned'),
+        threadUnpinned: t('forum', 'Thread unpinned'),
       },
     }
   },
@@ -237,12 +294,20 @@ export default defineComponent({
         // Fetch posts
         if (threadData) {
           await this.fetchPosts()
+          // Check moderation permission
+          await this.checkModerationPermission()
         }
       } catch (e) {
         console.error('Failed to refresh', e)
         this.error = (e as Error).message || t('forum', 'An unexpected error occurred')
       } finally {
         this.loading = false
+      }
+    },
+
+    async checkModerationPermission(): Promise<void> {
+      if (this.thread?.categoryId) {
+        this.canModerate = await this.checkCategoryPermission(this.thread.categoryId, 'canModerate')
       }
     },
 
@@ -461,6 +526,42 @@ export default defineComponent({
     handleCancelReply(): void {
       // Optional: Could implement special behavior on cancel
       console.log('Reply cancelled')
+    },
+
+    async handleToggleLock(): Promise<void> {
+      if (!this.thread) return
+
+      const newLockState = !this.thread.isLocked
+
+      try {
+        const response = await ocs.put(`/threads/${this.thread.id}/lock`, { locked: newLockState })
+        if (response.data) {
+          // Update local thread state
+          this.thread.isLocked = newLockState
+          showSuccess(newLockState ? this.strings.threadLocked : this.strings.threadUnlocked)
+        }
+      } catch (e) {
+        console.error('Failed to toggle thread lock', e)
+        showError(t('forum', 'Failed to update thread lock status'))
+      }
+    },
+
+    async handleTogglePin(): Promise<void> {
+      if (!this.thread) return
+
+      const newPinState = !this.thread.isPinned
+
+      try {
+        const response = await ocs.put(`/threads/${this.thread.id}/pin`, { pinned: newPinState })
+        if (response.data) {
+          // Update local thread state
+          this.thread.isPinned = newPinState
+          showSuccess(newPinState ? this.strings.threadPinned : this.strings.threadUnpinned)
+        }
+      } catch (e) {
+        console.error('Failed to toggle thread pin', e)
+        showError(t('forum', 'Failed to update thread pin status'))
+      }
     },
 
     goBack(): void {

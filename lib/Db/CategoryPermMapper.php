@@ -88,6 +88,31 @@ class CategoryPermMapper extends QBMapper {
 	}
 
 	/**
+	 * Find permissions for specific category and multiple roles
+	 *
+	 * @param int $categoryId Category ID
+	 * @param array<int> $roleIds Array of role IDs
+	 * @return array<CategoryPerm>
+	 */
+	public function findByCategoryAndRoles(int $categoryId, array $roleIds): array {
+		if (empty($roleIds)) {
+			return [];
+		}
+
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
+			)
+			->andWhere(
+				$qb->expr()->in('role_id', $qb->createNamedParameter($roleIds, IQueryBuilder::PARAM_INT_ARRAY))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * Delete all permissions for a role
 	 */
 	public function deleteByRoleId(int $roleId): void {

@@ -33,7 +33,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">
           <template #icon>
@@ -81,9 +86,17 @@
     <!-- Posts list -->
     <section v-if="!loading && !error && posts.length > 0" class="mt-16">
       <div class="posts-list">
-        <PostCard v-for="(post, index) in posts" :key="post.id" :ref="(el) => setPostCardRef(el, post.id)" :post="post"
-          :is-first-post="index === 0" :is-unread="isPostUnread(post)" @reply="handleReply" @update="handleUpdate"
-          @delete="handleDelete" />
+        <PostCard
+          v-for="(post, index) in posts"
+          :key="post.id"
+          :ref="(el) => setPostCardRef(el, post.id)"
+          :post="post"
+          :is-first-post="index === 0"
+          :is-unread="isPostUnread(post)"
+          @reply="handleReply"
+          @update="handleUpdate"
+          @delete="handleDelete"
+        />
       </div>
 
       <!-- Pagination info -->
@@ -93,8 +106,12 @@
     </section>
 
     <!-- Empty posts state (thread exists but no posts) -->
-    <NcEmptyContent v-else-if="!loading && !error && thread && posts.length === 0" :title="strings.emptyPostsTitle"
-      :description="strings.emptyPostsDesc" class="mt-16">
+    <NcEmptyContent
+      v-else-if="!loading && !error && thread && posts.length === 0"
+      :title="strings.emptyPostsTitle"
+      :description="strings.emptyPostsDesc"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="replyToThread" variant="primary">
           <template #icon>
@@ -106,8 +123,12 @@
     </NcEmptyContent>
 
     <!-- Reply form -->
-    <PostReplyForm v-if="!loading && !error && thread && !thread.isLocked" ref="replyForm" @submit="handleSubmitReply"
-      @cancel="handleCancelReply" />
+    <PostReplyForm
+      v-if="!loading && !error && thread && !thread.isLocked"
+      ref="replyForm"
+      @submit="handleSubmitReply"
+      @cancel="handleCancelReply"
+    />
   </div>
 </template>
 
@@ -167,7 +188,8 @@ export default defineComponent({
 
       strings: {
         back: t('forum', 'Back'),
-        backToCategory: (categoryName: string) => t('forum', 'Back to {category}', { category: categoryName }),
+        backToCategory: (categoryName: string) =>
+          t('forum', 'Back to {category}', { category: categoryName }),
         refresh: t('forum', 'Refresh'),
         reply: t('forum', 'Reply'),
         loading: t('forum', 'Loading…'),
@@ -390,7 +412,7 @@ export default defineComponent({
         element.scrollIntoView({
           behavior: 'smooth',
           block: 'nearest',
-          inline: 'nearest'
+          inline: 'nearest',
         })
       }
 

@@ -1,10 +1,5 @@
 <template>
   <NcAppNavigation>
-    <template #search>
-      <NcAppNavigationSearch v-model="searchValue" :label="strings.searchLabel"
-        :placeholder="strings.searchPlaceholder" />
-    </template>
-
     <template #list>
       <NcAppNavigationItem :name="strings.navHome" :to="{ path: '/' }" :open="true">
         <template #icon>
@@ -12,15 +7,23 @@
         </template>
 
         <!-- Search menu item -->
-        <NcAppNavigationItem :name="strings.navSearch" :to="{ path: '/search' }" :active="isSearchActive">
+        <NcAppNavigationItem
+          :name="strings.navSearch"
+          :to="{ path: '/search' }"
+          :active="isSearchActive"
+        >
           <template #icon>
             <MagnifyIcon :size="20" />
           </template>
         </NcAppNavigationItem>
 
         <!-- Category headers as collapsible submenus -->
-        <NcAppNavigationItem v-for="header in categoryHeaders" :key="`header-${header.id}`" :name="header.name"
-          @click="toggleHeader(header.id)">
+        <NcAppNavigationItem
+          v-for="header in categoryHeaders"
+          :key="`header-${header.id}`"
+          :name="header.name"
+          @click="toggleHeader(header.id)"
+        >
           <template #icon>
             <FolderIcon :size="20" />
           </template>
@@ -36,8 +39,13 @@
 
           <!-- Categories under each header -->
           <template v-if="isHeaderOpen(header.id)">
-            <NcAppNavigationItem v-for="category in header.categories" :key="`category-${category.id}`"
-              :name="category.name" :to="{ path: `/c/${category.slug}` }" :active="isCategoryActive(category)">
+            <NcAppNavigationItem
+              v-for="category in header.categories"
+              :key="`category-${category.id}`"
+              :name="category.name"
+              :to="{ path: `/c/${category.slug}` }"
+              :active="isCategoryActive(category)"
+            >
               <template #icon>
                 <ForumIcon :size="20" />
               </template>
@@ -63,43 +71,61 @@
 
         <!-- Admin sub-items -->
         <template v-if="isAdminOpen">
-          <NcAppNavigationItem :name="strings.navAdminDashboard" :to="{ path: '/admin' }"
-            :active="isAdminDashboardActive">
+          <NcAppNavigationItem
+            :name="strings.navAdminDashboard"
+            :to="{ path: '/admin' }"
+            :active="isAdminDashboardActive"
+          >
             <template #icon>
               <ChartLineIcon :size="20" />
             </template>
           </NcAppNavigationItem>
 
-          <NcAppNavigationItem :name="strings.navAdminSettings" :to="{ path: '/admin/settings' }"
-            :active="isAdminSettingsActive">
+          <NcAppNavigationItem
+            :name="strings.navAdminSettings"
+            :to="{ path: '/admin/settings' }"
+            :active="isAdminSettingsActive"
+          >
             <template #icon>
               <CogIcon :size="20" />
             </template>
           </NcAppNavigationItem>
 
-          <NcAppNavigationItem :name="strings.navAdminUsers" :to="{ path: '/admin/users' }"
-            :active="isAdminUsersActive">
+          <NcAppNavigationItem
+            :name="strings.navAdminUsers"
+            :to="{ path: '/admin/users' }"
+            :active="isAdminUsersActive"
+          >
             <template #icon>
               <AccountMultipleIcon :size="20" />
             </template>
           </NcAppNavigationItem>
 
-          <NcAppNavigationItem :name="strings.navAdminRoles" :to="{ path: '/admin/roles' }"
-            :active="isAdminRolesActive">
+          <NcAppNavigationItem
+            :name="strings.navAdminRoles"
+            :to="{ path: '/admin/roles' }"
+            :active="isAdminRolesActive"
+          >
             <template #icon>
               <ShieldAccountIcon :size="20" />
             </template>
           </NcAppNavigationItem>
 
-          <NcAppNavigationItem :name="strings.navAdminCategories" :to="{ path: '/admin/categories' }"
-            :active="isAdminCategoriesActive">
+          <NcAppNavigationItem
+            :name="strings.navAdminCategories"
+            :to="{ path: '/admin/categories' }"
+            :active="isAdminCategoriesActive"
+          >
             <template #icon>
               <FolderIcon :size="20" />
             </template>
           </NcAppNavigationItem>
 
-          <NcAppNavigationItem :name="strings.navAdminBBCodes" :to="{ path: '/admin/bbcodes' }"
-            :active="isAdminBBCodesActive">
+          <NcAppNavigationItem
+            :name="strings.navAdminBBCodes"
+            :to="{ path: '/admin/bbcodes' }"
+            :active="isAdminBBCodesActive"
+          >
             <template #icon>
               <CodeBracketsIcon :size="20" />
             </template>
@@ -195,7 +221,6 @@ export default defineComponent({
       isAdminOpen: true,
       strings: {
         searchLabel: t('forum', 'Search'),
-        searchPlaceholder: t('forum', 'Type to filter…'),
         navHome: t('forum', 'Home'),
         navSearch: t('forum', 'Search'),
         navAdmin: t('forum', 'Admin'),

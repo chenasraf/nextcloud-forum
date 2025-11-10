@@ -27,7 +27,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">
           <template #icon>
@@ -69,10 +74,18 @@
       <!-- Tabs -->
       <div class="profile-tabs mt-24">
         <div class="tabs-header">
-          <button class="tab-button" :class="{ active: activeTab === 'threads' }" @click="activeTab = 'threads'">
+          <button
+            class="tab-button"
+            :class="{ active: activeTab === 'threads' }"
+            @click="activeTab = 'threads'"
+          >
             {{ strings.threads }} ({{ threads.length }})
           </button>
-          <button class="tab-button" :class="{ active: activeTab === 'posts' }" @click="activeTab = 'posts'">
+          <button
+            class="tab-button"
+            :class="{ active: activeTab === 'posts' }"
+            @click="activeTab = 'posts'"
+          >
             {{ strings.replies }} ({{ posts.length }})
           </button>
         </div>
@@ -83,11 +96,18 @@
             <div v-if="loadingThreads" class="center">
               <NcLoadingIcon :size="24" />
             </div>
-            <NcEmptyContent v-else-if="threads.length === 0" :title="strings.noThreads"
-              :description="strings.noThreadsDesc" />
+            <NcEmptyContent
+              v-else-if="threads.length === 0"
+              :title="strings.noThreads"
+              :description="strings.noThreadsDesc"
+            />
             <div v-else class="threads-list">
-              <ThreadCard v-for="thread in threads" :key="thread.id" :thread="thread"
-                @click="navigateToThread(thread)" />
+              <ThreadCard
+                v-for="thread in threads"
+                :key="thread.id"
+                :thread="thread"
+                @click="navigateToThread(thread)"
+              />
             </div>
           </div>
 
@@ -96,10 +116,18 @@
             <div v-if="loadingPosts" class="center">
               <NcLoadingIcon :size="24" />
             </div>
-            <NcEmptyContent v-else-if="posts.length === 0" :title="strings.noPosts"
-              :description="strings.noPostsDesc" />
+            <NcEmptyContent
+              v-else-if="posts.length === 0"
+              :title="strings.noPosts"
+              :description="strings.noPostsDesc"
+            />
             <div v-else class="posts-list">
-              <div v-for="post in posts" :key="post.id" class="post-item" @click="navigateToPost(post)">
+              <div
+                v-for="post in posts"
+                :key="post.id"
+                class="post-item"
+                @click="navigateToPost(post)"
+              >
                 <div class="post-meta">
                   <span class="post-thread" v-if="post.threadTitle">
                     {{ strings.inThread }} <strong>{{ post.threadTitle }}</strong>

@@ -39,7 +39,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">
           <template #icon>
@@ -51,8 +56,12 @@
     </NcEmptyContent>
 
     <!-- Empty state -->
-    <NcEmptyContent v-else-if="threads.length === 0" :title="strings.emptyTitle" :description="strings.emptyDesc"
-      class="mt-16">
+    <NcEmptyContent
+      v-else-if="threads.length === 0"
+      :title="strings.emptyTitle"
+      :description="strings.emptyDesc"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="createThread" variant="primary">
           <template #icon>
@@ -66,8 +75,13 @@
     <!-- Threads list -->
     <section v-else class="mt-16">
       <div class="threads-list">
-        <ThreadCard v-for="thread in sortedThreads" :key="thread.id" :thread="thread"
-          :is-unread="isThreadUnread(thread)" @click="navigateToThread(thread)" />
+        <ThreadCard
+          v-for="thread in sortedThreads"
+          :key="thread.id"
+          :thread="thread"
+          :is-unread="isThreadUnread(thread)"
+          @click="navigateToThread(thread)"
+        />
       </div>
 
       <!-- Pagination info -->

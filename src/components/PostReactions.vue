@@ -1,17 +1,26 @@
 <template>
   <div class="post-reactions">
     <!-- All reactions (default + custom) -->
-    <button v-for="emoji in allVisibleEmojis" :key="emoji" class="reaction-button"
-      :class="{ reacted: isReacted(emoji), 'has-count': getCount(emoji) > 0 }" :title="getReactionTooltip(emoji)"
-      @click="handleToggleReaction(emoji)">
+    <button
+      v-for="emoji in allVisibleEmojis"
+      :key="emoji"
+      class="reaction-button"
+      :class="{ reacted: isReacted(emoji), 'has-count': getCount(emoji) > 0 }"
+      :title="getReactionTooltip(emoji)"
+      @click="handleToggleReaction(emoji)"
+    >
       <span class="emoji">{{ emoji }}</span>
       <span v-if="getCount(emoji) > 0" class="count">{{ getCount(emoji) }}</span>
     </button>
 
     <!-- Add custom reaction button -->
     <div class="add-reaction">
-      <button class="add-reaction-button" :class="{ open: showPicker }" :title="strings.addReaction"
-        @click="togglePicker">
+      <button
+        class="add-reaction-button"
+        :class="{ open: showPicker }"
+        :title="strings.addReaction"
+        @click="togglePicker"
+      >
         <span class="icon">+</span>
       </button>
 
@@ -25,8 +34,13 @@
                 <div v-for="group in emojiGroups" :key="group.name" class="emoji-category">
                   <h4 class="category-header">{{ group.name }}</h4>
                   <div class="emoji-grid">
-                    <button v-for="item in group.emojis" :key="item.emoji" class="emoji-option" :title="item.title"
-                      @click="handleSelectEmoji(item.emoji)">
+                    <button
+                      v-for="item in group.emojis"
+                      :key="item.emoji"
+                      class="emoji-option"
+                      :title="item.title"
+                      @click="handleSelectEmoji(item.emoji)"
+                    >
                       {{ item.emoji }}
                     </button>
                   </div>
@@ -218,8 +232,16 @@ export default defineComponent({
       }
 
       return hasReacted
-        ? n('forum', 'You and %n other reacted with {title}', 'You and %n others reacted with {title}', count - 1, { title })
-        : n('forum', '%n person reacted with {title}', '%n people reacted with {title}', count, { title })
+        ? n(
+            'forum',
+            'You and %n other reacted with {title}',
+            'You and %n others reacted with {title}',
+            count - 1,
+            { title },
+          )
+        : n('forum', '%n person reacted with {title}', '%n people reacted with {title}', count, {
+            title,
+          })
     },
   },
 })

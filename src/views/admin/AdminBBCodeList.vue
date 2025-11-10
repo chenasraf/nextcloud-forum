@@ -31,7 +31,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">{{ strings.retry }}</NcButton>
       </template>
@@ -51,9 +56,13 @@
             <div class="bbcode-info">
               <div class="bbcode-header">
                 <div class="bbcode-tag">[{{ bbcode.tag }}]</div>
-                <div v-if="bbcode.parseInner" class="badge badge-info">{{ strings.parseInner }}</div>
+                <div v-if="bbcode.parseInner" class="badge badge-info">
+                  {{ strings.parseInner }}
+                </div>
               </div>
-              <div v-if="bbcode.description" class="bbcode-desc muted">{{ bbcode.description }}</div>
+              <div v-if="bbcode.description" class="bbcode-desc muted">
+                {{ bbcode.description }}
+              </div>
               <div class="bbcode-replacement">
                 <span class="label muted">{{ strings.replacement }}:</span>
                 <code>{{ bbcode.replacement }}</code>
@@ -94,13 +103,21 @@
         </div>
 
         <div class="bbcodes-table">
-          <div v-for="bbcode in disabledBBCodes" :key="`bbcode-${bbcode.id}`" class="bbcode-row disabled">
+          <div
+            v-for="bbcode in disabledBBCodes"
+            :key="`bbcode-${bbcode.id}`"
+            class="bbcode-row disabled"
+          >
             <div class="bbcode-info">
               <div class="bbcode-header">
                 <div class="bbcode-tag">[{{ bbcode.tag }}]</div>
-                <div v-if="bbcode.parseInner" class="badge badge-info">{{ strings.parseInner }}</div>
+                <div v-if="bbcode.parseInner" class="badge badge-info">
+                  {{ strings.parseInner }}
+                </div>
               </div>
-              <div v-if="bbcode.description" class="bbcode-desc muted">{{ bbcode.description }}</div>
+              <div v-if="bbcode.description" class="bbcode-desc muted">
+                {{ bbcode.description }}
+              </div>
               <div class="bbcode-replacement">
                 <span class="label muted">{{ strings.replacement }}:</span>
                 <code>{{ bbcode.replacement }}</code>
@@ -190,19 +207,13 @@
         </div>
 
         <div class="form-group">
-          <NcCheckboxRadioSwitch
-            v-model="editDialog.enabled"
-            type="switch"
-          >
+          <NcCheckboxRadioSwitch v-model="editDialog.enabled" type="switch">
             {{ strings.enabledLabel }}
           </NcCheckboxRadioSwitch>
         </div>
 
         <div class="form-group">
-          <NcCheckboxRadioSwitch
-            v-model="editDialog.parseInner"
-            type="switch"
-          >
+          <NcCheckboxRadioSwitch v-model="editDialog.parseInner" type="switch">
             {{ strings.parseInnerLabel }}
           </NcCheckboxRadioSwitch>
           <p class="help-text muted">{{ strings.parseInnerHelp }}</p>
@@ -317,7 +328,8 @@ export default defineComponent({
         parseInner: t('forum', 'Parses Inner'),
         replacement: t('forum', 'Replacement'),
         deleteDialogTitle: t('forum', 'Delete BBCode'),
-        deleteConfirmMessage: (tag: string) => t('forum', `Are you sure you want to delete the BBCode tag "[{tag}]"?`, { tag }),
+        deleteConfirmMessage: (tag: string) =>
+          t('forum', `Are you sure you want to delete the BBCode tag "[{tag}]"?`, { tag }),
         deleteWarning: t('forum', 'This action cannot be undone.'),
         cancel: t('forum', 'Cancel'),
         deleteBBCode: t('forum', 'Delete BBCode'),
@@ -328,7 +340,10 @@ export default defineComponent({
         tagHelp: t('forum', 'The BBCode tag name (without brackets)'),
         replacementLabel: t('forum', 'HTML Replacement'),
         replacementPlaceholder: t('forum', 'e.g., <strong>{content}</strong>'),
-        replacementHelp: t('forum', 'Use {content} for the tag content and {paramName} for parameters'),
+        replacementHelp: t(
+          'forum',
+          'Use {content} for the tag content and {paramName} for parameters',
+        ),
         description: t('forum', 'Description'),
         descriptionPlaceholder: t('forum', 'Brief description of what this BBCode does'),
         enabledLabel: t('forum', 'Enabled'),

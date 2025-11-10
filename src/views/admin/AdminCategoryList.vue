@@ -28,7 +28,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">{{ strings.retry }}</NcButton>
       </template>
@@ -41,14 +46,24 @@
         <template v-for="(header, headerIndex) in categoryHeaders" :key="header.id">
           <div class="header-row">
             <div class="header-sort-buttons">
-              <NcButton v-if="headerIndex > 0" variant="tertiary" @click="moveHeaderUp(headerIndex)"
-                :aria-label="strings.moveUp" :title="strings.moveUp">
+              <NcButton
+                v-if="headerIndex > 0"
+                variant="tertiary"
+                @click="moveHeaderUp(headerIndex)"
+                :aria-label="strings.moveUp"
+                :title="strings.moveUp"
+              >
                 <template #icon>
                   <ChevronUpIcon :size="20" />
                 </template>
               </NcButton>
-              <NcButton v-if="headerIndex < categoryHeaders.length - 1" variant="tertiary"
-                @click="moveHeaderDown(headerIndex)" :aria-label="strings.moveDown" :title="strings.moveDown">
+              <NcButton
+                v-if="headerIndex < categoryHeaders.length - 1"
+                variant="tertiary"
+                @click="moveHeaderDown(headerIndex)"
+                :aria-label="strings.moveDown"
+                :title="strings.moveDown"
+              >
                 <template #icon>
                   <ChevronDownIcon :size="20" />
                 </template>
@@ -57,7 +72,9 @@
             <div class="header-info">
               <h3>{{ header.name }}</h3>
               <span v-if="header.description" class="muted">{{ header.description }}</span>
-              <span class="muted category-count">{{ (header.categories?.length || 0) }} {{ strings.categoriesCount }}</span>
+              <span class="muted category-count"
+                >{{ header.categories?.length || 0 }} {{ strings.categoriesCount }}</span
+              >
             </div>
             <div class="header-actions">
               <NcButton @click="editHeaderById(header.id)">
@@ -66,7 +83,11 @@
                 </template>
                 {{ strings.edit }}
               </NcButton>
-              <NcButton variant="error" :disabled="categoryHeaders.length <= 1" @click="confirmDeleteHeader(header)">
+              <NcButton
+                variant="error"
+                :disabled="categoryHeaders.length <= 1"
+                @click="confirmDeleteHeader(header)"
+              >
                 <template #icon>
                   <DeleteIcon :size="20" />
                 </template>
@@ -76,16 +97,30 @@
           </div>
 
           <div v-if="header.categories && header.categories.length > 0" class="categories-table">
-            <div v-for="(category, index) in header.categories" :key="category.id" class="category-row">
+            <div
+              v-for="(category, index) in header.categories"
+              :key="category.id"
+              class="category-row"
+            >
               <div class="category-sort-buttons">
-                <NcButton v-if="index > 0" variant="tertiary" @click="moveCategoryUp(header.id, index)"
-                  :aria-label="strings.moveUp" :title="strings.moveUp">
+                <NcButton
+                  v-if="index > 0"
+                  variant="tertiary"
+                  @click="moveCategoryUp(header.id, index)"
+                  :aria-label="strings.moveUp"
+                  :title="strings.moveUp"
+                >
                   <template #icon>
                     <ChevronUpIcon :size="20" />
                   </template>
                 </NcButton>
-                <NcButton v-if="index < header.categories.length - 1" variant="tertiary"
-                  @click="moveCategoryDown(header.id, index)" :aria-label="strings.moveDown" :title="strings.moveDown">
+                <NcButton
+                  v-if="index < header.categories.length - 1"
+                  variant="tertiary"
+                  @click="moveCategoryDown(header.id, index)"
+                  :aria-label="strings.moveDown"
+                  :title="strings.moveDown"
+                >
                   <template #icon>
                     <ChevronDownIcon :size="20" />
                   </template>
@@ -93,7 +128,9 @@
               </div>
               <div class="category-info">
                 <div class="category-name">{{ category.name }}</div>
-                <div v-if="category.description" class="category-desc muted">{{ category.description }}</div>
+                <div v-if="category.description" class="category-desc muted">
+                  {{ category.description }}
+                </div>
                 <div class="category-meta muted">
                   <span>Slug: {{ category.slug }}</span>
                   <span>•</span>
@@ -126,7 +163,11 @@
     </div>
 
     <!-- Delete confirmation dialog -->
-    <NcDialog v-if="deleteDialog.show" :name="strings.deleteDialogTitle" @close="deleteDialog.show = false">
+    <NcDialog
+      v-if="deleteDialog.show"
+      :name="strings.deleteDialogTitle"
+      @close="deleteDialog.show = false"
+    >
       <div class="delete-dialog-content">
         <p>{{ strings.deleteConfirmMessage(deleteDialog.category?.name || '') }}</p>
 
@@ -139,19 +180,34 @@
           <h4>{{ strings.whatToDoWithThreads }}</h4>
 
           <div class="radio-group">
-            <NcCheckboxRadioSwitch v-model="deleteDialog.action" value="migrate" type="radio" name="delete-action">
+            <NcCheckboxRadioSwitch
+              v-model="deleteDialog.action"
+              value="migrate"
+              type="radio"
+              name="delete-action"
+            >
               {{ strings.migrateThreads }}
             </NcCheckboxRadioSwitch>
 
             <div v-if="deleteDialog.action === 'migrate'" class="category-select">
               <label>{{ strings.selectTargetCategory }}</label>
-              <NcSelect v-model="selectedTargetCategory" :options="targetCategoryOptions"
-                :placeholder="strings.selectCategory" label="label" track-by="id" />
+              <NcSelect
+                v-model="selectedTargetCategory"
+                :options="targetCategoryOptions"
+                :placeholder="strings.selectCategory"
+                label="label"
+                track-by="id"
+              />
             </div>
           </div>
 
           <div class="radio-group">
-            <NcCheckboxRadioSwitch v-model="deleteDialog.action" value="delete" type="radio" name="delete-action">
+            <NcCheckboxRadioSwitch
+              v-model="deleteDialog.action"
+              value="delete"
+              type="radio"
+              name="delete-action"
+            >
               {{ strings.softDeleteThreads }}
             </NcCheckboxRadioSwitch>
             <p class="help-text muted">{{ strings.softDeleteHelp }}</p>
@@ -163,31 +219,48 @@
         <NcButton @click="deleteDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton variant="error" :disabled="deleteDialog.action === 'migrate' && !selectedTargetCategory"
-          @click="executeDelete">
+        <NcButton
+          variant="error"
+          :disabled="deleteDialog.action === 'migrate' && !selectedTargetCategory"
+          @click="executeDelete"
+        >
           {{ strings.deleteCategory }}
         </NcButton>
       </template>
     </NcDialog>
 
     <!-- Header Edit/Create Dialog -->
-    <NcDialog v-if="headerDialog.show"
+    <NcDialog
+      v-if="headerDialog.show"
       :name="headerDialog.isEditing ? strings.editHeaderTitle : strings.createHeaderTitle"
-      @close="headerDialog.show = false">
+      @close="headerDialog.show = false"
+    >
       <div class="header-dialog-content">
         <div class="form-group">
-          <NcTextField v-model="headerDialog.name" :label="strings.headerName"
-            :placeholder="strings.headerNamePlaceholder" :required="true" />
+          <NcTextField
+            v-model="headerDialog.name"
+            :label="strings.headerName"
+            :placeholder="strings.headerNamePlaceholder"
+            :required="true"
+          />
         </div>
 
         <div class="form-group">
-          <NcTextArea v-model="headerDialog.description" :label="strings.headerDescription"
-            :placeholder="strings.headerDescriptionPlaceholder" :rows="2" />
+          <NcTextArea
+            v-model="headerDialog.description"
+            :label="strings.headerDescription"
+            :placeholder="strings.headerDescriptionPlaceholder"
+            :rows="2"
+          />
         </div>
 
         <div class="form-group">
-          <NcTextField v-model.number="headerDialog.sortOrder" :label="strings.headerSortOrder"
-            :placeholder="strings.sortOrderPlaceholder" type="number" />
+          <NcTextField
+            v-model.number="headerDialog.sortOrder"
+            :label="strings.headerSortOrder"
+            :placeholder="strings.sortOrderPlaceholder"
+            type="number"
+          />
           <p class="help-text muted">{{ strings.sortOrderHelp }}</p>
         </div>
       </div>
@@ -206,7 +279,11 @@
     </NcDialog>
 
     <!-- Header Delete Confirmation Dialog -->
-    <NcDialog v-if="deleteHeaderDialog.show" :name="strings.deleteHeaderTitle" @close="deleteHeaderDialog.show = false">
+    <NcDialog
+      v-if="deleteHeaderDialog.show"
+      :name="strings.deleteHeaderTitle"
+      @close="deleteHeaderDialog.show = false"
+    >
       <div class="delete-dialog-content">
         <p>{{ strings.deleteHeaderMessage(deleteHeaderDialog.header?.name || '') }}</p>
 
@@ -219,21 +296,34 @@
           <h4>{{ strings.whatToDoWithCategories }}</h4>
 
           <div class="radio-group">
-            <NcCheckboxRadioSwitch v-model="deleteHeaderDialog.action" value="migrate" type="radio"
-              name="delete-header-action">
+            <NcCheckboxRadioSwitch
+              v-model="deleteHeaderDialog.action"
+              value="migrate"
+              type="radio"
+              name="delete-header-action"
+            >
               {{ strings.migrateCategories }}
             </NcCheckboxRadioSwitch>
 
             <div v-if="deleteHeaderDialog.action === 'migrate'" class="category-select">
               <label>{{ strings.selectTargetHeader }}</label>
-              <NcSelect v-model="selectedTargetHeader" :options="targetHeaderOptions"
-                :placeholder="strings.selectHeader" label="label" track-by="id" />
+              <NcSelect
+                v-model="selectedTargetHeader"
+                :options="targetHeaderOptions"
+                :placeholder="strings.selectHeader"
+                label="label"
+                track-by="id"
+              />
             </div>
           </div>
 
           <div class="radio-group">
-            <NcCheckboxRadioSwitch v-model="deleteHeaderDialog.action" value="delete" type="radio"
-              name="delete-header-action">
+            <NcCheckboxRadioSwitch
+              v-model="deleteHeaderDialog.action"
+              value="delete"
+              type="radio"
+              name="delete-header-action"
+            >
               {{ strings.deleteCategories }}
             </NcCheckboxRadioSwitch>
             <p class="help-text muted">{{ strings.deleteCategoriesHelp }}</p>
@@ -245,8 +335,11 @@
         <NcButton @click="deleteHeaderDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton variant="error" :disabled="deleteHeaderDialog.action === 'migrate' && !selectedTargetHeader"
-          @click="executeDeleteHeader">
+        <NcButton
+          variant="error"
+          :disabled="deleteHeaderDialog.action === 'migrate' && !selectedTargetHeader"
+          @click="executeDeleteHeader"
+        >
           {{ strings.deleteHeader }}
         </NcButton>
       </template>
@@ -334,8 +427,10 @@ export default defineComponent({
         delete: t('forum', 'Delete'),
         noCategories: t('forum', 'No categories in this header'),
         deleteDialogTitle: t('forum', 'Delete Category'),
-        deleteConfirmMessage: (name: string) => t('forum', `Are you sure you want to delete the category "{name}"?`, { name }),
-        threadWarning: (count: number) => t('forum', `This category contains {count} thread(s).`, { count }),
+        deleteConfirmMessage: (name: string) =>
+          t('forum', `Are you sure you want to delete the category "{name}"?`, { name }),
+        threadWarning: (count: number) =>
+          t('forum', `This category contains {count} thread(s).`, { count }),
         whatToDoWithThreads: t('forum', 'What should happen to the threads?'),
         migrateThreads: t('forum', 'Move threads to another category'),
         softDeleteThreads: t('forum', 'Delete all threads (soft delete)'),
@@ -358,14 +453,19 @@ export default defineComponent({
         update: t('forum', 'Update'),
         create: t('forum', 'Create'),
         deleteHeaderTitle: t('forum', 'Delete Header'),
-        deleteHeaderMessage: (name: string) => t('forum', `Are you sure you want to delete the header "{name}"?`, { name }),
-        headerCategoryWarning: (count: number) => t('forum', `This header contains {count} category(ies).`, { count }),
+        deleteHeaderMessage: (name: string) =>
+          t('forum', `Are you sure you want to delete the header "{name}"?`, { name }),
+        headerCategoryWarning: (count: number) =>
+          t('forum', `This header contains {count} category(ies).`, { count }),
         deleteHeaderHelp: t('forum', 'This action cannot be undone'),
         deleteHeader: t('forum', 'Delete Header'),
         whatToDoWithCategories: t('forum', 'What should happen to the categories?'),
         migrateCategories: t('forum', 'Move categories to another header'),
         deleteCategories: t('forum', 'Delete all categories'),
-        deleteCategoriesHelp: t('forum', 'All categories and their threads will be permanently deleted'),
+        deleteCategoriesHelp: t(
+          'forum',
+          'All categories and their threads will be permanently deleted',
+        ),
         selectTargetHeader: t('forum', 'Select target header'),
         selectHeader: t('forum', '-- Select a header --'),
         moveUp: t('forum', 'Move up'),
@@ -524,7 +624,8 @@ export default defineComponent({
     },
 
     confirmDeleteHeader(header: CatHeader): void {
-      const categoryCount = this.categoryHeaders.find((h) => h.id === header.id)?.categories?.length || 0
+      const categoryCount =
+        this.categoryHeaders.find((h) => h.id === header.id)?.categories?.length || 0
 
       this.deleteHeaderDialog.header = header
       this.deleteHeaderDialog.categoryCount = categoryCount
@@ -540,7 +641,10 @@ export default defineComponent({
       try {
         const params: Record<string, number | undefined> = {}
 
-        if (this.deleteHeaderDialog.action === 'migrate' && this.deleteHeaderDialog.targetHeaderId) {
+        if (
+          this.deleteHeaderDialog.action === 'migrate' &&
+          this.deleteHeaderDialog.targetHeaderId
+        ) {
           params.migrateToHeaderId = this.deleteHeaderDialog.targetHeaderId
         }
 

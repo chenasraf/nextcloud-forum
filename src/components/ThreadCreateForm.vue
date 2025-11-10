@@ -9,12 +9,25 @@
     </div>
 
     <div class="form-body">
-      <NcTextField v-model="title" :label="strings.titleLabel" :placeholder="strings.titlePlaceholder"
-        :disabled="submitting" @keydown.enter="focusContent" class="title-input" />
+      <NcTextField
+        v-model="title"
+        :label="strings.titleLabel"
+        :placeholder="strings.titlePlaceholder"
+        :disabled="submitting"
+        @keydown.enter="focusContent"
+        class="title-input"
+      />
 
-      <NcTextArea v-model="content" :placeholder="strings.contentPlaceholder" :rows="6" :disabled="submitting"
-        @keydown.ctrl.enter="submitThread" @keydown.meta.enter="submitThread" class="content-textarea"
-        ref="contentTextarea" />
+      <NcTextArea
+        v-model="content"
+        :placeholder="strings.contentPlaceholder"
+        :rows="6"
+        :disabled="submitting"
+        @keydown.ctrl.enter="submitThread"
+        @keydown.meta.enter="submitThread"
+        class="content-textarea"
+        ref="contentTextarea"
+      />
 
       <div class="form-footer">
         <div class="form-footer-left">

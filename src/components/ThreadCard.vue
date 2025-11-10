@@ -1,5 +1,8 @@
 <template>
-  <div class="thread-card" :class="{ pinned: thread.isPinned, locked: thread.isLocked, unread: isUnread }">
+  <div
+    class="thread-card"
+    :class="{ pinned: thread.isPinned, locked: thread.isLocked, unread: isUnread }"
+  >
     <div class="thread-main">
       <div class="thread-header">
         <div class="thread-title-row">

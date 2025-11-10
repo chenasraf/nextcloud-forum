@@ -1,5 +1,5 @@
 <template>
-  <div class="post-card" :class="{ 'first-post': isFirstPost, 'unread': isUnread }">
+  <div class="post-card" :class="{ 'first-post': isFirstPost, unread: isUnread }">
     <div class="post-header">
       <div class="author-info">
         <div v-if="!post.authorIsDeleted" class="avatar-link" @click.stop="navigateToProfile">
@@ -53,16 +53,25 @@
 
     <div class="post-content">
       <!-- Edit mode -->
-      <PostEditForm v-if="isEditing" ref="editForm" :initial-content="post.contentRaw"
-        @submit="handleEditSubmit" @cancel="cancelEdit" />
+      <PostEditForm
+        v-if="isEditing"
+        ref="editForm"
+        :initial-content="post.contentRaw"
+        @submit="handleEditSubmit"
+        @cancel="cancelEdit"
+      />
 
       <!-- View mode -->
       <div v-else class="content-text" v-html="formattedContent"></div>
     </div>
 
     <!-- Reactions (hidden when editing) -->
-    <PostReactions v-if="!isEditing" :post-id="post.id" :reactions="post.reactions || []"
-      @update="handleReactionsUpdate" />
+    <PostReactions
+      v-if="!isEditing"
+      :post-id="post.id"
+      :reactions="post.reactions || []"
+      @update="handleReactionsUpdate"
+    />
   </div>
 </template>
 
@@ -118,7 +127,10 @@ export default defineComponent({
         reply: t('forum', 'Reply'),
         edit: t('forum', 'Edit'),
         delete: t('forum', 'Delete'),
-        confirmDelete: t('forum', 'Are you sure you want to delete this post? This action cannot be undone.'),
+        confirmDelete: t(
+          'forum',
+          'Are you sure you want to delete this post? This action cannot be undone.',
+        ),
         unread: t('forum', 'Unread'),
       },
     }

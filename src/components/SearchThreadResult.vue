@@ -124,18 +124,17 @@ export default defineComponent({
       const remainingQuery = query.replace(quotedRegex, '')
 
       // Extract individual words (excluding operators, parentheses, and exclusions)
-      const words = remainingQuery.split(/\s+/)
-        .filter((word) => {
-          const trimmed = word.trim()
-          return (
-            trimmed.length > 0 &&
-            trimmed !== 'AND' &&
-            trimmed !== 'OR' &&
-            !trimmed.startsWith('-') &&
-            !trimmed.startsWith('(') &&
-            !trimmed.endsWith(')')
-          )
-        })
+      const words = remainingQuery.split(/\s+/).filter((word) => {
+        const trimmed = word.trim()
+        return (
+          trimmed.length > 0 &&
+          trimmed !== 'AND' &&
+          trimmed !== 'OR' &&
+          !trimmed.startsWith('-') &&
+          !trimmed.startsWith('(') &&
+          !trimmed.endsWith(')')
+        )
+      })
 
       terms.push(...words)
 

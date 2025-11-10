@@ -22,7 +22,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">{{ strings.retry }}</NcButton>
       </template>
@@ -169,11 +174,7 @@
         <NcButton @click="headerDialog.show = false">
           {{ strings.cancel }}
         </NcButton>
-        <NcButton
-          variant="primary"
-          :disabled="!headerDialog.name.trim()"
-          @click="saveHeader"
-        >
+        <NcButton variant="primary" :disabled="!headerDialog.name.trim()" @click="saveHeader">
           <template v-if="headerDialog.submitting" #icon>
             <NcLoadingIcon :size="20" />
           </template>
@@ -273,11 +274,17 @@ export default defineComponent({
         headerDescriptionPlaceholder: t('forum', 'Enter header description (optional)'),
         headerSortOrder: t('forum', 'Sort Order'),
         permissions: t('forum', 'Permissions'),
-        permissionsDescription: t('forum', 'Control which roles can access and moderate this category'),
+        permissionsDescription: t(
+          'forum',
+          'Control which roles can access and moderate this category',
+        ),
         viewRoles: t('forum', 'Roles that can view'),
         viewRolesHelp: t('forum', 'Select roles that can view this category and its threads'),
         moderateRoles: t('forum', 'Roles that can moderate'),
-        moderateRolesHelp: t('forum', 'Select roles that can moderate (edit/delete) content in this category'),
+        moderateRolesHelp: t(
+          'forum',
+          'Select roles that can moderate (edit/delete) content in this category',
+        ),
         selectRoles: t('forum', 'Select roles...'),
       },
     }
@@ -369,13 +376,15 @@ export default defineComponent({
       if (!this.categoryId) return
 
       try {
-        const permsResponse = await ocs.get<Array<{
-          id: number
-          categoryId: number
-          roleId: number
-          canView: boolean
-          canModerate: boolean
-        }>>(`/categories/${this.categoryId}/permissions`)
+        const permsResponse = await ocs.get<
+          Array<{
+            id: number
+            categoryId: number
+            roleId: number
+            canView: boolean
+            canModerate: boolean
+          }>
+        >(`/categories/${this.categoryId}/permissions`)
 
         const perms = permsResponse.data || []
 

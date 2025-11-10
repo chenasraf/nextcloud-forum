@@ -9,8 +9,16 @@
     </div>
 
     <div class="reply-body">
-      <NcTextArea v-model="content" :placeholder="strings.placeholder" :rows="4" :disabled="submitting"
-        @keydown.ctrl.enter="submitReply" @keydown.meta.enter="submitReply" class="reply-textarea" ref="textarea" />
+      <NcTextArea
+        v-model="content"
+        :placeholder="strings.placeholder"
+        :rows="4"
+        :disabled="submitting"
+        @keydown.ctrl.enter="submitReply"
+        @keydown.meta.enter="submitReply"
+        class="reply-textarea"
+        ref="textarea"
+      />
 
       <div class="reply-footer">
         <div class="reply-footer-left">

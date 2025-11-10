@@ -58,7 +58,12 @@
     </div>
 
     <!-- Error State -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="performSearch">{{ strings.retry }}</NcButton>
       </template>

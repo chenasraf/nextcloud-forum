@@ -7,7 +7,11 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 
 export function useCurrentThread() {
-  const fetchThread = async (idOrSlug: string | number, isSlug: boolean = false, incrementView: boolean = true): Promise<Thread | null> => {
+  const fetchThread = async (
+    idOrSlug: string | number,
+    isSlug: boolean = false,
+    incrementView: boolean = true,
+  ): Promise<Thread | null> => {
     try {
       isLoading.value = true
       error.value = null

@@ -70,10 +70,7 @@
                 </template>
                 {{ strings.edit }}
               </NcActionButton>
-              <NcActionButton
-                :disabled="isSystemRole(role.id)"
-                @click="confirmDelete(role)"
-              >
+              <NcActionButton :disabled="isSystemRole(role.id)" @click="confirmDelete(role)">
                 <template #icon>
                   <DeleteIcon :size="20" />
                 </template>
@@ -156,7 +153,11 @@ export default defineComponent({
         delete: t('forum', 'Delete'),
         noDescription: t('forum', 'No description'),
         confirmDeleteMessage: (name: string) =>
-          t('forum', 'Are you sure you want to delete the role "{name}"? This action cannot be undone.', { name }),
+          t(
+            'forum',
+            'Are you sure you want to delete the role "{name}"? This action cannot be undone.',
+            { name },
+          ),
         systemRoleWarning: t('forum', 'System roles cannot be deleted'),
       },
     }

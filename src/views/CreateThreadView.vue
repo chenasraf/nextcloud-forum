@@ -20,7 +20,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="goBack">{{ strings.back }}</NcButton>
       </template>
@@ -72,7 +77,9 @@ export default defineComponent({
   },
   computed: {
     categoryId(): number | null {
-      return this.$route.params.categoryId ? parseInt(this.$route.params.categoryId as string) : null
+      return this.$route.params.categoryId
+        ? parseInt(this.$route.params.categoryId as string)
+        : null
     },
     categorySlug(): string | null {
       return (this.$route.params.categorySlug as string) || null

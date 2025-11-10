@@ -11,7 +11,7 @@ const categoryPermissions: Ref<PermissionCache> = ref({})
 export function usePermissions() {
   const checkCategoryPermission = async (
     categoryId: number,
-    permission: string
+    permission: string,
   ): Promise<boolean> => {
     const cacheKey = `${categoryId}:${permission}`
 
@@ -22,7 +22,7 @@ export function usePermissions() {
 
     try {
       const response = await ocs.get<{ hasPermission: boolean }>(
-        `/categories/${categoryId}/permissions/${permission}`
+        `/categories/${categoryId}/permissions/${permission}`,
       )
       const hasPermission = response.data?.hasPermission || false
       categoryPermissions.value[cacheKey] = hasPermission

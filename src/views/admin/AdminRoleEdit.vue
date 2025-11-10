@@ -22,7 +22,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">{{ strings.retry }}</NcButton>
       </template>
@@ -328,13 +333,15 @@ export default defineComponent({
       this.formData.canEditCategories = role.canEditCategories || false
 
       // Load role permissions
-      const permsResponse = await ocs.get<Array<{
-        id: number
-        categoryId: number
-        roleId: number
-        canView: boolean
-        canModerate: boolean
-      }>>(`/roles/${this.roleId}/permissions`)
+      const permsResponse = await ocs.get<
+        Array<{
+          id: number
+          categoryId: number
+          roleId: number
+          canView: boolean
+          canModerate: boolean
+        }>
+      >(`/roles/${this.roleId}/permissions`)
 
       const perms = permsResponse.data || []
 

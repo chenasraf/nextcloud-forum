@@ -21,7 +21,12 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
+    <NcEmptyContent
+      v-else-if="error"
+      :title="strings.errorTitle"
+      :description="error"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="refresh">{{ strings.retry }}</NcButton>
       </template>
@@ -64,8 +69,17 @@
     <!-- Posts list -->
     <section v-if="!loading && !error && posts.length > 0" class="mt-16">
       <div class="posts-list">
-        <PostCard v-for="(post, index) in posts" :key="post.id" :ref="el => setPostCardRef(el, post.id)" :post="post"
-          :is-first-post="index === 0" :is-unread="isPostUnread(post)" @reply="handleReply" @update="handleUpdate" @delete="handleDelete" />
+        <PostCard
+          v-for="(post, index) in posts"
+          :key="post.id"
+          :ref="(el) => setPostCardRef(el, post.id)"
+          :post="post"
+          :is-first-post="index === 0"
+          :is-unread="isPostUnread(post)"
+          @reply="handleReply"
+          @update="handleUpdate"
+          @delete="handleDelete"
+        />
       </div>
 
       <!-- Pagination info -->
@@ -75,8 +89,12 @@
     </section>
 
     <!-- Empty posts state (thread exists but no posts) -->
-    <NcEmptyContent v-else-if="!loading && !error && thread && posts.length === 0" :title="strings.emptyPostsTitle"
-      :description="strings.emptyPostsDesc" class="mt-16">
+    <NcEmptyContent
+      v-else-if="!loading && !error && thread && posts.length === 0"
+      :title="strings.emptyPostsTitle"
+      :description="strings.emptyPostsDesc"
+      class="mt-16"
+    >
       <template #action>
         <NcButton @click="replyToThread">{{ strings.reply }}</NcButton>
       </template>
@@ -228,7 +246,7 @@ export default defineComponent({
         }
 
         const resp = await ocs.get<{ threadId: number; lastReadPostId: number; readAt: number }>(
-          `/threads/${this.thread.id}/read-marker`
+          `/threads/${this.thread.id}/read-marker`,
         )
         this.lastReadPostId = resp.data?.lastReadPostId || null
       } catch (e) {
@@ -326,7 +344,7 @@ export default defineComponent({
           }
 
           const response = await ocs.delete<{ success: boolean; categorySlug: string }>(
-            `/threads/${this.thread.id}`
+            `/threads/${this.thread.id}`,
           )
 
           if (response.data?.success && response.data.categorySlug) {

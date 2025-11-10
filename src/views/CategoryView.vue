@@ -194,12 +194,11 @@ export default defineComponent({
         }
 
         const threadIds = this.threads.map((t) => t.id).join(',')
-        const resp = await ocs.get<Record<number, { threadId: number; lastReadPostId: number; readAt: number }>>(
-          '/read-markers',
-          {
-            params: { threadIds },
-          }
-        )
+        const resp = await ocs.get<
+          Record<number, { threadId: number; lastReadPostId: number; readAt: number }>
+        >('/read-markers', {
+          params: { threadIds },
+        })
         this.readMarkers = resp.data || {}
       } catch (e) {
         // Silently fail - read markers are not critical

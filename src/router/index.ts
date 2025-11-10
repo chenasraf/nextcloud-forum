@@ -19,8 +19,14 @@ const routes: RouteRecordRaw[] = [
   { path: '/admin/roles/create', component: () => import('@/views/admin/AdminRoleEdit.vue') },
   { path: '/admin/roles/:id/edit', component: () => import('@/views/admin/AdminRoleEdit.vue') },
   { path: '/admin/categories', component: () => import('@/views/admin/AdminCategoryList.vue') },
-  { path: '/admin/categories/create', component: () => import('@/views/admin/AdminCategoryEdit.vue') },
-  { path: '/admin/categories/:id/edit', component: () => import('@/views/admin/AdminCategoryEdit.vue') },
+  {
+    path: '/admin/categories/create',
+    component: () => import('@/views/admin/AdminCategoryEdit.vue'),
+  },
+  {
+    path: '/admin/categories/:id/edit',
+    component: () => import('@/views/admin/AdminCategoryEdit.vue'),
+  },
   { path: '/admin/bbcodes', component: () => import('@/views/admin/AdminBBCodeList.vue') },
   // Catch-all route - must be last
   { path: '/:pathMatch(.*)*', component: () => import('@/views/CategoriesView.vue') },

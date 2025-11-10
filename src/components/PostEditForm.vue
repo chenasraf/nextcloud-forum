@@ -1,7 +1,15 @@
 <template>
   <div class="post-edit-form">
-    <NcTextArea v-model="content" :placeholder="strings.placeholder" :rows="6" :disabled="submitting"
-      @keydown.ctrl.enter="submitEdit" @keydown.meta.enter="submitEdit" class="edit-textarea" ref="textarea" />
+    <NcTextArea
+      v-model="content"
+      :placeholder="strings.placeholder"
+      :rows="6"
+      :disabled="submitting"
+      @keydown.ctrl.enter="submitEdit"
+      @keydown.meta.enter="submitEdit"
+      class="edit-textarea"
+      ref="textarea"
+    />
 
     <div class="edit-footer">
       <div class="edit-footer-left">

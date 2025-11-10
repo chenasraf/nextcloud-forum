@@ -274,7 +274,7 @@ export default defineComponent({
             } catch {
               return post
             }
-          })
+          }),
         )
 
         this.posts = enrichedPosts

@@ -277,12 +277,16 @@ export default defineComponent({
         const addedRoles = newRoleIds.filter((id) => !this.originalRoles.includes(id))
 
         // Get existing user role assignments for this user
-        const userRolesResponse = await ocs.get<Array<{ id: number; roleId: number; userId: string }>>(`/users/${userId}/roles`)
+        const userRolesResponse = await ocs.get<
+          Array<{ id: number; roleId: number; userId: string }>
+        >(`/users/${userId}/roles`)
         const existingUserRoles = userRolesResponse.data || []
 
         // Remove roles
         for (const roleId of removedRoles) {
-          const userRole = existingUserRoles.find((ur) => ur.roleId === roleId && ur.userId === userId)
+          const userRole = existingUserRoles.find(
+            (ur) => ur.roleId === roleId && ur.userId === userId,
+          )
           if (userRole) {
             await ocs.delete(`/user-roles/${userRole.id}`)
           }

@@ -23,8 +23,12 @@
     </div>
 
     <!-- Empty state -->
-    <NcEmptyContent v-else-if="categoryHeaders.length === 0" :title="strings.emptyTitle"
-      :description="strings.emptyDesc" class="mt-16" />
+    <NcEmptyContent
+      v-else-if="categoryHeaders.length === 0"
+      :title="strings.emptyTitle"
+      :description="strings.emptyDesc"
+      class="mt-16"
+    />
 
     <!-- Categories list -->
     <section v-else class="mt-16">
@@ -33,8 +37,12 @@
 
         <!-- Categories grid -->
         <div v-if="header.categories && header.categories.length > 0" class="categories-grid">
-          <CategoryCard v-for="category in header.categories" :key="category.id" :category="category"
-            @click="navigateToCategory(category)" />
+          <CategoryCard
+            v-for="category in header.categories"
+            :key="category.id"
+            :category="category"
+            @click="navigateToCategory(category)"
+          />
         </div>
 
         <!-- Empty state for header with no categories -->

@@ -55,7 +55,9 @@ export function useCurrentUser() {
 
   // Computed properties for easy access
   const userId = computed<string | null>(() => nextcloudUser.value?.uid || null)
-  const displayName = computed<string>(() => nextcloudUser.value?.displayName || nextcloudUser.value?.uid || 'Guest')
+  const displayName = computed<string>(
+    () => nextcloudUser.value?.displayName || nextcloudUser.value?.uid || 'Guest',
+  )
 
   return {
     currentUserStats: currentUserStats as Ref<UserStats | null>,

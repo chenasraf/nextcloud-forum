@@ -86,11 +86,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 	}
 
 	private function createUserStatsTable(ISchemaWrapper $schema): void {
-		if ($schema->hasTable('user_stats')) {
+		if ($schema->hasTable('forum_user_stats')) {
 			return;
 		}
 
-		$table = $schema->createTable('user_stats');
+		$table = $schema->createTable('forum_user_stats');
 		$table->addColumn('user_id', 'string', [
 			'notnull' => true,
 			'length' => 64,
@@ -310,6 +310,10 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addColumn('parse_inner', 'boolean', [
 			'notnull' => true,
 			'default' => true,
+		]);
+		$table->addColumn('is_builtin', 'boolean', [
+			'notnull' => true,
+			'default' => false,
 		]);
 		$table->addColumn('created_at', 'integer', [
 			'notnull' => true,
@@ -560,6 +564,20 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$userManager = \OC::$server->get(\OCP\IUserManager::class);
 		$timestamp = time();
 
+		// Check if data has already been seeded by looking for the Admin role
+		$qb = $db->getQueryBuilder();
+		$qb->select('id')
+			->from('forum_roles')
+			->where($qb->expr()->eq('name', $qb->createNamedParameter('Admin')));
+		$result = $qb->executeQuery();
+		$exists = $result->fetch();
+		$result->closeCursor();
+
+		// If data already exists, skip seeding to avoid duplicate key errors
+		if ($exists) {
+			return;
+		}
+
 		// Create default roles
 
 		$qb = $db->getQueryBuilder();
@@ -693,10 +711,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 
 		// Create default BBCodes
 		// Note: Most BBCode tags (b, i, u, s, code, email, url, img, quote, youtube, font, size, color, etc.)
-		// are now provided by the chriskonnertz/bbcode library and don't need to be stored in the database.
+		// are provided by the chriskonnertz/bbcode library and don't need to be stored in the database.
 		// We only store custom BBCodes that extend the library's functionality.
 		$bbcodes = [
-			['tag' => 'icode', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false],
+			['tag' => 'icode', 'replacement' => '<code>{content}</code>', 'description' => 'Inline code', 'parse_inner' => false, 'is_builtin' => true],
+			['tag' => 'spoiler', 'replacement' => '<details><summary>{title}</summary>{content}</details>', 'description' => 'Spoilers', 'parse_inner' => false, 'is_builtin' => true],
 		];
 
 		foreach ($bbcodes as $bbcode) {
@@ -708,6 +727,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 					'description' => $qb->createNamedParameter($bbcode['description']),
 					'enabled' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 					'parse_inner' => $qb->createNamedParameter($bbcode['parse_inner'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+					'is_builtin' => $qb->createNamedParameter($bbcode['is_builtin'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				])
 				->executeStatement();
@@ -806,7 +826,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 
 		// Create user stats for admin (who created the welcome post/thread)
 		$qb = $db->getQueryBuilder();
-		$qb->insert('user_stats')
+		$qb->insert('forum_user_stats')
 			->values([
 				'user_id' => $qb->createNamedParameter('admin'),
 				'post_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),

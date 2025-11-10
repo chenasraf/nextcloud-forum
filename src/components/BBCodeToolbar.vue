@@ -186,7 +186,11 @@ export default defineComponent({
           tag: 'spoiler',
           label: 'Spoiler',
           icon: EyeOffIcon,
-          template: '[spoiler]{text}[/spoiler]',
+          template: '[spoiler="{value}"]{text}[/spoiler]',
+          hasValue: true,
+          placeholder: 'Spoiler title',
+          promptForContent: true,
+          contentPlaceholder: 'Spoiler content',
         },
       ] as BBCodeButton[],
     }

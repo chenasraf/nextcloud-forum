@@ -7,6 +7,7 @@
         <p class="section-description">{{ strings.builtInDescription }}</p>
 
         <div class="bbcode-list">
+          <!-- Library-provided BBCodes -->
           <div v-for="code in builtInCodes" :key="code.tag" class="bbcode-item">
             <div class="bbcode-header">
               <code class="bbcode-tag">[{{ code.tag }}]</code>
@@ -15,6 +16,18 @@
             <div class="bbcode-example">
               <span class="example-label">{{ strings.example }}:</span>
               <code class="example-code">{{ code.example }}</code>
+            </div>
+          </div>
+
+          <!-- Database builtin BBCodes -->
+          <div v-for="code in builtinDbCodes" :key="code.id" class="bbcode-item">
+            <div class="bbcode-header">
+              <code class="bbcode-tag">[{{ code.tag }}]</code>
+              <span v-if="code.description" class="bbcode-name">{{ code.description }}</span>
+            </div>
+            <div class="bbcode-replacement">
+              <span class="replacement-label">{{ strings.replacement }}:</span>
+              <code class="replacement-code">{{ code.replacement }}</code>
             </div>
           </div>
         </div>
@@ -95,6 +108,7 @@ export default defineComponent({
       loading: false,
       error: null as string | null,
       customCodes: [] as BBCode[],
+      builtinDbCodes: [] as BBCode[],
 
       builtInCodes: [
         { tag: 'b', name: t('forum', 'Font style bold'), example: '[b]Hello world[/b]' },
@@ -145,7 +159,6 @@ export default defineComponent({
           name: t('forum', 'Text-align: right'),
           example: '[right]Hello world[/right]',
         },
-        { tag: 'spoiler', name: t('forum', 'Spoiler'), example: '[spoiler]Hello world[/spoiler]' },
         {
           tag: 'list',
           name: t('forum', 'List'),
@@ -183,13 +196,30 @@ export default defineComponent({
     open: {
       immediate: true,
       handler(newValue) {
-        if (newValue && this.showCustom && this.customCodes.length === 0) {
-          this.fetchCustomCodes()
+        if (newValue) {
+          // Fetch builtin codes from database
+          if (this.builtinDbCodes.length === 0) {
+            this.fetchBuiltinCodes()
+          }
+          // Fetch custom codes if enabled
+          if (this.showCustom && this.customCodes.length === 0) {
+            this.fetchCustomCodes()
+          }
         }
       },
     },
   },
   methods: {
+    async fetchBuiltinCodes() {
+      try {
+        const response = await ocs.get<BBCode[]>('/bbcodes/builtin')
+        this.builtinDbCodes = response.data || []
+      } catch (e) {
+        console.error('Failed to fetch builtin BBCodes:', e)
+        // Silently fail for builtin codes - not critical
+      }
+    },
+
     async fetchCustomCodes() {
       if (!this.showCustom) {
         return

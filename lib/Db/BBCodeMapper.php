@@ -79,4 +79,38 @@ class BBCodeMapper extends QBMapper {
 		$qb->select('*')->from($this->getTableName());
 		return $this->findEntities($qb);
 	}
+
+	/**
+	 * Find all non-builtin BBCodes (excludes builtin codes from admin management)
+	 *
+	 * @return array<BBCode>
+	 */
+	public function findAllNonBuiltin(): array {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()
+					->eq('is_builtin', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find all builtin BBCodes (for help dialog)
+	 *
+	 * @return array<BBCode>
+	 */
+	public function findAllBuiltin(): array {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()
+					->eq('is_builtin', $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL))
+			);
+		return $this->findEntities($qb);
+	}
 }

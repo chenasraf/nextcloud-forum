@@ -90,6 +90,7 @@ export interface BBCode {
   description: string | null
   enabled: boolean
   parseInner: boolean
+  isBuiltin: boolean
   createdAt: number
 }
 

@@ -29,7 +29,7 @@ class BBCodeController extends OCSController {
 	}
 
 	/**
-	 * Get all BBCodes
+	 * Get all BBCodes (excludes builtin codes)
 	 *
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
@@ -40,7 +40,7 @@ class BBCodeController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes')]
 	public function index(): DataResponse {
 		try {
-			$bbcodes = $this->bbCodeMapper->findAll();
+			$bbcodes = $this->bbCodeMapper->findAllNonBuiltin();
 			return new DataResponse(array_map(fn ($b) => $b->jsonSerialize(), $bbcodes));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching BBCodes: ' . $e->getMessage());
@@ -68,6 +68,25 @@ class BBCodeController extends OCSController {
 	}
 
 	/**
+	 * Get builtin BBCodes (for help dialog)
+	 *
+	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
+	 *
+	 * 200: Builtin BBCodes returned
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'GET', url: '/api/bbcodes/builtin')]
+	public function builtin(): DataResponse {
+		try {
+			$bbcodes = $this->bbCodeMapper->findAllBuiltin();
+			return new DataResponse(array_map(fn ($b) => $b->jsonSerialize(), $bbcodes));
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching builtin BBCodes: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch BBCodes'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Get a single BBCode
 	 *
 	 * @param int $id BBCode ID
@@ -76,10 +95,17 @@ class BBCodeController extends OCSController {
 	 * 200: BBCode returned
 	 */
 	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes/{id}')]
 	public function show(int $id): DataResponse {
 		try {
 			$bbcode = $this->bbCodeMapper->find($id);
+
+			// Prevent access to builtin BBCodes
+			if ($bbcode->getIsBuiltin()) {
+				return new DataResponse(['error' => 'Cannot access builtin BBCode'], Http::STATUS_FORBIDDEN);
+			}
+
 			return new DataResponse($bbcode->jsonSerialize());
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'BBCode not found'], Http::STATUS_NOT_FOUND);
@@ -112,6 +138,7 @@ class BBCodeController extends OCSController {
 			$bbcode->setDescription($description);
 			$bbcode->setEnabled($enabled);
 			$bbcode->setParseInner($parseInner);
+			$bbcode->setIsBuiltin(false); // User-created BBCodes are never builtin
 			$bbcode->setCreatedAt(time());
 
 			/** @var \OCA\Forum\Db\BBCode */
@@ -142,6 +169,11 @@ class BBCodeController extends OCSController {
 	public function update(int $id, ?string $tag = null, ?string $replacement = null, ?string $description = null, ?bool $enabled = null, ?bool $parseInner = null): DataResponse {
 		try {
 			$bbcode = $this->bbCodeMapper->find($id);
+
+			// Prevent updating builtin BBCodes
+			if ($bbcode->getIsBuiltin()) {
+				return new DataResponse(['error' => 'Cannot update builtin BBCode'], Http::STATUS_FORBIDDEN);
+			}
 
 			if ($tag !== null) {
 				$bbcode->setTag($tag);
@@ -184,6 +216,12 @@ class BBCodeController extends OCSController {
 	public function destroy(int $id): DataResponse {
 		try {
 			$bbcode = $this->bbCodeMapper->find($id);
+
+			// Prevent deleting builtin BBCodes
+			if ($bbcode->getIsBuiltin()) {
+				return new DataResponse(['error' => 'Cannot delete builtin BBCode'], Http::STATUS_FORBIDDEN);
+			}
+
 			$this->bbCodeMapper->delete($bbcode);
 			return new DataResponse(['success' => true]);
 		} catch (DoesNotExistException $e) {

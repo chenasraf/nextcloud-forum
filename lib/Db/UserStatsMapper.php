@@ -20,7 +20,7 @@ class UserStatsMapper extends QBMapper {
 	public function __construct(
 		IDBConnection $db,
 	) {
-		parent::__construct($db, Application::tableName('user_stats'), UserStats::class);
+		parent::__construct($db, Application::tableName('forum_user_stats'), UserStats::class);
 	}
 
 	/**

@@ -886,7 +886,7 @@
         "/ocs/v2.php/apps/forum/api/bbcodes": {
             "get": {
                 "operationId": "bb_code-index",
-                "summary": "Get all BBCodes",
+                "summary": "Get all BBCodes (excludes builtin codes)",
                 "tags": [
                     "bb_code"
                 ],
@@ -1138,6 +1138,101 @@
                 "responses": {
                     "200": {
                         "description": "Enabled BBCodes returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": {
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Current user is not logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ocs/v2.php/apps/forum/api/bbcodes/builtin": {
+            "get": {
+                "operationId": "bb_code-builtin",
+                "summary": "Get builtin BBCodes (for help dialog)",
+                "tags": [
+                    "bb_code"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Builtin BBCodes returned",
                         "content": {
                             "application/json": {
                                 "schema": {

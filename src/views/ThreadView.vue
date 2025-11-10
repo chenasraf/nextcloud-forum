@@ -403,9 +403,32 @@ export default defineComponent({
     },
 
     handleReply(post: Post): void {
-      console.log('Reply to post:', post.id)
-      // TODO: Implement reply functionality
-      // Could open a reply form or navigate to a reply page
+      const replyForm = this.$refs.replyForm as any
+      if (!replyForm) {
+        return
+      }
+
+      // Set the quoted content in the reply form
+      if (replyForm && typeof replyForm.setQuotedContent === 'function') {
+        replyForm.setQuotedContent(post.contentRaw)
+      }
+
+      // Scroll to the reply form with smooth behavior
+      const element = replyForm.$el as HTMLElement
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest',
+        })
+      }
+
+      // Wait for scroll animation to complete before focusing
+      setTimeout(() => {
+        if (replyForm && typeof replyForm.focus === 'function') {
+          replyForm.focus()
+        }
+      }, 500)
     },
 
     setPostCardRef(el: any, postId: number) {

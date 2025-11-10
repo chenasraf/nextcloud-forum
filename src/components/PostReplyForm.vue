@@ -142,6 +142,11 @@ export default defineComponent({
         textarea.$el.querySelector('textarea').focus()
       }
     },
+
+    setQuotedContent(contentRaw: string): void {
+      // Set the textarea content with a quoted version of the provided content
+      this.content = `[quote]${contentRaw}[/quote]\n`
+    },
   },
 })
 </script>

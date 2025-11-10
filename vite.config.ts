@@ -23,11 +23,42 @@ export default createAppConfig(
           output: {
             manualChunks(id) {
               if (id.includes('node_modules')) {
-                if (id.includes('@nextcloud/dialogs')) return 'nextcloud-dialogs'
-                if (id.includes('@nextcloud/vue')) return 'nextcloud-vue'
-                if (id.includes('vue')) return 'vue'
-                if (id.includes('vue-router')) return 'vue-router'
-                if (id.includes('axios')) return 'axios'
+                const manualChunks = [
+                  'date-fns',
+                  'lodash',
+                  'dompurify',
+                  'linkifyjs',
+                  'floating-vue',
+                  'focus-trap',
+                  'floating-ui',
+                  'vue-router',
+                  'vue-material-design-icons',
+                  'vue',
+                  'axios',
+                ]
+                // Get the part after the last 'node_modules/' to handle pnpm structure
+                const parts = id.split('node_modules/')
+                const pkgPath = parts[parts.length - 1]
+
+                // Match @nextcloud/xxx packages
+                const scopedNextcloudMatch = pkgPath.match(/^@nextcloud\/([^/]+)/)
+                if (scopedNextcloudMatch) {
+                  return `nextcloud-${scopedNextcloudMatch[1]}`
+                }
+
+                // Match nextcloud-xxx packages (without @ scope)
+                const nextcloudMatch = pkgPath.match(/^nextcloud-([^/]+)/)
+                if (nextcloudMatch) {
+                  return `nextcloud-${nextcloudMatch[1]}`
+                }
+
+                // Handle other common packages
+                for (const chunk of manualChunks) {
+                  if (pkgPath.includes(chunk)) {
+                    return chunk
+                  }
+                }
+
                 return 'vendor' // fallback for other deps
               }
             },

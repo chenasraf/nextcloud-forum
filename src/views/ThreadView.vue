@@ -33,12 +33,7 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
+    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
       <template #action>
         <NcButton @click="refresh">
           <template #icon>
@@ -86,17 +81,9 @@
     <!-- Posts list -->
     <section v-if="!loading && !error && posts.length > 0" class="mt-16">
       <div class="posts-list">
-        <PostCard
-          v-for="(post, index) in posts"
-          :key="post.id"
-          :ref="(el) => setPostCardRef(el, post.id)"
-          :post="post"
-          :is-first-post="index === 0"
-          :is-unread="isPostUnread(post)"
-          @reply="handleReply"
-          @update="handleUpdate"
-          @delete="handleDelete"
-        />
+        <PostCard v-for="(post, index) in posts" :key="post.id" :ref="(el) => setPostCardRef(el, post.id)" :post="post"
+          :is-first-post="index === 0" :is-unread="isPostUnread(post)" @reply="handleReply" @update="handleUpdate"
+          @delete="handleDelete" />
       </div>
 
       <!-- Pagination info -->
@@ -106,12 +93,8 @@
     </section>
 
     <!-- Empty posts state (thread exists but no posts) -->
-    <NcEmptyContent
-      v-else-if="!loading && !error && thread && posts.length === 0"
-      :title="strings.emptyPostsTitle"
-      :description="strings.emptyPostsDesc"
-      class="mt-16"
-    >
+    <NcEmptyContent v-else-if="!loading && !error && thread && posts.length === 0" :title="strings.emptyPostsTitle"
+      :description="strings.emptyPostsDesc" class="mt-16">
       <template #action>
         <NcButton @click="replyToThread" variant="primary">
           <template #icon>
@@ -123,12 +106,8 @@
     </NcEmptyContent>
 
     <!-- Reply form -->
-    <PostReplyForm
-      v-if="!loading && !error && thread && !thread.isLocked"
-      ref="replyForm"
-      @submit="handleSubmitReply"
-      @cancel="handleCancelReply"
-    />
+    <PostReplyForm v-if="!loading && !error && thread && !thread.isLocked" ref="replyForm" @submit="handleSubmitReply"
+      @cancel="handleCancelReply" />
   </div>
 </template>
 
@@ -405,18 +384,22 @@ export default defineComponent({
         return
       }
 
-      // Scroll to the reply form
+      // Scroll to the reply form with smooth behavior
       const element = replyForm.$el as HTMLElement
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        })
       }
 
-      // Focus the textarea after a small delay to ensure scroll completes
+      // Wait for scroll animation to complete before focusing
       setTimeout(() => {
         if (replyForm && typeof replyForm.focus === 'function') {
           replyForm.focus()
         }
-      }, 300)
+      }, 500)
     },
 
     async handleSubmitReply(content: string): Promise<void> {

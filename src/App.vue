@@ -65,6 +65,7 @@ export default defineComponent({
 <style scoped lang="scss">
 #forum-main {
   overflow: auto;
+  scroll-behavior: smooth;
 }
 
 #forum-content {
@@ -73,6 +74,7 @@ export default defineComponent({
   flex-direction: column;
   max-width: calc(100% - 128px);
   margin: 0 auto;
+  scroll-behavior: smooth;
 }
 
 .page-header {
@@ -93,6 +95,7 @@ export default defineComponent({
   flex: 1;
   padding: 1rem;
   min-height: 0;
+  scroll-behavior: smooth;
 }
 
 .bottom-spacer {
@@ -105,5 +108,14 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   height: 100%;
+}
+</style>
+
+<style lang="scss">
+// Global styles for smooth scrolling
+html,
+body,
+* {
+  scroll-behavior: smooth;
 }
 </style>

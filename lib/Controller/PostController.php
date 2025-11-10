@@ -14,6 +14,7 @@ use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ReactionMapper;
+use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\PermissionService;
@@ -39,6 +40,7 @@ class PostController extends OCSController {
 		private BBCodeService $bbCodeService,
 		private BBCodeMapper $bbCodeMapper,
 		private PermissionService $permissionService,
+		private ReadMarkerMapper $readMarkerMapper,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -183,6 +185,18 @@ class PostController extends OCSController {
 
 			/** @var \OCA\Forum\Db\Post */
 			$createdPost = $this->postMapper->insert($post);
+
+			// Mark thread as read up to and including the new post
+			try {
+				$this->readMarkerMapper->createOrUpdate(
+					$user->getUID(),
+					$threadId,
+					$createdPost->getId()
+				);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update read marker after creating post: ' . $e->getMessage());
+				// Don't fail the request if read marker update fails
+			}
 
 			// Update the thread's post count and timestamps
 			try {

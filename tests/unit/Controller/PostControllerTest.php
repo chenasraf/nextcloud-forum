@@ -16,6 +16,7 @@ use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Reaction;
 use OCA\Forum\Db\ReactionMapper;
+use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\BBCodeService;
@@ -38,6 +39,7 @@ class PostControllerTest extends TestCase {
 	private BBCodeService $bbCodeService;
 	private BBCodeMapper $bbCodeMapper;
 	private PermissionService $permissionService;
+	private ReadMarkerMapper $readMarkerMapper;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -52,6 +54,7 @@ class PostControllerTest extends TestCase {
 		$this->bbCodeService = $this->createMock(BBCodeService::class);
 		$this->bbCodeMapper = $this->createMock(BBCodeMapper::class);
 		$this->permissionService = $this->createMock(PermissionService::class);
+		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -66,6 +69,7 @@ class PostControllerTest extends TestCase {
 			$this->bbCodeService,
 			$this->bbCodeMapper,
 			$this->permissionService,
+			$this->readMarkerMapper,
 			$this->userSession,
 			$this->logger
 		);
@@ -245,6 +249,10 @@ class PostControllerTest extends TestCase {
 		$this->categoryMapper->expects($this->once())
 			->method('update')
 			->willReturn($category);
+
+		$this->readMarkerMapper->expects($this->once())
+			->method('createOrUpdate')
+			->with($userId, $threadId, 1);
 
 		$response = $this->controller->create($threadId, $content);
 

@@ -130,6 +130,16 @@
                 <CodeBracketsIcon :size="20" />
               </template>
             </NcAppNavigationItem>
+
+            <NcAppNavigationItem
+              :name="strings.navAdminSettings"
+              :to="{ path: '/admin/settings' }"
+              :active="isAdminSettingsActive"
+            >
+              <template #icon>
+                <CogIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
           </template>
         </NcAppNavigationItem>
       </template>
@@ -180,6 +190,7 @@ import ShieldAccountIcon from '@icons/ShieldAccount.vue'
 import ChartLineIcon from '@icons/ChartLine.vue'
 import AccountMultipleIcon from '@icons/AccountMultiple.vue'
 import CodeBracketsIcon from '@icons/CodeBrackets.vue'
+import CogIcon from '@icons/Cog.vue'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import { useCategories } from '@/composables/useCategories'
 import { useCurrentUser } from '@/composables/useCurrentUser'
@@ -211,6 +222,7 @@ export default defineComponent({
     ChartLineIcon,
     AccountMultipleIcon,
     CodeBracketsIcon,
+    CogIcon,
   },
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
@@ -259,6 +271,7 @@ export default defineComponent({
         navAdminRoles: t('forum', 'Roles'),
         navAdminCategories: t('forum', 'Categories'),
         navAdminBBCodes: t('forum', 'BBCodes'),
+        navAdminSettings: t('forum', 'Settings'),
         navExamples: t('forum', 'Examples'),
         navAbout: t('forum', 'About'),
       },
@@ -284,6 +297,9 @@ export default defineComponent({
     },
     isAdminBBCodesActive(): boolean {
       return this.$route.path.startsWith('/admin/bbcodes')
+    },
+    isAdminSettingsActive(): boolean {
+      return this.$route.path === '/admin/settings'
     },
   },
   async created() {

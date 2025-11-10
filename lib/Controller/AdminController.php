@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\PostMapper;
@@ -19,12 +20,14 @@ use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
+use OCP\IConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 class AdminController extends OCSController {
+
 	public function __construct(
 		string $appName,
 		IRequest $request,
@@ -36,6 +39,7 @@ class AdminController extends OCSController {
 		private UserRoleMapper $userRoleMapper,
 		private IUserManager $userManager,
 		private IUserSession $userSession,
+		private IConfig $config,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -151,6 +155,65 @@ class AdminController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching users list: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch users list'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Get general forum settings
+	 *
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 *
+	 * 200: Settings returned
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
+	#[ApiRoute(verb: 'GET', url: '/api/admin/settings')]
+	public function getSettings(): DataResponse {
+		try {
+			$settings = [
+				'title' => $this->config->getAppValue(Application::APP_ID, 'title', 'Forum'),
+				'subtitle' => $this->config->getAppValue(Application::APP_ID, 'subtitle', 'Welcome to the forum'),
+			];
+
+			return new DataResponse($settings);
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching settings: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch settings'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Update general forum settings
+	 *
+	 * @param string|null $title Forum title
+	 * @param string|null $subtitle Forum subtitle
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 *
+	 * 200: Settings updated
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
+	#[ApiRoute(verb: 'PUT', url: '/api/admin/settings')]
+	public function updateSettings(?string $title = null, ?string $subtitle = null): DataResponse {
+		try {
+			if ($title !== null) {
+				$this->config->setAppValue(Application::APP_ID, 'title', $title);
+			}
+
+			if ($subtitle !== null) {
+				$this->config->setAppValue(Application::APP_ID, 'subtitle', $subtitle);
+			}
+
+			// Return updated settings
+			$settings = [
+				'title' => $this->config->getAppValue(Application::APP_ID, 'title', 'Forum'),
+				'subtitle' => $this->config->getAppValue(Application::APP_ID, 'subtitle', 'Welcome to the forum'),
+			];
+
+			return new DataResponse($settings);
+		} catch (\Exception $e) {
+			$this->logger->error('Error updating settings: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to update settings'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 

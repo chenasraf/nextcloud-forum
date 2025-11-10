@@ -1,8 +1,8 @@
 <template>
   <div class="categories-view">
     <header class="page-header">
-      <h2>{{ strings.mainTitle }}</h2>
-      <p class="muted" v-html="strings.subtitle"></p>
+      <h2>{{ forumTitle }}</h2>
+      <p class="muted">{{ forumSubtitle }}</p>
     </header>
 
     <!-- Toolbar -->
@@ -60,6 +60,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import CategoryCard from '@/components/CategoryCard.vue'
 import { useCategories } from '@/composables/useCategories'
 import type { Category } from '@/types'
+import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 
 export default defineComponent({
@@ -81,15 +82,9 @@ export default defineComponent({
   },
   data() {
     return {
+      forumTitle: t('forum', 'Forum'),
+      forumSubtitle: t('forum', 'Welcome to the forum'),
       strings: {
-        mainTitle: t('forum', 'Hello World — App'),
-        subtitle: t(
-          'forum',
-          'Use the sidebar to navigate between views. Backend calls use {cStart}axios{cEnd} and OCS responses.',
-          { cStart: '<code>', cEnd: '</code>' },
-          undefined,
-          { escape: false },
-        ),
         title: t('forum', 'Categories'),
         refresh: t('forum', 'Refresh'),
         loading: t('forum', 'Loading…'),
@@ -100,14 +95,25 @@ export default defineComponent({
     }
   },
   async created() {
-    // Fetch categories if not already loaded
+    // Fetch forum settings and categories
     try {
-      await this.fetchCategories()
+      await Promise.all([this.fetchForumSettings(), this.fetchCategories()])
     } catch (e) {
-      console.error('Failed to fetch categories', e)
+      console.error('Failed to fetch initial data', e)
     }
   },
   methods: {
+    async fetchForumSettings() {
+      try {
+        const response = await ocs.get<{ title: string; subtitle: string }>('/admin/settings')
+        this.forumTitle = response.data.title || t('forum', 'Forum')
+        this.forumSubtitle = response.data.subtitle || t('forum', 'Welcome to the forum')
+      } catch (e) {
+        // Silently fail and use defaults if settings can't be loaded
+        console.debug('Could not load forum settings, using defaults', e)
+      }
+    },
+
     async refresh() {
       try {
         await this.refreshCategories()

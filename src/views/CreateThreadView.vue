@@ -1,16 +1,16 @@
 <template>
   <div class="create-thread-view">
     <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="toolbar-left">
+    <AppToolbar>
+      <template #left>
         <NcButton @click="goBack">
           <template #icon>
             <ArrowLeftIcon :size="20" />
           </template>
           {{ strings.back }}
         </NcButton>
-      </div>
-    </div>
+      </template>
+    </AppToolbar>
 
     <!-- Page Header -->
     <div class="page-header mt-16">
@@ -53,6 +53,7 @@ import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import AppToolbar from '@/components/AppToolbar.vue'
 import ThreadCreateForm from '@/components/ThreadCreateForm.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import type { Category, Thread } from '@/types'
@@ -66,6 +67,7 @@ export default defineComponent({
     NcButton,
     NcEmptyContent,
     NcLoadingIcon,
+    AppToolbar,
     ThreadCreateForm,
     ArrowLeftIcon,
   },
@@ -190,20 +192,6 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .toolbar {
-    margin-top: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-
-    .toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
   }
 
   .page-header {

@@ -6,19 +6,24 @@
     </header>
 
     <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="toolbar-left">
+    <AppToolbar>
+      <template #left>
         <h2 class="view-title">{{ strings.title }}</h2>
-      </div>
+      </template>
 
-      <div class="toolbar-right">
-        <NcButton @click="refresh" :disabled="loading" :aria-label="strings.refresh">
+      <template #right>
+        <NcButton
+          @click="refresh"
+          :disabled="loading"
+          :aria-label="strings.refresh"
+          :title="strings.refresh"
+        >
           <template #icon>
             <RefreshIcon :size="20" />
           </template>
         </NcButton>
-      </div>
-    </div>
+      </template>
+    </AppToolbar>
 
     <!-- Loading state -->
     <div class="center mt-16" v-if="loading">
@@ -61,6 +66,7 @@ import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import AppToolbar from '@/components/AppToolbar.vue'
 import CategoryCard from '@/components/CategoryCard.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import { useCategories } from '@/composables/useCategories'
@@ -74,6 +80,7 @@ export default defineComponent({
     NcButton,
     NcEmptyContent,
     NcLoadingIcon,
+    AppToolbar,
     CategoryCard,
     RefreshIcon,
   },
@@ -162,21 +169,6 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .toolbar {
-    margin-top: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-
-    .toolbar-left,
-    .toolbar-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
   }
 
   .view-title {

@@ -1,24 +1,29 @@
 <template>
   <div class="profile-view">
     <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="toolbar-left">
+    <AppToolbar>
+      <template #left>
         <NcButton @click="goBack">
           <template #icon>
             <ArrowLeftIcon :size="20" />
           </template>
           {{ strings.back }}
         </NcButton>
-      </div>
+      </template>
 
-      <div class="toolbar-right">
-        <NcButton @click="refresh" :disabled="loading" :aria-label="strings.refresh">
+      <template #right>
+        <NcButton
+          @click="refresh"
+          :disabled="loading"
+          :aria-label="strings.refresh"
+          :title="strings.refresh"
+        >
           <template #icon>
             <RefreshIcon :size="20" />
           </template>
         </NcButton>
-      </div>
-    </div>
+      </template>
+    </AppToolbar>
 
     <!-- Loading state -->
     <div class="center mt-16" v-if="loading">
@@ -153,6 +158,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import AppToolbar from '@/components/AppToolbar.vue'
 import ThreadCard from '@/components/ThreadCard.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
@@ -170,6 +176,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcAvatar,
     NcDateTime,
+    AppToolbar,
     ThreadCard,
     ArrowLeftIcon,
     RefreshIcon,
@@ -354,19 +361,6 @@ export default defineComponent({
   padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-
-  .toolbar-left,
-  .toolbar-right {
-    display: flex;
-    gap: 8px;
-  }
 }
 
 .center {

@@ -1,18 +1,23 @@
 <template>
   <div class="thread-view">
     <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="toolbar-left">
+    <AppToolbar>
+      <template #left>
         <NcButton @click="goBack">
           <template #icon>
             <ArrowLeftIcon :size="20" />
           </template>
           {{ thread?.categoryName ? strings.backToCategory(thread.categoryName) : strings.back }}
         </NcButton>
-      </div>
+      </template>
 
-      <div class="toolbar-right">
-        <NcButton @click="refresh" :disabled="loading" :aria-label="strings.refresh">
+      <template #right>
+        <NcButton
+          @click="refresh"
+          :disabled="loading"
+          :aria-label="strings.refresh"
+          :title="strings.refresh"
+        >
           <template #icon>
             <RefreshIcon :size="20" />
           </template>
@@ -23,6 +28,7 @@
           <NcButton
             @click="handleToggleLock"
             :aria-label="thread?.isLocked ? strings.unlockThread : strings.lockThread"
+            :title="thread?.isLocked ? strings.unlockThread : strings.lockThread"
           >
             <template #icon>
               <LockOpenIcon v-if="thread?.isLocked" :size="20" />
@@ -33,6 +39,7 @@
           <NcButton
             @click="handleTogglePin"
             :aria-label="thread?.isPinned ? strings.unpinThread : strings.pinThread"
+            :title="thread?.isPinned ? strings.unpinThread : strings.pinThread"
           >
             <template #icon>
               <PinOffIcon v-if="thread?.isPinned" :size="20" />
@@ -51,8 +58,8 @@
           </template>
           {{ strings.reply }}
         </NcButton>
-      </div>
-    </div>
+      </template>
+    </AppToolbar>
 
     <!-- Loading state -->
     <div class="center mt-16" v-if="loading">
@@ -178,6 +185,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import AppToolbar from '@/components/AppToolbar.vue'
 import PostCard from '@/components/PostCard.vue'
 import PostReplyForm from '@/components/PostReplyForm.vue'
 import PinIcon from '@icons/Pin.vue'
@@ -202,6 +210,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     NcDateTime,
+    AppToolbar,
     PostCard,
     PostReplyForm,
     PinIcon,
@@ -608,20 +617,6 @@ export default defineComponent({
     justify-content: center;
   }
 
-  .toolbar {
-    margin-top: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-
-    .toolbar-left,
-    .toolbar-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-  }
 
   .thread-header {
     padding: 20px;

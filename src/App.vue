@@ -77,6 +77,13 @@ export default defineComponent({
   scroll-behavior: smooth;
 }
 
+@media screen and (max-width: 768px) {
+  #forum-content {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+}
+
 .page-header {
   padding: 1rem;
   padding-bottom: 0.5rem;

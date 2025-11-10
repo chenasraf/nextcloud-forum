@@ -75,12 +75,17 @@
                 class="roles-select"
               />
               <div class="edit-actions">
-                <NcButton @click="cancelEdit">
+                <NcButton @click="cancelEdit" :aria-label="strings.cancel" :title="strings.cancel">
                   <template #icon>
                     <CloseIcon :size="20" />
                   </template>
                 </NcButton>
-                <NcButton variant="primary" @click="saveRoles(user.userId)">
+                <NcButton
+                  variant="primary"
+                  @click="saveRoles(user.userId)"
+                  :aria-label="strings.save"
+                  :title="strings.save"
+                >
                   <template #icon>
                     <CheckIcon :size="20" />
                   </template>
@@ -99,7 +104,11 @@
                 </span>
                 <span v-if="user.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
               </div>
-              <NcButton @click="startEdit(user.userId, user.roles)">
+              <NcButton
+                @click="startEdit(user.userId, user.roles)"
+                :aria-label="strings.edit"
+                :title="strings.edit"
+              >
                 <template #icon>
                   <PencilIcon :size="20" />
                 </template>
@@ -205,6 +214,9 @@ export default defineComponent({
         deleted: t('forum', 'Deleted'),
         noRoles: t('forum', 'No roles'),
         selectRoles: t('forum', 'Select roles'),
+        edit: t('forum', 'Edit roles'),
+        save: t('forum', 'Save'),
+        cancel: t('forum', 'Cancel'),
       },
     }
   },

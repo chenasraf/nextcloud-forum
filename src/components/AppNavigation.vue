@@ -29,7 +29,10 @@
           </template>
 
           <template #actions>
-            <NcActionButton>
+            <NcActionButton
+              :aria-label="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
+              :title="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
+            >
               <template #icon>
                 <ChevronDownIcon v-if="isHeaderOpen(header.id)" :size="20" />
                 <ChevronRightIcon v-else :size="20" />
@@ -61,7 +64,10 @@
         </template>
 
         <template #actions>
-          <NcActionButton>
+          <NcActionButton
+            :aria-label="isAdminOpen ? strings.collapse : strings.expand"
+            :title="isAdminOpen ? strings.collapse : strings.expand"
+          >
             <template #icon>
               <ChevronDownIcon v-if="isAdminOpen" :size="20" />
               <ChevronRightIcon v-else :size="20" />
@@ -230,6 +236,8 @@ export default defineComponent({
         navAdminRoles: t('forum', 'Roles'),
         navAdminCategories: t('forum', 'Categories'),
         navAdminBBCodes: t('forum', 'BBCodes'),
+        expand: t('forum', 'Expand'),
+        collapse: t('forum', 'Collapse'),
       },
     }
   },

@@ -6,7 +6,7 @@
           <h2>{{ strings.title }}</h2>
           <p class="muted">{{ strings.subtitle }}</p>
         </div>
-        <NcButton @click="createRole">
+        <NcButton @click="createRole" variant="primary">
           <template #icon>
             <PlusIcon :size="20" />
           </template>

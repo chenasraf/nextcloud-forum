@@ -216,6 +216,7 @@ export default defineComponent({
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .form-footer-left {

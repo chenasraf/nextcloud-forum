@@ -1,8 +1,8 @@
 <template>
   <div class="user-inner">
     <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="toolbar-left">
+    <AppToolbar>
+      <template #left>
         <div style="max-width: 320px">
           <NcTextField
             v-model="search"
@@ -14,14 +14,14 @@
           />
         </div>
         <NcButton @click="refresh" :disabled="loading">{{ strings.refresh }}</NcButton>
-      </div>
+      </template>
 
-      <div class="toolbar-right">
+      <template #right>
         <NcButton type="secondary" @click="toggleForm">
           {{ formOpen ? strings.hideForm : strings.showForm }}
         </NcButton>
-      </div>
-    </div>
+      </template>
+    </AppToolbar>
 
     <!-- Quick info / doc -->
     <NcNoteCard class="mt-12" type="info">
@@ -135,6 +135,7 @@ import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import AppToolbar from '@/components/AppToolbar.vue'
 
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
@@ -149,6 +150,7 @@ export default {
     NcEmptyContent,
     NcLoadingIcon,
     NcDateTime,
+    AppToolbar,
   },
   data() {
     return {
@@ -354,19 +356,6 @@ function genId() {
     justify-content: center;
   }
 
-  .toolbar {
-    margin-top: 8px;
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-
-    .toolbar-left,
-    .toolbar-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-  }
 
   .row {
     display: flex;

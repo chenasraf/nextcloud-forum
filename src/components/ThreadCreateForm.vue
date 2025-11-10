@@ -18,16 +18,20 @@
         class="title-input"
       />
 
-      <NcTextArea
-        v-model="content"
-        :placeholder="strings.contentPlaceholder"
-        :rows="6"
-        :disabled="submitting"
-        @keydown.ctrl.enter="submitThread"
-        @keydown.meta.enter="submitThread"
-        class="content-textarea"
-        ref="contentTextarea"
-      />
+      <div class="content-textarea-container">
+        <BBCodeToolbar :textarea-ref="textareaElement" @insert="handleBBCodeInsert" />
+
+        <NcTextArea
+          v-model="content"
+          :placeholder="strings.contentPlaceholder"
+          :rows="6"
+          :disabled="submitting"
+          @keydown.ctrl.enter="submitThread"
+          @keydown.meta.enter="submitThread"
+          class="content-textarea"
+          ref="contentTextarea"
+        />
+      </div>
 
       <div class="form-footer">
         <div class="form-footer-left">
@@ -68,6 +72,7 @@ import NcTextField from '@nextcloud/vue/components/NcTextField'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import CheckIcon from '@icons/Check.vue'
 import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
+import BBCodeToolbar from './BBCodeToolbar.vue'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 
@@ -82,6 +87,7 @@ export default defineComponent({
     HelpCircleIcon,
     CheckIcon,
     BBCodeHelpDialog,
+    BBCodeToolbar,
   },
   emits: ['submit', 'cancel'],
   setup() {
@@ -98,6 +104,7 @@ export default defineComponent({
       content: '',
       submitting: false,
       showHelp: false,
+      textareaElement: null as HTMLTextAreaElement | null,
       strings: {
         titleLabel: t('forum', 'Title'),
         titlePlaceholder: t('forum', 'Enter thread title...'),
@@ -108,6 +115,14 @@ export default defineComponent({
         help: t('forum', 'BBCode Help'),
       },
     }
+  },
+  mounted() {
+    // Get reference to the actual textarea DOM element
+    this.updateTextareaRef()
+  },
+  updated() {
+    // Update textarea ref if it changes
+    this.updateTextareaRef()
   },
   computed: {
     canSubmit(): boolean {
@@ -161,6 +176,19 @@ export default defineComponent({
         textarea.$el.querySelector('textarea').focus()
       }
     },
+
+    updateTextareaRef(): void {
+      const textarea = this.$refs.contentTextarea as any
+      if (textarea?.$el?.querySelector('textarea')) {
+        this.textareaElement = textarea.$el.querySelector('textarea')
+      }
+    },
+
+    handleBBCodeInsert(data: { text: string; cursorPos: number }): void {
+      // Update the content with the new text
+      this.content = data.text
+      // The cursor position is handled by the BBCodeToolbar component
+    },
   },
 })
 </script>
@@ -200,9 +228,17 @@ export default defineComponent({
   }
 }
 
+.content-textarea-container {
+  background: var(--color-background-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px;
+}
+
 .content-textarea {
   min-height: 8rem;
   resize: vertical;
+  margin-top: 0;
 
   :global(.textarea__main-wrapper),
   textarea {

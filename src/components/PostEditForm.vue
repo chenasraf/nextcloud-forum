@@ -1,5 +1,7 @@
 <template>
   <div class="post-edit-form">
+    <BBCodeToolbar :textarea-ref="textareaElement" @insert="handleBBCodeInsert" />
+
     <NcTextArea
       v-model="content"
       :placeholder="strings.placeholder"
@@ -45,6 +47,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
+import BBCodeToolbar from './BBCodeToolbar.vue'
 import { t } from '@nextcloud/l10n'
 
 export default defineComponent({
@@ -55,6 +58,7 @@ export default defineComponent({
     NcTextArea,
     HelpCircleIcon,
     BBCodeHelpDialog,
+    BBCodeToolbar,
   },
   props: {
     initialContent: {
@@ -68,6 +72,7 @@ export default defineComponent({
       content: this.initialContent,
       submitting: false,
       showHelp: false,
+      textareaElement: null as HTMLTextAreaElement | null,
       strings: {
         placeholder: t('forum', 'Edit your post...'),
         cancel: t('forum', 'Cancel'),
@@ -76,6 +81,14 @@ export default defineComponent({
         help: t('forum', 'BBCode Help'),
       },
     }
+  },
+  mounted() {
+    // Get reference to the actual textarea DOM element
+    this.updateTextareaRef()
+  },
+  updated() {
+    // Update textarea ref if it changes
+    this.updateTextareaRef()
   },
   computed: {
     canSubmit(): boolean {
@@ -117,6 +130,19 @@ export default defineComponent({
       if (textarea?.$el?.querySelector('textarea')) {
         textarea.$el.querySelector('textarea').focus()
       }
+    },
+
+    updateTextareaRef(): void {
+      const textarea = this.$refs.textarea as any
+      if (textarea?.$el?.querySelector('textarea')) {
+        this.textareaElement = textarea.$el.querySelector('textarea')
+      }
+    },
+
+    handleBBCodeInsert(data: { text: string; cursorPos: number }): void {
+      // Update the content with the new text
+      this.content = data.text
+      // The cursor position is handled by the BBCodeToolbar component
     },
   },
 })

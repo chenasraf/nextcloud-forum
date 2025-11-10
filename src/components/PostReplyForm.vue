@@ -9,16 +9,19 @@
     </div>
 
     <div class="reply-body">
-      <NcTextArea
-        v-model="content"
-        :placeholder="strings.placeholder"
-        :rows="4"
-        :disabled="submitting"
-        @keydown.ctrl.enter="submitReply"
-        @keydown.meta.enter="submitReply"
-        class="reply-textarea"
-        ref="textarea"
-      />
+      <div class="reply-textarea-container">
+        <BBCodeToolbar :textarea-ref="textareaElement" @insert="handleBBCodeInsert" />
+        <NcTextArea
+          v-model="content"
+          :placeholder="strings.placeholder"
+          :rows="4"
+          :disabled="submitting"
+          @keydown.ctrl.enter="submitReply"
+          @keydown.meta.enter="submitReply"
+          class="reply-textarea"
+          ref="textarea"
+        />
+      </div>
 
       <div class="reply-footer">
         <div class="reply-footer-left">
@@ -58,6 +61,7 @@ import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import SendIcon from '@icons/Send.vue'
 import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
+import BBCodeToolbar from './BBCodeToolbar.vue'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 
@@ -71,6 +75,7 @@ export default defineComponent({
     HelpCircleIcon,
     SendIcon,
     BBCodeHelpDialog,
+    BBCodeToolbar,
   },
   emits: ['submit', 'cancel'],
   setup() {
@@ -86,6 +91,7 @@ export default defineComponent({
       content: '',
       submitting: false,
       showHelp: false,
+      textareaElement: null as HTMLTextAreaElement | null,
       strings: {
         placeholder: t('forum', 'Write your reply...'),
         cancel: t('forum', 'Cancel'),
@@ -94,6 +100,14 @@ export default defineComponent({
         help: t('forum', 'BBCode Help'),
       },
     }
+  },
+  mounted() {
+    // Get reference to the actual textarea DOM element
+    this.updateTextareaRef()
+  },
+  updated() {
+    // Update textarea ref if it changes
+    this.updateTextareaRef()
   },
   computed: {
     canSubmit(): boolean {
@@ -147,6 +161,19 @@ export default defineComponent({
       // Set the textarea content with a quoted version of the provided content
       this.content = `[quote]${contentRaw}[/quote]\n`
     },
+
+    updateTextareaRef(): void {
+      const textarea = this.$refs.textarea as any
+      if (textarea?.$el?.querySelector('textarea')) {
+        this.textareaElement = textarea.$el.querySelector('textarea')
+      }
+    },
+
+    handleBBCodeInsert(data: { text: string; cursorPos: number }): void {
+      // Update the content with the new text
+      this.content = data.text
+      // The cursor position is handled by the BBCodeToolbar component
+    },
   },
 })
 </script>
@@ -182,9 +209,17 @@ export default defineComponent({
   gap: 12px;
 }
 
+.reply-textarea-container {
+  background: var(--color-background-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 4px;
+}
+
 .reply-textarea {
   min-height: 6.125rem;
   resize: vertical;
+  margin-top: 0;
 
   :global(.textarea__main-wrapper),
   textarea {

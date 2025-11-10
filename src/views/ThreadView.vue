@@ -279,6 +279,16 @@ export default defineComponent({
       return (this.$route.params.slug as string) || null
     },
   },
+  watch: {
+    '$route.hash'(newHash: string) {
+      // When hash changes within the same thread, scroll to the post
+      if (newHash && newHash.startsWith('#post-') && this.posts.length > 0) {
+        this.$nextTick(() => {
+          this.scrollToPostFromHash()
+        })
+      }
+    },
+  },
   created() {
     this.refresh()
   },
@@ -337,6 +347,10 @@ export default defineComponent({
         if (this.posts.length > 0) {
           await this.markAsRead()
         }
+
+        // Scroll to post if hash is present in URL
+        await this.$nextTick()
+        this.scrollToPostFromHash()
       } catch (e) {
         console.error('Failed to fetch posts', e)
         throw new Error(t('forum', 'Failed to load posts'))
@@ -573,6 +587,65 @@ export default defineComponent({
       }
     },
 
+    scrollToPostFromHash(): void {
+      // Check if there's a hash in the URL like #post-123
+      const hash = window.location.hash || this.$route.hash
+
+      if (hash && hash.startsWith('#post-')) {
+        const postId = parseInt(hash.replace('#post-', ''))
+
+        if (!isNaN(postId)) {
+          // Try immediately first
+          this.scrollToPost(postId)
+
+          // If that didn't work (refs not ready), try again after a short delay
+          setTimeout(() => {
+            this.scrollToPost(postId)
+          }, 100)
+
+          // Final attempt after a longer delay
+          setTimeout(() => {
+            this.scrollToPost(postId)
+          }, 500)
+        }
+      }
+    },
+
+    scrollToPost(postId: number): void {
+      // Get the PostCard component reference
+      const postCardRef = this.postCardRefs.get(postId)
+
+      if (postCardRef && postCardRef.$el) {
+        const element = postCardRef.$el as HTMLElement
+        const offset = 80 // Offset for toolbar and some breathing room
+
+        // Use requestAnimationFrame to ensure scroll happens after any router scroll operations
+        requestAnimationFrame(() => {
+          // Find the scrolling container - Nextcloud uses #app-content or #forum-main
+          const scrollContainer =
+            document.querySelector('#app-content') ||
+            document.querySelector('#forum-main') ||
+            document.documentElement
+
+          const elementTop = element.getBoundingClientRect().top
+          const scrollTop = scrollContainer.scrollTop || 0
+          const containerTop = scrollContainer.getBoundingClientRect().top
+          const targetPosition = elementTop - containerTop + scrollTop - offset
+
+          scrollContainer.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth',
+          })
+
+          // Add highlight effect
+          element.classList.add('highlight-post')
+          setTimeout(() => {
+            element.classList.remove('highlight-post')
+          }, 2000)
+        })
+      }
+    },
+
     goBack(): void {
       // Always navigate to the category, not browser history
       if (this.thread?.categorySlug) {
@@ -711,6 +784,22 @@ export default defineComponent({
   .pagination-info {
     text-align: center;
     padding: 12px;
+  }
+}
+
+// Highlight animation for scrolled-to posts
+:deep(.highlight-post) {
+  animation: highlightFade 2s ease-in-out;
+}
+
+@keyframes highlightFade {
+  0% {
+    background-color: var(--color-primary-element-light);
+    box-shadow: 0 0 0 4px var(--color-primary-element-light);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
   }
 }
 </style>

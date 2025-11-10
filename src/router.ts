@@ -36,6 +36,18 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(generateUrl('/apps/forum')),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    // If there's a hash, don't auto-scroll - let the component handle it
+    if (to.hash) {
+      return false
+    }
+    // If there's a saved position (browser back/forward), use it
+    if (savedPosition) {
+      return savedPosition
+    }
+    // Otherwise scroll to top
+    return { top: 0 }
+  },
 })
 
 // Route guard to protect admin routes

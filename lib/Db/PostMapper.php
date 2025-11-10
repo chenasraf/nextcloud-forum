@@ -84,7 +84,7 @@ class PostMapper extends QBMapper {
 	/**
 	 * @return array<Post>
 	 */
-	public function findByAuthorId(string $authorId, int $limit = 50, int $offset = 0): array {
+	public function findByAuthorId(string $authorId, int $limit = 50, int $offset = 0, bool $excludeFirstPosts = false): array {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
@@ -94,8 +94,15 @@ class PostMapper extends QBMapper {
 			)
 			->andWhere(
 				$qb->expr()->isNull('deleted_at')
-			)
-			->orderBy('created_at', 'DESC')
+			);
+
+		if ($excludeFirstPosts) {
+			$qb->andWhere(
+				$qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL))
+			);
+		}
+
+		$qb->orderBy('created_at', 'DESC')
 			->setMaxResults($limit)
 			->setFirstResult($offset);
 		return $this->findEntities($qb);

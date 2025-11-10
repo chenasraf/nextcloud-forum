@@ -18,12 +18,7 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
+    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
       <template #action>
         <NcButton @click="refresh">{{ strings.retry }}</NcButton>
       </template>
@@ -60,18 +55,10 @@
       <!-- Tabs -->
       <div class="profile-tabs mt-24">
         <div class="tabs-header">
-          <button
-            class="tab-button"
-            :class="{ active: activeTab === 'threads' }"
-            @click="activeTab = 'threads'"
-          >
+          <button class="tab-button" :class="{ active: activeTab === 'threads' }" @click="activeTab = 'threads'">
             {{ strings.threads }} ({{ threads.length }})
           </button>
-          <button
-            class="tab-button"
-            :class="{ active: activeTab === 'posts' }"
-            @click="activeTab = 'posts'"
-          >
+          <button class="tab-button" :class="{ active: activeTab === 'posts' }" @click="activeTab = 'posts'">
             {{ strings.replies }} ({{ posts.length }})
           </button>
         </div>
@@ -82,18 +69,11 @@
             <div v-if="loadingThreads" class="center">
               <NcLoadingIcon :size="24" />
             </div>
-            <NcEmptyContent
-              v-else-if="threads.length === 0"
-              :title="strings.noThreads"
-              :description="strings.noThreadsDesc"
-            />
+            <NcEmptyContent v-else-if="threads.length === 0" :title="strings.noThreads"
+              :description="strings.noThreadsDesc" />
             <div v-else class="threads-list">
-              <ThreadCard
-                v-for="thread in threads"
-                :key="thread.id"
-                :thread="thread"
-                @click="navigateToThread(thread)"
-              />
+              <ThreadCard v-for="thread in threads" :key="thread.id" :thread="thread"
+                @click="navigateToThread(thread)" />
             </div>
           </div>
 
@@ -102,18 +82,10 @@
             <div v-if="loadingPosts" class="center">
               <NcLoadingIcon :size="24" />
             </div>
-            <NcEmptyContent
-              v-else-if="posts.length === 0"
-              :title="strings.noPosts"
-              :description="strings.noPostsDesc"
-            />
+            <NcEmptyContent v-else-if="posts.length === 0" :title="strings.noPosts"
+              :description="strings.noPostsDesc" />
             <div v-else class="posts-list">
-              <div
-                v-for="post in posts"
-                :key="post.id"
-                class="post-item"
-                @click="navigateToPost(post)"
-              >
+              <div v-for="post in posts" :key="post.id" class="post-item" @click="navigateToPost(post)">
                 <div class="post-meta">
                   <span class="post-thread" v-if="post.threadTitle">
                     {{ strings.inThread }} <strong>{{ post.threadTitle }}</strong>
@@ -216,7 +188,7 @@ export default defineComponent({
 
         // Load user stats (may not exist if user hasn't posted)
         try {
-          const userResponse = await ocs.get(`/api/users/${this.userId}`)
+          const userResponse = await ocs.get(`/users/${this.userId}`)
           this.userStats = userResponse.data
         } catch (err: any) {
           // 404 is OK - user hasn't posted yet
@@ -226,12 +198,8 @@ export default defineComponent({
           this.userStats = null
         }
 
-        // Load initial tab data
-        if (this.activeTab === 'threads') {
-          await this.loadThreads()
-        } else {
-          await this.loadPosts()
-        }
+        // Load both tabs on initial load for accurate counts
+        await Promise.all([this.loadThreads(), this.loadPosts()])
       } catch (err: any) {
         console.error('Error loading profile:', err)
         this.error = err.response?.data?.error || t('forum', 'Failed to load user profile')
@@ -243,7 +211,7 @@ export default defineComponent({
     async loadThreads() {
       this.loadingThreads = true
       try {
-        const response = await ocs.get(`/api/users/${this.userId}/threads`)
+        const response = await ocs.get(`/users/${this.userId}/threads`)
         this.threads = response.data
       } catch (err) {
         console.error('Error loading threads:', err)
@@ -255,15 +223,16 @@ export default defineComponent({
     async loadPosts() {
       this.loadingPosts = true
       try {
-        const response = await ocs.get(`/api/users/${this.userId}/posts`)
-        // Filter out first posts (those are the thread content itself)
-        const posts = response.data
+        // Exclude first posts (those are the thread content itself, shown in threads tab)
+        const response = await ocs.get(`/users/${this.userId}/posts`, {
+          params: { excludeFirstPosts: '1' },
+        })
 
         // Enrich posts with thread information
         const enrichedPosts = await Promise.all(
-          posts.map(async (post: Post) => {
+          response.data.map(async (post: Post) => {
             try {
-              const threadResponse = await ocs.get(`/api/threads/${post.threadId}`, {
+              const threadResponse = await ocs.get(`/threads/${post.threadId}`, {
                 params: { incrementView: '0' },
               })
               return {
@@ -434,6 +403,7 @@ export default defineComponent({
     font-weight: 500;
     color: var(--color-text-maxcontrast);
     transition: all 0.2s;
+    border-radius: 0;
 
     &:hover {
       color: var(--color-text-light);

@@ -3879,6 +3879,15 @@
                         }
                     },
                     {
+                        "name": "excludeFirstPosts",
+                        "in": "query",
+                        "description": "Whether to exclude first posts (1 or 0)",
+                        "schema": {
+                            "type": "string",
+                            "default": "0"
+                        }
+                    },
+                    {
                         "name": "OCS-APIRequest",
                         "in": "header",
                         "description": "Required to be true for the API request to pass",

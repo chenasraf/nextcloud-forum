@@ -54,6 +54,7 @@ export interface Post {
   contentRaw: string
   slug: string
   isEdited: boolean
+  isFirstPost: boolean
   editedAt: number | null
   createdAt: number
   updatedAt: number

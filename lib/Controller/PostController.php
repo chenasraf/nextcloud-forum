@@ -101,15 +101,16 @@ class PostController extends OCSController {
 	 * @param string $authorId Author user ID
 	 * @param int $limit Maximum number of posts to return
 	 * @param int $offset Offset for pagination
+	 * @param string $excludeFirstPosts Whether to exclude first posts (1 or 0)
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Posts returned
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/users/{authorId}/posts')]
-	public function byAuthor(string $authorId, int $limit = 50, int $offset = 0): DataResponse {
+	public function byAuthor(string $authorId, int $limit = 50, int $offset = 0, string $excludeFirstPosts = '0'): DataResponse {
 		try {
-			$posts = $this->postMapper->findByAuthorId($authorId, $limit, $offset);
+			$posts = $this->postMapper->findByAuthorId($authorId, $limit, $offset, $excludeFirstPosts === '1');
 
 			// Prefetch BBCodes once for all posts to avoid repeated queries
 			$bbcodes = $this->bbCodeMapper->findAllEnabled();

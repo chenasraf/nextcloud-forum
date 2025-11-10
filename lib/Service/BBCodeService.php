@@ -78,6 +78,21 @@ class BBCodeService {
 			return $placeholder;
 		}, $content);
 
+		// Preprocess [list] blocks to prevent unwanted <br/> tags
+		// Trim newlines around list tags before passing to the parser
+		$content = preg_replace_callback('/\[list\](.*?)\[\/list\]/s', function ($matches) {
+			$innerContent = $matches[1];
+			// Trim newlines after [list] and before [/list]
+			$innerContent = trim($innerContent, "\r\n");
+			// Trim newlines before and after [*]
+			$innerContent = preg_replace('/\r?\n\s*\[\*\]/', '[*]', $innerContent);
+			$innerContent = preg_replace('/\[\*\]\s*\r?\n/', '[*]', $innerContent);
+			// Trim newlines before [li] and after [/li]
+			$innerContent = preg_replace('/\r?\n\s*\[li\]/', '[li]', $innerContent);
+			$innerContent = preg_replace('/\[\/li\]\s*\r?\n/', '[/li]', $innerContent);
+			return '[list]' . $innerContent . '[/list]';
+		}, $content);
+
 		// Preprocess disabled tags - escape them so they appear as literal text
 		$disabledPlaceholders = [];
 		foreach ($bbCodes as $bbCode) {

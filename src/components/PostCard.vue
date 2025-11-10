@@ -404,6 +404,18 @@ export default defineComponent({
       padding-left: 12px;
       color: var(--color-text-secondary);
     }
+
+    // Lists ([list])
+    :deep(ul) {
+      margin: 12px 0;
+      padding-left: 32px;
+      list-style-type: disc;
+
+      li {
+        margin: 4px 0;
+        line-height: 1.6;
+      }
+    }
   }
 
   .icon {

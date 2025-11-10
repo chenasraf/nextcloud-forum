@@ -407,7 +407,7 @@ class BBCodeService {
 			if (str_starts_with($mimeType, 'image/')) {
 				// Generate preview URL for images using proxy endpoint
 				$previewUrl = $this->urlGenerator->linkToRouteAbsolute(
-					'forum.attachment.preview',
+					'forum.file.preview',
 					['postId' => $postId, 'filePath' => $filePath, 'x' => 1920, 'y' => 1080]
 				);
 
@@ -424,7 +424,7 @@ class BBCodeService {
 			} else {
 				// Generate download URL for non-image files using proxy endpoint
 				$downloadUrl = $this->urlGenerator->linkToRouteAbsolute(
-					'forum.attachment.download',
+					'forum.file.download',
 					['postId' => $postId, 'filePath' => $filePath]
 				);
 

@@ -129,14 +129,6 @@ export interface Reaction {
   createdAt: number
 }
 
-export interface Attachment {
-  id: number
-  postId: number
-  fileid: number
-  filename: string
-  createdAt: number
-}
-
 export interface CatHeader {
   id: number
   name: string

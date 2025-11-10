@@ -42,7 +42,6 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$this->createForumPostsTable($schema);
 		$this->createForumReadMarkersTable($schema);
 		$this->createForumReactionsTable($schema);
-		$this->createForumAttachmentsTable($schema);
 
 		return $schema;
 	}
@@ -528,38 +527,6 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addIndex(['post_id'], 'forum_reactions_post_id_idx');
 		$table->addIndex(['user_id'], 'forum_reactions_user_id_idx');
 		$table->addUniqueIndex(['post_id', 'user_id', 'reaction_type'], 'forum_reactions_unique_idx');
-	}
-
-	private function createForumAttachmentsTable(ISchemaWrapper $schema): void {
-		if ($schema->hasTable('forum_attachments')) {
-			return;
-		}
-
-		$table = $schema->createTable('forum_attachments');
-		$table->addColumn('id', 'bigint', [
-			'autoincrement' => true,
-			'notnull' => true,
-			'unsigned' => true,
-		]);
-		$table->addColumn('post_id', 'bigint', [
-			'notnull' => true,
-			'unsigned' => true,
-		]);
-		$table->addColumn('fileid', 'bigint', [
-			'notnull' => true,
-			'unsigned' => true,
-		]);
-		$table->addColumn('filename', 'string', [
-			'notnull' => true,
-			'length' => 255,
-		]);
-		$table->addColumn('created_at', 'integer', [
-			'notnull' => true,
-			'unsigned' => true,
-		]);
-		$table->setPrimaryKey(['id']);
-		$table->addIndex(['post_id'], 'forum_attachments_post_id_idx');
-		$table->addIndex(['fileid'], 'forum_attachments_fileid_idx');
 	}
 
 	/**

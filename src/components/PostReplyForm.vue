@@ -33,9 +33,10 @@
           <NcButton @click="cancel" :disabled="submitting || !hasContent">
             {{ strings.cancel }}
           </NcButton>
-          <NcButton @click="submitReply" :disabled="!canSubmit || submitting">
-            <template v-if="submitting" #icon>
-              <NcLoadingIcon :size="20" />
+          <NcButton @click="submitReply" :disabled="!canSubmit || submitting" variant="primary">
+            <template #icon>
+              <NcLoadingIcon v-if="submitting" :size="20" />
+              <SendIcon v-else :size="20" />
             </template>
             {{ strings.submit }}
           </NcButton>
@@ -55,6 +56,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
+import SendIcon from '@icons/Send.vue'
 import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
@@ -67,6 +69,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcTextArea,
     HelpCircleIcon,
+    SendIcon,
     BBCodeHelpDialog,
   },
   emits: ['submit', 'cancel'],

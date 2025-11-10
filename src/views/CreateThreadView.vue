@@ -3,7 +3,12 @@
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <NcButton @click="goBack">{{ strings.back }}</NcButton>
+        <NcButton @click="goBack">
+          <template #icon>
+            <ArrowLeftIcon :size="20" />
+          </template>
+          {{ strings.back }}
+        </NcButton>
       </div>
     </div>
 
@@ -27,7 +32,12 @@
       class="mt-16"
     >
       <template #action>
-        <NcButton @click="goBack">{{ strings.back }}</NcButton>
+        <NcButton @click="goBack">
+          <template #icon>
+            <ArrowLeftIcon :size="20" />
+          </template>
+          {{ strings.back }}
+        </NcButton>
       </template>
     </NcEmptyContent>
 
@@ -44,6 +54,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import ThreadCreateForm from '@/components/ThreadCreateForm.vue'
+import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import type { Category, Thread } from '@/types'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -56,6 +67,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     ThreadCreateForm,
+    ArrowLeftIcon,
   },
   data() {
     return {

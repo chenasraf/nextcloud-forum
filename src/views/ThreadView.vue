@@ -3,12 +3,24 @@
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <NcButton @click="goBack">{{ strings.back }}</NcButton>
+        <NcButton @click="goBack">
+          <template #icon>
+            <ArrowLeftIcon :size="20" />
+          </template>
+          {{ thread?.categoryName ? strings.backToCategory(thread.categoryName) : strings.back }}
+        </NcButton>
       </div>
 
       <div class="toolbar-right">
-        <NcButton @click="refresh" :disabled="loading">{{ strings.refresh }}</NcButton>
-        <NcButton @click="replyToThread" :disabled="loading || thread?.isLocked">
+        <NcButton @click="refresh" :disabled="loading" :aria-label="strings.refresh">
+          <template #icon>
+            <RefreshIcon :size="20" />
+          </template>
+        </NcButton>
+        <NcButton @click="replyToThread" :disabled="loading || thread?.isLocked" variant="primary">
+          <template #icon>
+            <ReplyIcon :size="20" />
+          </template>
           {{ strings.reply }}
         </NcButton>
       </div>
@@ -28,7 +40,12 @@
       class="mt-16"
     >
       <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        <NcButton @click="refresh">
+          <template #icon>
+            <RefreshIcon :size="20" />
+          </template>
+          {{ strings.retry }}
+        </NcButton>
       </template>
     </NcEmptyContent>
 
@@ -96,7 +113,12 @@
       class="mt-16"
     >
       <template #action>
-        <NcButton @click="replyToThread">{{ strings.reply }}</NcButton>
+        <NcButton @click="replyToThread" variant="primary">
+          <template #icon>
+            <ReplyIcon :size="20" />
+          </template>
+          {{ strings.reply }}
+        </NcButton>
       </template>
     </NcEmptyContent>
 
@@ -121,6 +143,9 @@ import PostReplyForm from '@/components/PostReplyForm.vue'
 import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import EyeIcon from '@icons/Eye.vue'
+import ArrowLeftIcon from '@icons/ArrowLeft.vue'
+import RefreshIcon from '@icons/Refresh.vue'
+import ReplyIcon from '@icons/Reply.vue'
 import type { Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
@@ -139,6 +164,9 @@ export default defineComponent({
     PinIcon,
     LockIcon,
     EyeIcon,
+    ArrowLeftIcon,
+    RefreshIcon,
+    ReplyIcon,
   },
   setup() {
     const { currentThread: thread, fetchThread } = useCurrentThread()
@@ -160,6 +188,7 @@ export default defineComponent({
 
       strings: {
         back: t('forum', 'Back'),
+        backToCategory: (categoryName: string) => t('forum', 'Back to {category}', { category: categoryName }),
         refresh: t('forum', 'Refresh'),
         reply: t('forum', 'Reply'),
         loading: t('forum', 'Loading…'),

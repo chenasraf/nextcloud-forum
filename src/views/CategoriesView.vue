@@ -12,7 +12,11 @@
       </div>
 
       <div class="toolbar-right">
-        <NcButton @click="refresh" :disabled="loading">{{ strings.refresh }}</NcButton>
+        <NcButton @click="refresh" :disabled="loading" :aria-label="strings.refresh">
+          <template #icon>
+            <RefreshIcon :size="20" />
+          </template>
+        </NcButton>
       </div>
     </div>
 
@@ -58,6 +62,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import CategoryCard from '@/components/CategoryCard.vue'
+import RefreshIcon from '@icons/Refresh.vue'
 import { useCategories } from '@/composables/useCategories'
 import type { Category } from '@/types'
 import { ocs } from '@/axios'
@@ -70,6 +75,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     CategoryCard,
+    RefreshIcon,
   },
   setup() {
     const { categoryHeaders, loading, fetchCategories, refresh } = useCategories()

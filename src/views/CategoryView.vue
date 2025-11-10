@@ -3,12 +3,24 @@
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <NcButton @click="goBack">{{ strings.back }}</NcButton>
+        <NcButton @click="goBack">
+          <template #icon>
+            <ArrowLeftIcon :size="20" />
+          </template>
+          {{ strings.back }}
+        </NcButton>
       </div>
 
       <div class="toolbar-right">
-        <NcButton @click="refresh" :disabled="loading">{{ strings.refresh }}</NcButton>
-        <NcButton @click="createThread" :disabled="loading">
+        <NcButton @click="refresh" :disabled="loading" :aria-label="strings.refresh">
+          <template #icon>
+            <RefreshIcon :size="20" />
+          </template>
+        </NcButton>
+        <NcButton @click="createThread" :disabled="loading" variant="primary">
+          <template #icon>
+            <MessagePlusIcon :size="20" />
+          </template>
           {{ strings.newThread }}
         </NcButton>
       </div>
@@ -27,39 +39,35 @@
     </div>
 
     <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
+    <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
       <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        <NcButton @click="refresh">
+          <template #icon>
+            <RefreshIcon :size="20" />
+          </template>
+          {{ strings.retry }}
+        </NcButton>
       </template>
     </NcEmptyContent>
 
     <!-- Empty state -->
-    <NcEmptyContent
-      v-else-if="threads.length === 0"
-      :title="strings.emptyTitle"
-      :description="strings.emptyDesc"
-      class="mt-16"
-    >
+    <NcEmptyContent v-else-if="threads.length === 0" :title="strings.emptyTitle" :description="strings.emptyDesc"
+      class="mt-16">
       <template #action>
-        <NcButton @click="createThread">{{ strings.newThread }}</NcButton>
+        <NcButton @click="createThread" variant="primary">
+          <template #icon>
+            <MessagePlusIcon :size="20" />
+          </template>
+          {{ strings.newThread }}
+        </NcButton>
       </template>
     </NcEmptyContent>
 
     <!-- Threads list -->
     <section v-else class="mt-16">
       <div class="threads-list">
-        <ThreadCard
-          v-for="thread in sortedThreads"
-          :key="thread.id"
-          :thread="thread"
-          :is-unread="isThreadUnread(thread)"
-          @click="navigateToThread(thread)"
-        />
+        <ThreadCard v-for="thread in sortedThreads" :key="thread.id" :thread="thread"
+          :is-unread="isThreadUnread(thread)" @click="navigateToThread(thread)" />
       </div>
 
       <!-- Pagination info -->
@@ -76,6 +84,9 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import ThreadCard from '@/components/ThreadCard.vue'
+import ArrowLeftIcon from '@icons/ArrowLeft.vue'
+import RefreshIcon from '@icons/Refresh.vue'
+import MessagePlusIcon from '@icons/MessagePlus.vue'
 import type { Category, Thread } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
@@ -87,6 +98,9 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     ThreadCard,
+    ArrowLeftIcon,
+    RefreshIcon,
+    MessagePlusIcon,
   },
   data() {
     return {
@@ -99,7 +113,7 @@ export default defineComponent({
       offset: 0,
 
       strings: {
-        back: t('forum', 'Back'),
+        back: t('forum', 'Back to Categories'),
         refresh: t('forum', 'Refresh'),
         newThread: t('forum', 'New Thread'),
         loading: t('forum', 'Loading…'),

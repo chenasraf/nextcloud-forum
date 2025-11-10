@@ -3,11 +3,20 @@
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
-        <NcButton @click="goBack">{{ strings.back }}</NcButton>
+        <NcButton @click="goBack">
+          <template #icon>
+            <ArrowLeftIcon :size="20" />
+          </template>
+          {{ strings.back }}
+        </NcButton>
       </div>
 
       <div class="toolbar-right">
-        <NcButton @click="refresh" :disabled="loading">{{ strings.refresh }}</NcButton>
+        <NcButton @click="refresh" :disabled="loading" :aria-label="strings.refresh">
+          <template #icon>
+            <RefreshIcon :size="20" />
+          </template>
+        </NcButton>
       </div>
     </div>
 
@@ -20,7 +29,12 @@
     <!-- Error state -->
     <NcEmptyContent v-else-if="error" :title="strings.errorTitle" :description="error" class="mt-16">
       <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        <NcButton @click="refresh">
+          <template #icon>
+            <RefreshIcon :size="20" />
+          </template>
+          {{ strings.retry }}
+        </NcButton>
       </template>
     </NcEmptyContent>
 
@@ -112,6 +126,8 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import ThreadCard from '@/components/ThreadCard.vue'
+import ArrowLeftIcon from '@icons/ArrowLeft.vue'
+import RefreshIcon from '@icons/Refresh.vue'
 import type { UserStats, Thread, Post } from '@/types'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -127,6 +143,8 @@ export default defineComponent({
     NcAvatar,
     NcDateTime,
     ThreadCard,
+    ArrowLeftIcon,
+    RefreshIcon,
   },
   data() {
     return {

@@ -44,7 +44,7 @@
     "prettier-plugin-vue": "^1.1.6",
     "sass": "^1.94.0",
     "sass-embedded": "^1.93.3",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^6.4.1",
     "vue-router": "^4.6.3",

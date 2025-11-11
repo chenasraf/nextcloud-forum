@@ -140,17 +140,14 @@ Generate boilerplate for common app pieces with:
 pnpm gen <type> [name]
 ```
 
-- **`name` is required** for every type **except** `migration`.
-- Files are created from templates in `gen/<type>` and written to the configured output directory.
-  Feel free to modify/remove any of these templates or add new ones.
-- Generators never create subfolders (they write directly into the output path).
+> **`name` is required** for every type **except** `migration`.
 
 #### Available generators
 
 | Type          | Purpose                                   | Output directory | Name required? | Template folder   | Notes                                             |
 | ------------- | ----------------------------------------- | ---------------- | -------------- | ----------------- | ------------------------------------------------- |
 | `component`   | Vue single-file component for reusable UI | `src/components` | ✅             | `gen/component`   | For user-facing building blocks.                  |
-| `page`        | Vue page / route view                     | `src/pages`      | ✅             | `gen/page`        | Pair with your router.                            |
+| `view`        | Vue view / route view                     | `src/views`      | ✅             | `gen/view`        | Pair with your router.                            |
 | `api`         | PHP controller (API endpoint)             | `lib/Controller` | ✅             | `gen/api`         | PSR-4 namespace: `OCA\<App>\Controller`.          |
 | `service`     | PHP service class                         | `lib/Service`    | ✅             | `gen/service`     | Business logic; DI-friendly.                      |
 | `util`        | PHP utility/helper                        | `lib/Util`       | ✅             | `gen/util`        | Pure helpers / small utilities.                   |

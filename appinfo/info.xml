@@ -47,7 +47,7 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 	<website>https://github.com/chenasraf/nextcloud-forum</website>
 	<bugs>https://github.com/chenasraf/nextcloud-forum/issues</bugs>
 	<repository>https://github.com/chenasraf/nextcloud-forum</repository>
-	<screenshot>https://raw.githubusercontent.com/chenasraf/nextcloud-forum/refs/heads/master/promo.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/chenasraf/nextcloud-forum/refs/heads/master/screenshots/screenshot-01.png</screenshot>
 	<dependencies>
 		<nextcloud min-version="29" max-version="33"/>
 	</dependencies>

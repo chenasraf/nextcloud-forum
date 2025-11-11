@@ -8,6 +8,8 @@ SPDX-License-Identifier: CC0-1.0
 A full-featured forum application for Nextcloud, allowing users to create discussion categories,
 threads, and posts within their Nextcloud instance.
 
+![Screenshot](/screenshots/screenshot-01.png)
+
 ## Features
 
 - **Category Management**: Organize discussions into categories with headers and custom permissions

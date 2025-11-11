@@ -42,8 +42,7 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 		<admin>https://github.com/chenasraf/nextcloud-forum#installation</admin>
 		<developer>https://github.com/chenasraf/nextcloud-forum#development</developer>
 	</documentation>
-	<category>organization</category>
-	<category>tools</category>
+	<category>social</category>
 	<website>https://github.com/chenasraf/nextcloud-forum</website>
 	<bugs>https://github.com/chenasraf/nextcloud-forum/issues</bugs>
 	<repository>https://github.com/chenasraf/nextcloud-forum</repository>

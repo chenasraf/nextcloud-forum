@@ -180,8 +180,8 @@ pnpm gen component UserListItem
 Create a Vue page:
 
 ```bash
-pnpm gen page Settings
-# → src/pages/Settings.vue
+pnpm gen view Settings
+# → src/views/Settings.vue
 ```
 
 Create an API controller:

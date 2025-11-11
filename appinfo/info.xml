@@ -14,7 +14,7 @@ Create discussions, share ideas, and collaborate with your community directly in
 - **Thread-based Discussions** - Create and reply to organized discussion threads
 - **Category Organization** - Structure your forum with customizable categories and headers
 - **Rich Text Formatting** - Use BBCode for formatting posts with bold, italic, links, images, code blocks and more
-<!-- - **File Attachments** - Attach files from your Nextcloud storage to posts -->
+- **File Attachments** - Attach files from your Nextcloud storage to posts
 - **Post Reactions** - React to posts with emoji reactions
 - **Read/Unread Tracking** - Keep track of which threads you've read
 - **Search** - Find discussions quickly with built-in search
@@ -51,10 +51,6 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 	<dependencies>
 		<nextcloud min-version="29" max-version="33"/>
 	</dependencies>
-	<settings>
-		<admin>OCA\Forum\Settings\Admin</admin>
-		<admin-section>OCA\Forum\Sections\Admin</admin-section>
-	</settings>
 	<navigations>
 		<navigation role="all">
 			<name>Forum</name>

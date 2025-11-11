@@ -5,7 +5,6 @@ import path from 'path'
 export default createAppConfig(
   {
     app: path.resolve(path.join('src', 'app.ts')),
-    settings: path.resolve(path.join('src', 'settings.ts')),
   },
   {
     config: {

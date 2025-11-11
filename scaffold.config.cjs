@@ -24,9 +24,9 @@ module.exports = () => {
       output: 'src/components',
       subDir: false,
     },
-    page: {
-      templates: ['gen/page'],
-      output: 'src/pages',
+    view: {
+      templates: ['gen/view'],
+      output: 'src/views',
       subDir: false,
     },
     command: {

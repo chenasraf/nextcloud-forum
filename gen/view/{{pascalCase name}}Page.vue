@@ -1,7 +1,5 @@
 <template>
-
   <div class="jukebox-{{ kebabCase name }}">{{ startCase name }} Page</div>
-
 </template>
 
 <script>
@@ -24,4 +22,3 @@ export default {
 }
 */
 </style>
-

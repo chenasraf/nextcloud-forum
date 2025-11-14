@@ -1,17 +1,17 @@
 <template>
-  <div class="create-thread-view">
-    <!-- Toolbar -->
-    <AppToolbar>
-      <template #left>
-        <NcButton @click="goBack">
-          <template #icon>
-            <ArrowLeftIcon :size="20" />
-          </template>
-          {{ strings.back }}
-        </NcButton>
-      </template>
-    </AppToolbar>
+  <!-- Toolbar -->
+  <AppToolbar>
+    <template #left>
+      <NcButton @click="goBack">
+        <template #icon>
+          <ArrowLeftIcon :size="20" />
+        </template>
+        {{ strings.back }}
+      </NcButton>
+    </template>
+  </AppToolbar>
 
+  <div class="create-thread-view">
     <!-- Page Header -->
     <div class="page-header mt-16">
       <h2 class="page-title">{{ strings.title }}</h2>
@@ -172,7 +172,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .create-thread-view {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 
   .muted {

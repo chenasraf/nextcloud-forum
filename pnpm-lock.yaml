@@ -21,8 +21,8 @@ importers:
         specifier: ^3.4.1
         version: 3.4.1
       '@nextcloud/router':
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: ^3.1.0
+        version: 3.1.0
       '@nextcloud/vite-config':
         specifier: 2.3.5
         version: 2.3.5(@types/node@20.17.10)(browserslist@4.28.0)(picomatch@4.0.3)(rollup@4.53.2)(sass@1.94.0)(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.94.0)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.2))
@@ -565,9 +565,9 @@ packages:
     resolution: {integrity: sha512-RPFYsGO8zEfEFh1jjbXO0q3792f5sgpulcY8IC2pFe4N1mhFwpFJJ/5IgTMa7popuAhB42v/1lFc4c8njyrvYA==}
     engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
 
-  '@nextcloud/router@3.0.1':
-    resolution: {integrity: sha512-Ci/uD3x8OKHdxSqXL6gRJ+mGJOEXjeiHjj7hqsZqVTsT7kOrCjDf0/J8z5RyLlokKZ0IpSe+hGxgi3YB7Gpw3Q==}
-    engines: {node: ^20.0.0, npm: ^10.0.0}
+  '@nextcloud/router@3.1.0':
+    resolution: {integrity: sha512-e4dkIaxRSwdZJlZFpn9x03QgBn/Sa2hN1hp/BA7+AbzykmSAlKuWfdmX8j/8ewrLpQwYmZR23IZO9XwpJXq2Uw==}
+    engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
 
   '@nextcloud/sharing@0.2.5':
     resolution: {integrity: sha512-B3K5Dq9b5dexDA5n3AAuCF69Huwhrpw0J72fsVXV4KpPdImjhVPlExAv5o70AoXa+OqN4Rwn6gqJw+3ED892zg==}
@@ -2478,6 +2478,10 @@ packages:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
     hasBin: true
 
+  js-yaml@4.1.1:
+    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
+    hasBin: true
+
   jsdoc-type-pratt-parser@4.0.0:
     resolution: {integrity: sha512-YtOli5Cmzy3q4dP26GraSOeAhqecewG04hoO8DY56CH4KJ9Fvv5qKWUCCo3HZob7esJQHCv6/+bnTy72xZZaVQ==}
     engines: {node: '>=12.0.0'}
@@ -4315,7 +4319,7 @@ snapshots:
   '@nextcloud/axios@2.5.2':
     dependencies:
       '@nextcloud/auth': 2.5.3
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/router': 3.1.0
       axios: 1.13.2
     transitivePeerDependencies:
       - debug
@@ -4341,7 +4345,7 @@ snapshots:
       '@nextcloud/initial-state': 3.0.0
       '@nextcloud/l10n': 3.4.1
       '@nextcloud/paths': 2.2.2
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.3.0
       '@nextcloud/typings': 1.10.0
       '@nextcloud/vue': 9.2.0(typescript@5.9.2)
@@ -4397,7 +4401,7 @@ snapshots:
       '@nextcloud/l10n': 3.4.1
       '@nextcloud/logger': 3.0.2
       '@nextcloud/paths': 2.2.2
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.2.5
       cancelable-promise: 4.3.1
       is-svg: 6.1.0
@@ -4410,7 +4414,7 @@ snapshots:
 
   '@nextcloud/l10n@3.4.1':
     dependencies:
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/router': 3.1.0
       '@nextcloud/typings': 1.10.0
       '@types/escape-html': 1.0.4
       dompurify: 3.3.0
@@ -4422,7 +4426,7 @@ snapshots:
 
   '@nextcloud/paths@2.2.2': {}
 
-  '@nextcloud/router@3.0.1':
+  '@nextcloud/router@3.1.0':
     dependencies:
       '@nextcloud/typings': 1.10.0
 
@@ -4485,7 +4489,7 @@ snapshots:
       '@nextcloud/initial-state': 3.0.0
       '@nextcloud/l10n': 3.4.1
       '@nextcloud/logger': 3.0.2
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.3.0
       '@vuepic/vue-datepicker': 11.0.3(vue@3.5.24(typescript@5.9.2))
       '@vueuse/components': 14.0.0(vue@3.5.24(typescript@5.9.2))
@@ -5513,7 +5517,7 @@ snapshots:
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 5.9.2
@@ -6592,6 +6596,10 @@ snapshots:
   js-tokens@9.0.1: {}
 
   js-yaml@4.1.0:
+    dependencies:
+      argparse: 2.0.1
+
+  js-yaml@4.1.1:
     dependencies:
       argparse: 2.0.1
 

@@ -66,15 +66,15 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		]);
 		$table->addColumn('can_access_admin_tools', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('can_edit_roles', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('can_edit_categories', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('created_at', 'integer', [
 			'notnull' => true,
@@ -261,19 +261,19 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		]);
 		$table->addColumn('can_view', 'boolean', [
 			'notnull' => true,
-			'default' => true,
+			'default' => 1,
 		]);
 		$table->addColumn('can_post', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('can_reply', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('can_moderate', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->setPrimaryKey(['id']);
 		$table->addIndex(['category_id'], 'forum_cat_perms_category_idx');
@@ -307,15 +307,15 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		]);
 		$table->addColumn('enabled', 'boolean', [
 			'notnull' => true,
-			'default' => true,
+			'default' => 1,
 		]);
 		$table->addColumn('parse_inner', 'boolean', [
 			'notnull' => true,
-			'default' => true,
+			'default' => 1,
 		]);
 		$table->addColumn('is_builtin', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('special_handler', 'string', [
 			'notnull' => false,
@@ -373,15 +373,15 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		]);
 		$table->addColumn('is_locked', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('is_pinned', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('is_hidden', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('created_at', 'integer', [
 			'notnull' => true,
@@ -432,11 +432,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		]);
 		$table->addColumn('is_edited', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('is_first_post', 'boolean', [
 			'notnull' => true,
-			'default' => false,
+			'default' => 0,
 		]);
 		$table->addColumn('edited_at', 'integer', [
 			'notnull' => false,

@@ -152,6 +152,7 @@ source:
 		--exclude="node_modules" \
 		--exclude="*.log" \
 		--exclude="dist/js/*.log" \
+		--exclude="rename-template.sh" \
 		$(CURDIR)/ $(source_intermediate_directory)
 	cd $(source_intermediate_directory) && \
 	tar czf $(source_package_name).tar.gz ../$(app_name)
@@ -190,6 +191,7 @@ appstore:
 		--exclude=".*" \
 		--exclude="dist/js/.*" \
 		--exclude="src" \
+		--exclude="rename-template.sh" \
 		$(CURDIR)/ $(app_intermediate_directory)
 	cd $(app_intermediate_directory) && \
 	tar czf $(appstore_package_name).tar.gz ../$(app_name)

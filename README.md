@@ -30,8 +30,7 @@ Install Forum directly from your Nextcloud instance through the Apps page.
 
 ### Manual Installation
 
-1. Download the latest release from the
-   [releases page](https://github.com/yourusername/forum/releases)
+1. Download the latest release from the [releases page](https://github.com/chenasraf/forum/releases)
 2. Extract to your Nextcloud apps directory:
 
 ```bash

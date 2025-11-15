@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.2...v0.1.3) (2025-11-15)
+
+
+### Bug Fixes
+
+* migration default values ([e778163](https://github.com/chenasraf/nextcloud-forum/commit/e77816388974a15c9fff8bcd2454872f3256618f))
+
 ## [0.1.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.1...v0.1.2) (2025-11-15)
 
 

@@ -21,8 +21,8 @@ importers:
         specifier: ^3.4.1
         version: 3.4.1
       '@nextcloud/router':
-        specifier: ^3.0.1
-        version: 3.0.1
+        specifier: ^3.1.0
+        version: 3.1.0
       '@nextcloud/vite-config':
         specifier: 2.3.5
         version: 2.3.5(@types/node@20.17.10)(browserslist@4.28.0)(picomatch@4.0.3)(rollup@4.53.2)(sass@1.94.0)(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.94.0)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.2))
@@ -178,8 +178,8 @@ packages:
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
 
-  '@bufbuild/protobuf@2.10.0':
-    resolution: {integrity: sha512-fdRs9PSrBF7QUntpZpq6BTw58fhgGJojgg39m9oFOJGZT+nip9b0so5cYY1oWl5pvemDLr0cPPsH46vwThEbpQ==}
+  '@bufbuild/protobuf@2.10.1':
+    resolution: {integrity: sha512-ckS3+vyJb5qGpEYv/s1OebUHDi/xSNtfgw1wqKZo7MR9F2z+qXr0q5XagafAG/9O0QPVIUfST0smluYSTpYFkg==}
 
   '@buttercup/fetch@0.2.1':
     resolution: {integrity: sha512-sCgECOx8wiqY8NN1xN22BqqKzXYIG2AicNLlakOAI4f0WgyLVUbAigMf8CZhBtJxdudTcB1gD5lciqi44jwJvg==}
@@ -473,18 +473,18 @@ packages:
   '@mdi/js@7.4.47':
     resolution: {integrity: sha512-KPnNOtm5i2pMabqZxpUz7iQf+mfrYZyKCZ8QNz85czgEt7cuHcGorWfdzUMWYA0SD+a6Hn4FmJ+YhzzzjkTZrQ==}
 
-  '@microsoft/api-extractor-model@7.31.3':
-    resolution: {integrity: sha512-dv4quQI46p0U03TCEpasUf6JrJL3qjMN7JUAobsPElxBv4xayYYvWW9aPpfYV+Jx6hqUcVaLVOeV7+5hxsyoFQ==}
+  '@microsoft/api-extractor-model@7.32.0':
+    resolution: {integrity: sha512-QIVJSreb8fGGJy1Qx0yzGVXxvHJN1WXgkFNHFheVv1iBJNqgvp+xeT3ienJmRwXmPPc5Es/cxBrXtKZJR3i7iw==}
 
-  '@microsoft/api-extractor@7.54.0':
-    resolution: {integrity: sha512-t0SEcbVUPy4yAVykPafTNWktBg728X6p9t8qCuGDsYr1/lz2VQFihYDP2CnBFSArP5vwJPcvxktoKVSqH326cA==}
+  '@microsoft/api-extractor@7.55.0':
+    resolution: {integrity: sha512-TYc5OtAK/9E3HGgd2bIfSjQDYIwPc0dysf9rPiwXZGsq916I6W2oww9bhm1OxPOeg6rMfOX3PoroGd7oCryYog==}
     hasBin: true
 
-  '@microsoft/tsdoc-config@0.17.1':
-    resolution: {integrity: sha512-UtjIFe0C6oYgTnad4q1QP4qXwLhe6tIpNTRStJ2RZEPIkqQPREAwE5spzVxsdn9UaEMUqhh0AqSx3X4nWAKXWw==}
+  '@microsoft/tsdoc-config@0.18.0':
+    resolution: {integrity: sha512-8N/vClYyfOH+l4fLkkr9+myAoR6M7akc8ntBJ4DJdWH2b09uVfr71+LTMpNyG19fNqWDg8KEDZhx5wxuqHyGjw==}
 
-  '@microsoft/tsdoc@0.15.1':
-    resolution: {integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==}
+  '@microsoft/tsdoc@0.16.0':
+    resolution: {integrity: sha512-xgAyonlVVS+q7Vc7qLW0UrJU7rSFcETRWsqdXZtjzRU8dF+6CkozTK4V4y1LwOX7j8r/vHphjDeMeGI4tNGeGA==}
 
   '@nextcloud/auth@2.5.3':
     resolution: {integrity: sha512-KIhWLk0BKcP4hvypE4o11YqKOPeFMfEFjRrhUUF+h7Fry+dhTBIEIxuQPVCKXMIpjTDd8791y8V6UdRZ2feKAQ==}
@@ -561,13 +561,13 @@ packages:
     resolution: {integrity: sha512-wByt0R0/6QC44RBpaJr1MWghjjOxk/pRbACHo/ZWWKht1qYbJRHB4GtEi+35KEIHY07ZpqxiDk6dIRuN7sXYWQ==}
     engines: {node: ^20.0.0, npm: ^10.0.0}
 
-  '@nextcloud/paths@2.2.2':
-    resolution: {integrity: sha512-RPFYsGO8zEfEFh1jjbXO0q3792f5sgpulcY8IC2pFe4N1mhFwpFJJ/5IgTMa7popuAhB42v/1lFc4c8njyrvYA==}
+  '@nextcloud/paths@2.3.0':
+    resolution: {integrity: sha512-NM9fmFSRcp71ayDCGYKSJTQA2BniGl6Btl8y6f8uywynthY5LbLsazO29vU+ec3fLKCRy1YGcYj+f4kZw+vwiw==}
     engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
 
-  '@nextcloud/router@3.0.1':
-    resolution: {integrity: sha512-Ci/uD3x8OKHdxSqXL6gRJ+mGJOEXjeiHjj7hqsZqVTsT7kOrCjDf0/J8z5RyLlokKZ0IpSe+hGxgi3YB7Gpw3Q==}
-    engines: {node: ^20.0.0, npm: ^10.0.0}
+  '@nextcloud/router@3.1.0':
+    resolution: {integrity: sha512-e4dkIaxRSwdZJlZFpn9x03QgBn/Sa2hN1hp/BA7+AbzykmSAlKuWfdmX8j/8ewrLpQwYmZR23IZO9XwpJXq2Uw==}
+    engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
 
   '@nextcloud/sharing@0.2.5':
     resolution: {integrity: sha512-B3K5Dq9b5dexDA5n3AAuCF69Huwhrpw0J72fsVXV4KpPdImjhVPlExAv5o70AoXa+OqN4Rwn6gqJw+3ED892zg==}
@@ -1332,8 +1332,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.8.25:
-    resolution: {integrity: sha512-2NovHVesVF5TXefsGX1yzx1xgr7+m9JQenvz6FQY3qd+YXkKkYiv+vTCc7OriP9mcDZpTC5mAOYN4ocd29+erA==}
+  baseline-browser-mapping@2.8.28:
+    resolution: {integrity: sha512-gYjt7OIqdM0PcttNYP2aVrr2G0bMALkBaoehD4BuRGjAOtipg0b6wHg1yNL+s5zSnLZZrGHOw4IrND8CD+3oIQ==}
     hasBin: true
 
   blurhash@2.0.5:
@@ -1591,8 +1591,8 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  csstype@3.1.3:
-    resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
+  csstype@3.2.1:
+    resolution: {integrity: sha512-98XGutrXoh75MlgLihlNxAGbUuFQc7l1cqcnEZlLNKc0UrVdPndgmaDmYTDDh929VS/eqTZV0rozmhu2qqT1/g==}
 
   data-uri-to-buffer@4.0.1:
     resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
@@ -1709,8 +1709,8 @@ packages:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
 
-  electron-to-chromium@1.5.249:
-    resolution: {integrity: sha512-5vcfL3BBe++qZ5kuFhD/p8WOM1N9m3nwvJPULJx+4xf2usSlZFJ0qoNYO2fOX4hi3ocuDcmDobtA+5SFr4OmBg==}
+  electron-to-chromium@1.5.253:
+    resolution: {integrity: sha512-O0tpQ/35rrgdiGQ0/OFWhy1itmd9A6TY9uQzlqj3hKSu/aYpe7UIn5d7CU2N9myH6biZiWF3VMZVuup8pw5U9w==}
 
   elliptic@6.6.1:
     resolution: {integrity: sha512-RaddvvMatK2LJHqFJ+YA4WysVN5Ita9E35botqIYspQ4TkRAlCicdzKOjlyv/1Za5RyTNn7di//eEV0uTAfe3g==}
@@ -2474,8 +2474,8 @@ packages:
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
 
-  js-yaml@4.1.0:
-    resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
+  js-yaml@4.1.1:
+    resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
     hasBin: true
 
   jsdoc-type-pratt-parser@4.0.0:
@@ -4057,7 +4057,7 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@bufbuild/protobuf@2.10.0': {}
+  '@bufbuild/protobuf@2.10.1': {}
 
   '@buttercup/fetch@0.2.1':
     optionalDependencies:
@@ -4203,7 +4203,7 @@ snapshots:
       globals: 14.0.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       minimatch: 3.1.2
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -4271,19 +4271,19 @@ snapshots:
 
   '@mdi/js@7.4.47': {}
 
-  '@microsoft/api-extractor-model@7.31.3(@types/node@20.17.10)':
+  '@microsoft/api-extractor-model@7.32.0(@types/node@20.17.10)':
     dependencies:
-      '@microsoft/tsdoc': 0.15.1
-      '@microsoft/tsdoc-config': 0.17.1
+      '@microsoft/tsdoc': 0.16.0
+      '@microsoft/tsdoc-config': 0.18.0
       '@rushstack/node-core-library': 5.18.0(@types/node@20.17.10)
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor@7.54.0(@types/node@20.17.10)':
+  '@microsoft/api-extractor@7.55.0(@types/node@20.17.10)':
     dependencies:
-      '@microsoft/api-extractor-model': 7.31.3(@types/node@20.17.10)
-      '@microsoft/tsdoc': 0.15.1
-      '@microsoft/tsdoc-config': 0.17.1
+      '@microsoft/api-extractor-model': 7.32.0(@types/node@20.17.10)
+      '@microsoft/tsdoc': 0.16.0
+      '@microsoft/tsdoc-config': 0.18.0
       '@rushstack/node-core-library': 5.18.0(@types/node@20.17.10)
       '@rushstack/rig-package': 0.6.0
       '@rushstack/terminal': 0.19.3(@types/node@20.17.10)
@@ -4298,14 +4298,14 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/tsdoc-config@0.17.1':
+  '@microsoft/tsdoc-config@0.18.0':
     dependencies:
-      '@microsoft/tsdoc': 0.15.1
+      '@microsoft/tsdoc': 0.16.0
       ajv: 8.12.0
       jju: 1.4.0
       resolve: 1.22.11
 
-  '@microsoft/tsdoc@0.15.1': {}
+  '@microsoft/tsdoc@0.16.0': {}
 
   '@nextcloud/auth@2.5.3':
     dependencies:
@@ -4315,7 +4315,7 @@ snapshots:
   '@nextcloud/axios@2.5.2':
     dependencies:
       '@nextcloud/auth': 2.5.3
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/router': 3.1.0
       axios: 1.13.2
     transitivePeerDependencies:
       - debug
@@ -4340,8 +4340,8 @@ snapshots:
       '@nextcloud/files': 3.12.0
       '@nextcloud/initial-state': 3.0.0
       '@nextcloud/l10n': 3.4.1
-      '@nextcloud/paths': 2.2.2
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/paths': 2.3.0
+      '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.3.0
       '@nextcloud/typings': 1.10.0
       '@nextcloud/vue': 9.2.0(typescript@5.9.2)
@@ -4396,8 +4396,8 @@ snapshots:
       '@nextcloud/capabilities': 1.2.1
       '@nextcloud/l10n': 3.4.1
       '@nextcloud/logger': 3.0.2
-      '@nextcloud/paths': 2.2.2
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/paths': 2.3.0
+      '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.2.5
       cancelable-promise: 4.3.1
       is-svg: 6.1.0
@@ -4410,7 +4410,7 @@ snapshots:
 
   '@nextcloud/l10n@3.4.1':
     dependencies:
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/router': 3.1.0
       '@nextcloud/typings': 1.10.0
       '@types/escape-html': 1.0.4
       dompurify: 3.3.0
@@ -4420,9 +4420,9 @@ snapshots:
     dependencies:
       '@nextcloud/auth': 2.5.3
 
-  '@nextcloud/paths@2.2.2': {}
+  '@nextcloud/paths@2.3.0': {}
 
-  '@nextcloud/router@3.0.1':
+  '@nextcloud/router@3.1.0':
     dependencies:
       '@nextcloud/typings': 1.10.0
 
@@ -4485,7 +4485,7 @@ snapshots:
       '@nextcloud/initial-state': 3.0.0
       '@nextcloud/l10n': 3.4.1
       '@nextcloud/logger': 3.0.2
-      '@nextcloud/router': 3.0.1
+      '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.3.0
       '@vuepic/vue-datepicker': 11.0.3(vue@3.5.24(typescript@5.9.2))
       '@vueuse/components': 14.0.0(vue@3.5.24(typescript@5.9.2))
@@ -5081,7 +5081,7 @@ snapshots:
       '@vue/reactivity': 3.5.24
       '@vue/runtime-core': 3.5.24
       '@vue/shared': 3.5.24
-      csstype: 3.1.3
+      csstype: 3.2.1
 
   '@vue/server-renderer@3.5.24(vue@3.5.24(typescript@5.9.2))':
     dependencies:
@@ -5297,7 +5297,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.8.25: {}
+  baseline-browser-mapping@2.8.28: {}
 
   blurhash@2.0.5: {}
 
@@ -5377,9 +5377,9 @@ snapshots:
 
   browserslist@4.28.0:
     dependencies:
-      baseline-browser-mapping: 2.8.25
+      baseline-browser-mapping: 2.8.28
       caniuse-lite: 1.0.30001754
-      electron-to-chromium: 1.5.249
+      electron-to-chromium: 1.5.253
       node-releases: 2.0.27
       update-browserslist-db: 1.1.4(browserslist@4.28.0)
 
@@ -5513,7 +5513,7 @@ snapshots:
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 5.9.2
@@ -5574,7 +5574,7 @@ snapshots:
 
   cssesc@3.0.0: {}
 
-  csstype@3.1.3: {}
+  csstype@3.2.1: {}
 
   data-uri-to-buffer@4.0.1: {}
 
@@ -5690,7 +5690,7 @@ snapshots:
       es-errors: 1.3.0
       gopd: 1.2.0
 
-  electron-to-chromium@1.5.249: {}
+  electron-to-chromium@1.5.253: {}
 
   elliptic@6.6.1:
     dependencies:
@@ -6591,7 +6591,7 @@ snapshots:
 
   js-tokens@9.0.1: {}
 
-  js-yaml@4.1.0:
+  js-yaml@4.1.1:
     dependencies:
       argparse: 2.0.1
 
@@ -7600,7 +7600,7 @@ snapshots:
 
   sass-embedded@1.93.3:
     dependencies:
-      '@bufbuild/protobuf': 2.10.0
+      '@bufbuild/protobuf': 2.10.1
       buffer-builder: 0.2.0
       colorjs.io: 0.5.2
       immutable: 5.1.4
@@ -8210,7 +8210,7 @@ snapshots:
 
   vite-plugin-dts@4.5.4(@types/node@20.17.10)(rollup@4.53.2)(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.94.0)(yaml@2.8.1)):
     dependencies:
-      '@microsoft/api-extractor': 7.54.0(@types/node@20.17.10)
+      '@microsoft/api-extractor': 7.55.0(@types/node@20.17.10)
       '@rollup/pluginutils': 5.3.0(rollup@4.53.2)
       '@volar/typescript': 2.4.23
       '@vue/language-core': 2.2.0(typescript@5.9.2)

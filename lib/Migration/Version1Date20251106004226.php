@@ -19,6 +19,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function preSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
+		//
 	}
 
 	/**
@@ -42,6 +43,9 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$this->createForumPostsTable($schema);
 		$this->createForumReadMarkersTable($schema);
 		$this->createForumReactionsTable($schema);
+
+		// Seed initial data
+		$this->seedInitialData();
 
 		return $schema;
 	}
@@ -535,8 +539,16 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
+		//
+	}
+
+	/**
+	 * Seed initial data after schema is created
+	 */
+	private function seedInitialData(): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$userManager = \OC::$server->get(\OCP\IUserManager::class);
+		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
 		$timestamp = time();
 
 		// Check if data has already been seeded by looking for the Admin role
@@ -553,8 +565,18 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			return;
 		}
 
-		// Create default roles
+		// Find first admin user (fallback to 'admin' if no admin group members found)
+		$adminUserId = 'admin';
+		$adminGroup = $groupManager->get('admin');
+		if ($adminGroup) {
+			$adminUsers = $adminGroup->getUsers();
+			if (!empty($adminUsers)) {
+				$firstAdmin = reset($adminUsers);
+				$adminUserId = $firstAdmin->getUID();
+			}
+		}
 
+		// Create default roles
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_roles')
 			->values([
@@ -685,9 +707,6 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		}
 
 		// Create default BBCodes
-		// Note: Most BBCode tags (b, i, u, s, code, email, url, img, quote, youtube, font, size, color, etc.)
-		// are provided by the chriskonnertz/bbcode library and don't need to be stored in the database.
-		// We only store custom BBCodes that extend the library's functionality.
 		$bbcodes = [
 			[
 				'tag' => 'icode',
@@ -736,9 +755,6 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		}
 
 		// Assign roles to all Nextcloud users
-		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
-		$adminGroup = $groupManager->get('admin');
-
 		$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $userRoleId, $adminRoleId, $adminGroup) {
 			$userId = $user->getUID();
 			$isAdmin = $adminGroup && $adminGroup->inGroup($user);
@@ -771,7 +787,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb->insert('forum_threads')
 			->values([
 				'category_id' => $qb->createNamedParameter($generalCategoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'author_id' => $qb->createNamedParameter('admin'),
+				'author_id' => $qb->createNamedParameter($adminUserId),
 				'title' => $qb->createNamedParameter('Welcome to Nextcloud Forums'),
 				'slug' => $qb->createNamedParameter('welcome-to-nextcloud-forums'),
 				'view_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
@@ -811,7 +827,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb->insert('forum_posts')
 			->values([
 				'thread_id' => $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'author_id' => $qb->createNamedParameter('admin'),
+				'author_id' => $qb->createNamedParameter($adminUserId),
 				'content' => $qb->createNamedParameter($welcomeContent),
 				'slug' => $qb->createNamedParameter('welcome-to-nextcloud-forums-1'),
 				'is_edited' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -830,11 +846,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			->where($qb->expr()->eq('id', $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
 			->executeStatement();
 
-		// Create user stats for admin (who created the welcome post/thread)
+		// Create user stats for the admin user (who created the welcome post/thread)
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_user_stats')
 			->values([
-				'user_id' => $qb->createNamedParameter('admin'),
+				'user_id' => $qb->createNamedParameter($adminUserId),
 				'post_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'thread_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'last_post_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
@@ -843,4 +859,5 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			])
 			->executeStatement();
 	}
+
 }

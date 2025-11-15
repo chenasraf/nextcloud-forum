@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.4](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.3...v0.1.4) (2025-11-15)
+
+
+### Bug Fixes
+
+* add app icon ([d8883aa](https://github.com/chenasraf/nextcloud-forum/commit/d8883aa40a419ceb93bf909b41f5e23ae008810e))
+* migration default values ([6b049bd](https://github.com/chenasraf/nextcloud-forum/commit/6b049bdda3016b437323202b1653f4db7a9b9dae))
+* migration seed step + admin user fetching ([0b2efa5](https://github.com/chenasraf/nextcloud-forum/commit/0b2efa576e2872c5a2115e45b537ea1bb7f63349))
+
 ## [0.1.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.2...v0.1.3) (2025-11-15)
 
 

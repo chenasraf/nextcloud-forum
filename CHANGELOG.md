@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.0...v0.1.1) (2025-11-15)
+
+
+### Bug Fixes
+
+* create thread view width ([e5e30cd](https://github.com/chenasraf/nextcloud-forum/commit/e5e30cd2234bef63f7f4efbcc60b0df8da209d50))
+* migration default values ([b1d8740](https://github.com/chenasraf/nextcloud-forum/commit/b1d8740439221870505d988611912a4ce3180218))
+
 ## [0.1.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.0.1...v0.1.0) (2025-11-11)
 
 

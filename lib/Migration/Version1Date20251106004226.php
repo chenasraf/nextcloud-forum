@@ -44,9 +44,6 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$this->createForumReadMarkersTable($schema);
 		$this->createForumReactionsTable($schema);
 
-		// Seed initial data
-		$this->seedInitialData();
-
 		return $schema;
 	}
 
@@ -539,7 +536,8 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		//
+		// Seed initial data after schema is created
+		$this->seedInitialData();
 	}
 
 	/**

@@ -6,6 +6,7 @@ namespace OCA\Forum\AppInfo;
 
 use OCA\Forum\Listener\UserEventListener;
 use OCA\Forum\Middleware\PermissionMiddleware;
+use OCA\Forum\Notification\Notifier;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -33,6 +34,9 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(UserCreatedEvent::class, UserEventListener::class);
 		$context->registerEventListener(UserDeletedEvent::class, UserEventListener::class);
 		$context->registerEventListener(UserChangedEvent::class, UserEventListener::class);
+
+		// Register notification notifier
+		$context->registerNotifierService(Notifier::class);
 	}
 
 	public function boot(IBootContext $context): void {

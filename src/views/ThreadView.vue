@@ -12,6 +12,19 @@
       </template>
 
       <template #right>
+        <!-- Subscription toggle switch -->
+        <NcCheckboxRadioSwitch
+          v-if="!loading && thread"
+          v-model="thread.isSubscribed"
+          @update:model-value="handleToggleSubscription"
+          type="switch"
+        >
+          <span class="icon-label">
+            <BellIcon :size="20" />
+            {{ thread.isSubscribed ? strings.subscribed : strings.subscribe }}
+          </span>
+        </NcCheckboxRadioSwitch>
+
         <NcButton
           @click="refresh"
           :disabled="loading"
@@ -182,6 +195,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
+import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
@@ -193,6 +207,7 @@ import PinOffIcon from '@icons/PinOff.vue'
 import LockIcon from '@icons/Lock.vue'
 import LockOpenIcon from '@icons/LockOpen.vue'
 import EyeIcon from '@icons/Eye.vue'
+import BellIcon from '@icons/Bell.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import ReplyIcon from '@icons/Reply.vue'
@@ -207,6 +222,7 @@ export default defineComponent({
   name: 'ThreadView',
   components: {
     NcButton,
+    NcCheckboxRadioSwitch,
     NcEmptyContent,
     NcLoadingIcon,
     NcDateTime,
@@ -218,6 +234,7 @@ export default defineComponent({
     LockIcon,
     LockOpenIcon,
     EyeIcon,
+    BellIcon,
     ArrowLeftIcon,
     RefreshIcon,
     ReplyIcon,
@@ -268,6 +285,10 @@ export default defineComponent({
         threadUnlocked: t('forum', 'Thread unlocked'),
         threadPinned: t('forum', 'Thread pinned'),
         threadUnpinned: t('forum', 'Thread unpinned'),
+        subscribe: t('forum', 'Subscribe to thread'),
+        subscribed: t('forum', 'Subscribed'),
+        threadSubscribed: t('forum', 'Subscribed to thread'),
+        threadUnsubscribed: t('forum', 'Unsubscribed from thread'),
       },
     }
   },
@@ -610,6 +631,29 @@ export default defineComponent({
       }
     },
 
+    async handleToggleSubscription(newValue: boolean): Promise<void> {
+      if (!this.thread) return
+
+      try {
+        if (newValue) {
+          // Subscribe to thread
+          await ocs.post(`/threads/${this.thread.id}/subscribe`)
+          this.thread.isSubscribed = true
+          showSuccess(this.strings.threadSubscribed)
+        } else {
+          // Unsubscribe from thread
+          await ocs.delete(`/threads/${this.thread.id}/subscribe`)
+          this.thread.isSubscribed = false
+          showSuccess(this.strings.threadUnsubscribed)
+        }
+      } catch (e) {
+        console.error('Failed to toggle thread subscription', e)
+        showError(t('forum', 'Failed to update subscription'))
+        // Revert the state on error
+        this.thread.isSubscribed = !newValue
+      }
+    },
+
     scrollToPostFromHash(): void {
       // Check if there's a hash in the URL like #post-123
       const hash = window.location.hash || this.$route.hash
@@ -685,6 +729,12 @@ export default defineComponent({
 <style scoped lang="scss">
 .thread-view {
   margin-bottom: 3rem;
+
+  .icon-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
 
   .muted {
     color: var(--color-text-maxcontrast);
@@ -820,6 +870,7 @@ export default defineComponent({
     background-color: var(--color-primary-element-light);
     box-shadow: 0 0 0 4px var(--color-primary-element-light);
   }
+
   100% {
     background-color: transparent;
     box-shadow: none;

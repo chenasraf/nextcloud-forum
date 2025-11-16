@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\Db\ReadMarkerMapper;
+use OCA\Forum\Service\NotificationService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -23,6 +24,7 @@ class ReadMarkerController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private ReadMarkerMapper $readMarkerMapper,
+		private NotificationService $notificationService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -135,6 +137,18 @@ class ReadMarkerController extends OCSController {
 				$threadId,
 				$lastReadPostId
 			);
+
+			// Dismiss notifications if the user has caught up with the thread
+			try {
+				$this->notificationService->dismissNotificationsIfRead(
+					$user->getUID(),
+					$threadId,
+					$lastReadPostId
+				);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to dismiss notifications: ' . $e->getMessage());
+				// Don't fail the request if notification dismissal fails
+			}
 
 			return new DataResponse($marker->jsonSerialize());
 		} catch (\Exception $e) {

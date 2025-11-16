@@ -114,6 +114,21 @@ class Thread extends Entity implements JsonSerializable {
 			$thread['categoryName'] = null;
 		}
 
+		// Add subscription status for the current user
+		try {
+			$userSession = \OC::$server->get(\OCP\IUserSession::class);
+			$user = $userSession->getUser();
+			if ($user) {
+				$subscriptionMapper = \OC::$server->get(\OCA\Forum\Db\ThreadSubscriptionMapper::class);
+				$thread['isSubscribed'] = $subscriptionMapper->isUserSubscribed($user->getUID(), $thread['id']);
+			} else {
+				$thread['isSubscribed'] = false;
+			}
+		} catch (\Exception $e) {
+			// If there's an error checking subscription, default to false
+			$thread['isSubscribed'] = false;
+		}
+
 		return $thread;
 	}
 }

@@ -55,6 +55,9 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 	<dependencies>
 		<nextcloud min-version="29" max-version="33"/>
 	</dependencies>
+	<commands>
+		<command>OCA\Forum\Command\TestNotifier</command>
+	</commands>
 	<navigations>
 		<navigation role="all">
 			<name>Forum</name>

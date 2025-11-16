@@ -17,6 +17,7 @@ use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\BBCodeService;
+use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -41,6 +42,7 @@ class PostController extends OCSController {
 		private BBCodeMapper $bbCodeMapper,
 		private PermissionService $permissionService,
 		private ReadMarkerMapper $readMarkerMapper,
+		private NotificationService $notificationService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -266,6 +268,14 @@ class PostController extends OCSController {
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update category post count: ' . $e->getMessage());
 				// Don't fail the request if category update fails
+			}
+
+			// Notify registered users about the new post
+			try {
+				$this->notificationService->notifyThreadSubscribers($threadId, $createdPost->getId(), $user->getUID());
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to send notifications for new post: ' . $e->getMessage());
+				// Don't fail the request if notification sending fails
 			}
 
 			return new DataResponse(Post::enrichPostContent($createdPost), Http::STATUS_CREATED);

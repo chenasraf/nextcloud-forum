@@ -13,6 +13,7 @@ use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Db\UserStatsMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -32,6 +33,7 @@ class ThreadController extends OCSController {
 		private CategoryMapper $categoryMapper,
 		private PostMapper $postMapper,
 		private UserStatsMapper $userStatsMapper,
+		private ThreadSubscriptionMapper $threadSubscriptionMapper,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -242,6 +244,13 @@ class ThreadController extends OCSController {
 				$this->userStatsMapper->incrementThreadCount($user->getUID());
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update user stats: ' . $e->getMessage());
+			}
+
+			// Auto-subscribe the thread creator to receive notifications
+			try {
+				$this->threadSubscriptionMapper->subscribe($user->getUID(), $createdThread->getId());
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to subscribe thread creator: ' . $e->getMessage());
 			}
 
 			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);

@@ -44,6 +44,7 @@ export interface Thread {
   authorIsDeleted?: boolean
   categorySlug?: string | null
   categoryName?: string | null
+  isSubscribed?: boolean
 }
 
 export interface Post {

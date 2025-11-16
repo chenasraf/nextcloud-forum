@@ -157,6 +157,30 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
+	 * Count unread posts in a thread after a specific post ID
+	 *
+	 * @param int $threadId Thread ID
+	 * @param int $afterPostId Post ID to count after (0 to count all posts)
+	 * @return int Number of posts after the given post ID
+	 */
+	public function countUnreadInThread(int $threadId, int $afterPostId = 0): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('deleted_at'));
+
+		if ($afterPostId > 0) {
+			$qb->andWhere($qb->expr()->gt('id', $qb->createNamedParameter($afterPostId, IQueryBuilder::PARAM_INT)));
+		}
+
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['count'] ?? 0);
+	}
+
+	/**
 	 * Search posts by content (replies only, excluding first posts)
 	 *
 	 * @param IQueryBuilder $qb QueryBuilder instance (with parameters already bound)

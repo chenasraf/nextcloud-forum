@@ -30,7 +30,7 @@ app_name=forum
 repo_path=chenasraf/nextcloud-$(app_name)
 build_tools_directory=$(CURDIR)/build/tools
 source_build_directory=$(CURDIR)/build/artifacts/source
-source_intermediate_directory=$(CURDIR)/build/artifacts/intermediate-source
+source_intermediate_directory=$(CURDIR)/build/artifacts/intermediate-source/$(app_name)
 source_package_name=$(source_build_directory)/$(app_name)
 app_intermediate_directory=$(CURDIR)/build/artifacts/intermediate/$(app_name)
 appstore_build_directory=$(CURDIR)/build/artifacts/appstore
@@ -154,8 +154,8 @@ source:
 		--exclude="dist/js/*.log" \
 		--exclude="rename-template.sh" \
 		$(CURDIR)/ $(source_intermediate_directory)
-	cd $(source_intermediate_directory) && \
-	tar czf $(source_package_name).tar.gz ../$(app_name)
+	cd $(CURDIR)/build/artifacts/intermediate-source && \
+	tar czf $(source_package_name).tar.gz $(app_name)
 
 # appstore:
 #   - Create an App Store tarball (strips tests, dotfiles, dev configs)
@@ -193,8 +193,8 @@ appstore:
 		--exclude="/src" \
 		--exclude="rename-template.sh" \
 		$(CURDIR)/ $(app_intermediate_directory)
-	cd $(app_intermediate_directory) && \
-	tar czf $(appstore_package_name).tar.gz ../$(app_name)
+	cd $(CURDIR)/build/artifacts/intermediate && \
+	tar czf $(appstore_package_name).tar.gz $(app_name)
 
 # test:
 #   - Run PHP unit tests (standard + optional integration config)

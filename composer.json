@@ -1,6 +1,6 @@
 {
   "name": "nextcloud/forum",
-  "description": "Automatically fills the currency rates for your Cospend projects daily.",
+  "description": "A community-driven forum built right into your Nextcloud instance",
   "license": "AGPL-3.0-or-later",
   "authors": [
     {

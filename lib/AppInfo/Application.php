@@ -23,12 +23,6 @@ class Application extends App implements IBootstrap {
 	/** @psalm-suppress PossiblyUnusedMethod */
 	public function __construct() {
 		parent::__construct(self::APP_ID);
-
-		// Load Composer dependencies
-		$autoloadFile = __DIR__ . '/../../vendor/autoload.php';
-		if (file_exists($autoloadFile)) {
-			require_once $autoloadFile;
-		}
 	}
 
 	public function register(IRegistrationContext $context): void {

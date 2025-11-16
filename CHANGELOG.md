@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.7](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.6...v0.1.7) (2025-11-16)
+
+
+### Bug Fixes
+
+* autoload ([2931170](https://github.com/chenasraf/nextcloud-forum/commit/29311708a54fdc3f2f1538fcf068e795f1a3a0c9))
+* update tar build tar ([51bcf64](https://github.com/chenasraf/nextcloud-forum/commit/51bcf6421341f73dc46602d0c2aab8842f3b12c6))
+
 ## [0.1.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.5...v0.1.6) (2025-11-16)
 
 

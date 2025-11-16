@@ -651,7 +651,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 				'name' => $qb->createNamedParameter('Support'),
 				'description' => $qb->createNamedParameter('Ask questions about the forum, provide feedback or report issues.'),
 				'slug' => $qb->createNamedParameter('support'),
-				'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'sort_order' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),

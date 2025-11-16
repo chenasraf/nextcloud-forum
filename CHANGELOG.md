@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.4...v0.1.5) (2025-11-16)
+
+
+### Bug Fixes
+
+* schema seed stage ([f2adfa8](https://github.com/chenasraf/nextcloud-forum/commit/f2adfa838945c39f676292fe2119db996b9387bb))
+
 ## [0.1.4](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.3...v0.1.4) (2025-11-15)
 
 

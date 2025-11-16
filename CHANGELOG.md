@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.5...v0.1.6) (2025-11-16)
+
+
+### Bug Fixes
+
+* bbcode parsing source ([34853a9](https://github.com/chenasraf/nextcloud-forum/commit/34853a984486673cce0ae069f7d642c4c4e588ce))
+
 ## [0.1.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.4...v0.1.5) (2025-11-16)
 
 

@@ -10,6 +10,9 @@
 	<description><![CDATA[
 Create discussions, share ideas, and collaborate with your community directly in Nextcloud.
 
+**⚠️ Early Development Notice:**
+This app is in early stages of development. While functional, you may encounter bugs or incomplete features. Please report any issues on GitHub and consider backing up your data regularly.
+
 **Key Features:**
 - **Thread-based Discussions** - Create and reply to organized discussion threads
 - **Category Organization** - Structure your forum with customizable categories and headers

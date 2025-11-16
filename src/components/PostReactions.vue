@@ -30,6 +30,9 @@
       <Transition name="fade">
         <div v-if="showPicker" class="emoji-picker-overlay" @click="closePicker">
           <div class="emoji-picker-container" @click.stop>
+            <button class="emoji-picker-close" :title="strings.close" @click="closePicker">
+              <Close :size="20" />
+            </button>
             <div class="emoji-picker-content">
               <h3>{{ strings.pickEmoji }}</h3>
               <div class="emoji-categories">
@@ -62,9 +65,13 @@ import { t, n } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 import { useReactions, type ReactionGroup } from '@/composables/useReactions'
 import { EMOJI_GROUPS } from '@/constants/emojis'
+import Close from '@icons/Close.vue'
 
 export default defineComponent({
   name: 'PostReactions',
+  components: {
+    Close,
+  },
   props: {
     postId: {
       type: Number,
@@ -88,6 +95,7 @@ export default defineComponent({
       strings: {
         addReaction: t('forum', 'Add reaction'),
         pickEmoji: t('forum', 'Pick an emoji'),
+        close: t('forum', 'Close'),
       },
       emojiGroups: EMOJI_GROUPS,
     }
@@ -402,6 +410,35 @@ export default defineComponent({
     max-width: 90vw;
     max-height: 80vh;
     overflow: hidden;
+    position: relative;
+
+    .emoji-picker-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--color-text-maxcontrast);
+      cursor: pointer;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      z-index: 1;
+      padding: 0;
+
+      &:hover {
+        background: var(--color-background-hover);
+        color: var(--color-main-text);
+      }
+
+      &:active {
+        transform: scale(0.9);
+      }
+    }
 
     .emoji-picker-content {
       padding: 20px;

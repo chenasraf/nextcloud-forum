@@ -23,8 +23,10 @@
       >
         <span class="icon">+</span>
       </button>
+    </div>
 
-      <!-- Emoji picker -->
+    <!-- Emoji picker (teleported to body for proper fixed positioning) -->
+    <Teleport to="body">
       <Transition name="fade">
         <div v-if="showPicker" class="emoji-picker-overlay" @click="closePicker">
           <div class="emoji-picker-container" @click.stop>
@@ -50,7 +52,7 @@
           </div>
         </div>
       </Transition>
-    </div>
+    </Teleport>
   </div>
 </template>
 
@@ -363,112 +365,6 @@ export default defineComponent({
         color: var(--color-main-text);
       }
     }
-
-    .emoji-picker-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 9999;
-      background: rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(2px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .emoji-picker-container {
-        background: var(--color-main-background);
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        max-width: 90vw;
-        max-height: 80vh;
-        overflow: hidden;
-
-        .emoji-picker-content {
-          padding: 20px;
-
-          h3 {
-            margin: 0 0 16px 0;
-            font-size: 1.1rem;
-            color: var(--color-main-text);
-          }
-
-          .emoji-categories {
-            max-height: 500px;
-            overflow-y: auto;
-            padding: 4px;
-
-            &::-webkit-scrollbar {
-              width: 8px;
-            }
-
-            &::-webkit-scrollbar-track {
-              background: var(--color-background-dark);
-              border-radius: 4px;
-            }
-
-            &::-webkit-scrollbar-thumb {
-              background: var(--color-border-dark);
-              border-radius: 4px;
-
-              &:hover {
-                background: var(--color-text-maxcontrast);
-              }
-            }
-
-            .emoji-category {
-              margin-bottom: 20px;
-
-              &:last-child {
-                margin-bottom: 0;
-              }
-
-              .category-header {
-                margin: 0 0 12px 0;
-                font-size: 0.9rem;
-                font-weight: 600;
-                color: var(--color-text-maxcontrast);
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                padding-left: 4px;
-              }
-
-              .emoji-grid {
-                display: grid;
-                grid-template-columns: repeat(8, 1fr);
-                gap: 4px;
-
-                .emoji-option {
-                  border: 1px solid transparent;
-                  background: transparent;
-                  border-radius: 8px;
-                  padding: 8px;
-                  font-size: 1.5rem;
-                  cursor: pointer;
-                  transition: all 0.15s ease;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  min-width: 40px;
-                  min-height: 40px;
-
-                  &:hover {
-                    background: var(--color-background-hover);
-                    border-color: var(--color-border);
-                    transform: scale(1.15);
-                  }
-
-                  &:active {
-                    transform: scale(0.9);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
   }
 }
 
@@ -481,5 +377,114 @@ export default defineComponent({
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+</style>
+
+<style lang="scss">
+// Emoji picker overlay - not scoped because it's teleported to body
+.emoji-picker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .emoji-picker-container {
+    background: var(--color-main-background);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow: hidden;
+
+    .emoji-picker-content {
+      padding: 20px;
+
+      h3 {
+        margin: 0 0 16px 0;
+        font-size: 1.1rem;
+        color: var(--color-main-text);
+      }
+
+      .emoji-categories {
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 4px;
+
+        &::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: var(--color-background-dark);
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: var(--color-border-dark);
+          border-radius: 4px;
+
+          &:hover {
+            background: var(--color-text-maxcontrast);
+          }
+        }
+
+        .emoji-category {
+          margin-bottom: 20px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .category-header {
+            margin: 0 0 12px 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text-maxcontrast);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-left: 4px;
+          }
+
+          .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 4px;
+
+            .emoji-option {
+              border: 1px solid transparent;
+              background: transparent;
+              border-radius: 8px;
+              padding: 8px;
+              font-size: 1.5rem;
+              cursor: pointer;
+              transition: all 0.15s ease;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 40px;
+              min-height: 40px;
+
+              &:hover {
+                background: var(--color-background-hover);
+                border-color: var(--color-border);
+                transform: scale(1.15);
+              }
+
+              &:active {
+                transform: scale(0.9);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 </style>

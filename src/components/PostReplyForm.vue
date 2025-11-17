@@ -1,11 +1,12 @@
 <template>
   <div class="post-reply-form">
     <div class="reply-header">
-      <div class="user-info">
-        <NcAvatar v-if="userId" :user="userId" :size="40" />
-        <NcAvatar v-else :display-name="displayName" :size="40" />
-        <span class="user-name">{{ displayName }}</span>
-      </div>
+      <UserInfo
+        :user-id="userId"
+        :display-name="displayName"
+        :avatar-size="40"
+        :clickable="false"
+      />
     </div>
 
     <div class="reply-body">
@@ -38,10 +39,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import SendIcon from '@icons/Send.vue'
+import UserInfo from './UserInfo.vue'
 import BBCodeEditor from './BBCodeEditor.vue'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
@@ -49,10 +50,10 @@ import { useCurrentUser } from '@/composables/useCurrentUser'
 export default defineComponent({
   name: 'PostReplyForm',
   components: {
-    NcAvatar,
     NcButton,
     NcLoadingIcon,
     SendIcon,
+    UserInfo,
     BBCodeEditor,
   },
   emits: ['submit', 'cancel'],
@@ -143,18 +144,6 @@ export default defineComponent({
 
 .reply-header {
   margin-bottom: 12px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-name {
-  font-weight: 600;
-  color: var(--color-main-text);
-  font-size: 1rem;
 }
 
 .reply-body {

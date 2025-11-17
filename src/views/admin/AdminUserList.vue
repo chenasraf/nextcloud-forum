@@ -41,11 +41,11 @@
           :class="{ 'is-deleted': user.isDeleted }"
         >
           <div class="col-user">
-            <NcAvatar :user="user.userId" :size="40" />
-            <div class="user-info">
-              <div class="user-name">{{ user.displayName }}</div>
-              <div class="user-id muted">@{{ user.userId }}</div>
-            </div>
+            <UserInfo :user-id="user.userId" :display-name="user.displayName" :avatar-size="40">
+              <template #meta>
+                <div class="user-id muted">@{{ user.userId }}</div>
+              </template>
+            </UserInfo>
           </div>
 
           <div class="col-posts">
@@ -147,9 +147,9 @@ import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
-import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
+import UserInfo from '@/components/UserInfo.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import CheckIcon from '@icons/Check.vue'
 import CloseIcon from '@icons/Close.vue'
@@ -180,9 +180,9 @@ export default defineComponent({
     NcButton,
     NcEmptyContent,
     NcLoadingIcon,
-    NcAvatar,
     NcDateTime,
     NcSelect,
+    UserInfo,
     PencilIcon,
     CheckIcon,
     CloseIcon,
@@ -395,23 +395,8 @@ export default defineComponent({
         }
 
         .col-user {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-
-          .user-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-
-            .user-name {
-              font-weight: 500;
-              color: var(--color-main-text);
-            }
-
-            .user-id {
-              font-size: 0.85rem;
-            }
+          .user-id {
+            font-size: 0.85rem;
           }
         }
 

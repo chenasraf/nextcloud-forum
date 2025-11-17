@@ -142,8 +142,7 @@
 
     <template #footer>
       <div v-if="userId" class="sidebar-footer">
-        <NcAvatar :user="userId" :size="32" />
-        <span class="user-display-name">{{ displayName }}</span>
+        <UserInfo :user-id="userId" :display-name="displayName" :avatar-size="32" />
       </div>
     </template>
   </NcAppNavigation>
@@ -156,7 +155,7 @@ import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSearch'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
-import NcAvatar from '@nextcloud/vue/components/NcAvatar'
+import UserInfo from '@/components/UserInfo.vue'
 import HomeIcon from '@icons/Home.vue'
 import ForumIcon from '@icons/Forum.vue'
 import FolderIcon from '@icons/Folder.vue'
@@ -182,7 +181,7 @@ export default defineComponent({
     NcAppNavigationItem,
     NcAppNavigationSearch,
     NcActionButton,
-    NcAvatar,
+    UserInfo,
     HomeIcon,
     ForumIcon,
     FolderIcon,
@@ -352,17 +351,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .sidebar-footer {
-  display: flex;
-  align-items: center;
-  gap: 12px;
   padding: 16px;
-
-  .user-display-name {
-    font-weight: 500;
-    color: var(--color-main-text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 }
 </style>

@@ -2,30 +2,23 @@
   <div class="post-card" :class="{ 'first-post': isFirstPost, unread: isUnread }">
     <div class="post-header">
       <div class="author-info">
-        <div v-if="!post.authorIsDeleted" class="avatar-link" @click.stop="navigateToProfile">
-          <NcAvatar :user="post.authorId" :size="32" />
-        </div>
-        <NcAvatar v-else :display-name="post.authorDisplayName" :size="32" />
-        <div class="author-details">
-          <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
-          <span
-            v-if="!post.authorIsDeleted"
-            class="author-name author-name-link"
-            @click.stop="navigateToProfile"
-          >
-            {{ post.authorDisplayName || post.authorId }}
-          </span>
-          <span v-else class="author-name deleted-user">
-            {{ post.authorDisplayName || post.authorId }}
-          </span>
-          <div class="post-meta">
-            <NcDateTime v-if="post.createdAt" :timestamp="post.createdAt * 1000" />
-            <span v-if="post.isEdited" class="edited-badge">
-              <span class="edited-label">{{ strings.edited }}</span>
-              <NcDateTime v-if="post.editedAt" :timestamp="post.editedAt * 1000" />
-            </span>
-          </div>
-        </div>
+        <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
+        <UserInfo
+          :user-id="post.authorId"
+          :display-name="post.authorDisplayName || post.authorId"
+          :is-deleted="post.authorIsDeleted"
+          :avatar-size="32"
+        >
+          <template #meta>
+            <div class="post-meta">
+              <NcDateTime v-if="post.createdAt" :timestamp="post.createdAt * 1000" />
+              <span v-if="post.isEdited" class="edited-badge">
+                <span class="edited-label">{{ strings.edited }}</span>
+                <NcDateTime v-if="post.editedAt" :timestamp="post.editedAt * 1000" />
+              </span>
+            </div>
+          </template>
+        </UserInfo>
       </div>
       <div class="post-actions">
         <NcActions ref="actionsMenu">
@@ -77,13 +70,13 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
-import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import ReplyIcon from '@icons/Reply.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
+import UserInfo from './UserInfo.vue'
 import PostReactions from './PostReactions.vue'
 import PostEditForm from './PostEditForm.vue'
 import { t } from '@nextcloud/l10n'
@@ -94,13 +87,13 @@ import type { ReactionGroup } from '@/composables/useReactions'
 export default defineComponent({
   name: 'PostCard',
   components: {
-    NcAvatar,
     NcDateTime,
     NcActions,
     NcActionButton,
     ReplyIcon,
     PencilIcon,
     DeleteIcon,
+    UserInfo,
     PostReactions,
     PostEditForm,
   },
@@ -158,10 +151,6 @@ export default defineComponent({
       if (menu && typeof menu.closeMenu === 'function') {
         menu.closeMenu()
       }
-    },
-
-    navigateToProfile() {
-      this.$router.push(`/u/${this.post.authorId}`)
     },
 
     handleReply() {
@@ -274,46 +263,12 @@ export default defineComponent({
     align-items: flex-start;
     gap: 12px;
     flex: 1;
-  }
-
-  .author-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
     position: relative;
 
     .unread-indicator {
       position: absolute;
-      left: -14px;
-      top: 6px;
-    }
-  }
-
-  .avatar-link {
-    cursor: pointer;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-
-  .author-name {
-    font-weight: 600;
-    color: var(--color-main-text);
-    font-size: 1rem;
-
-    &.author-name-link {
-      cursor: pointer;
-      transition: color 0.2s;
-
-      &:hover {
-        color: var(--color-primary-element);
-      }
-    }
-
-    &.deleted-user {
-      font-style: italic;
-      opacity: 0.7;
+      left: 0;
+      top: 8px;
     }
   }
 

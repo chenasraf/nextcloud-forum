@@ -1,11 +1,12 @@
 <template>
   <div class="thread-create-form">
     <div class="form-header">
-      <div class="user-info">
-        <NcAvatar v-if="userId" :user="userId" :size="40" />
-        <NcAvatar v-else :display-name="displayName" :size="40" />
-        <span class="user-name">{{ displayName }}</span>
-      </div>
+      <UserInfo
+        :user-id="userId"
+        :display-name="displayName"
+        :avatar-size="40"
+        :clickable="false"
+      />
     </div>
 
     <div class="form-body">
@@ -47,11 +48,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import CheckIcon from '@icons/Check.vue'
+import UserInfo from './UserInfo.vue'
 import BBCodeEditor from './BBCodeEditor.vue'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
@@ -59,11 +60,11 @@ import { useCurrentUser } from '@/composables/useCurrentUser'
 export default defineComponent({
   name: 'ThreadCreateForm',
   components: {
-    NcAvatar,
     NcButton,
     NcLoadingIcon,
     NcTextField,
     CheckIcon,
+    UserInfo,
     BBCodeEditor,
   },
   emits: ['submit', 'cancel'],
@@ -154,18 +155,6 @@ export default defineComponent({
 
 .form-header {
   margin-bottom: 16px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-name {
-  font-weight: 600;
-  color: var(--color-main-text);
-  font-size: 1rem;
 }
 
 .form-body {

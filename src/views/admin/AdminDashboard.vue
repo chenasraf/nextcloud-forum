@@ -117,13 +117,17 @@
             class="contributor-item"
           >
             <div class="contributor-rank">{{ index + 1 }}</div>
-            <NcAvatar :user="contributor.userId" :size="40" />
-            <div class="contributor-info">
-              <div class="contributor-name">{{ contributor.userId }}</div>
-              <div class="contributor-stats muted">
-                {{ strings.postsCount(contributor.postCount) }}
-              </div>
-            </div>
+            <UserInfo
+              :user-id="contributor.userId"
+              :display-name="contributor.userId"
+              :avatar-size="40"
+            >
+              <template #meta>
+                <div class="contributor-stats muted">
+                  {{ strings.postsCount(contributor.postCount) }}
+                </div>
+              </template>
+            </UserInfo>
           </div>
         </div>
         <div v-else class="muted">{{ strings.noContributors }}</div>
@@ -137,7 +141,7 @@ import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
-import NcAvatar from '@nextcloud/vue/components/NcAvatar'
+import UserInfo from '@/components/UserInfo.vue'
 import AccountMultipleIcon from '@icons/AccountMultiple.vue'
 import AccountPlusIcon from '@icons/AccountPlus.vue'
 import ForumIcon from '@icons/Forum.vue'
@@ -170,7 +174,7 @@ export default defineComponent({
     NcButton,
     NcEmptyContent,
     NcLoadingIcon,
-    NcAvatar,
+    UserInfo,
     AccountMultipleIcon,
     AccountPlusIcon,
     ForumIcon,
@@ -346,18 +350,9 @@ export default defineComponent({
         font-size: 0.9rem;
       }
 
-      .contributor-info {
-        flex: 1;
-
-        .contributor-name {
-          font-weight: 500;
-          color: var(--color-main-text);
-        }
-
-        .contributor-stats {
-          font-size: 0.85rem;
-          margin-top: 2px;
-        }
+      .contributor-stats {
+        font-size: 0.85rem;
+        margin-top: 2px;
       }
     }
   }

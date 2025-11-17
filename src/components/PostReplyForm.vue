@@ -1,6 +1,6 @@
 <template>
   <div class="post-reply-form">
-    <div class="reply-header">
+    <div v-if="userId" class="reply-header">
       <UserInfo
         :user-id="userId"
         :display-name="displayName"

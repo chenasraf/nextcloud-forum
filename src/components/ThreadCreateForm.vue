@@ -1,6 +1,6 @@
 <template>
   <div class="thread-create-form">
-    <div class="form-header">
+    <div v-if="userId" class="form-header">
       <UserInfo
         :user-id="userId"
         :display-name="displayName"

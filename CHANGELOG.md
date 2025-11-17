@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.2.0...v0.2.1) (2025-11-17)
+
+
+### Bug Fixes
+
+* thread card hover styles ([1add8db](https://github.com/chenasraf/nextcloud-forum/commit/1add8db28775d2d13d8b2eb9428a90eb99b32ae8))
+* unread counts for deleted posts ([71ee133](https://github.com/chenasraf/nextcloud-forum/commit/71ee133ac6b59f9005918594f7e668031b8224fa))
+
 ## [0.2.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.7...v0.2.0) (2025-11-17)
 
 

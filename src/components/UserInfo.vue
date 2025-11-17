@@ -1,5 +1,5 @@
 <template>
-  <div class="user-info-component">
+  <div class="user-info-component" :class="{ 'layout-inline': layout === 'inline' }">
     <UserAvatar
       :user-id="userId"
       :display-name="displayName"
@@ -7,19 +7,27 @@
       :is-deleted="isDeleted"
       :clickable="clickable"
     />
-    <div class="user-details">
-      <span
-        v-if="!isDeleted"
-        class="user-name"
-        :class="{ clickable: isClickable }"
-        @click="handleNameClick"
-      >
-        {{ displayName || userId }}
-      </span>
-      <span v-else class="user-name deleted-user">
-        {{ displayName || userId }}
-      </span>
-      <slot name="meta"></slot>
+    <div class="user-details" :class="{ 'details-inline': layout === 'inline' }">
+      <div class="name-and-meta">
+        <span
+          v-if="!isDeleted"
+          class="user-name"
+          :class="{ clickable: isClickable }"
+          @click="handleNameClick"
+        >
+          {{ displayName || userId }}
+        </span>
+        <span v-else class="user-name deleted-user">
+          {{ displayName || userId }}
+        </span>
+        <template v-if="layout === 'inline'">
+          <span class="meta-separator">·</span>
+          <span class="meta-content">
+            <slot name="meta"></slot>
+          </span>
+        </template>
+      </div>
+      <slot v-if="layout !== 'inline'" name="meta"></slot>
     </div>
   </div>
 </template>
@@ -54,6 +62,11 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    layout: {
+      type: String as () => 'column' | 'inline',
+      default: 'column',
+      validator: (value: string) => ['column', 'inline'].includes(value),
+    },
   },
   computed: {
     isClickable(): boolean {
@@ -77,8 +90,8 @@ export default defineComponent({
   align-items: center;
   gap: 12px;
 
-  // When there's metadata in the slot, align to flex-start
-  &:has(.user-details > :nth-child(2)) {
+  // When there's metadata in the slot, align to flex-start (only for column layout)
+  &:not(.layout-inline):has(.user-details > :nth-child(2)) {
     align-items: flex-start;
   }
 }
@@ -87,6 +100,17 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  &.details-inline {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.name-and-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .user-name {
@@ -107,5 +131,16 @@ export default defineComponent({
     font-style: italic;
     opacity: 0.7;
   }
+}
+
+.meta-separator {
+  color: var(--color-text-maxcontrast);
+  opacity: 0.5;
+  font-size: 0.85rem;
+}
+
+.meta-content {
+  font-size: 0.85rem;
+  color: var(--color-text-maxcontrast);
 }
 </style>

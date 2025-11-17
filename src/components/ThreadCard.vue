@@ -18,23 +18,18 @@
           </h4>
         </div>
         <div class="thread-meta">
-          <span class="meta-item">
-            <span class="meta-label">{{ strings.by }}</span>
-            <span
-              v-if="!thread.authorIsDeleted"
-              class="meta-value meta-value-link"
-              @click.stop="navigateToProfile"
-            >
-              {{ thread.authorDisplayName || thread.authorId }}
-            </span>
-            <span v-else class="meta-value deleted-user">
-              {{ thread.authorDisplayName || thread.authorId }}
-            </span>
-          </span>
-          <span class="meta-divider">·</span>
-          <span class="meta-item">
-            <NcDateTime v-if="thread.createdAt" :timestamp="thread.createdAt * 1000" />
-          </span>
+          <UserInfo
+            :user-id="thread.authorId"
+            :display-name="thread.authorDisplayName || thread.authorId"
+            :is-deleted="thread.authorIsDeleted"
+            :avatar-size="32"
+            layout="inline"
+            @click.stop
+          >
+            <template #meta>
+              <NcDateTime v-if="thread.createdAt" :timestamp="thread.createdAt * 1000" />
+            </template>
+          </UserInfo>
         </div>
       </div>
 
@@ -61,6 +56,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import UserInfo from '@/components/UserInfo.vue'
 import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import CommentIcon from '@icons/Comment.vue'
@@ -72,6 +68,7 @@ export default defineComponent({
   name: 'ThreadCard',
   components: {
     NcDateTime,
+    UserInfo,
     PinIcon,
     LockIcon,
     CommentIcon,
@@ -90,7 +87,6 @@ export default defineComponent({
   data() {
     return {
       strings: {
-        by: t('forum', 'by'),
         replies: t('forum', 'Replies'),
         views: t('forum', 'Views'),
         pinned: t('forum', 'Pinned thread'),
@@ -98,11 +94,6 @@ export default defineComponent({
         unread: t('forum', 'Unread'),
       },
     }
-  },
-  methods: {
-    navigateToProfile() {
-      this.$router.push(`/u/${this.thread.authorId}`)
-    },
   },
 })
 </script>
@@ -143,7 +134,7 @@ export default defineComponent({
   .thread-main {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
   }
 
@@ -203,39 +194,6 @@ export default defineComponent({
     font-size: 0.85rem;
     color: var(--color-text-maxcontrast);
     flex-wrap: wrap;
-  }
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .meta-label {
-    font-style: italic;
-  }
-
-  .meta-value {
-    font-weight: 500;
-    color: var(--color-text-lighter);
-
-    &.meta-value-link {
-      cursor: pointer;
-      transition: color 0.2s;
-
-      &:hover {
-        color: var(--color-primary-element);
-      }
-    }
-
-    &.deleted-user {
-      font-style: italic;
-      opacity: 0.7;
-    }
-  }
-
-  .meta-divider {
-    opacity: 0.5;
   }
 
   .thread-stats {

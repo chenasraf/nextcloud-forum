@@ -78,13 +78,15 @@ class UserStatsService {
 		$threadResult->closeCursor();
 
 		// Count non-deleted posts created by this user (from non-deleted threads)
+		// Exclude is_first_post posts as they are counted as threads
 		$postQb = $this->db->getQueryBuilder();
 		$postQb->select($postQb->func()->count('*', 'count'))
 			->from('forum_posts', 'p')
 			->innerJoin('p', 'forum_threads', 't', $postQb->expr()->eq('p.thread_id', 't.id'))
 			->where($postQb->expr()->eq('p.author_id', $postQb->createNamedParameter($userId)))
 			->andWhere($postQb->expr()->isNull('p.deleted_at'))
-			->andWhere($postQb->expr()->isNull('t.deleted_at'));
+			->andWhere($postQb->expr()->isNull('t.deleted_at'))
+			->andWhere($postQb->expr()->eq('p.is_first_post', $postQb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL)));
 		$postResult = $postQb->executeQuery();
 		$postCount = (int)($postResult->fetchOne() ?? 0);
 		$postResult->closeCursor();

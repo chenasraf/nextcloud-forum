@@ -111,10 +111,11 @@ export default defineComponent({
     cursor: inherit;
   }
 
-  &:hover {
+  &:hover,
+  &.unread:hover,
+  &.pinned:hover {
     border-color: var(--color-primary-element);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
   }
 
   &.pinned {

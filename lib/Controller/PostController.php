@@ -305,12 +305,13 @@ class PostController extends OCSController {
 
 			$post = $this->postMapper->find($id);
 
-			// Check if user is the author OR has moderator permission
+			// Check if user is the author OR has moderator permission OR is admin/moderator
 			$isAuthor = $post->getAuthorId() === $user->getUID();
 			$categoryId = $this->permissionService->getCategoryIdFromPost($id);
 			$isModerator = $this->permissionService->hasCategoryPermission($user->getUID(), $categoryId, 'canModerate');
+			$isAdminOrMod = $this->permissionService->hasAdminOrModeratorRole($user->getUID());
 
-			if (!$isAuthor && !$isModerator) {
+			if (!$isAuthor && !$isModerator && !$isAdminOrMod) {
 				return new DataResponse(['error' => 'Insufficient permissions to edit this post'], Http::STATUS_FORBIDDEN);
 			}
 
@@ -351,12 +352,13 @@ class PostController extends OCSController {
 
 			$post = $this->postMapper->find($id);
 
-			// Check if user is the author OR has moderator permission
+			// Check if user is the author OR has moderator permission OR is admin/moderator
 			$isAuthor = $post->getAuthorId() === $user->getUID();
 			$categoryId = $this->permissionService->getCategoryIdFromPost($id);
 			$isModerator = $this->permissionService->hasCategoryPermission($user->getUID(), $categoryId, 'canModerate');
+			$isAdminOrMod = $this->permissionService->hasAdminOrModeratorRole($user->getUID());
 
-			if (!$isAuthor && !$isModerator) {
+			if (!$isAuthor && !$isModerator && !$isAdminOrMod) {
 				return new DataResponse(['error' => 'Insufficient permissions to delete this post'], Http::STATUS_FORBIDDEN);
 			}
 

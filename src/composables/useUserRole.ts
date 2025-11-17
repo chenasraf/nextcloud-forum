@@ -34,6 +34,11 @@ export function useUserRole() {
     return userRoles.value.some((role) => role.roleId === 1)
   })
 
+  const isModerator = computed<boolean>(() => {
+    // Moderator role has ID 2 (from migration)
+    return userRoles.value.some((role) => role.roleId === 2)
+  })
+
   const refresh = () => {
     loaded.value = false
     const userId = userRoles.value[0]?.userId
@@ -54,6 +59,7 @@ export function useUserRole() {
     error,
     loaded,
     isAdmin,
+    isModerator,
     fetchUserRoles,
     refresh,
     clear,

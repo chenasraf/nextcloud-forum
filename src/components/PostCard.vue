@@ -81,6 +81,7 @@ import PostReactions from './PostReactions.vue'
 import PostEditForm from './PostEditForm.vue'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
+import { useUserRole } from '@/composables/useUserRole'
 import type { Post } from '@/types'
 import type { ReactionGroup } from '@/composables/useReactions'
 
@@ -112,6 +113,14 @@ export default defineComponent({
     },
   },
   emits: ['reply', 'edit', 'delete', 'update'],
+  setup() {
+    const { isAdmin, isModerator } = useUserRole()
+
+    return {
+      isAdmin,
+      isModerator,
+    }
+  },
   data() {
     return {
       isEditing: false,
@@ -133,11 +142,20 @@ export default defineComponent({
       return getCurrentUser()
     },
     canEdit(): boolean {
-      return this.currentUser !== null && this.currentUser.uid === this.post.authorId
+      // Authors can edit their own posts
+      // Admins and moderators can edit any post
+      if (!this.currentUser) {
+        return false
+      }
+      return this.currentUser.uid === this.post.authorId || this.isAdmin || this.isModerator
     },
     canDelete(): boolean {
-      // For now, only author can delete. Later add admin/moderator check
-      return this.currentUser !== null && this.currentUser.uid === this.post.authorId
+      // Authors can delete their own posts
+      // Admins and moderators can delete any post
+      if (!this.currentUser) {
+        return false
+      }
+      return this.currentUser.uid === this.post.authorId || this.isAdmin || this.isModerator
     },
     formattedContent(): string {
       // Content is already parsed by BBCodeService on the backend

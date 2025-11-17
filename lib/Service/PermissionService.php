@@ -29,6 +29,31 @@ class PermissionService {
 	}
 
 	/**
+	 * Check if user has Admin or Moderator role
+	 *
+	 * @param string $userId Nextcloud user ID
+	 * @return bool True if user has Admin (roleId 1) or Moderator (roleId 2) role
+	 */
+	public function hasAdminOrModeratorRole(string $userId): bool {
+		try {
+			$userRoles = $this->userRoleMapper->findByUserId($userId);
+
+			foreach ($userRoles as $userRole) {
+				$roleId = $userRole->getRoleId();
+				// Admin role = 1, Moderator role = 2
+				if ($roleId === 1 || $roleId === 2) {
+					return true;
+				}
+			}
+
+			return false;
+		} catch (\Exception $e) {
+			$this->logger->error("Error checking admin/moderator role for user $userId: " . $e->getMessage());
+			return false;
+		}
+	}
+
+	/**
 	 * Check if user has global permission
 	 *
 	 * Global permissions are role-based permissions that apply across the entire forum

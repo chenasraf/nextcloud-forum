@@ -15,6 +15,7 @@ use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Service\UserPreferencesService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -34,6 +35,7 @@ class ThreadController extends OCSController {
 		private PostMapper $postMapper,
 		private UserStatsMapper $userStatsMapper,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
+		private UserPreferencesService $userPreferencesService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -246,9 +248,16 @@ class ThreadController extends OCSController {
 				$this->logger->warning('Failed to update user stats: ' . $e->getMessage());
 			}
 
-			// Auto-subscribe the thread creator to receive notifications
+			// Auto-subscribe the thread creator to receive notifications (if preference is enabled)
 			try {
-				$this->threadSubscriptionMapper->subscribe($user->getUID(), $createdThread->getId());
+				$autoSubscribe = $this->userPreferencesService->getPreference(
+					$user->getUID(),
+					UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS
+				);
+
+				if ($autoSubscribe) {
+					$this->threadSubscriptionMapper->subscribe($user->getUID(), $createdThread->getId());
+				}
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to subscribe thread creator: ' . $e->getMessage());
 			}

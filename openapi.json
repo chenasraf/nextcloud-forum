@@ -8199,6 +8199,318 @@
                 }
             }
         },
+        "/ocs/v2.php/apps/forum/api/user-preferences": {
+            "get": {
+                "operationId": "user_preferences-index",
+                "summary": "Get all user preferences",
+                "tags": [
+                    "user_preferences"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Preferences returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "ocs"
+                                            ],
+                                            "properties": {
+                                                "ocs": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "meta",
+                                                        "data"
+                                                    ],
+                                                    "properties": {
+                                                        "meta": {
+                                                            "$ref": "#/components/schemas/OCSMeta"
+                                                        },
+                                                        "data": {
+                                                            "type": "object",
+                                                            "required": [
+                                                                "error"
+                                                            ],
+                                                            "properties": {
+                                                                "error": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "ocs"
+                                            ],
+                                            "properties": {
+                                                "ocs": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "meta",
+                                                        "data"
+                                                    ],
+                                                    "properties": {
+                                                        "meta": {
+                                                            "$ref": "#/components/schemas/OCSMeta"
+                                                        },
+                                                        "data": {}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "user_preferences-update",
+                "summary": "Update user preferences",
+                "tags": [
+                    "user_preferences"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "preferences"
+                                ],
+                                "properties": {
+                                    "preferences": {
+                                        "type": "object",
+                                        "description": "Key-value pairs of preferences to update",
+                                        "additionalProperties": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Preferences updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "ocs"
+                                            ],
+                                            "properties": {
+                                                "ocs": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "meta",
+                                                        "data"
+                                                    ],
+                                                    "properties": {
+                                                        "meta": {
+                                                            "$ref": "#/components/schemas/OCSMeta"
+                                                        },
+                                                        "data": {
+                                                            "type": "object",
+                                                            "required": [
+                                                                "error"
+                                                            ],
+                                                            "properties": {
+                                                                "error": {
+                                                                    "type": "string"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "ocs"
+                                            ],
+                                            "properties": {
+                                                "ocs": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "meta",
+                                                        "data"
+                                                    ],
+                                                    "properties": {
+                                                        "meta": {
+                                                            "$ref": "#/components/schemas/OCSMeta"
+                                                        },
+                                                        "data": {}
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid preference key or value",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "error"
+                                                    ],
+                                                    "properties": {
+                                                        "error": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ocs/v2.php/apps/forum/api/users/{userId}/roles": {
             "get": {
                 "operationId": "user_role-by-user",

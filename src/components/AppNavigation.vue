@@ -57,6 +57,17 @@
         </NcAppNavigationItem>
       </NcAppNavigationItem>
 
+      <!-- Preferences menu item -->
+      <NcAppNavigationItem
+        :name="strings.navPreferences"
+        :to="{ path: '/preferences' }"
+        :active="isPreferencesActive"
+      >
+        <template #icon>
+          <AccountCogIcon :size="20" />
+        </template>
+      </NcAppNavigationItem>
+
       <!-- Admin menu item - only visible to admins -->
       <NcAppNavigationItem v-if="isAdmin" :name="strings.navAdmin" @click="toggleAdmin">
         <template #icon>
@@ -168,6 +179,7 @@ import ChartLineIcon from '@icons/ChartLine.vue'
 import AccountMultipleIcon from '@icons/AccountMultiple.vue'
 import CodeBracketsIcon from '@icons/CodeBrackets.vue'
 import CogIcon from '@icons/Cog.vue'
+import AccountCogIcon from '@icons/AccountCog.vue'
 import { useCategories } from '@/composables/useCategories'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useUserRole } from '@/composables/useUserRole'
@@ -194,6 +206,7 @@ export default defineComponent({
     AccountMultipleIcon,
     CodeBracketsIcon,
     CogIcon,
+    AccountCogIcon,
   },
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
@@ -228,6 +241,7 @@ export default defineComponent({
         searchLabel: t('forum', 'Search'),
         navHome: t('forum', 'Home'),
         navSearch: t('forum', 'Search'),
+        navPreferences: t('forum', 'Preferences'),
         navAdmin: t('forum', 'Admin'),
         navAdminDashboard: t('forum', 'Dashboard'),
         navAdminSettings: t('forum', 'Settings'),
@@ -243,6 +257,9 @@ export default defineComponent({
   computed: {
     isSearchActive(): boolean {
       return this.$route.path === '/search'
+    },
+    isPreferencesActive(): boolean {
+      return this.$route.path === '/preferences'
     },
     isAdminDashboardActive(): boolean {
       return this.$route.path === '/admin'

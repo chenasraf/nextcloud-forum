@@ -11,6 +11,8 @@ use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
 
 /**
+ * @method int getId()
+ * @method void setId(int $id)
  * @method string getUserId()
  * @method void setUserId(string $userId)
  * @method int getPostCount()
@@ -27,6 +29,7 @@ use OCP\AppFramework\Db\Entity;
  * @method void setUpdatedAt(int $updatedAt)
  */
 class UserStats extends Entity implements JsonSerializable {
+	public $id;
 	protected string $userId = '';
 	protected int $postCount = 0;
 	protected int $threadCount = 0;
@@ -36,7 +39,7 @@ class UserStats extends Entity implements JsonSerializable {
 	protected int $updatedAt = 0;
 
 	public function __construct() {
-		// User ID is the primary key, not an auto-increment id
+		$this->addType('id', 'integer');
 		$this->addType('userId', 'string');
 		$this->addType('postCount', 'integer');
 		$this->addType('threadCount', 'integer');

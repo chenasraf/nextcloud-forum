@@ -8,17 +8,15 @@ declare(strict_types=1);
 namespace OCA\Forum\Migration;
 
 use Closure;
+use OCA\Forum\Service\UserStatsService;
 use OCP\DB\ISchemaWrapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 class Version2Date20251114222614 extends SimpleMigrationStep {
-	/**
-	 * @param IOutput $output
-	 * @param Closure(): ISchemaWrapper $schemaClosure
-	 * @param array $options
-	 */
-	public function preSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
+	public function __construct(
+		private UserStatsService $userStatsService,
+	) {
 	}
 
 	/**
@@ -32,6 +30,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 		$schema = $schemaClosure();
 
 		$this->createForumThreadSubsTable($schema);
+		$this->fixForumUserStatsTable($schema);
 
 		return $schema;
 	}
@@ -65,11 +64,56 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 		$table->addUniqueIndex(['user_id', 'thread_id'], 'thread_subs_uniq_idx');
 	}
 
+	private function fixForumUserStatsTable(ISchemaWrapper $schema): void {
+		if (!$schema->hasTable('forum_user_stats')) {
+			return;
+		}
+
+		$table = $schema->getTable('forum_user_stats');
+
+		// Check if already fixed (has id column)
+		if ($table->hasColumn('id')) {
+			return;
+		}
+
+		// Add id column as auto-increment
+		$table->addColumn('id', 'bigint', [
+			'autoincrement' => true,
+			'notnull' => true,
+			'unsigned' => true,
+		]);
+
+		// Drop the old primary key on user_id
+		$table->dropPrimaryKey();
+
+		// Set id as the new primary key
+		$table->setPrimaryKey(['id']);
+
+		// Add unique index on user_id (since it's no longer the primary key)
+		if (!$table->hasIndex('user_stats_user_id_uniq')) {
+			$table->addUniqueIndex(['user_id'], 'user_stats_user_id_uniq');
+		}
+
+		// Add thread_count index
+		if (!$table->hasIndex('user_stats_thread_count_idx')) {
+			$table->addIndex(['thread_count'], 'user_stats_thread_count_idx');
+		}
+	}
+
 	/**
 	 * @param IOutput $output
 	 * @param Closure(): ISchemaWrapper $schemaClosure
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
+		$output->info('Rebuilding user statistics...');
+
+		$result = $this->userStatsService->rebuildAllUserStats();
+
+		$output->info(sprintf('Found %d users to process', $result['users']));
+		$output->info(sprintf('Created %d new user stats', $result['created']));
+		$output->info(sprintf('Updated %d existing user stats', $result['updated']));
+		$output->info('User statistics rebuilt successfully!');
 	}
+
 }

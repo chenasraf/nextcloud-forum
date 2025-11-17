@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.2.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.7...v0.2.0) (2025-11-17)
+
+
+### Features
+
+* add emoji picker close icon ([4ca6388](https://github.com/chenasraf/nextcloud-forum/commit/4ca6388923299751a251f56785c2b29dc2dd75dd))
+* rebuild user stats task & command ([0de120f](https://github.com/chenasraf/nextcloud-forum/commit/0de120f2bf88bd377aa13a760f29f1b46ece98e9))
+* thread subscriptions & notifications ([2fbe180](https://github.com/chenasraf/nextcloud-forum/commit/2fbe180d5e8a6e6fdd02b3506896f9355d6bef22))
+* unify user info component ([11aa3af](https://github.com/chenasraf/nextcloud-forum/commit/11aa3af887f17c3236ff8abcc8ef1d3b15ee03c2))
+* update thread card user info display ([8cc34d9](https://github.com/chenasraf/nextcloud-forum/commit/8cc34d9d7a0711d43b938b9fd686a8ea682160cf))
+
+
+### Bug Fixes
+
+* admin/mod post permissions ([9833e51](https://github.com/chenasraf/nextcloud-forum/commit/9833e519973da5ff059ef0346333bdc96d73c072))
+* autoload ([6ba8034](https://github.com/chenasraf/nextcloud-forum/commit/6ba8034b7535d1c449e8b75d5645398f948b7941))
+* create user stats for existing users ([364226f](https://github.com/chenasraf/nextcloud-forum/commit/364226fdc84713162b1b59d3ec17455177a7ba81))
+* default support category sort order ([d16288f](https://github.com/chenasraf/nextcloud-forum/commit/d16288f237e07ad7d3a5726029de39c7bee7b8da))
+* emoji picker position ([cdecdce](https://github.com/chenasraf/nextcloud-forum/commit/cdecdce9d18828e227be0994b9ccf065eba9c831))
+* user avatar container size ([664ee53](https://github.com/chenasraf/nextcloud-forum/commit/664ee536705bd2d8fab64470a2a2600ab30e3d26))
+* user stats table ([e590f73](https://github.com/chenasraf/nextcloud-forum/commit/e590f73fc02f32c6d0f908e895441f4405240ec7))
+
 ## [0.1.7](https://github.com/chenasraf/nextcloud-forum/compare/v0.1.6...v0.1.7) (2025-11-16)
 
 

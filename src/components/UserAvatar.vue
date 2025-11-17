@@ -2,6 +2,7 @@
   <div
     v-if="!isDeleted"
     class="user-avatar"
+    :style="{ height: size + 'px' }"
     :class="{ clickable: isClickable }"
     @click="handleClick"
   >

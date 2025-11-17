@@ -367,15 +367,51 @@ class PostController extends OCSController {
 			$post->setUpdatedAt(time());
 			$this->postMapper->update($post);
 
-			// Update thread post count
+			// Update thread post count and lastPostId
 			try {
 				$thread = $this->threadMapper->find($post->getThreadId());
 				$thread->setPostCount(max(0, $thread->getPostCount() - 1));
 				$thread->setUpdatedAt(time());
+
+				// If the deleted post was the last post, update lastPostId to the previous non-deleted post
+				if ($thread->getLastPostId() === $post->getId()) {
+					// Find the latest non-deleted post in this thread (excluding the one being deleted)
+					$latestPost = $this->postMapper->findLatestByThreadId($thread->getId(), $post->getId());
+					if ($latestPost) {
+						$thread->setLastPostId($latestPost->getId());
+					} else {
+						// No other posts in thread, set to null (or keep first post ID)
+						$thread->setLastPostId(null);
+					}
+				}
+
 				$this->threadMapper->update($thread);
 			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update thread post count after post deletion: ' . $e->getMessage());
+				$this->logger->warning('Failed to update thread after post deletion: ' . $e->getMessage());
 				// Don't fail the request if thread update fails
+			}
+
+			// Update user stats - decrement post count, and thread count if it's the first post
+			try {
+				$this->userStatsMapper->decrementPostCount($post->getAuthorId());
+
+				// If this is the first post of a thread, also decrement thread count
+				if ($post->getIsFirstPost()) {
+					$this->userStatsMapper->decrementThreadCount($post->getAuthorId());
+				}
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update user stats after post deletion: ' . $e->getMessage());
+				// Don't fail the request if stats update fails
+			}
+
+			// Update category post count
+			try {
+				$category = $this->categoryMapper->find($categoryId);
+				$category->setPostCount(max(0, $category->getPostCount() - 1));
+				$this->categoryMapper->update($category);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update category post count after post deletion: ' . $e->getMessage());
+				// Don't fail the request if category update fails
 			}
 
 			return new DataResponse(['success' => true]);

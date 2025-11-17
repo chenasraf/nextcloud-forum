@@ -396,6 +396,18 @@ class ThreadController extends OCSController {
 				// Don't fail the request if category update fails
 			}
 
+			// Update author's user stats (decrement thread count and all posts in this thread)
+			try {
+				$this->userStatsMapper->decrementThreadCount($thread->getAuthorId());
+				// Decrement post count by the number of posts in this thread
+				if ($thread->getPostCount() > 0) {
+					$this->userStatsMapper->decrementPostCount($thread->getAuthorId(), $thread->getPostCount());
+				}
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update user stats after thread deletion: ' . $e->getMessage());
+				// Don't fail the request if stats update fails
+			}
+
 			return new DataResponse([
 				'success' => true,
 				'categorySlug' => $categorySlug,

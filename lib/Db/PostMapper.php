@@ -87,22 +87,26 @@ class PostMapper extends QBMapper {
 	public function findByAuthorId(string $authorId, int $limit = 50, int $offset = 0, bool $excludeFirstPosts = false): array {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from($this->getTableName())
+		$qb->select('p.*')
+			->from($this->getTableName(), 'p')
+			->innerJoin('p', 'forum_threads', 't', $qb->expr()->eq('p.thread_id', 't.id'))
 			->where(
-				$qb->expr()->eq('author_id', $qb->createNamedParameter($authorId, IQueryBuilder::PARAM_STR))
+				$qb->expr()->eq('p.author_id', $qb->createNamedParameter($authorId, IQueryBuilder::PARAM_STR))
 			)
 			->andWhere(
-				$qb->expr()->isNull('deleted_at')
+				$qb->expr()->isNull('p.deleted_at')
+			)
+			->andWhere(
+				$qb->expr()->isNull('t.deleted_at')
 			);
 
 		if ($excludeFirstPosts) {
 			$qb->andWhere(
-				$qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL))
+				$qb->expr()->eq('p.is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL))
 			);
 		}
 
-		$qb->orderBy('created_at', 'DESC')
+		$qb->orderBy('p.created_at', 'DESC')
 			->setMaxResults($limit)
 			->setFirstResult($offset);
 		return $this->findEntities($qb);
@@ -114,12 +118,16 @@ class PostMapper extends QBMapper {
 	public function findAll(): array {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from($this->getTableName())
+		$qb->select('p.*')
+			->from($this->getTableName(), 'p')
+			->innerJoin('p', 'forum_threads', 't', $qb->expr()->eq('p.thread_id', 't.id'))
 			->where(
-				$qb->expr()->isNull('deleted_at')
+				$qb->expr()->isNull('p.deleted_at')
 			)
-			->orderBy('created_at', 'DESC');
+			->andWhere(
+				$qb->expr()->isNull('t.deleted_at')
+			)
+			->orderBy('p.created_at', 'DESC');
 		return $this->findEntities($qb);
 	}
 
@@ -129,9 +137,13 @@ class PostMapper extends QBMapper {
 	public function countAll(): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select($qb->func()->count('*', 'count'))
-			->from($this->getTableName())
+			->from($this->getTableName(), 'p')
+			->innerJoin('p', 'forum_threads', 't', $qb->expr()->eq('p.thread_id', 't.id'))
 			->where(
-				$qb->expr()->isNull('deleted_at')
+				$qb->expr()->isNull('p.deleted_at')
+			)
+			->andWhere(
+				$qb->expr()->isNull('t.deleted_at')
 			);
 		$result = $qb->executeQuery();
 		$row = $result->fetch();
@@ -145,15 +157,47 @@ class PostMapper extends QBMapper {
 	public function countSince(int $timestamp): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select($qb->func()->count('*', 'count'))
-			->from($this->getTableName())
-			->where($qb->expr()->gte('created_at', $qb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)))
+			->from($this->getTableName(), 'p')
+			->innerJoin('p', 'forum_threads', 't', $qb->expr()->eq('p.thread_id', 't.id'))
+			->where($qb->expr()->gte('p.created_at', $qb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)))
 			->andWhere(
-				$qb->expr()->isNull('deleted_at')
+				$qb->expr()->isNull('p.deleted_at')
+			)
+			->andWhere(
+				$qb->expr()->isNull('t.deleted_at')
 			);
 		$result = $qb->executeQuery();
 		$row = $result->fetch();
 		$result->closeCursor();
 		return (int)($row['count'] ?? 0);
+	}
+
+	/**
+	 * Find the latest non-deleted post in a thread, excluding a specific post ID
+	 *
+	 * @param int $threadId Thread ID
+	 * @param int|null $excludePostId Post ID to exclude (typically the one being deleted)
+	 * @return Post|null Latest post or null if no posts found
+	 */
+	public function findLatestByThreadId(int $threadId, ?int $excludePostId = null): ?Post {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('deleted_at'));
+
+		if ($excludePostId !== null) {
+			$qb->andWhere($qb->expr()->neq('id', $qb->createNamedParameter($excludePostId, IQueryBuilder::PARAM_INT)));
+		}
+
+		$qb->orderBy('created_at', 'DESC')
+			->setMaxResults(1);
+
+		try {
+			return $this->findEntity($qb);
+		} catch (DoesNotExistException $e) {
+			return null;
+		}
 	}
 
 	/**

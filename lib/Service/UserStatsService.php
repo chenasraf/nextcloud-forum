@@ -56,35 +56,8 @@ class UserStatsService {
 	 * @return array{users: int, updated: int, created: int} Statistics about the rebuild
 	 */
 	public function rebuildAllUserStats(): array {
-		// Get all users who have posted or created threads
-		$qb = $this->db->getQueryBuilder();
-		$qb->selectDistinct('author_id')
-			->from('forum_posts')
-			->where($qb->expr()->isNotNull('author_id'));
-		$result = $qb->executeQuery();
-		$users = [];
-		while ($row = $result->fetch()) {
-			$users[] = $row['author_id'];
-		}
-		$result->closeCursor();
-
-		$updated = 0;
-		$created = 0;
-
-		foreach ($users as $userId) {
-			$wasCreated = $this->rebuildUserStats($userId);
-			if ($wasCreated) {
-				$created++;
-			} else {
-				$updated++;
-			}
-		}
-
-		return [
-			'users' => count($users),
-			'updated' => $updated,
-			'created' => $created,
-		];
+		// Delegate to createStatsForAllUsers which processes all Nextcloud users
+		return $this->createStatsForAllUsers();
 	}
 
 	/**
@@ -94,30 +67,37 @@ class UserStatsService {
 	 * @return bool True if stats were created, false if they were updated
 	 */
 	public function rebuildUserStats(string $userId): bool {
-		// Count threads created by this user
+		// Count non-deleted threads created by this user
 		$threadQb = $this->db->getQueryBuilder();
 		$threadQb->select($threadQb->func()->count('*', 'count'))
 			->from('forum_threads')
-			->where($threadQb->expr()->eq('author_id', $threadQb->createNamedParameter($userId)));
+			->where($threadQb->expr()->eq('author_id', $threadQb->createNamedParameter($userId)))
+			->andWhere($threadQb->expr()->isNull('deleted_at'));
 		$threadResult = $threadQb->executeQuery();
 		$threadCount = (int)($threadResult->fetchOne() ?? 0);
 		$threadResult->closeCursor();
 
-		// Count posts created by this user
+		// Count non-deleted posts created by this user (from non-deleted threads)
 		$postQb = $this->db->getQueryBuilder();
 		$postQb->select($postQb->func()->count('*', 'count'))
-			->from('forum_posts')
-			->where($postQb->expr()->eq('author_id', $postQb->createNamedParameter($userId)));
+			->from('forum_posts', 'p')
+			->innerJoin('p', 'forum_threads', 't', $postQb->expr()->eq('p.thread_id', 't.id'))
+			->where($postQb->expr()->eq('p.author_id', $postQb->createNamedParameter($userId)))
+			->andWhere($postQb->expr()->isNull('p.deleted_at'))
+			->andWhere($postQb->expr()->isNull('t.deleted_at'));
 		$postResult = $postQb->executeQuery();
 		$postCount = (int)($postResult->fetchOne() ?? 0);
 		$postResult->closeCursor();
 
-		// Get the timestamp of the last post
+		// Get the timestamp of the last non-deleted post (from non-deleted threads)
 		$lastPostQb = $this->db->getQueryBuilder();
-		$lastPostQb->select('created_at')
-			->from('forum_posts')
-			->where($lastPostQb->expr()->eq('author_id', $lastPostQb->createNamedParameter($userId)))
-			->orderBy('created_at', 'DESC')
+		$lastPostQb->select('p.created_at')
+			->from('forum_posts', 'p')
+			->innerJoin('p', 'forum_threads', 't', $lastPostQb->expr()->eq('p.thread_id', 't.id'))
+			->where($lastPostQb->expr()->eq('p.author_id', $lastPostQb->createNamedParameter($userId)))
+			->andWhere($lastPostQb->expr()->isNull('p.deleted_at'))
+			->andWhere($lastPostQb->expr()->isNull('t.deleted_at'))
+			->orderBy('p.created_at', 'DESC')
 			->setMaxResults(1);
 		$lastPostResult = $lastPostQb->executeQuery();
 		$lastPostAt = $lastPostResult->fetchOne();

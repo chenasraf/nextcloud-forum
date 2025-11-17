@@ -8,13 +8,46 @@ declare(strict_types=1);
 namespace OCA\Forum\Service;
 
 use OCP\IDBConnection;
+use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 class UserStatsService {
 	public function __construct(
 		private IDBConnection $db,
+		private IUserManager $userManager,
 		private LoggerInterface $logger,
 	) {
+	}
+
+	/**
+	 * Create user statistics for all users in the system (including those who haven't posted)
+	 *
+	 * @return array{users: int, updated: int, created: int} Statistics about the creation
+	 */
+	public function createStatsForAllUsers(): array {
+		// Get all user IDs from Nextcloud
+		$users = [];
+		$this->userManager->callForAllUsers(function ($user) use (&$users) {
+			$users[] = $user->getUID();
+		});
+
+		$updated = 0;
+		$created = 0;
+
+		foreach ($users as $userId) {
+			$wasCreated = $this->rebuildUserStats($userId);
+			if ($wasCreated) {
+				$created++;
+			} else {
+				$updated++;
+			}
+		}
+
+		return [
+			'users' => count($users),
+			'updated' => $updated,
+			'created' => $created,
+		];
 	}
 
 	/**

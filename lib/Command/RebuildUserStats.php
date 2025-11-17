@@ -22,15 +22,15 @@ class RebuildUserStats extends Command {
 	protected function configure(): void {
 		parent::configure();
 		$this->setName('forum:rebuild-user-stats')
-			->setDescription('Rebuild user statistics from actual post and thread counts');
+			->setDescription('Rebuild user statistics for all users in the system');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$output->writeln('<info>Rebuilding user statistics...</info>');
+		$output->writeln('<info>Rebuilding user statistics for all users...</info>');
 
-		$result = $this->userStatsService->rebuildAllUserStats();
+		$result = $this->userStatsService->createStatsForAllUsers();
 
-		$output->writeln(sprintf('Found %d users to process', $result['users']));
+		$output->writeln(sprintf('Processed %d users', $result['users']));
 		$output->writeln(sprintf('Created %d new user stats', $result['created']));
 		$output->writeln(sprintf('Updated %d existing user stats', $result['updated']));
 		$output->writeln('<info>User statistics rebuilt successfully!</info>');

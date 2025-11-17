@@ -25,9 +25,9 @@ class RebuildUserStatsTask extends TimedJob {
 	}
 
 	protected function run($arguments): void {
-		$this->logger->info('Starting weekly user stats rebuild');
+		$this->logger->info('Starting weekly user stats rebuild for all users');
 
-		$result = $this->userStatsService->rebuildAllUserStats();
+		$result = $this->userStatsService->createStatsForAllUsers();
 
 		$this->logger->info('User stats rebuild completed', [
 			'users' => $result['users'],

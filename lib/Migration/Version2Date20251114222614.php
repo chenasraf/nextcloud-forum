@@ -106,14 +106,14 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		$output->info('Rebuilding user statistics...');
+		$output->info('Creating user statistics for all users...');
 
-		$result = $this->userStatsService->rebuildAllUserStats();
+		$result = $this->userStatsService->createStatsForAllUsers();
 
-		$output->info(sprintf('Found %d users to process', $result['users']));
+		$output->info(sprintf('Processed %d users', $result['users']));
 		$output->info(sprintf('Created %d new user stats', $result['created']));
 		$output->info(sprintf('Updated %d existing user stats', $result['updated']));
-		$output->info('User statistics rebuilt successfully!');
+		$output->info('User statistics created successfully!');
 	}
 
 }

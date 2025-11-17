@@ -8,24 +8,44 @@ declare(strict_types=1);
 namespace OCA\Forum\Listener;
 
 use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Service\UserStatsService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
+use OCP\User\Events\UserCreatedEvent;
 use OCP\User\Events\UserDeletedEvent;
 use Psr\Log\LoggerInterface;
 
 /**
- * @template-implements IEventListener<UserDeletedEvent>
+ * @template-implements IEventListener<UserCreatedEvent|UserDeletedEvent>
  */
 class UserEventListener implements IEventListener {
 	public function __construct(
 		private UserStatsMapper $userStatsMapper,
+		private UserStatsService $userStatsService,
 		private LoggerInterface $logger,
 	) {
 	}
 
 	public function handle(Event $event): void {
-		if ($event instanceof UserDeletedEvent) {
+		if ($event instanceof UserCreatedEvent) {
+			$this->handleUserCreated($event);
+		} elseif ($event instanceof UserDeletedEvent) {
 			$this->handleUserDeleted($event);
+		}
+	}
+
+	private function handleUserCreated(UserCreatedEvent $event): void {
+		$user = $event->getUser();
+		$userId = $user->getUID();
+
+		try {
+			// Create user stats with zero counts for new user
+			$this->userStatsService->rebuildUserStats($userId);
+			$this->logger->info("Created user stats for new Nextcloud user: {$userId}");
+		} catch (\Exception $ex) {
+			$this->logger->error("Failed to create user stats for new user: {$userId}", [
+				'exception' => $ex->getMessage(),
+			]);
 		}
 	}
 

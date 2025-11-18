@@ -18,7 +18,7 @@
     </template>
 
     <div class="categories-view">
-      <PageHeader :title="forumTitle" :subtitle="forumSubtitle" />
+      <PageHeader :title="forumTitle" :subtitle="forumSubtitle" :loading="settingsLoading" />
 
       <!-- Loading state -->
       <div class="center mt-16" v-if="loading">
@@ -95,6 +95,7 @@ export default defineComponent({
   },
   data() {
     return {
+      settingsLoading: true,
       forumTitle: t('forum', 'Forum'),
       forumSubtitle: t('forum', 'Welcome to the forum'),
       strings: {
@@ -124,6 +125,8 @@ export default defineComponent({
       } catch (e) {
         // Silently fail and use defaults if settings can't be loaded
         console.debug('Could not load forum settings, using defaults', e)
+      } finally {
+        this.settingsLoading = false
       }
     },
 

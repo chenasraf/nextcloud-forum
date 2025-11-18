@@ -12,13 +12,12 @@
         </template>
       </AppToolbar>
     </template>
+
     <div class="admin-role-edit">
-      <div class="page-header">
-        <div>
-          <h2>{{ isEditing ? strings.editRole : strings.createRole }}</h2>
-          <p class="muted">{{ strings.subtitle }}</p>
-        </div>
-      </div>
+      <PageHeader
+        :title="isEditing ? strings.editRole : strings.createRole"
+        :subtitle="strings.subtitle"
+      />
 
       <!-- Loading state -->
       <div v-if="loading" class="center mt-16">
@@ -177,6 +176,7 @@ import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import InformationIcon from '@icons/Information.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import AppToolbar from '@/components/AppToolbar.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -196,6 +196,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcTextField,
     NcTextArea,
+    PageHeader,
     ArrowLeftIcon,
     InformationIcon,
     PageWrapper,

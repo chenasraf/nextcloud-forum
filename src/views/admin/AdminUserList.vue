@@ -1,10 +1,7 @@
 <template>
   <PageWrapper :full-width="true">
     <div class="admin-user-list">
-      <div class="page-header">
-        <h2>{{ strings.title }}</h2>
-        <p class="muted">{{ strings.subtitle }}</p>
-      </div>
+      <PageHeader :title="strings.title" :subtitle="strings.subtitle" />
 
       <!-- Loading state -->
       <div v-if="loading" class="center mt-16">
@@ -160,6 +157,7 @@ import PencilIcon from '@icons/Pencil.vue'
 import CheckIcon from '@icons/Check.vue'
 import CloseIcon from '@icons/Close.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Role } from '@/types'
@@ -190,10 +188,11 @@ export default defineComponent({
     NcDateTime,
     NcSelect,
     UserInfo,
+    PageWrapper,
+    PageHeader,
     PencilIcon,
     CheckIcon,
     CloseIcon,
-    PageWrapper,
   },
   data() {
     return {

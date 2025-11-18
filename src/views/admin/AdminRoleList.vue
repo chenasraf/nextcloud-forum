@@ -1,20 +1,20 @@
 <template>
   <PageWrapper>
-    <div class="admin-role-list">
-      <div class="page-header">
-        <div class="header-content">
-          <div>
-            <h2>{{ strings.title }}</h2>
-            <p class="muted">{{ strings.subtitle }}</p>
-          </div>
+    <template #toolbar>
+      <AppToolbar>
+        <template #right>
           <NcButton @click="createRole" variant="primary">
             <template #icon>
               <PlusIcon :size="20" />
             </template>
             {{ strings.createRole }}
           </NcButton>
-        </div>
-      </div>
+        </template>
+      </AppToolbar>
+    </template>
+
+    <div class="admin-role-list">
+      <PageHeader :title="strings.title" :subtitle="strings.subtitle" />
 
       <!-- Loading state -->
       <div v-if="loading" class="center mt-16">
@@ -115,6 +115,8 @@ import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import AppToolbar from '@/components/AppToolbar.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Role } from '@/types'
@@ -132,6 +134,8 @@ export default defineComponent({
     PencilIcon,
     DeleteIcon,
     PageWrapper,
+    PageHeader,
+    AppToolbar,
   },
   data() {
     return {

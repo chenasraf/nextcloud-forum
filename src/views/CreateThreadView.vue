@@ -15,10 +15,11 @@
 
     <div class="create-thread-view">
       <!-- Page Header -->
-      <div class="page-header mt-16">
-        <h2 class="page-title">{{ strings.title }}</h2>
-        <p v-if="category" class="page-subtitle">{{ strings.subtitle(category.name) }}</p>
-      </div>
+      <PageHeader
+        :title="strings.title"
+        :subtitle="category ? strings.subtitle(category.name) : ''"
+        class="mt-16"
+      />
 
       <!-- Loading state -->
       <div class="center mt-16" v-if="loading && !category">
@@ -58,6 +59,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import ThreadCreateForm from '@/components/ThreadCreateForm.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import type { Category, Thread } from '@/types'
@@ -73,6 +75,7 @@ export default defineComponent({
     NcLoadingIcon,
     AppToolbar,
     PageWrapper,
+    PageHeader,
     ThreadCreateForm,
     ArrowLeftIcon,
   },

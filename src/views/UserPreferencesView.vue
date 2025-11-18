@@ -14,10 +14,7 @@
     </template>
 
     <div class="user-preferences-view">
-      <div class="page-header">
-        <h2>{{ strings.title }}</h2>
-        <p class="muted">{{ strings.subtitle }}</p>
-      </div>
+      <PageHeader :title="strings.title" :subtitle="strings.subtitle" />
 
       <!-- Loading state -->
       <div v-if="loading" class="center mt-16">
@@ -84,6 +81,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import CheckIcon from '@icons/Check.vue'
 import { ocs } from '@/axios'
@@ -102,6 +100,7 @@ export default defineComponent({
     NcCheckboxRadioSwitch,
     AppToolbar,
     PageWrapper,
+    PageHeader,
     ArrowLeftIcon,
     CheckIcon,
   },

@@ -14,12 +14,10 @@
     </template>
 
     <div class="admin-category-edit">
-      <div class="page-header">
-        <div>
-          <h2>{{ isEditing ? strings.editCategory : strings.createCategory }}</h2>
-          <p class="muted">{{ strings.subtitle }}</p>
-        </div>
-      </div>
+      <PageHeader
+        :title="isEditing ? strings.editCategory : strings.createCategory"
+        :subtitle="strings.subtitle"
+      />
 
       <!-- Loading state -->
       <div v-if="loading" class="center mt-16">

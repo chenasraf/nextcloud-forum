@@ -2,9 +2,6 @@
   <PageWrapper>
     <template #toolbar>
       <AppToolbar>
-        <template #left>
-          <h2>{{ strings.title }}</h2>
-        </template>
         <template #right>
           <NcButton @click="createHeader">
             <template #icon>
@@ -23,9 +20,7 @@
     </template>
 
     <div class="admin-category-list">
-      <div class="page-header">
-        <p class="muted">{{ strings.subtitle }}</p>
-      </div>
+      <PageHeader :title="strings.title" :subtitle="strings.subtitle" />
 
       <!-- Loading state -->
       <div v-if="loading" class="center mt-16">
@@ -357,6 +352,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import AppToolbar from '@/components/AppToolbar.vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
@@ -379,6 +375,9 @@ import type { CategoryHeader, Category, CatHeader } from '@/types'
 export default defineComponent({
   name: 'AdminCategoryList',
   components: {
+    PageWrapper,
+    PageHeader,
+    AppToolbar,
     NcButton,
     NcCheckboxRadioSwitch,
     NcDialog,
@@ -387,8 +386,6 @@ export default defineComponent({
     NcSelect,
     NcTextField,
     NcTextArea,
-    PageWrapper,
-    AppToolbar,
     PlusIcon,
     PencilIcon,
     DeleteIcon,
@@ -781,22 +778,6 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
-
-    h2 {
-      margin: 0 0 6px 0;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-    }
   }
 
   .category-list {

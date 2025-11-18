@@ -1,10 +1,7 @@
 <template>
   <PageWrapper>
     <div class="admin-dashboard">
-      <div class="page-header">
-        <h2>{{ strings.title }}</h2>
-        <p class="muted">{{ strings.subtitle }}</p>
-      </div>
+      <PageHeader :title="strings.title" :subtitle="strings.subtitle" />
 
       <!-- Loading state -->
       <div v-if="loading" class="center mt-16">
@@ -145,6 +142,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import UserInfo from '@/components/UserInfo.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import AccountMultipleIcon from '@icons/AccountMultiple.vue'
 import AccountPlusIcon from '@icons/AccountPlus.vue'
 import ForumIcon from '@icons/Forum.vue'
@@ -179,6 +177,7 @@ export default defineComponent({
     NcLoadingIcon,
     UserInfo,
     PageWrapper,
+    PageHeader,
     AccountMultipleIcon,
     AccountPlusIcon,
     ForumIcon,

@@ -2,9 +2,6 @@
   <PageWrapper>
     <template #toolbar>
       <AppToolbar>
-        <template #left>
-          <h2>{{ strings.title }}</h2>
-        </template>
         <template #right>
           <NcButton @click="showHelp = true">
             <template #icon>
@@ -23,9 +20,7 @@
     </template>
 
     <div class="admin-bbcode-list">
-      <div class="page-header">
-        <p class="muted">{{ strings.subtitle }}</p>
-      </div>
+      <PageHeader :title="strings.title" :subtitle="strings.subtitle" />
 
       <!-- BBCode Help Dialog -->
       <BBCodeHelpDialog v-model:open="showHelp" :show-custom="false" />
@@ -276,6 +271,7 @@ import EyeOffIcon from '@icons/EyeOff.vue'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import BBCodeHelpDialog from '@/components/BBCodeHelpDialog.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import AppToolbar from '@/components/AppToolbar.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -302,6 +298,7 @@ export default defineComponent({
     NcTextField,
     NcTextArea,
     PageWrapper,
+    PageHeader,
     AppToolbar,
     PlusIcon,
     PencilIcon,
@@ -524,22 +521,6 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 24px;
-
-    h2 {
-      margin: 0 0 6px 0;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-    }
   }
 
   .bbcode-list {

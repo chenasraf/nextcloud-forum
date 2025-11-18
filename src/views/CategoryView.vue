@@ -34,10 +34,12 @@
 
     <div class="category-view">
       <!-- Category Header -->
-      <div v-if="category && !loading" class="category-header mt-16">
-        <h2 class="category-name">{{ category.name }}</h2>
-        <p v-if="category.description" class="category-description">{{ category.description }}</p>
-      </div>
+      <PageHeader
+        v-if="category && !loading"
+        :title="category.name"
+        :subtitle="category.description || undefined"
+        class="mt-16"
+      />
 
       <!-- Loading state -->
       <div class="center mt-16" v-if="loading">
@@ -107,6 +109,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import ThreadCard from '@/components/ThreadCard.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
@@ -123,6 +126,7 @@ export default defineComponent({
     NcLoadingIcon,
     AppToolbar,
     PageWrapper,
+    PageHeader,
     ThreadCard,
     ArrowLeftIcon,
     RefreshIcon,
@@ -303,27 +307,6 @@ export default defineComponent({
     justify-content: center;
   }
 
-
-  .category-header {
-    padding: 20px;
-    background: var(--color-background-hover);
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-  }
-
-  .category-name {
-    margin: 0 0 8px 0;
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--color-main-text);
-  }
-
-  .category-description {
-    margin: 0;
-    font-size: 1rem;
-    color: var(--color-text-lighter);
-    line-height: 1.5;
-  }
 
   .threads-list {
     display: flex;

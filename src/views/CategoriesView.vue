@@ -2,10 +2,6 @@
   <PageWrapper :full-width="true">
     <template #toolbar>
       <AppToolbar>
-        <template #left>
-          <h2 class="view-title">{{ strings.title }}</h2>
-        </template>
-
         <template #right>
           <NcButton
             @click="refresh"
@@ -22,10 +18,7 @@
     </template>
 
     <div class="categories-view">
-      <header class="page-header">
-        <h2>{{ forumTitle }}</h2>
-        <p class="muted">{{ forumSubtitle }}</p>
-      </header>
+      <PageHeader :title="forumTitle" :subtitle="forumSubtitle" />
 
       <!-- Loading state -->
       <div class="center mt-16" v-if="loading">
@@ -71,6 +64,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import CategoryCard from '@/components/CategoryCard.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import { useCategories } from '@/composables/useCategories'
@@ -86,6 +80,7 @@ export default defineComponent({
     NcLoadingIcon,
     AppToolbar,
     PageWrapper,
+    PageHeader,
     CategoryCard,
     RefreshIcon,
   },
@@ -103,7 +98,6 @@ export default defineComponent({
       forumTitle: t('forum', 'Forum'),
       forumSubtitle: t('forum', 'Welcome to the forum'),
       strings: {
-        title: t('forum', 'Categories'),
         refresh: t('forum', 'Refresh'),
         loading: t('forum', 'Loading…'),
         emptyTitle: t('forum', 'No categories yet'),

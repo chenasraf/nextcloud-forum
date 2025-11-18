@@ -1,10 +1,7 @@
 <template>
-  <div class="admin-general-settings">
-    <PageWrapper>
-      <div class="page-header">
-        <h2>{{ strings.title }}</h2>
-        <p class="muted">{{ strings.subtitle }}</p>
-      </div>
+  <PageWrapper>
+    <div class="admin-general-settings">
+      <PageHeader :title="strings.title" :subtitle="strings.subtitle" />
 
       <!-- Loading state -->
       <div v-if="loading" class="center mt-16">
@@ -74,8 +71,8 @@
           <span>{{ strings.saveSuccess }}</span>
         </div>
       </div>
-    </PageWrapper>
-  </div>
+    </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -86,6 +83,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import PageWrapper from '@/components/PageWrapper.vue'
+import PageHeader from '@/components/PageHeader.vue'
 import CheckIcon from '@icons/Check.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -103,6 +101,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcTextField,
     NcTextArea,
+    PageHeader,
     PageWrapper,
     CheckIcon,
   },

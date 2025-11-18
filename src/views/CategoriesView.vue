@@ -117,9 +117,10 @@ export default defineComponent({
   methods: {
     async fetchForumSettings() {
       try {
-        const response = await ocs.get<{ title: string; subtitle: string }>('/admin/settings')
+        this.settingsLoading = true
+        const response = await ocs.get<{ title: string; subtitle: string }>('/settings')
         this.forumTitle = response.data.title || t('forum', 'Forum')
-        this.forumSubtitle = response.data.subtitle || t('forum', 'Welcome to the forum')
+        this.forumSubtitle = response.data.subtitle || t('forum', 'Welcome to the forum!')
       } catch (e) {
         // Silently fail and use defaults if settings can't be loaded
         console.debug('Could not load forum settings, using defaults', e)

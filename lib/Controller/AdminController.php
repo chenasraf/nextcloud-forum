@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
-use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\PostMapper;
@@ -21,6 +20,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IConfig;
+use OCP\IL10N;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -41,6 +41,7 @@ class AdminController extends OCSController {
 		private IUserSession $userSession,
 		private IConfig $config,
 		private LoggerInterface $logger,
+		private IL10N $l10n,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -171,8 +172,8 @@ class AdminController extends OCSController {
 	public function getSettings(): DataResponse {
 		try {
 			$settings = [
-				'title' => $this->config->getAppValue(Application::APP_ID, 'title', 'Forum'),
-				'subtitle' => $this->config->getAppValue(Application::APP_ID, 'subtitle', 'Welcome to the forum'),
+				'title' => $this->config->getSystemValueString('title', $this->l10n->t('Forum')),
+				'subtitle' => $this->config->getSystemValueString('subtitle', $this->l10n->t('Welcome to the forum!')),
 			];
 
 			return new DataResponse($settings);
@@ -197,17 +198,17 @@ class AdminController extends OCSController {
 	public function updateSettings(?string $title = null, ?string $subtitle = null): DataResponse {
 		try {
 			if ($title !== null) {
-				$this->config->setAppValue(Application::APP_ID, 'title', $title);
+				$this->config->setSystemValue('title', $title);
 			}
 
 			if ($subtitle !== null) {
-				$this->config->setAppValue(Application::APP_ID, 'subtitle', $subtitle);
+				$this->config->setSystemValue('subtitle', $subtitle);
 			}
 
 			// Return updated settings
 			$settings = [
-				'title' => $this->config->getAppValue(Application::APP_ID, 'title', 'Forum'),
-				'subtitle' => $this->config->getAppValue(Application::APP_ID, 'subtitle', 'Welcome to the forum'),
+				'title' => $this->config->getSystemValueString('title', $this->l10n->t('Forum')),
+				'subtitle' => $this->config->getSystemValueString('subtitle', $this->l10n->t('Welcome to the forum!')),
 			];
 
 			return new DataResponse($settings);

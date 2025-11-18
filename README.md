@@ -5,6 +5,8 @@ SPDX-License-Identifier: CC0-1.0
 
 # Nextcloud Forum
 
+![GitHub Release](https://img.shields.io/github/v/release/chenasraf/nextcloud-forum)
+
 A full-featured forum application for Nextcloud, allowing users to create discussion categories,
 threads, and posts within their Nextcloud instance.
 

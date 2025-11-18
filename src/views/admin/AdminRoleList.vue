@@ -1,104 +1,106 @@
 <template>
-  <div class="admin-role-list">
-    <div class="page-header">
-      <div class="header-content">
-        <div>
-          <h2>{{ strings.title }}</h2>
-          <p class="muted">{{ strings.subtitle }}</p>
-        </div>
-        <NcButton @click="createRole" variant="primary">
-          <template #icon>
-            <PlusIcon :size="20" />
-          </template>
-          {{ strings.createRole }}
-        </NcButton>
-      </div>
-    </div>
-
-    <!-- Loading state -->
-    <div v-if="loading" class="center mt-16">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
-
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
-      </template>
-    </NcEmptyContent>
-
-    <!-- Role list -->
-    <div v-else-if="roles.length > 0" class="roles-content">
-      <div class="roles-table">
-        <div class="table-header">
-          <div class="col-id">{{ strings.id }}</div>
-          <div class="col-name">{{ strings.name }}</div>
-          <div class="col-description">{{ strings.description }}</div>
-          <div class="col-created">{{ strings.created }}</div>
-          <div class="col-actions">{{ strings.actions }}</div>
-        </div>
-
-        <div v-for="role in roles" :key="role.id" class="table-row">
-          <div class="col-id">
-            <span class="role-id">{{ role.id }}</span>
+  <PageWrapper>
+    <div class="admin-role-list">
+      <div class="page-header">
+        <div class="header-content">
+          <div>
+            <h2>{{ strings.title }}</h2>
+            <p class="muted">{{ strings.subtitle }}</p>
           </div>
-
-          <div class="col-name">
-            <span class="role-name" :class="getRoleClass(role.id)">{{ role.name }}</span>
-          </div>
-
-          <div class="col-description">
-            <span v-if="role.description" class="role-description">{{ role.description }}</span>
-            <span v-else class="muted">{{ strings.noDescription }}</span>
-          </div>
-
-          <div class="col-created">
-            <NcDateTime :timestamp="role.createdAt * 1000" />
-          </div>
-
-          <div class="col-actions">
-            <NcActions>
-              <NcActionButton @click="editRole(role.id)">
-                <template #icon>
-                  <PencilIcon :size="20" />
-                </template>
-                {{ strings.edit }}
-              </NcActionButton>
-              <NcActionButton :disabled="isSystemRole(role.id)" @click="confirmDelete(role)">
-                <template #icon>
-                  <DeleteIcon :size="20" />
-                </template>
-                {{ strings.delete }}
-              </NcActionButton>
-            </NcActions>
-          </div>
+          <NcButton @click="createRole" variant="primary">
+            <template #icon>
+              <PlusIcon :size="20" />
+            </template>
+            {{ strings.createRole }}
+          </NcButton>
         </div>
       </div>
-    </div>
 
-    <!-- Empty state -->
-    <NcEmptyContent
-      v-else
-      :title="strings.emptyTitle"
-      :description="strings.emptyDesc"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="createRole">
-          <template #icon>
-            <PlusIcon :size="20" />
-          </template>
-          {{ strings.createRole }}
-        </NcButton>
-      </template>
-    </NcEmptyContent>
-  </div>
+      <!-- Loading state -->
+      <div v-if="loading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
+      </div>
+
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
+
+      <!-- Role list -->
+      <div v-else-if="roles.length > 0" class="roles-content">
+        <div class="roles-table">
+          <div class="table-header">
+            <div class="col-id">{{ strings.id }}</div>
+            <div class="col-name">{{ strings.name }}</div>
+            <div class="col-description">{{ strings.description }}</div>
+            <div class="col-created">{{ strings.created }}</div>
+            <div class="col-actions">{{ strings.actions }}</div>
+          </div>
+
+          <div v-for="role in roles" :key="role.id" class="table-row">
+            <div class="col-id">
+              <span class="role-id">{{ role.id }}</span>
+            </div>
+
+            <div class="col-name">
+              <span class="role-name" :class="getRoleClass(role.id)">{{ role.name }}</span>
+            </div>
+
+            <div class="col-description">
+              <span v-if="role.description" class="role-description">{{ role.description }}</span>
+              <span v-else class="muted">{{ strings.noDescription }}</span>
+            </div>
+
+            <div class="col-created">
+              <NcDateTime :timestamp="role.createdAt * 1000" />
+            </div>
+
+            <div class="col-actions">
+              <NcActions>
+                <NcActionButton @click="editRole(role.id)">
+                  <template #icon>
+                    <PencilIcon :size="20" />
+                  </template>
+                  {{ strings.edit }}
+                </NcActionButton>
+                <NcActionButton :disabled="isSystemRole(role.id)" @click="confirmDelete(role)">
+                  <template #icon>
+                    <DeleteIcon :size="20" />
+                  </template>
+                  {{ strings.delete }}
+                </NcActionButton>
+              </NcActions>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <NcEmptyContent
+        v-else
+        :title="strings.emptyTitle"
+        :description="strings.emptyDesc"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="createRole">
+            <template #icon>
+              <PlusIcon :size="20" />
+            </template>
+            {{ strings.createRole }}
+          </NcButton>
+        </template>
+      </NcEmptyContent>
+    </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -112,6 +114,7 @@ import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Role } from '@/types'
@@ -128,6 +131,7 @@ export default defineComponent({
     PlusIcon,
     PencilIcon,
     DeleteIcon,
+    PageWrapper,
   },
   data() {
     return {

@@ -1,64 +1,66 @@
 <template>
-  <div class="categories-view">
-    <header class="page-header">
-      <h2>{{ forumTitle }}</h2>
-      <p class="muted">{{ forumSubtitle }}</p>
-    </header>
+  <PageWrapper :full-width="true">
+    <div class="categories-view">
+      <header class="page-header">
+        <h2>{{ forumTitle }}</h2>
+        <p class="muted">{{ forumSubtitle }}</p>
+      </header>
 
-    <!-- Toolbar -->
-    <AppToolbar>
-      <template #left>
-        <h2 class="view-title">{{ strings.title }}</h2>
-      </template>
+      <!-- Toolbar -->
+      <AppToolbar>
+        <template #left>
+          <h2 class="view-title">{{ strings.title }}</h2>
+        </template>
 
-      <template #right>
-        <NcButton
-          @click="refresh"
-          :disabled="loading"
-          :aria-label="strings.refresh"
-          :title="strings.refresh"
-        >
-          <template #icon>
-            <RefreshIcon :size="20" />
-          </template>
-        </NcButton>
-      </template>
-    </AppToolbar>
+        <template #right>
+          <NcButton
+            @click="refresh"
+            :disabled="loading"
+            :aria-label="strings.refresh"
+            :title="strings.refresh"
+          >
+            <template #icon>
+              <RefreshIcon :size="20" />
+            </template>
+          </NcButton>
+        </template>
+      </AppToolbar>
 
-    <!-- Loading state -->
-    <div class="center mt-16" v-if="loading">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
-
-    <!-- Empty state -->
-    <NcEmptyContent
-      v-else-if="categoryHeaders.length === 0"
-      :title="strings.emptyTitle"
-      :description="strings.emptyDesc"
-      class="mt-16"
-    />
-
-    <!-- Categories list -->
-    <section v-else class="mt-16">
-      <div v-for="header in categoryHeaders" :key="header.id" class="header-section">
-        <h3 class="header-title">{{ header.name }}</h3>
-
-        <!-- Categories grid -->
-        <div v-if="header.categories && header.categories.length > 0" class="categories-grid">
-          <CategoryCard
-            v-for="category in header.categories"
-            :key="category.id"
-            :category="category"
-            @click="navigateToCategory(category)"
-          />
-        </div>
-
-        <!-- Empty state for header with no categories -->
-        <p v-else class="no-categories muted">{{ strings.noCategories }}</p>
+      <!-- Loading state -->
+      <div class="center mt-16" v-if="loading">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
       </div>
-    </section>
-  </div>
+
+      <!-- Empty state -->
+      <NcEmptyContent
+        v-else-if="categoryHeaders.length === 0"
+        :title="strings.emptyTitle"
+        :description="strings.emptyDesc"
+        class="mt-16"
+      />
+
+      <!-- Categories list -->
+      <section v-else class="mt-16">
+        <div v-for="header in categoryHeaders" :key="header.id" class="header-section">
+          <h3 class="header-title">{{ header.name }}</h3>
+
+          <!-- Categories grid -->
+          <div v-if="header.categories && header.categories.length > 0" class="categories-grid">
+            <CategoryCard
+              v-for="category in header.categories"
+              :key="category.id"
+              :category="category"
+              @click="navigateToCategory(category)"
+            />
+          </div>
+
+          <!-- Empty state for header with no categories -->
+          <p v-else class="no-categories muted">{{ strings.noCategories }}</p>
+        </div>
+      </section>
+    </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -67,6 +69,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppToolbar from '@/components/AppToolbar.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import CategoryCard from '@/components/CategoryCard.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import { useCategories } from '@/composables/useCategories'
@@ -81,6 +84,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     AppToolbar,
+    PageWrapper,
     CategoryCard,
     RefreshIcon,
   },

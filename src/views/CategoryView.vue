@@ -1,100 +1,102 @@
 <template>
-  <div class="category-view">
-    <!-- Toolbar -->
-    <AppToolbar>
-      <template #left>
-        <NcButton @click="goBack">
-          <template #icon>
-            <ArrowLeftIcon :size="20" />
-          </template>
-          {{ strings.back }}
-        </NcButton>
-      </template>
+  <PageWrapper :full-width="true">
+    <div class="category-view">
+      <!-- Toolbar -->
+      <AppToolbar>
+        <template #left>
+          <NcButton @click="goBack">
+            <template #icon>
+              <ArrowLeftIcon :size="20" />
+            </template>
+            {{ strings.back }}
+          </NcButton>
+        </template>
 
-      <template #right>
-        <NcButton
-          @click="refresh"
-          :disabled="loading"
-          :aria-label="strings.refresh"
-          :title="strings.refresh"
-        >
-          <template #icon>
-            <RefreshIcon :size="20" />
-          </template>
-        </NcButton>
-        <NcButton @click="createThread" :disabled="loading" variant="primary">
-          <template #icon>
-            <MessagePlusIcon :size="20" />
-          </template>
-          {{ strings.newThread }}
-        </NcButton>
-      </template>
-    </AppToolbar>
+        <template #right>
+          <NcButton
+            @click="refresh"
+            :disabled="loading"
+            :aria-label="strings.refresh"
+            :title="strings.refresh"
+          >
+            <template #icon>
+              <RefreshIcon :size="20" />
+            </template>
+          </NcButton>
+          <NcButton @click="createThread" :disabled="loading" variant="primary">
+            <template #icon>
+              <MessagePlusIcon :size="20" />
+            </template>
+            {{ strings.newThread }}
+          </NcButton>
+        </template>
+      </AppToolbar>
 
-    <!-- Category Header -->
-    <div v-if="category && !loading" class="category-header mt-16">
-      <h2 class="category-name">{{ category.name }}</h2>
-      <p v-if="category.description" class="category-description">{{ category.description }}</p>
-    </div>
-
-    <!-- Loading state -->
-    <div class="center mt-16" v-if="loading">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
-
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">
-          <template #icon>
-            <RefreshIcon :size="20" />
-          </template>
-          {{ strings.retry }}
-        </NcButton>
-      </template>
-    </NcEmptyContent>
-
-    <!-- Empty state -->
-    <NcEmptyContent
-      v-else-if="threads.length === 0"
-      :title="strings.emptyTitle"
-      :description="strings.emptyDesc"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="createThread" variant="primary">
-          <template #icon>
-            <MessagePlusIcon :size="20" />
-          </template>
-          {{ strings.newThread }}
-        </NcButton>
-      </template>
-    </NcEmptyContent>
-
-    <!-- Threads list -->
-    <section v-else class="mt-16">
-      <div class="threads-list">
-        <ThreadCard
-          v-for="thread in sortedThreads"
-          :key="thread.id"
-          :thread="thread"
-          :is-unread="isThreadUnread(thread)"
-          @click="navigateToThread(thread)"
-        />
+      <!-- Category Header -->
+      <div v-if="category && !loading" class="category-header mt-16">
+        <h2 class="category-name">{{ category.name }}</h2>
+        <p v-if="category.description" class="category-description">{{ category.description }}</p>
       </div>
 
-      <!-- Pagination info -->
-      <div v-if="threads.length >= limit" class="pagination-info mt-16">
-        <p class="muted">{{ strings.showingThreads(threads.length) }}</p>
+      <!-- Loading state -->
+      <div class="center mt-16" v-if="loading">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
       </div>
-    </section>
-  </div>
+
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">
+            <template #icon>
+              <RefreshIcon :size="20" />
+            </template>
+            {{ strings.retry }}
+          </NcButton>
+        </template>
+      </NcEmptyContent>
+
+      <!-- Empty state -->
+      <NcEmptyContent
+        v-else-if="threads.length === 0"
+        :title="strings.emptyTitle"
+        :description="strings.emptyDesc"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="createThread" variant="primary">
+            <template #icon>
+              <MessagePlusIcon :size="20" />
+            </template>
+            {{ strings.newThread }}
+          </NcButton>
+        </template>
+      </NcEmptyContent>
+
+      <!-- Threads list -->
+      <section v-else class="mt-16">
+        <div class="threads-list">
+          <ThreadCard
+            v-for="thread in sortedThreads"
+            :key="thread.id"
+            :thread="thread"
+            :is-unread="isThreadUnread(thread)"
+            @click="navigateToThread(thread)"
+          />
+        </div>
+
+        <!-- Pagination info -->
+        <div v-if="threads.length >= limit" class="pagination-info mt-16">
+          <p class="muted">{{ strings.showingThreads(threads.length) }}</p>
+        </div>
+      </section>
+    </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -103,6 +105,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppToolbar from '@/components/AppToolbar.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import ThreadCard from '@/components/ThreadCard.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
@@ -118,6 +121,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     AppToolbar,
+    PageWrapper,
     ThreadCard,
     ArrowLeftIcon,
     RefreshIcon,

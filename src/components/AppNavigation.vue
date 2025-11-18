@@ -55,17 +55,17 @@
             </NcAppNavigationItem>
           </template>
         </NcAppNavigationItem>
-      </NcAppNavigationItem>
 
-      <!-- Preferences menu item -->
-      <NcAppNavigationItem
-        :name="strings.navPreferences"
-        :to="{ path: '/preferences' }"
-        :active="isPreferencesActive"
-      >
-        <template #icon>
-          <AccountCogIcon :size="20" />
-        </template>
+        <!-- Preferences menu item -->
+        <NcAppNavigationItem
+          :name="strings.navPreferences"
+          :to="{ path: '/preferences' }"
+          :active="isPreferencesActive"
+        >
+          <template #icon>
+            <AccountCogIcon :size="20" />
+          </template>
+        </NcAppNavigationItem>
       </NcAppNavigationItem>
 
       <!-- Admin menu item - only visible to admins -->

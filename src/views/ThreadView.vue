@@ -1,195 +1,197 @@
 <template>
-  <div class="thread-view">
-    <!-- Toolbar -->
-    <AppToolbar>
-      <template #left>
-        <NcButton @click="goBack">
-          <template #icon>
-            <ArrowLeftIcon :size="20" />
-          </template>
-          {{ thread?.categoryName ? strings.backToCategory(thread.categoryName) : strings.back }}
-        </NcButton>
-      </template>
-
-      <template #right>
-        <!-- Subscription toggle switch -->
-        <NcCheckboxRadioSwitch
-          v-if="!loading && thread"
-          v-model="thread.isSubscribed"
-          @update:model-value="handleToggleSubscription"
-          type="switch"
-        >
-          <span class="icon-label">
-            <BellIcon :size="20" />
-            {{ thread.isSubscribed ? strings.subscribed : strings.subscribe }}
-          </span>
-        </NcCheckboxRadioSwitch>
-
-        <NcButton
-          @click="refresh"
-          :disabled="loading"
-          :aria-label="strings.refresh"
-          :title="strings.refresh"
-        >
-          <template #icon>
-            <RefreshIcon :size="20" />
-          </template>
-        </NcButton>
-
-        <!-- Moderation buttons (only visible to moderators) -->
-        <template v-if="canModerate && !loading">
-          <NcButton
-            @click="handleToggleLock"
-            :aria-label="thread?.isLocked ? strings.unlockThread : strings.lockThread"
-            :title="thread?.isLocked ? strings.unlockThread : strings.lockThread"
-          >
+  <PageWrapper :full-width="true">
+    <div class="thread-view">
+      <!-- Toolbar -->
+      <AppToolbar>
+        <template #left>
+          <NcButton @click="goBack">
             <template #icon>
-              <LockOpenIcon v-if="thread?.isLocked" :size="20" />
-              <LockIcon v-else :size="20" />
+              <ArrowLeftIcon :size="20" />
             </template>
-          </NcButton>
-
-          <NcButton
-            @click="handleTogglePin"
-            :aria-label="thread?.isPinned ? strings.unpinThread : strings.pinThread"
-            :title="thread?.isPinned ? strings.unpinThread : strings.pinThread"
-          >
-            <template #icon>
-              <PinOffIcon v-if="thread?.isPinned" :size="20" />
-              <PinIcon v-else :size="20" />
-            </template>
+            {{ thread?.categoryName ? strings.backToCategory(thread.categoryName) : strings.back }}
           </NcButton>
         </template>
 
-        <NcButton
-          @click="replyToThread"
-          :disabled="loading || (thread?.isLocked && !canModerate)"
-          variant="primary"
-        >
-          <template #icon>
-            <ReplyIcon :size="20" />
-          </template>
-          {{ strings.reply }}
-        </NcButton>
-      </template>
-    </AppToolbar>
-
-    <!-- Loading state -->
-    <div class="center mt-16" v-if="loading">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
-
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">
-          <template #icon>
-            <RefreshIcon :size="20" />
-          </template>
-          {{ strings.retry }}
-        </NcButton>
-      </template>
-    </NcEmptyContent>
-
-    <!-- Thread Header -->
-    <div v-else-if="thread" class="thread-header mt-16">
-      <div class="thread-title-section">
-        <h2 class="thread-title">
-          <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
-            <PinIcon :size="20" />
-          </span>
-          <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">
-            <LockIcon :size="20" />
-          </span>
-          {{ thread.title }}
-        </h2>
-        <div class="thread-meta">
-          <span class="meta-item">
-            <span class="meta-label">{{ strings.by }}</span>
-            <span class="meta-value" :class="{ 'deleted-user': thread.authorIsDeleted }">
-              {{ thread.authorDisplayName || thread.authorId }}
+        <template #right>
+          <!-- Subscription toggle switch -->
+          <NcCheckboxRadioSwitch
+            v-if="!loading && thread"
+            v-model="thread.isSubscribed"
+            @update:model-value="handleToggleSubscription"
+            type="switch"
+          >
+            <span class="icon-label">
+              <BellIcon :size="20" />
+              {{ thread.isSubscribed ? strings.subscribed : strings.subscribe }}
             </span>
-          </span>
-          <span class="meta-divider">·</span>
-          <span class="meta-item">
-            <NcDateTime v-if="thread.createdAt" :timestamp="thread.createdAt * 1000" />
-          </span>
-          <span class="meta-divider">·</span>
-          <span class="meta-item">
-            <span class="stat-icon">
-              <EyeIcon :size="16" />
-            </span>
-            <span class="stat-label">{{ strings.views(thread.viewCount) }}</span>
-          </span>
-        </div>
-      </div>
-    </div>
+          </NcCheckboxRadioSwitch>
 
-    <!-- Posts list -->
-    <section v-if="!loading && !error && posts.length > 0" class="mt-16">
-      <div class="posts-list">
-        <PostCard
-          v-for="(post, index) in posts"
-          :key="post.id"
-          :ref="(el) => setPostCardRef(el, post.id)"
-          :post="post"
-          :is-first-post="index === 0"
-          :is-unread="isPostUnread(post)"
-          @reply="handleReply"
-          @update="handleUpdate"
-          @delete="handleDelete"
-        />
-      </div>
+          <NcButton
+            @click="refresh"
+            :disabled="loading"
+            :aria-label="strings.refresh"
+            :title="strings.refresh"
+          >
+            <template #icon>
+              <RefreshIcon :size="20" />
+            </template>
+          </NcButton>
 
-      <!-- Pagination info -->
-      <div v-if="posts.length >= limit" class="pagination-info mt-16">
-        <p class="muted">{{ strings.showingPosts(posts.length) }}</p>
-      </div>
-    </section>
+          <!-- Moderation buttons (only visible to moderators) -->
+          <template v-if="canModerate && !loading">
+            <NcButton
+              @click="handleToggleLock"
+              :aria-label="thread?.isLocked ? strings.unlockThread : strings.lockThread"
+              :title="thread?.isLocked ? strings.unlockThread : strings.lockThread"
+            >
+              <template #icon>
+                <LockOpenIcon v-if="thread?.isLocked" :size="20" />
+                <LockIcon v-else :size="20" />
+              </template>
+            </NcButton>
 
-    <!-- Empty posts state (thread exists but no posts) -->
-    <NcEmptyContent
-      v-else-if="!loading && !error && thread && posts.length === 0"
-      :title="strings.emptyPostsTitle"
-      :description="strings.emptyPostsDesc"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="replyToThread" variant="primary">
-          <template #icon>
-            <ReplyIcon :size="20" />
+            <NcButton
+              @click="handleTogglePin"
+              :aria-label="thread?.isPinned ? strings.unpinThread : strings.pinThread"
+              :title="thread?.isPinned ? strings.unpinThread : strings.pinThread"
+            >
+              <template #icon>
+                <PinOffIcon v-if="thread?.isPinned" :size="20" />
+                <PinIcon v-else :size="20" />
+              </template>
+            </NcButton>
           </template>
-          {{ strings.reply }}
-        </NcButton>
-      </template>
-    </NcEmptyContent>
 
-    <!-- Locked message (only shown to non-moderators) -->
-    <div
-      v-if="!loading && !error && thread && thread.isLocked && !canModerate"
-      class="locked-message mt-16"
-    >
-      <NcEmptyContent :title="strings.locked" :description="strings.lockedMessage">
-        <template #icon>
-          <LockIcon :size="64" />
+          <NcButton
+            @click="replyToThread"
+            :disabled="loading || (thread?.isLocked && !canModerate)"
+            variant="primary"
+          >
+            <template #icon>
+              <ReplyIcon :size="20" />
+            </template>
+            {{ strings.reply }}
+          </NcButton>
+        </template>
+      </AppToolbar>
+
+      <!-- Loading state -->
+      <div class="center mt-16" v-if="loading">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
+      </div>
+
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">
+            <template #icon>
+              <RefreshIcon :size="20" />
+            </template>
+            {{ strings.retry }}
+          </NcButton>
         </template>
       </NcEmptyContent>
-    </div>
 
-    <!-- Reply form (moderators can reply even when locked) -->
-    <PostReplyForm
-      v-if="!loading && !error && thread && (!thread.isLocked || canModerate)"
-      ref="replyForm"
-      @submit="handleSubmitReply"
-      @cancel="handleCancelReply"
-    />
-  </div>
+      <!-- Thread Header -->
+      <div v-else-if="thread" class="thread-header mt-16">
+        <div class="thread-title-section">
+          <h2 class="thread-title">
+            <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
+              <PinIcon :size="20" />
+            </span>
+            <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">
+              <LockIcon :size="20" />
+            </span>
+            {{ thread.title }}
+          </h2>
+          <div class="thread-meta">
+            <span class="meta-item">
+              <span class="meta-label">{{ strings.by }}</span>
+              <span class="meta-value" :class="{ 'deleted-user': thread.authorIsDeleted }">
+                {{ thread.authorDisplayName || thread.authorId }}
+              </span>
+            </span>
+            <span class="meta-divider">·</span>
+            <span class="meta-item">
+              <NcDateTime v-if="thread.createdAt" :timestamp="thread.createdAt * 1000" />
+            </span>
+            <span class="meta-divider">·</span>
+            <span class="meta-item">
+              <span class="stat-icon">
+                <EyeIcon :size="16" />
+              </span>
+              <span class="stat-label">{{ strings.views(thread.viewCount) }}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Posts list -->
+      <section v-if="!loading && !error && posts.length > 0" class="mt-16">
+        <div class="posts-list">
+          <PostCard
+            v-for="(post, index) in posts"
+            :key="post.id"
+            :ref="(el) => setPostCardRef(el, post.id)"
+            :post="post"
+            :is-first-post="index === 0"
+            :is-unread="isPostUnread(post)"
+            @reply="handleReply"
+            @update="handleUpdate"
+            @delete="handleDelete"
+          />
+        </div>
+
+        <!-- Pagination info -->
+        <div v-if="posts.length >= limit" class="pagination-info mt-16">
+          <p class="muted">{{ strings.showingPosts(posts.length) }}</p>
+        </div>
+      </section>
+
+      <!-- Empty posts state (thread exists but no posts) -->
+      <NcEmptyContent
+        v-else-if="!loading && !error && thread && posts.length === 0"
+        :title="strings.emptyPostsTitle"
+        :description="strings.emptyPostsDesc"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="replyToThread" variant="primary">
+            <template #icon>
+              <ReplyIcon :size="20" />
+            </template>
+            {{ strings.reply }}
+          </NcButton>
+        </template>
+      </NcEmptyContent>
+
+      <!-- Locked message (only shown to non-moderators) -->
+      <div
+        v-if="!loading && !error && thread && thread.isLocked && !canModerate"
+        class="locked-message mt-16"
+      >
+        <NcEmptyContent :title="strings.locked" :description="strings.lockedMessage">
+          <template #icon>
+            <LockIcon :size="64" />
+          </template>
+        </NcEmptyContent>
+      </div>
+
+      <!-- Reply form (moderators can reply even when locked) -->
+      <PostReplyForm
+        v-if="!loading && !error && thread && (!thread.isLocked || canModerate)"
+        ref="replyForm"
+        @submit="handleSubmitReply"
+        @cancel="handleCancelReply"
+      />
+    </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -200,6 +202,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import AppToolbar from '@/components/AppToolbar.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import PostCard from '@/components/PostCard.vue'
 import PostReplyForm from '@/components/PostReplyForm.vue'
 import PinIcon from '@icons/Pin.vue'
@@ -227,6 +230,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcDateTime,
     AppToolbar,
+    PageWrapper,
     PostCard,
     PostReplyForm,
     PinIcon,

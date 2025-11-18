@@ -1,78 +1,80 @@
 <template>
   <div class="admin-general-settings">
-    <div class="page-header">
-      <h2>{{ strings.title }}</h2>
-      <p class="muted">{{ strings.subtitle }}</p>
-    </div>
+    <PageWrapper>
+      <div class="page-header">
+        <h2>{{ strings.title }}</h2>
+        <p class="muted">{{ strings.subtitle }}</p>
+      </div>
 
-    <!-- Loading state -->
-    <div v-if="loading" class="center mt-16">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
+      <!-- Loading state -->
+      <div v-if="loading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
+      </div>
 
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="loadSettings">{{ strings.retry }}</NcButton>
-      </template>
-    </NcEmptyContent>
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="loadSettings">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
 
-    <!-- Settings form -->
-    <div v-else class="settings-form">
-      <div class="form-section">
-        <h3>{{ strings.appearanceTitle }}</h3>
-        <p class="muted">{{ strings.appearanceDesc }}</p>
+      <!-- Settings form -->
+      <div v-else class="settings-form">
+        <div class="form-section">
+          <h3>{{ strings.appearanceTitle }}</h3>
+          <p class="muted">{{ strings.appearanceDesc }}</p>
 
-        <div class="form-group">
-          <label for="forum-title">{{ strings.forumTitle }}</label>
-          <NcTextField
-            id="forum-title"
-            v-model.trim="formData.title"
-            :placeholder="strings.forumTitlePlaceholder"
-            :maxlength="100"
-          />
-          <p class="hint">{{ strings.forumTitleHint }}</p>
+          <div class="form-group">
+            <label for="forum-title">{{ strings.forumTitle }}</label>
+            <NcTextField
+              id="forum-title"
+              v-model.trim="formData.title"
+              :placeholder="strings.forumTitlePlaceholder"
+              :maxlength="100"
+            />
+            <p class="hint">{{ strings.forumTitleHint }}</p>
+          </div>
+
+          <div class="form-group">
+            <label for="forum-subtitle">{{ strings.forumSubtitle }}</label>
+            <NcTextArea
+              id="forum-subtitle"
+              v-model.trim="formData.subtitle"
+              :placeholder="strings.forumSubtitlePlaceholder"
+              :rows="3"
+              :maxlength="500"
+            />
+            <p class="hint">{{ strings.forumSubtitleHint }}</p>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="forum-subtitle">{{ strings.forumSubtitle }}</label>
-          <NcTextArea
-            id="forum-subtitle"
-            v-model.trim="formData.subtitle"
-            :placeholder="strings.forumSubtitlePlaceholder"
-            :rows="3"
-            :maxlength="500"
-          />
-          <p class="hint">{{ strings.forumSubtitleHint }}</p>
+        <!-- Actions -->
+        <div class="form-actions">
+          <NcButton :disabled="saving || !hasChanges" @click="saveSettings">
+            <template #icon>
+              <NcLoadingIcon v-if="saving" :size="20" />
+              <CheckIcon v-else :size="20" />
+            </template>
+            {{ strings.save }}
+          </NcButton>
+          <NcButton :disabled="saving || !hasChanges" @click="resetForm">
+            {{ strings.cancel }}
+          </NcButton>
+        </div>
+
+        <!-- Success message -->
+        <div v-if="saveSuccess" class="success-message">
+          <CheckIcon :size="20" />
+          <span>{{ strings.saveSuccess }}</span>
         </div>
       </div>
-
-      <!-- Actions -->
-      <div class="form-actions">
-        <NcButton :disabled="saving || !hasChanges" @click="saveSettings">
-          <template #icon>
-            <NcLoadingIcon v-if="saving" :size="20" />
-            <CheckIcon v-else :size="20" />
-          </template>
-          {{ strings.save }}
-        </NcButton>
-        <NcButton :disabled="saving || !hasChanges" @click="resetForm">
-          {{ strings.cancel }}
-        </NcButton>
-      </div>
-
-      <!-- Success message -->
-      <div v-if="saveSuccess" class="success-message">
-        <CheckIcon :size="20" />
-        <span>{{ strings.saveSuccess }}</span>
-      </div>
-    </div>
+    </PageWrapper>
   </div>
 </template>
 
@@ -83,6 +85,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
+import PageWrapper from '@/components/PageWrapper.vue'
 import CheckIcon from '@icons/Check.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -100,6 +103,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcTextField,
     NcTextArea,
+    PageWrapper,
     CheckIcon,
   },
   data() {
@@ -225,7 +229,6 @@ export default defineComponent({
   }
 
   .settings-form {
-    max-width: 800px;
 
     .form-section {
       margin-bottom: 32px;

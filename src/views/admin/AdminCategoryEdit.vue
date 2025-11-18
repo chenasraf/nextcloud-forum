@@ -1,192 +1,195 @@
 <template>
-  <div class="admin-category-edit">
-    <div class="page-header">
-      <div class="header-actions">
-        <NcButton @click="goBack">
-          <template #icon>
-            <ArrowLeftIcon :size="20" />
-          </template>
-          {{ strings.back }}
-        </NcButton>
+  <PageWrapper>
+    <div class="admin-category-edit">
+      <div class="page-header">
+        <div class="header-actions">
+          <NcButton @click="goBack">
+            <template #icon>
+              <ArrowLeftIcon :size="20" />
+            </template>
+            {{ strings.back }}
+          </NcButton>
+        </div>
+        <div>
+          <h2>{{ isEditing ? strings.editCategory : strings.createCategory }}</h2>
+          <p class="muted">{{ strings.subtitle }}</p>
+        </div>
       </div>
-      <div>
-        <h2>{{ isEditing ? strings.editCategory : strings.createCategory }}</h2>
-        <p class="muted">{{ strings.subtitle }}</p>
+
+      <!-- Loading state -->
+      <div v-if="loading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
       </div>
-    </div>
 
-    <!-- Loading state -->
-    <div v-if="loading" class="center mt-16">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
 
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
-      </template>
-    </NcEmptyContent>
+      <!-- Form -->
+      <div v-else class="category-form">
+        <section class="form-section">
+          <h3>{{ strings.basicInfo }}</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>{{ strings.categoryHeader }} *</label>
+              <div class="header-select-row">
+                <NcSelect
+                  v-model="selectedHeader"
+                  :options="headerOptions"
+                  :placeholder="strings.selectHeader"
+                  label="label"
+                  track-by="id"
+                  class="header-select"
+                />
+                <NcButton @click="createNewHeader">
+                  <template #icon>
+                    <PlusIcon :size="20" />
+                  </template>
+                  {{ strings.newHeader }}
+                </NcButton>
+                <NcButton v-if="selectedHeader" @click="editHeader">
+                  <template #icon>
+                    <PencilIcon :size="20" />
+                  </template>
+                  {{ strings.editHeader }}
+                </NcButton>
+              </div>
+            </div>
 
-    <!-- Form -->
-    <div v-else class="category-form">
-      <section class="form-section">
-        <h3>{{ strings.basicInfo }}</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>{{ strings.categoryHeader }} *</label>
-            <div class="header-select-row">
-              <NcSelect
-                v-model="selectedHeader"
-                :options="headerOptions"
-                :placeholder="strings.selectHeader"
-                label="label"
-                track-by="id"
-                class="header-select"
+            <div class="form-group">
+              <NcTextField
+                v-model="formData.name"
+                :label="strings.name"
+                :placeholder="strings.namePlaceholder"
+                :required="true"
               />
-              <NcButton @click="createNewHeader">
-                <template #icon>
-                  <PlusIcon :size="20" />
-                </template>
-                {{ strings.newHeader }}
-              </NcButton>
-              <NcButton v-if="selectedHeader" @click="editHeader">
-                <template #icon>
-                  <PencilIcon :size="20" />
-                </template>
-                {{ strings.editHeader }}
-              </NcButton>
+            </div>
+
+            <div class="form-group">
+              <NcTextField
+                v-model="formData.slug"
+                :label="strings.slug"
+                :placeholder="strings.slugPlaceholder"
+                :required="true"
+              />
+              <p class="help-text muted">{{ strings.slugHelp }}</p>
+            </div>
+
+            <div class="form-group">
+              <NcTextArea
+                v-model="formData.description"
+                :label="strings.description"
+                :placeholder="strings.descriptionPlaceholder"
+                :rows="3"
+              />
             </div>
           </div>
+        </section>
 
-          <div class="form-group">
-            <NcTextField
-              v-model="formData.name"
-              :label="strings.name"
-              :placeholder="strings.namePlaceholder"
-              :required="true"
-            />
+        <!-- Permissions Section -->
+        <section class="form-section">
+          <h3>{{ strings.permissions }}</h3>
+          <p class="muted">{{ strings.permissionsDescription }}</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>{{ strings.viewRoles }}</label>
+              <NcSelect
+                v-model="selectedViewRoles"
+                :options="roleOptions"
+                :placeholder="strings.selectRoles"
+                label="label"
+                track-by="id"
+                :multiple="true"
+                :taggable="false"
+                :close-on-select="false"
+              />
+              <p class="help-text muted">{{ strings.viewRolesHelp }}</p>
+            </div>
+
+            <div class="form-group">
+              <label>{{ strings.moderateRoles }}</label>
+              <NcSelect
+                v-model="selectedModerateRoles"
+                :options="roleOptions"
+                :placeholder="strings.selectRoles"
+                label="label"
+                track-by="id"
+                :multiple="true"
+                :taggable="false"
+                :close-on-select="false"
+              />
+              <p class="help-text muted">{{ strings.moderateRolesHelp }}</p>
+            </div>
           </div>
+        </section>
 
+        <!-- Actions -->
+        <div class="form-actions">
+          <NcButton @click="goBack">{{ strings.cancel }}</NcButton>
+          <NcButton variant="primary" :disabled="!canSubmit || submitting" @click="submitForm">
+            <template v-if="submitting" #icon>
+              <NcLoadingIcon :size="20" />
+            </template>
+            {{ isEditing ? strings.update : strings.create }}
+          </NcButton>
+        </div>
+      </div>
+
+      <!-- Header Edit/Create Dialog -->
+      <NcDialog
+        v-if="headerDialog.show"
+        :name="headerDialog.isEditing ? strings.editHeaderTitle : strings.createHeaderTitle"
+        @close="headerDialog.show = false"
+      >
+        <div class="header-dialog-content">
           <div class="form-group">
             <NcTextField
-              v-model="formData.slug"
-              :label="strings.slug"
-              :placeholder="strings.slugPlaceholder"
+              v-model="headerDialog.name"
+              :label="strings.headerName"
+              :placeholder="strings.headerNamePlaceholder"
               :required="true"
             />
-            <p class="help-text muted">{{ strings.slugHelp }}</p>
           </div>
 
           <div class="form-group">
             <NcTextArea
-              v-model="formData.description"
-              :label="strings.description"
-              :placeholder="strings.descriptionPlaceholder"
-              :rows="3"
+              v-model="headerDialog.description"
+              :label="strings.headerDescription"
+              :placeholder="strings.headerDescriptionPlaceholder"
+              :rows="2"
             />
           </div>
         </div>
-      </section>
 
-      <!-- Permissions Section -->
-      <section class="form-section">
-        <h3>{{ strings.permissions }}</h3>
-        <p class="muted">{{ strings.permissionsDescription }}</p>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label>{{ strings.viewRoles }}</label>
-            <NcSelect
-              v-model="selectedViewRoles"
-              :options="roleOptions"
-              :placeholder="strings.selectRoles"
-              label="label"
-              track-by="id"
-              :multiple="true"
-              :taggable="false"
-              :close-on-select="false"
-            />
-            <p class="help-text muted">{{ strings.viewRolesHelp }}</p>
-          </div>
-
-          <div class="form-group">
-            <label>{{ strings.moderateRoles }}</label>
-            <NcSelect
-              v-model="selectedModerateRoles"
-              :options="roleOptions"
-              :placeholder="strings.selectRoles"
-              label="label"
-              track-by="id"
-              :multiple="true"
-              :taggable="false"
-              :close-on-select="false"
-            />
-            <p class="help-text muted">{{ strings.moderateRolesHelp }}</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Actions -->
-      <div class="form-actions">
-        <NcButton @click="goBack">{{ strings.cancel }}</NcButton>
-        <NcButton variant="primary" :disabled="!canSubmit || submitting" @click="submitForm">
-          <template v-if="submitting" #icon>
-            <NcLoadingIcon :size="20" />
-          </template>
-          {{ isEditing ? strings.update : strings.create }}
-        </NcButton>
-      </div>
+        <template #actions>
+          <NcButton @click="headerDialog.show = false">
+            {{ strings.cancel }}
+          </NcButton>
+          <NcButton variant="primary" :disabled="!headerDialog.name.trim()" @click="saveHeader">
+            <template v-if="headerDialog.submitting" #icon>
+              <NcLoadingIcon :size="20" />
+            </template>
+            {{ headerDialog.isEditing ? strings.update : strings.create }}
+          </NcButton>
+        </template>
+      </NcDialog>
     </div>
-
-    <!-- Header Edit/Create Dialog -->
-    <NcDialog
-      v-if="headerDialog.show"
-      :name="headerDialog.isEditing ? strings.editHeaderTitle : strings.createHeaderTitle"
-      @close="headerDialog.show = false"
-    >
-      <div class="header-dialog-content">
-        <div class="form-group">
-          <NcTextField
-            v-model="headerDialog.name"
-            :label="strings.headerName"
-            :placeholder="strings.headerNamePlaceholder"
-            :required="true"
-          />
-        </div>
-
-        <div class="form-group">
-          <NcTextArea
-            v-model="headerDialog.description"
-            :label="strings.headerDescription"
-            :placeholder="strings.headerDescriptionPlaceholder"
-            :rows="2"
-          />
-        </div>
-      </div>
-
-      <template #actions>
-        <NcButton @click="headerDialog.show = false">
-          {{ strings.cancel }}
-        </NcButton>
-        <NcButton variant="primary" :disabled="!headerDialog.name.trim()" @click="saveHeader">
-          <template v-if="headerDialog.submitting" #icon>
-            <NcLoadingIcon :size="20" />
-          </template>
-          {{ headerDialog.isEditing ? strings.update : strings.create }}
-        </NcButton>
-      </template>
-    </NcDialog>
-  </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
@@ -211,6 +214,7 @@ export default defineComponent({
     NcSelect,
     NcTextField,
     NcTextArea,
+    PageWrapper,
     ArrowLeftIcon,
     PlusIcon,
     PencilIcon,
@@ -559,8 +563,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .admin-category-edit {
-  max-width: 800px;
-
   .muted {
     color: var(--color-text-maxcontrast);
     opacity: 0.7;

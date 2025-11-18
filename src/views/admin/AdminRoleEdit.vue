@@ -1,163 +1,165 @@
 <template>
-  <div class="admin-role-edit">
-    <div class="page-header">
-      <div class="header-actions">
-        <NcButton @click="goBack">
-          <template #icon>
-            <ArrowLeftIcon :size="20" />
-          </template>
-          {{ strings.back }}
-        </NcButton>
-      </div>
-      <div>
-        <h2>{{ isEditing ? strings.editRole : strings.createRole }}</h2>
-        <p class="muted">{{ strings.subtitle }}</p>
-      </div>
-    </div>
-
-    <!-- Loading state -->
-    <div v-if="loading" class="center mt-16">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
-
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
-      </template>
-    </NcEmptyContent>
-
-    <!-- Form -->
-    <div v-else class="role-form">
-      <!-- Basic Info Section -->
-      <section class="form-section">
-        <h3>{{ strings.basicInfo }}</h3>
-        <div class="form-grid">
-          <div class="form-group">
-            <NcTextField
-              v-model="formData.name"
-              :label="strings.name"
-              :placeholder="strings.namePlaceholder"
-              :disabled="isSystemRole"
-              :required="true"
-            />
-            <p v-if="isSystemRole" class="help-text muted">
-              {{ strings.systemRoleNameWarning }}
-            </p>
-          </div>
-
-          <div class="form-group">
-            <NcTextArea
-              v-model="formData.description"
-              :label="strings.description"
-              :placeholder="strings.descriptionPlaceholder"
-              :rows="3"
-            />
-          </div>
+  <PageWrapper>
+    <div class="admin-role-edit">
+      <div class="page-header">
+        <div class="header-actions">
+          <NcButton @click="goBack">
+            <template #icon>
+              <ArrowLeftIcon :size="20" />
+            </template>
+            {{ strings.back }}
+          </NcButton>
         </div>
-      </section>
-
-      <!-- Role Permissions Section -->
-      <section class="form-section">
-        <h3>{{ strings.rolePermissions }}</h3>
-        <p class="muted">{{ strings.rolePermissionsDesc }}</p>
-
-        <div class="permissions-checkboxes">
-          <div class="checkbox-group">
-            <NcCheckboxRadioSwitch v-model="formData.canAccessAdminTools">
-              <strong>{{ strings.canAccessAdminTools }}</strong>
-              <span class="checkbox-desc muted">{{ strings.canAccessAdminToolsDesc }}</span>
-            </NcCheckboxRadioSwitch>
-          </div>
-
-          <div class="checkbox-group">
-            <NcCheckboxRadioSwitch v-model="formData.canEditRoles">
-              <strong>{{ strings.canEditRoles }}</strong>
-              <span class="checkbox-desc muted">{{ strings.canEditRolesDesc }}</span>
-            </NcCheckboxRadioSwitch>
-          </div>
-
-          <div class="checkbox-group">
-            <NcCheckboxRadioSwitch v-model="formData.canEditCategories">
-              <strong>{{ strings.canEditCategories }}</strong>
-              <span class="checkbox-desc muted">{{ strings.canEditCategoriesDesc }}</span>
-            </NcCheckboxRadioSwitch>
-          </div>
+        <div>
+          <h2>{{ isEditing ? strings.editRole : strings.createRole }}</h2>
+          <p class="muted">{{ strings.subtitle }}</p>
         </div>
-      </section>
+      </div>
 
-      <!-- Category Permissions Section -->
-      <section class="form-section">
-        <h3>{{ strings.categoryPermissions }}</h3>
-        <p v-if="isAdmin" class="info-message">
-          <InformationIcon :size="20" />
-          {{ strings.adminFullAccess }}
-        </p>
-        <p v-else class="muted">{{ strings.categoryPermissionsDesc }}</p>
+      <!-- Loading state -->
+      <div v-if="loading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
+      </div>
 
-        <div v-if="categoryHeaders.length > 0" class="permissions-table">
-          <div class="table-header">
-            <div class="col-category">{{ strings.category }}</div>
-            <div class="col-permission">{{ strings.canView }}</div>
-            <div class="col-permission">{{ strings.canModerate }}</div>
-          </div>
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
 
-          <template v-for="header in categoryHeaders" :key="`header-${header.id}`">
-            <!-- Header row -->
-            <div class="table-header-row">
-              <div class="header-name">{{ header.name }}</div>
+      <!-- Form -->
+      <div v-else class="role-form">
+        <!-- Basic Info Section -->
+        <section class="form-section">
+          <h3>{{ strings.basicInfo }}</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <NcTextField
+                v-model="formData.name"
+                :label="strings.name"
+                :placeholder="strings.namePlaceholder"
+                :disabled="isSystemRole"
+                :required="true"
+              />
+              <p v-if="isSystemRole" class="help-text muted">
+                {{ strings.systemRoleNameWarning }}
+              </p>
             </div>
 
-            <!-- Category rows under this header -->
-            <div v-for="category in header.categories" :key="category.id" class="table-row">
-              <div class="col-category">
-                <span class="category-name">{{ category.name }}</span>
-                <span v-if="category.description" class="category-desc muted">
-                  {{ category.description }}
-                </span>
-              </div>
-
-              <div class="col-permission">
-                <NcCheckboxRadioSwitch
-                  v-model="ensurePermission(category.id).canView"
-                  :disabled="isAdmin"
-                >
-                  {{ strings.allow }}
-                </NcCheckboxRadioSwitch>
-              </div>
-
-              <div class="col-permission">
-                <NcCheckboxRadioSwitch
-                  v-model="ensurePermission(category.id).canModerate"
-                  :disabled="isAdmin"
-                >
-                  {{ strings.allow }}
-                </NcCheckboxRadioSwitch>
-              </div>
+            <div class="form-group">
+              <NcTextArea
+                v-model="formData.description"
+                :label="strings.description"
+                :placeholder="strings.descriptionPlaceholder"
+                :rows="3"
+              />
             </div>
-          </template>
-        </div>
-        <div v-else class="muted">{{ strings.noCategories }}</div>
-      </section>
+          </div>
+        </section>
 
-      <!-- Actions -->
-      <div class="form-actions">
-        <NcButton @click="goBack">{{ strings.cancel }}</NcButton>
-        <NcButton variant="primary" :disabled="!canSubmit || submitting" @click="submitForm">
-          <template v-if="submitting" #icon>
-            <NcLoadingIcon :size="20" />
-          </template>
-          {{ isEditing ? strings.update : strings.create }}
-        </NcButton>
+        <!-- Role Permissions Section -->
+        <section class="form-section">
+          <h3>{{ strings.rolePermissions }}</h3>
+          <p class="muted">{{ strings.rolePermissionsDesc }}</p>
+
+          <div class="permissions-checkboxes">
+            <div class="checkbox-group">
+              <NcCheckboxRadioSwitch v-model="formData.canAccessAdminTools">
+                <strong>{{ strings.canAccessAdminTools }}</strong>
+                <span class="checkbox-desc muted">{{ strings.canAccessAdminToolsDesc }}</span>
+              </NcCheckboxRadioSwitch>
+            </div>
+
+            <div class="checkbox-group">
+              <NcCheckboxRadioSwitch v-model="formData.canEditRoles">
+                <strong>{{ strings.canEditRoles }}</strong>
+                <span class="checkbox-desc muted">{{ strings.canEditRolesDesc }}</span>
+              </NcCheckboxRadioSwitch>
+            </div>
+
+            <div class="checkbox-group">
+              <NcCheckboxRadioSwitch v-model="formData.canEditCategories">
+                <strong>{{ strings.canEditCategories }}</strong>
+                <span class="checkbox-desc muted">{{ strings.canEditCategoriesDesc }}</span>
+              </NcCheckboxRadioSwitch>
+            </div>
+          </div>
+        </section>
+
+        <!-- Category Permissions Section -->
+        <section class="form-section">
+          <h3>{{ strings.categoryPermissions }}</h3>
+          <p v-if="isAdmin" class="info-message">
+            <InformationIcon :size="20" />
+            {{ strings.adminFullAccess }}
+          </p>
+          <p v-else class="muted">{{ strings.categoryPermissionsDesc }}</p>
+
+          <div v-if="categoryHeaders.length > 0" class="permissions-table">
+            <div class="table-header">
+              <div class="col-category">{{ strings.category }}</div>
+              <div class="col-permission">{{ strings.canView }}</div>
+              <div class="col-permission">{{ strings.canModerate }}</div>
+            </div>
+
+            <template v-for="header in categoryHeaders" :key="`header-${header.id}`">
+              <!-- Header row -->
+              <div class="table-header-row">
+                <div class="header-name">{{ header.name }}</div>
+              </div>
+
+              <!-- Category rows under this header -->
+              <div v-for="category in header.categories" :key="category.id" class="table-row">
+                <div class="col-category">
+                  <span class="category-name">{{ category.name }}</span>
+                  <span v-if="category.description" class="category-desc muted">
+                    {{ category.description }}
+                  </span>
+                </div>
+
+                <div class="col-permission">
+                  <NcCheckboxRadioSwitch
+                    v-model="ensurePermission(category.id).canView"
+                    :disabled="isAdmin"
+                  >
+                    {{ strings.allow }}
+                  </NcCheckboxRadioSwitch>
+                </div>
+
+                <div class="col-permission">
+                  <NcCheckboxRadioSwitch
+                    v-model="ensurePermission(category.id).canModerate"
+                    :disabled="isAdmin"
+                  >
+                    {{ strings.allow }}
+                  </NcCheckboxRadioSwitch>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div v-else class="muted">{{ strings.noCategories }}</div>
+        </section>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <NcButton @click="goBack">{{ strings.cancel }}</NcButton>
+          <NcButton variant="primary" :disabled="!canSubmit || submitting" @click="submitForm">
+            <template v-if="submitting" #icon>
+              <NcLoadingIcon :size="20" />
+            </template>
+            {{ isEditing ? strings.update : strings.create }}
+          </NcButton>
+        </div>
       </div>
     </div>
-  </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -170,6 +172,7 @@ import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import InformationIcon from '@icons/Information.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Role, CategoryHeader } from '@/types'
@@ -190,6 +193,7 @@ export default defineComponent({
     NcTextArea,
     ArrowLeftIcon,
     InformationIcon,
+    PageWrapper,
   },
   data() {
     return {
@@ -429,8 +433,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .admin-role-edit {
-  max-width: 1200px;
-
   .muted {
     color: var(--color-text-maxcontrast);
     opacity: 0.7;

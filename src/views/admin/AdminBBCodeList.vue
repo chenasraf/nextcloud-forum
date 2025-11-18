@@ -1,255 +1,257 @@
 <template>
-  <div class="admin-bbcode-list">
-    <div class="page-header">
-      <div>
-        <h2>{{ strings.title }}</h2>
-        <p class="muted">{{ strings.subtitle }}</p>
-      </div>
-      <div class="header-actions">
-        <NcButton @click="showHelp = true">
-          <template #icon>
-            <HelpCircleIcon :size="20" />
-          </template>
-          {{ strings.help }}
-        </NcButton>
-        <NcButton variant="primary" @click="createBBCode">
-          <template #icon>
-            <PlusIcon :size="20" />
-          </template>
-          {{ strings.createBBCode }}
-        </NcButton>
-      </div>
-    </div>
-
-    <!-- BBCode Help Dialog -->
-    <BBCodeHelpDialog v-model:open="showHelp" :show-custom="false" />
-
-    <!-- Loading state -->
-    <div v-if="loading" class="center mt-16">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
-
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
-      </template>
-    </NcEmptyContent>
-
-    <!-- BBCode list -->
-    <div v-else class="bbcode-list">
-      <!-- Enabled BBCodes Section -->
-      <section class="bbcodes-section">
-        <div class="section-header">
-          <h3>{{ strings.enabledTitle }}</h3>
-          <p class="muted">{{ strings.enabledSubtitle }}</p>
+  <PageWrapper>
+    <div class="admin-bbcode-list">
+      <div class="page-header">
+        <div>
+          <h2>{{ strings.title }}</h2>
+          <p class="muted">{{ strings.subtitle }}</p>
         </div>
+        <div class="header-actions">
+          <NcButton @click="showHelp = true">
+            <template #icon>
+              <HelpCircleIcon :size="20" />
+            </template>
+            {{ strings.help }}
+          </NcButton>
+          <NcButton variant="primary" @click="createBBCode">
+            <template #icon>
+              <PlusIcon :size="20" />
+            </template>
+            {{ strings.createBBCode }}
+          </NcButton>
+        </div>
+      </div>
 
-        <div v-if="enabledBBCodes.length > 0" class="bbcodes-table">
-          <div v-for="bbcode in enabledBBCodes" :key="`bbcode-${bbcode.id}`" class="bbcode-row">
-            <div class="bbcode-info">
-              <div class="bbcode-header">
-                <div class="bbcode-tag">[{{ bbcode.tag }}]</div>
-                <div v-if="bbcode.parseInner" class="badge badge-info">
-                  {{ strings.parseInner }}
+      <!-- BBCode Help Dialog -->
+      <BBCodeHelpDialog v-model:open="showHelp" :show-custom="false" />
+
+      <!-- Loading state -->
+      <div v-if="loading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
+      </div>
+
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
+
+      <!-- BBCode list -->
+      <div v-else class="bbcode-list">
+        <!-- Enabled BBCodes Section -->
+        <section class="bbcodes-section">
+          <div class="section-header">
+            <h3>{{ strings.enabledTitle }}</h3>
+            <p class="muted">{{ strings.enabledSubtitle }}</p>
+          </div>
+
+          <div v-if="enabledBBCodes.length > 0" class="bbcodes-table">
+            <div v-for="bbcode in enabledBBCodes" :key="`bbcode-${bbcode.id}`" class="bbcode-row">
+              <div class="bbcode-info">
+                <div class="bbcode-header">
+                  <div class="bbcode-tag">[{{ bbcode.tag }}]</div>
+                  <div v-if="bbcode.parseInner" class="badge badge-info">
+                    {{ strings.parseInner }}
+                  </div>
+                </div>
+                <div v-if="bbcode.description" class="bbcode-desc muted">
+                  {{ bbcode.description }}
+                </div>
+                <div class="bbcode-replacement">
+                  <span class="label muted">{{ strings.replacement }}:</span>
+                  <code>{{ bbcode.replacement }}</code>
                 </div>
               </div>
-              <div v-if="bbcode.description" class="bbcode-desc muted">
-                {{ bbcode.description }}
+              <div class="bbcode-actions">
+                <NcButton @click="editBBCode(bbcode)">
+                  <template #icon>
+                    <PencilIcon :size="20" />
+                  </template>
+                  {{ strings.edit }}
+                </NcButton>
+                <NcButton @click="toggleEnabled(bbcode)">
+                  <template #icon>
+                    <EyeOffIcon :size="20" />
+                  </template>
+                  {{ strings.disable }}
+                </NcButton>
+                <NcButton variant="error" @click="confirmDelete(bbcode)">
+                  <template #icon>
+                    <DeleteIcon :size="20" />
+                  </template>
+                  {{ strings.delete }}
+                </NcButton>
               </div>
-              <div class="bbcode-replacement">
-                <span class="label muted">{{ strings.replacement }}:</span>
-                <code>{{ bbcode.replacement }}</code>
-              </div>
-            </div>
-            <div class="bbcode-actions">
-              <NcButton @click="editBBCode(bbcode)">
-                <template #icon>
-                  <PencilIcon :size="20" />
-                </template>
-                {{ strings.edit }}
-              </NcButton>
-              <NcButton @click="toggleEnabled(bbcode)">
-                <template #icon>
-                  <EyeOffIcon :size="20" />
-                </template>
-                {{ strings.disable }}
-              </NcButton>
-              <NcButton variant="error" @click="confirmDelete(bbcode)">
-                <template #icon>
-                  <DeleteIcon :size="20" />
-                </template>
-                {{ strings.delete }}
-              </NcButton>
             </div>
           </div>
-        </div>
-        <div v-else class="no-bbcodes muted">
-          {{ strings.noEnabledBBCodes }}
-        </div>
-      </section>
+          <div v-else class="no-bbcodes muted">
+            {{ strings.noEnabledBBCodes }}
+          </div>
+        </section>
 
-      <!-- Disabled BBCodes Section -->
-      <section v-if="disabledBBCodes.length > 0" class="bbcodes-section">
-        <div class="section-header">
-          <h3>{{ strings.disabledTitle }}</h3>
-          <p class="muted">{{ strings.disabledSubtitle }}</p>
+        <!-- Disabled BBCodes Section -->
+        <section v-if="disabledBBCodes.length > 0" class="bbcodes-section">
+          <div class="section-header">
+            <h3>{{ strings.disabledTitle }}</h3>
+            <p class="muted">{{ strings.disabledSubtitle }}</p>
+          </div>
+
+          <div class="bbcodes-table">
+            <div
+              v-for="bbcode in disabledBBCodes"
+              :key="`bbcode-${bbcode.id}`"
+              class="bbcode-row disabled"
+            >
+              <div class="bbcode-info">
+                <div class="bbcode-header">
+                  <div class="bbcode-tag">[{{ bbcode.tag }}]</div>
+                  <div v-if="bbcode.parseInner" class="badge badge-info">
+                    {{ strings.parseInner }}
+                  </div>
+                </div>
+                <div v-if="bbcode.description" class="bbcode-desc muted">
+                  {{ bbcode.description }}
+                </div>
+                <div class="bbcode-replacement">
+                  <span class="label muted">{{ strings.replacement }}:</span>
+                  <code>{{ bbcode.replacement }}</code>
+                </div>
+              </div>
+              <div class="bbcode-actions">
+                <NcButton @click="editBBCode(bbcode)">
+                  <template #icon>
+                    <PencilIcon :size="20" />
+                  </template>
+                  {{ strings.edit }}
+                </NcButton>
+                <NcButton variant="primary" @click="toggleEnabled(bbcode)">
+                  <template #icon>
+                    <EyeIcon :size="20" />
+                  </template>
+                  {{ strings.enable }}
+                </NcButton>
+                <NcButton variant="error" @click="confirmDelete(bbcode)">
+                  <template #icon>
+                    <DeleteIcon :size="20" />
+                  </template>
+                  {{ strings.delete }}
+                </NcButton>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Delete confirmation dialog -->
+      <NcDialog
+        v-if="deleteDialog.show"
+        :name="strings.deleteDialogTitle"
+        @close="deleteDialog.show = false"
+      >
+        <div class="delete-dialog-content">
+          <p>{{ strings.deleteConfirmMessage(deleteDialog.bbcode?.tag || '') }}</p>
+          <p class="muted">{{ strings.deleteWarning }}</p>
         </div>
 
-        <div class="bbcodes-table">
-          <div
-            v-for="bbcode in disabledBBCodes"
-            :key="`bbcode-${bbcode.id}`"
-            class="bbcode-row disabled"
+        <template #actions>
+          <NcButton @click="deleteDialog.show = false">
+            {{ strings.cancel }}
+          </NcButton>
+          <NcButton variant="error" @click="executeDelete">
+            {{ strings.deleteBBCode }}
+          </NcButton>
+        </template>
+      </NcDialog>
+
+      <!-- BBCode Edit/Create Dialog -->
+      <NcDialog
+        v-if="editDialog.show"
+        :name="editDialog.isEditing ? strings.editBBCodeTitle : strings.createBBCodeTitle"
+        @close="editDialog.show = false"
+      >
+        <div class="bbcode-dialog-content">
+          <div class="form-group">
+            <NcTextField
+              v-model="editDialog.tag"
+              :label="strings.tag"
+              :placeholder="strings.tagPlaceholder"
+              :required="true"
+            />
+            <p class="help-text muted">{{ strings.tagHelp }}</p>
+          </div>
+
+          <div class="form-group">
+            <NcTextArea
+              v-model="editDialog.replacement"
+              :label="strings.replacementLabel"
+              :placeholder="strings.replacementPlaceholder"
+              :rows="3"
+              :required="true"
+            />
+            <p class="help-text muted">{{ strings.replacementHelp }}</p>
+          </div>
+
+          <div class="form-group">
+            <NcTextArea
+              v-model="editDialog.example"
+              :label="strings.exampleLabel"
+              :placeholder="strings.examplePlaceholder"
+              :rows="2"
+              :required="true"
+            />
+            <p class="help-text muted">{{ strings.exampleHelp }}</p>
+          </div>
+
+          <div class="form-group">
+            <NcTextArea
+              v-model="editDialog.description"
+              :label="strings.description"
+              :placeholder="strings.descriptionPlaceholder"
+              :rows="2"
+            />
+          </div>
+
+          <div class="form-group">
+            <NcCheckboxRadioSwitch v-model="editDialog.enabled" type="switch">
+              {{ strings.enabledLabel }}
+            </NcCheckboxRadioSwitch>
+          </div>
+
+          <div class="form-group">
+            <NcCheckboxRadioSwitch v-model="editDialog.parseInner" type="switch">
+              {{ strings.parseInnerLabel }}
+            </NcCheckboxRadioSwitch>
+            <p class="help-text muted">{{ strings.parseInnerHelp }}</p>
+          </div>
+        </div>
+
+        <template #actions>
+          <NcButton @click="editDialog.show = false">
+            {{ strings.cancel }}
+          </NcButton>
+          <NcButton
+            variant="primary"
+            :disabled="
+              !editDialog.tag.trim() || !editDialog.replacement.trim() || !editDialog.example.trim()
+            "
+            @click="saveBBCode"
           >
-            <div class="bbcode-info">
-              <div class="bbcode-header">
-                <div class="bbcode-tag">[{{ bbcode.tag }}]</div>
-                <div v-if="bbcode.parseInner" class="badge badge-info">
-                  {{ strings.parseInner }}
-                </div>
-              </div>
-              <div v-if="bbcode.description" class="bbcode-desc muted">
-                {{ bbcode.description }}
-              </div>
-              <div class="bbcode-replacement">
-                <span class="label muted">{{ strings.replacement }}:</span>
-                <code>{{ bbcode.replacement }}</code>
-              </div>
-            </div>
-            <div class="bbcode-actions">
-              <NcButton @click="editBBCode(bbcode)">
-                <template #icon>
-                  <PencilIcon :size="20" />
-                </template>
-                {{ strings.edit }}
-              </NcButton>
-              <NcButton variant="primary" @click="toggleEnabled(bbcode)">
-                <template #icon>
-                  <EyeIcon :size="20" />
-                </template>
-                {{ strings.enable }}
-              </NcButton>
-              <NcButton variant="error" @click="confirmDelete(bbcode)">
-                <template #icon>
-                  <DeleteIcon :size="20" />
-                </template>
-                {{ strings.delete }}
-              </NcButton>
-            </div>
-          </div>
-        </div>
-      </section>
+            <template v-if="editDialog.submitting" #icon>
+              <NcLoadingIcon :size="20" />
+            </template>
+            {{ editDialog.isEditing ? strings.update : strings.create }}
+          </NcButton>
+        </template>
+      </NcDialog>
     </div>
-
-    <!-- Delete confirmation dialog -->
-    <NcDialog
-      v-if="deleteDialog.show"
-      :name="strings.deleteDialogTitle"
-      @close="deleteDialog.show = false"
-    >
-      <div class="delete-dialog-content">
-        <p>{{ strings.deleteConfirmMessage(deleteDialog.bbcode?.tag || '') }}</p>
-        <p class="muted">{{ strings.deleteWarning }}</p>
-      </div>
-
-      <template #actions>
-        <NcButton @click="deleteDialog.show = false">
-          {{ strings.cancel }}
-        </NcButton>
-        <NcButton variant="error" @click="executeDelete">
-          {{ strings.deleteBBCode }}
-        </NcButton>
-      </template>
-    </NcDialog>
-
-    <!-- BBCode Edit/Create Dialog -->
-    <NcDialog
-      v-if="editDialog.show"
-      :name="editDialog.isEditing ? strings.editBBCodeTitle : strings.createBBCodeTitle"
-      @close="editDialog.show = false"
-    >
-      <div class="bbcode-dialog-content">
-        <div class="form-group">
-          <NcTextField
-            v-model="editDialog.tag"
-            :label="strings.tag"
-            :placeholder="strings.tagPlaceholder"
-            :required="true"
-          />
-          <p class="help-text muted">{{ strings.tagHelp }}</p>
-        </div>
-
-        <div class="form-group">
-          <NcTextArea
-            v-model="editDialog.replacement"
-            :label="strings.replacementLabel"
-            :placeholder="strings.replacementPlaceholder"
-            :rows="3"
-            :required="true"
-          />
-          <p class="help-text muted">{{ strings.replacementHelp }}</p>
-        </div>
-
-        <div class="form-group">
-          <NcTextArea
-            v-model="editDialog.example"
-            :label="strings.exampleLabel"
-            :placeholder="strings.examplePlaceholder"
-            :rows="2"
-            :required="true"
-          />
-          <p class="help-text muted">{{ strings.exampleHelp }}</p>
-        </div>
-
-        <div class="form-group">
-          <NcTextArea
-            v-model="editDialog.description"
-            :label="strings.description"
-            :placeholder="strings.descriptionPlaceholder"
-            :rows="2"
-          />
-        </div>
-
-        <div class="form-group">
-          <NcCheckboxRadioSwitch v-model="editDialog.enabled" type="switch">
-            {{ strings.enabledLabel }}
-          </NcCheckboxRadioSwitch>
-        </div>
-
-        <div class="form-group">
-          <NcCheckboxRadioSwitch v-model="editDialog.parseInner" type="switch">
-            {{ strings.parseInnerLabel }}
-          </NcCheckboxRadioSwitch>
-          <p class="help-text muted">{{ strings.parseInnerHelp }}</p>
-        </div>
-      </div>
-
-      <template #actions>
-        <NcButton @click="editDialog.show = false">
-          {{ strings.cancel }}
-        </NcButton>
-        <NcButton
-          variant="primary"
-          :disabled="
-            !editDialog.tag.trim() || !editDialog.replacement.trim() || !editDialog.example.trim()
-          "
-          @click="saveBBCode"
-        >
-          <template v-if="editDialog.submitting" #icon>
-            <NcLoadingIcon :size="20" />
-          </template>
-          {{ editDialog.isEditing ? strings.update : strings.create }}
-        </NcButton>
-      </template>
-    </NcDialog>
-  </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -268,6 +270,7 @@ import EyeIcon from '@icons/Eye.vue'
 import EyeOffIcon from '@icons/EyeOff.vue'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import BBCodeHelpDialog from '@/components/BBCodeHelpDialog.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 
@@ -292,6 +295,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcTextField,
     NcTextArea,
+    PageWrapper,
     PlusIcon,
     PencilIcon,
     DeleteIcon,
@@ -496,8 +500,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .admin-bbcode-list {
-  max-width: 1200px;
-
   .muted {
     color: var(--color-text-maxcontrast);
     opacity: 0.7;

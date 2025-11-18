@@ -12,7 +12,7 @@
       </template>
     </AppToolbar>
 
-    <div class="preferences-content">
+    <PageWrapper>
       <div class="page-header">
         <h2>{{ strings.title }}</h2>
         <p class="muted">{{ strings.subtitle }}</p>
@@ -53,7 +53,7 @@
 
         <!-- Actions -->
         <div class="form-actions">
-          <NcButton type="primary" :disabled="saving || !hasChanges" @click="savePreferences">
+          <NcButton variant="primary" :disabled="saving || !hasChanges" @click="savePreferences">
             <template #icon>
               <NcLoadingIcon v-if="saving" :size="20" />
               <CheckIcon v-else :size="20" />
@@ -71,7 +71,7 @@
           <span>{{ strings.saveSuccess }}</span>
         </div>
       </div>
-    </div>
+    </PageWrapper>
   </div>
 </template>
 
@@ -82,6 +82,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import AppToolbar from '@/components/AppToolbar.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import CheckIcon from '@icons/Check.vue'
 import { ocs } from '@/axios'
@@ -99,6 +100,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcCheckboxRadioSwitch,
     AppToolbar,
+    PageWrapper,
     ArrowLeftIcon,
     CheckIcon,
   },
@@ -199,25 +201,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .user-preferences-view {
-  .preferences-content {
-    padding: 16px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .page-header {
-    margin-bottom: 24px;
-
-    h2 {
-      margin: 0 0 6px 0;
-    }
-
-    .muted {
-      color: var(--color-text-maxcontrast);
-      opacity: 0.7;
-    }
-  }
-
   .muted {
     color: var(--color-text-maxcontrast);
     opacity: 0.7;
@@ -235,10 +218,18 @@ export default defineComponent({
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 32px;
+  }
+
+  .page-header {
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0 0 6px 0;
+    }
   }
 
   .preferences-form {
+
     .form-section {
       margin-bottom: 32px;
       padding: 24px;
@@ -273,9 +264,6 @@ export default defineComponent({
       display: flex;
       gap: 12px;
       align-items: center;
-      margin-top: 32px;
-      padding-top: 24px;
-      border-top: 1px solid var(--color-border);
     }
 
     .success-message {

@@ -11,41 +11,43 @@
     </template>
   </AppToolbar>
 
-  <div class="create-thread-view">
-    <!-- Page Header -->
-    <div class="page-header mt-16">
-      <h2 class="page-title">{{ strings.title }}</h2>
-      <p v-if="category" class="page-subtitle">{{ strings.subtitle(category.name) }}</p>
-    </div>
+  <PageWrapper>
+    <div class="create-thread-view">
+      <!-- Page Header -->
+      <div class="page-header mt-16">
+        <h2 class="page-title">{{ strings.title }}</h2>
+        <p v-if="category" class="page-subtitle">{{ strings.subtitle(category.name) }}</p>
+      </div>
 
-    <!-- Loading state -->
-    <div class="center mt-16" v-if="loading && !category">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
+      <!-- Loading state -->
+      <div class="center mt-16" v-if="loading && !category">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
+      </div>
 
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="goBack">
-          <template #icon>
-            <ArrowLeftIcon :size="20" />
-          </template>
-          {{ strings.back }}
-        </NcButton>
-      </template>
-    </NcEmptyContent>
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="goBack">
+            <template #icon>
+              <ArrowLeftIcon :size="20" />
+            </template>
+            {{ strings.back }}
+          </NcButton>
+        </template>
+      </NcEmptyContent>
 
-    <!-- Create Thread Form -->
-    <div v-else class="mt-16">
-      <ThreadCreateForm ref="createForm" @submit="handleCreateThread" @cancel="goBack" />
+      <!-- Create Thread Form -->
+      <div v-else class="mt-16">
+        <ThreadCreateForm ref="createForm" @submit="handleCreateThread" @cancel="goBack" />
+      </div>
     </div>
-  </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -54,6 +56,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppToolbar from '@/components/AppToolbar.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import ThreadCreateForm from '@/components/ThreadCreateForm.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import type { Category, Thread } from '@/types'
@@ -68,6 +71,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     AppToolbar,
+    PageWrapper,
     ThreadCreateForm,
     ArrowLeftIcon,
   },
@@ -172,9 +176,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .create-thread-view {
-  max-width: 900px;
-  margin: 0 auto;
-
   .muted {
     color: var(--color-text-maxcontrast);
     opacity: 0.7;

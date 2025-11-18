@@ -1,139 +1,141 @@
 <template>
-  <div class="admin-dashboard">
-    <div class="page-header">
-      <h2>{{ strings.title }}</h2>
-      <p class="muted">{{ strings.subtitle }}</p>
-    </div>
+  <PageWrapper>
+    <div class="admin-dashboard">
+      <div class="page-header">
+        <h2>{{ strings.title }}</h2>
+        <p class="muted">{{ strings.subtitle }}</p>
+      </div>
 
-    <!-- Loading state -->
-    <div v-if="loading" class="center mt-16">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
+      <!-- Loading state -->
+      <div v-if="loading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
+      </div>
 
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
-      </template>
-    </NcEmptyContent>
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
 
-    <!-- Dashboard content -->
-    <div v-else-if="stats" class="dashboard-content">
-      <!-- Totals section -->
-      <section class="stats-section">
-        <h3>{{ strings.totals }}</h3>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <AccountMultipleIcon :size="32" />
+      <!-- Dashboard content -->
+      <div v-else-if="stats" class="dashboard-content">
+        <!-- Totals section -->
+        <section class="stats-section">
+          <h3>{{ strings.totals }}</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <AccountMultipleIcon :size="32" />
+              </div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.totals.users }}</div>
+                <div class="stat-label">{{ strings.totalUsers }}</div>
+              </div>
             </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.totals.users }}</div>
-              <div class="stat-label">{{ strings.totalUsers }}</div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ForumIcon :size="32" />
+              </div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.totals.threads }}</div>
+                <div class="stat-label">{{ strings.totalThreads }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <MessageTextIcon :size="32" />
+              </div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.totals.posts }}</div>
+                <div class="stat-label">{{ strings.totalPosts }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <FolderIcon :size="32" />
+              </div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.totals.categories }}</div>
+                <div class="stat-label">{{ strings.totalCategories }}</div>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ForumIcon :size="32" />
+        <!-- Recent activity section -->
+        <section class="stats-section mt-24">
+          <h3>{{ strings.recentActivity }}</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <AccountPlusIcon :size="32" />
+              </div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.recent.users }}</div>
+                <div class="stat-label">{{ strings.newUsers }}</div>
+              </div>
             </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.totals.threads }}</div>
-              <div class="stat-label">{{ strings.totalThreads }}</div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <ForumIcon :size="32" />
+              </div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.recent.threads }}</div>
+                <div class="stat-label">{{ strings.newThreads }}</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <MessageTextIcon :size="32" />
+              </div>
+              <div class="stat-info">
+                <div class="stat-value">{{ stats.recent.posts }}</div>
+                <div class="stat-label">{{ strings.newPosts }}</div>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div class="stat-card">
-            <div class="stat-icon">
-              <MessageTextIcon :size="32" />
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.totals.posts }}</div>
-              <div class="stat-label">{{ strings.totalPosts }}</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">
-              <FolderIcon :size="32" />
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.totals.categories }}</div>
-              <div class="stat-label">{{ strings.totalCategories }}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Recent activity section -->
-      <section class="stats-section mt-24">
-        <h3>{{ strings.recentActivity }}</h3>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <AccountPlusIcon :size="32" />
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.recent.users }}</div>
-              <div class="stat-label">{{ strings.newUsers }}</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">
-              <ForumIcon :size="32" />
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.recent.threads }}</div>
-              <div class="stat-label">{{ strings.newThreads }}</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon">
-              <MessageTextIcon :size="32" />
-            </div>
-            <div class="stat-info">
-              <div class="stat-value">{{ stats.recent.posts }}</div>
-              <div class="stat-label">{{ strings.newPosts }}</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Top contributors section -->
-      <section class="stats-section mt-24">
-        <h3>{{ strings.topContributors }}</h3>
-        <div v-if="stats.topContributors.length > 0" class="contributors-list">
-          <div
-            v-for="(contributor, index) in stats.topContributors"
-            :key="contributor.userId"
-            class="contributor-item"
-          >
-            <div class="contributor-rank">{{ index + 1 }}</div>
-            <UserInfo
-              :user-id="contributor.userId"
-              :display-name="contributor.userId"
-              :avatar-size="40"
+        <!-- Top contributors section -->
+        <section class="stats-section mt-24">
+          <h3>{{ strings.topContributors }}</h3>
+          <div v-if="stats.topContributors.length > 0" class="contributors-list">
+            <div
+              v-for="(contributor, index) in stats.topContributors"
+              :key="contributor.userId"
+              class="contributor-item"
             >
-              <template #meta>
-                <div class="contributor-stats muted">
-                  {{ strings.postsCount(contributor.postCount) }}
-                </div>
-              </template>
-            </UserInfo>
+              <div class="contributor-rank">{{ index + 1 }}</div>
+              <UserInfo
+                :user-id="contributor.userId"
+                :display-name="contributor.userId"
+                :avatar-size="40"
+              >
+                <template #meta>
+                  <div class="contributor-stats muted">
+                    {{ strings.postsCount(contributor.postCount) }}
+                  </div>
+                </template>
+              </UserInfo>
+            </div>
           </div>
-        </div>
-        <div v-else class="muted">{{ strings.noContributors }}</div>
-      </section>
+          <div v-else class="muted">{{ strings.noContributors }}</div>
+        </section>
+      </div>
     </div>
-  </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -142,6 +144,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import UserInfo from '@/components/UserInfo.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import AccountMultipleIcon from '@icons/AccountMultiple.vue'
 import AccountPlusIcon from '@icons/AccountPlus.vue'
 import ForumIcon from '@icons/Forum.vue'
@@ -175,6 +178,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     UserInfo,
+    PageWrapper,
     AccountMultipleIcon,
     AccountPlusIcon,
     ForumIcon,

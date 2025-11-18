@@ -1,132 +1,134 @@
 <template>
-  <div class="search-view">
-    <!-- Search Header -->
-    <div class="search-header">
-      <h2 class="search-title">{{ strings.searchTitle }}</h2>
+  <PageWrapper>
+    <div class="search-view">
+      <!-- Search Header -->
+      <div class="search-header">
+        <h2 class="search-title">{{ strings.searchTitle }}</h2>
 
-      <!-- Search Input -->
-      <div class="search-input-wrapper">
-        <input
-          v-model="searchQuery"
-          type="text"
-          :placeholder="strings.searchPlaceholder"
-          class="search-input"
-          @keydown.enter="performSearch"
-        />
-        <NcButton variant="primary" @click="performSearch" :disabled="!canSearch || loading">
-          <template #icon>
-            <MagnifyIcon :size="20" />
-          </template>
-          {{ strings.search }}
-        </NcButton>
-      </div>
-
-      <!-- Search Options -->
-      <div class="search-options">
-        <NcCheckboxRadioSwitch v-model="searchThreads" @update:checked="onOptionsChange">
-          {{ strings.searchThreads }}
-        </NcCheckboxRadioSwitch>
-        <NcCheckboxRadioSwitch v-model="searchPosts" @update:checked="onOptionsChange">
-          {{ strings.searchPosts }}
-        </NcCheckboxRadioSwitch>
-
-        <NcButton variant="tertiary" @click="showSyntaxHelp = !showSyntaxHelp">
-          <template #icon>
-            <HelpCircleIcon :size="20" />
-          </template>
-          {{ strings.syntaxHelp }}
-        </NcButton>
-      </div>
-
-      <!-- Syntax Help -->
-      <div v-if="showSyntaxHelp" class="syntax-help">
-        <h3>{{ strings.searchSyntax }}</h3>
-        <ul>
-          <li><code>"exact phrase"</code> - {{ strings.helpExactPhrase }}</li>
-          <li><code>term1 AND term2</code> - {{ strings.helpAnd }}</li>
-          <li><code>term1 OR term2</code> - {{ strings.helpOr }}</li>
-          <li><code>(term1 OR term2) AND term3</code> - {{ strings.helpGrouping }}</li>
-          <li><code>-excluded</code> - {{ strings.helpExclude }}</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="loading" class="center mt-16">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.searching }}</span>
-    </div>
-
-    <!-- Error State -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="performSearch">{{ strings.retry }}</NcButton>
-      </template>
-    </NcEmptyContent>
-
-    <!-- Empty State (no query) -->
-    <NcEmptyContent
-      v-else-if="!hasSearched"
-      :title="strings.emptyTitle"
-      :description="strings.emptyDesc"
-      class="mt-16"
-    >
-      <template #icon>
-        <MagnifyIcon :size="64" />
-      </template>
-    </NcEmptyContent>
-
-    <!-- No Results -->
-    <NcEmptyContent
-      v-else-if="hasSearched && threadResults.length === 0 && postResults.length === 0"
-      :title="strings.noResultsTitle"
-      :description="strings.noResultsDesc"
-      class="mt-16"
-    >
-      <template #icon>
-        <MagnifyIcon :size="64" />
-      </template>
-    </NcEmptyContent>
-
-    <!-- Results -->
-    <div v-else class="search-results mt-16">
-      <!-- Thread Results Section -->
-      <section v-if="searchThreads && threadResults.length > 0" class="results-section">
-        <h3 class="results-header">
-          {{ strings.threadResults(threadCount) }}
-        </h3>
-        <div class="results-list">
-          <SearchThreadResult
-            v-for="thread in threadResults"
-            :key="thread.id"
-            :thread="thread"
-            :query="currentQuery"
-            @click="navigateToThread(thread)"
+        <!-- Search Input -->
+        <div class="search-input-wrapper">
+          <input
+            v-model="searchQuery"
+            type="text"
+            :placeholder="strings.searchPlaceholder"
+            class="search-input"
+            @keydown.enter="performSearch"
           />
+          <NcButton variant="primary" @click="performSearch" :disabled="!canSearch || loading">
+            <template #icon>
+              <MagnifyIcon :size="20" />
+            </template>
+            {{ strings.search }}
+          </NcButton>
         </div>
-      </section>
 
-      <!-- Post Results Section -->
-      <section v-if="searchPosts && postResults.length > 0" class="results-section mt-16">
-        <h3 class="results-header">
-          {{ strings.postResults(postCount) }}
-        </h3>
-        <div class="results-list">
-          <SearchPostResult
-            v-for="post in postResults"
-            :key="post.id"
-            :post="post"
-            :query="currentQuery"
-          />
+        <!-- Search Options -->
+        <div class="search-options">
+          <NcCheckboxRadioSwitch v-model="searchThreads" @update:checked="onOptionsChange">
+            {{ strings.searchThreads }}
+          </NcCheckboxRadioSwitch>
+          <NcCheckboxRadioSwitch v-model="searchPosts" @update:checked="onOptionsChange">
+            {{ strings.searchPosts }}
+          </NcCheckboxRadioSwitch>
+
+          <NcButton variant="tertiary" @click="showSyntaxHelp = !showSyntaxHelp">
+            <template #icon>
+              <HelpCircleIcon :size="20" />
+            </template>
+            {{ strings.syntaxHelp }}
+          </NcButton>
         </div>
-      </section>
+
+        <!-- Syntax Help -->
+        <div v-if="showSyntaxHelp" class="syntax-help">
+          <h3>{{ strings.searchSyntax }}</h3>
+          <ul>
+            <li><code>"exact phrase"</code> - {{ strings.helpExactPhrase }}</li>
+            <li><code>term1 AND term2</code> - {{ strings.helpAnd }}</li>
+            <li><code>term1 OR term2</code> - {{ strings.helpOr }}</li>
+            <li><code>(term1 OR term2) AND term3</code> - {{ strings.helpGrouping }}</li>
+            <li><code>-excluded</code> - {{ strings.helpExclude }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.searching }}</span>
+      </div>
+
+      <!-- Error State -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="performSearch">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
+
+      <!-- Empty State (no query) -->
+      <NcEmptyContent
+        v-else-if="!hasSearched"
+        :title="strings.emptyTitle"
+        :description="strings.emptyDesc"
+        class="mt-16"
+      >
+        <template #icon>
+          <MagnifyIcon :size="64" />
+        </template>
+      </NcEmptyContent>
+
+      <!-- No Results -->
+      <NcEmptyContent
+        v-else-if="hasSearched && threadResults.length === 0 && postResults.length === 0"
+        :title="strings.noResultsTitle"
+        :description="strings.noResultsDesc"
+        class="mt-16"
+      >
+        <template #icon>
+          <MagnifyIcon :size="64" />
+        </template>
+      </NcEmptyContent>
+
+      <!-- Results -->
+      <div v-else class="search-results mt-16">
+        <!-- Thread Results Section -->
+        <section v-if="searchThreads && threadResults.length > 0" class="results-section">
+          <h3 class="results-header">
+            {{ strings.threadResults(threadCount) }}
+          </h3>
+          <div class="results-list">
+            <SearchThreadResult
+              v-for="thread in threadResults"
+              :key="thread.id"
+              :thread="thread"
+              :query="currentQuery"
+              @click="navigateToThread(thread)"
+            />
+          </div>
+        </section>
+
+        <!-- Post Results Section -->
+        <section v-if="searchPosts && postResults.length > 0" class="results-section mt-16">
+          <h3 class="results-header">
+            {{ strings.postResults(postCount) }}
+          </h3>
+          <div class="results-list">
+            <SearchPostResult
+              v-for="post in postResults"
+              :key="post.id"
+              :post="post"
+              :query="currentQuery"
+            />
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -135,6 +137,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
+import PageWrapper from '@/components/PageWrapper.vue'
 import MagnifyIcon from '@icons/Magnify.vue'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import SearchThreadResult from '@/components/SearchThreadResult.vue'
@@ -151,6 +154,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     NcCheckboxRadioSwitch,
+    PageWrapper,
     MagnifyIcon,
     HelpCircleIcon,
     SearchThreadResult,
@@ -276,10 +280,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .search-view {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-
   .search-header {
     margin-bottom: 24px;
   }

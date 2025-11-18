@@ -25,129 +25,131 @@
       </template>
     </AppToolbar>
 
-    <!-- Loading state -->
-    <div class="center mt-16" v-if="loading">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
-
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">
-          <template #icon>
-            <RefreshIcon :size="20" />
-          </template>
-          {{ strings.retry }}
-        </NcButton>
-      </template>
-    </NcEmptyContent>
-
-    <!-- Profile content -->
-    <div v-else class="profile-content mt-16">
-      <!-- User Header -->
-      <div class="user-header">
-        <div class="user-avatar">
-          <NcAvatar :user="userId" :size="80" :show-user-status="false" />
-        </div>
-        <div class="user-info">
-          <h2 class="user-name">{{ displayName }}</h2>
-          <div class="user-meta">
-            <span v-if="userStats && userStats.createdAt" class="meta-item">
-              <span class="meta-label">{{ strings.firstPost }}</span>
-              <NcDateTime :timestamp="userStats.createdAt * 1000" />
-            </span>
-            <span v-if="userStats && userStats.createdAt" class="meta-divider">·</span>
-            <span class="meta-item">
-              <span class="meta-label">{{ strings.threads }}</span>
-              <span class="meta-value">{{ userStats?.threadCount || 0 }}</span>
-            </span>
-            <span class="meta-divider">·</span>
-            <span class="meta-item">
-              <span class="meta-label">{{ strings.posts }}</span>
-              <span class="meta-value">{{ userStats?.postCount || 0 }}</span>
-            </span>
-          </div>
-        </div>
+    <PageWrapper>
+      <!-- Loading state -->
+      <div class="center mt-16" v-if="loading">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
       </div>
 
-      <!-- Tabs -->
-      <div class="profile-tabs mt-24">
-        <div class="tabs-header">
-          <button
-            class="tab-button"
-            :class="{ active: activeTab === 'threads' }"
-            @click="activeTab = 'threads'"
-          >
-            {{ strings.threads }} ({{ threads.length }})
-          </button>
-          <button
-            class="tab-button"
-            :class="{ active: activeTab === 'posts' }"
-            @click="activeTab = 'posts'"
-          >
-            {{ strings.replies }} ({{ posts.length }})
-          </button>
-        </div>
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">
+            <template #icon>
+              <RefreshIcon :size="20" />
+            </template>
+            {{ strings.retry }}
+          </NcButton>
+        </template>
+      </NcEmptyContent>
 
-        <div class="tabs-content mt-16">
-          <!-- Threads Tab -->
-          <div v-if="activeTab === 'threads'" class="tab-pane">
-            <div v-if="loadingThreads" class="center">
-              <NcLoadingIcon :size="24" />
-            </div>
-            <NcEmptyContent
-              v-else-if="threads.length === 0"
-              :title="strings.noThreads"
-              :description="strings.noThreadsDesc"
-            />
-            <div v-else class="threads-list">
-              <ThreadCard
-                v-for="thread in threads"
-                :key="thread.id"
-                :thread="thread"
-                @click="navigateToThread(thread)"
-              />
+      <!-- Profile content -->
+      <div v-else class="profile-content mt-16">
+        <!-- User Header -->
+        <div class="user-header">
+          <div class="user-avatar">
+            <NcAvatar :user="userId" :size="80" :show-user-status="false" />
+          </div>
+          <div class="user-info">
+            <h2 class="user-name">{{ displayName }}</h2>
+            <div class="user-meta">
+              <span v-if="userStats && userStats.createdAt" class="meta-item">
+                <span class="meta-label">{{ strings.firstPost }}</span>
+                <NcDateTime :timestamp="userStats.createdAt * 1000" />
+              </span>
+              <span v-if="userStats && userStats.createdAt" class="meta-divider">·</span>
+              <span class="meta-item">
+                <span class="meta-label">{{ strings.threads }}</span>
+                <span class="meta-value">{{ userStats?.threadCount || 0 }}</span>
+              </span>
+              <span class="meta-divider">·</span>
+              <span class="meta-item">
+                <span class="meta-label">{{ strings.posts }}</span>
+                <span class="meta-value">{{ userStats?.postCount || 0 }}</span>
+              </span>
             </div>
           </div>
+        </div>
 
-          <!-- Posts Tab -->
-          <div v-if="activeTab === 'posts'" class="tab-pane">
-            <div v-if="loadingPosts" class="center">
-              <NcLoadingIcon :size="24" />
+        <!-- Tabs -->
+        <div class="profile-tabs mt-24">
+          <div class="tabs-header">
+            <button
+              class="tab-button"
+              :class="{ active: activeTab === 'threads' }"
+              @click="activeTab = 'threads'"
+            >
+              {{ strings.threads }} ({{ threads.length }})
+            </button>
+            <button
+              class="tab-button"
+              :class="{ active: activeTab === 'posts' }"
+              @click="activeTab = 'posts'"
+            >
+              {{ strings.replies }} ({{ posts.length }})
+            </button>
+          </div>
+
+          <div class="tabs-content mt-16">
+            <!-- Threads Tab -->
+            <div v-if="activeTab === 'threads'" class="tab-pane">
+              <div v-if="loadingThreads" class="center">
+                <NcLoadingIcon :size="24" />
+              </div>
+              <NcEmptyContent
+                v-else-if="threads.length === 0"
+                :title="strings.noThreads"
+                :description="strings.noThreadsDesc"
+              />
+              <div v-else class="threads-list">
+                <ThreadCard
+                  v-for="thread in threads"
+                  :key="thread.id"
+                  :thread="thread"
+                  @click="navigateToThread(thread)"
+                />
+              </div>
             </div>
-            <NcEmptyContent
-              v-else-if="posts.length === 0"
-              :title="strings.noPosts"
-              :description="strings.noPostsDesc"
-            />
-            <div v-else class="posts-list">
-              <div
-                v-for="post in posts"
-                :key="post.id"
-                class="post-item"
-                @click="navigateToPost(post)"
-              >
-                <div class="post-meta">
-                  <span class="post-thread" v-if="post.threadTitle">
-                    {{ strings.inThread }} <strong>{{ post.threadTitle }}</strong>
-                  </span>
-                  <span class="post-date">
-                    <NcDateTime v-if="post.createdAt" :timestamp="post.createdAt * 1000" />
-                  </span>
+
+            <!-- Posts Tab -->
+            <div v-if="activeTab === 'posts'" class="tab-pane">
+              <div v-if="loadingPosts" class="center">
+                <NcLoadingIcon :size="24" />
+              </div>
+              <NcEmptyContent
+                v-else-if="posts.length === 0"
+                :title="strings.noPosts"
+                :description="strings.noPostsDesc"
+              />
+              <div v-else class="posts-list">
+                <div
+                  v-for="post in posts"
+                  :key="post.id"
+                  class="post-item"
+                  @click="navigateToPost(post)"
+                >
+                  <div class="post-meta">
+                    <span class="post-thread" v-if="post.threadTitle">
+                      {{ strings.inThread }} <strong>{{ post.threadTitle }}</strong>
+                    </span>
+                    <span class="post-date">
+                      <NcDateTime v-if="post.createdAt" :timestamp="post.createdAt * 1000" />
+                    </span>
+                  </div>
+                  <div class="post-content" v-html="post.content"></div>
                 </div>
-                <div class="post-content" v-html="post.content"></div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </PageWrapper>
   </div>
 </template>
 
@@ -159,6 +161,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcAvatar from '@nextcloud/vue/components/NcAvatar'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import AppToolbar from '@/components/AppToolbar.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import ThreadCard from '@/components/ThreadCard.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
@@ -177,6 +180,7 @@ export default defineComponent({
     NcAvatar,
     NcDateTime,
     AppToolbar,
+    PageWrapper,
     ThreadCard,
     ArrowLeftIcon,
     RefreshIcon,
@@ -358,158 +362,154 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .profile-view {
-  padding: 16px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-}
-
-.ml-8 {
-  margin-left: 8px;
-}
-
-.mt-16 {
-  margin-top: 16px;
-}
-
-.mt-24 {
-  margin-top: 24px;
-}
-
-.muted {
-  color: var(--color-text-maxcontrast);
-}
-
-.user-header {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 24px;
-  background: var(--color-main-background);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-}
-
-.user-info {
-  flex: 1;
-}
-
-.user-name {
-  margin: 0 0 8px 0;
-  font-size: 24px;
-  font-weight: 600;
-}
-
-.user-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text-maxcontrast);
-  font-size: 14px;
-}
-
-.meta-label {
-  margin-right: 4px;
-}
-
-.meta-value {
-  font-weight: 600;
-  color: var(--color-text-light);
-}
-
-.meta-divider {
-  color: var(--color-text-maxcontrast);
-}
-
-.profile-tabs {
-  .tabs-header {
+  .center {
     display: flex;
-    border-bottom: 1px solid var(--color-border);
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
   }
 
-  .tab-button {
-    padding: 12px 24px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
+  .ml-8 {
+    margin-left: 8px;
+  }
+
+  .mt-16 {
+    margin-top: 16px;
+  }
+
+  .mt-24 {
+    margin-top: 24px;
+  }
+
+  .muted {
     color: var(--color-text-maxcontrast);
-    transition: all 0.2s;
-    border-radius: 0;
-
-    &:hover {
-      color: var(--color-text-light);
-      background: var(--color-background-hover);
-    }
-
-    &.active {
-      color: var(--color-text-light);
-      border-bottom-color: var(--color-text-light);
-    }
   }
 
-  .tabs-content {
-    min-height: 200px;
+  .user-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 24px;
+    background: var(--color-main-background);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
   }
-}
 
-.threads-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.posts-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.post-item {
-  padding: 16px;
-  background: var(--color-main-background);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: var(--color-background-hover);
-    border-color: var(--color-primary-element);
+  .user-info {
+    flex: 1;
   }
-}
 
-.post-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  font-size: 14px;
-  color: var(--color-text-maxcontrast);
-}
+  .user-name {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
 
-.post-thread {
-  strong {
+  .user-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-maxcontrast);
+    font-size: 14px;
+  }
+
+  .meta-label {
+    margin-right: 4px;
+  }
+
+  .meta-value {
+    font-weight: 600;
     color: var(--color-text-light);
   }
-}
 
-.post-content {
-  color: var(--color-text-light);
-  line-height: 1.6;
+  .meta-divider {
+    color: var(--color-text-maxcontrast);
+  }
 
-  // Truncate long content
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  .profile-tabs {
+    .tabs-header {
+      display: flex;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .tab-button {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-maxcontrast);
+      transition: all 0.2s;
+      border-radius: 0;
+
+      &:hover {
+        color: var(--color-text-light);
+        background: var(--color-background-hover);
+      }
+
+      &.active {
+        color: var(--color-text-light);
+        border-bottom-color: var(--color-text-light);
+      }
+    }
+
+    .tabs-content {
+      min-height: 200px;
+    }
+  }
+
+  .threads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .post-item {
+    padding: 16px;
+    background: var(--color-main-background);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--color-background-hover);
+      border-color: var(--color-primary-element);
+    }
+  }
+
+  .post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: var(--color-text-maxcontrast);
+  }
+
+  .post-thread {
+    strong {
+      color: var(--color-text-light);
+    }
+  }
+
+  .post-content {
+    color: var(--color-text-light);
+    line-height: 1.6;
+
+    // Truncate long content
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
 </style>

@@ -1,145 +1,151 @@
 <template>
-  <div class="admin-user-list">
-    <div class="page-header">
-      <h2>{{ strings.title }}</h2>
-      <p class="muted">{{ strings.subtitle }}</p>
-    </div>
+  <PageWrapper :full-width="true">
+    <div class="admin-user-list">
+      <div class="page-header">
+        <h2>{{ strings.title }}</h2>
+        <p class="muted">{{ strings.subtitle }}</p>
+      </div>
 
-    <!-- Loading state -->
-    <div v-if="loading" class="center mt-16">
-      <NcLoadingIcon :size="32" />
-      <span class="muted ml-8">{{ strings.loading }}</span>
-    </div>
+      <!-- Loading state -->
+      <div v-if="loading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loading }}</span>
+      </div>
 
-    <!-- Error state -->
-    <NcEmptyContent
-      v-else-if="error"
-      :title="strings.errorTitle"
-      :description="error"
-      class="mt-16"
-    >
-      <template #action>
-        <NcButton @click="refresh">{{ strings.retry }}</NcButton>
-      </template>
-    </NcEmptyContent>
+      <!-- Error state -->
+      <NcEmptyContent
+        v-else-if="error"
+        :title="strings.errorTitle"
+        :description="error"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refresh">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
 
-    <!-- User list -->
-    <div v-else-if="users.length > 0" class="users-content">
-      <div class="users-table">
-        <div class="table-header">
-          <div class="col-user">{{ strings.user }}</div>
-          <div class="col-posts">{{ strings.posts }}</div>
-          <div class="col-roles">{{ strings.roles }}</div>
-          <div class="col-joined">{{ strings.joined }}</div>
-          <div class="col-status">{{ strings.status }}</div>
-        </div>
-
-        <div
-          v-for="user in users"
-          :key="user.userId"
-          class="table-row"
-          :class="{ 'is-deleted': user.isDeleted }"
-        >
-          <div class="col-user">
-            <UserInfo :user-id="user.userId" :display-name="user.displayName" :avatar-size="40">
-              <template #meta>
-                <div class="user-id muted">@{{ user.userId }}</div>
-              </template>
-            </UserInfo>
+      <!-- User list -->
+      <div v-else-if="users.length > 0" class="users-content">
+        <div class="users-table">
+          <div class="table-header">
+            <div class="col-user">{{ strings.user }}</div>
+            <div class="col-posts">{{ strings.posts }}</div>
+            <div class="col-roles">{{ strings.roles }}</div>
+            <div class="col-joined">{{ strings.joined }}</div>
+            <div class="col-status">{{ strings.status }}</div>
           </div>
 
-          <div class="col-posts">
-            <div class="post-stats">
-              <div class="stat-item">
-                <span class="stat-value">{{ user.threadCount }}</span>
-                <span class="stat-label muted">threads</span>
-              </div>
-              <div class="stat-divider">/</div>
-              <div class="stat-item">
-                <span class="stat-value">{{ user.postCount }}</span>
-                <span class="stat-label muted">posts</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-roles">
-            <div v-if="editingUserId === user.userId" class="roles-editor">
-              <NcSelect
-                v-model="editingRoles"
-                :options="roleOptions"
-                :placeholder="strings.selectRoles"
-                :multiple="true"
-                label="name"
-                track-by="id"
-                input-label="name"
-                class="roles-select"
-              />
-              <div class="edit-actions">
-                <NcButton @click="cancelEdit" :aria-label="strings.cancel" :title="strings.cancel">
-                  <template #icon>
-                    <CloseIcon :size="20" />
-                  </template>
-                </NcButton>
-                <NcButton
-                  variant="primary"
-                  @click="saveRoles(user.userId)"
-                  :aria-label="strings.save"
-                  :title="strings.save"
-                >
-                  <template #icon>
-                    <CheckIcon :size="20" />
-                  </template>
-                </NcButton>
-              </div>
-            </div>
-            <div v-else class="roles-display">
-              <div class="roles-list">
-                <span
-                  v-for="roleId in user.roles"
-                  :key="roleId"
-                  class="role-badge"
-                  :class="getRoleBadgeClass(roleId)"
-                >
-                  {{ getRoleName(roleId) }}
-                </span>
-                <span v-if="user.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
-              </div>
-              <NcButton
-                @click="startEdit(user.userId, user.roles)"
-                :aria-label="strings.edit"
-                :title="strings.edit"
-              >
-                <template #icon>
-                  <PencilIcon :size="20" />
+          <div
+            v-for="user in users"
+            :key="user.userId"
+            class="table-row"
+            :class="{ 'is-deleted': user.isDeleted }"
+          >
+            <div class="col-user">
+              <UserInfo :user-id="user.userId" :display-name="user.displayName" :avatar-size="40">
+                <template #meta>
+                  <div class="user-id muted">@{{ user.userId }}</div>
                 </template>
-              </NcButton>
+              </UserInfo>
             </div>
-          </div>
 
-          <div class="col-joined">
-            <NcDateTime :timestamp="user.createdAt * 1000" />
-          </div>
+            <div class="col-posts">
+              <div class="post-stats">
+                <div class="stat-item">
+                  <span class="stat-value">{{ user.threadCount }}</span>
+                  <span class="stat-label muted">threads</span>
+                </div>
+                <div class="stat-divider">/</div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ user.postCount }}</span>
+                  <span class="stat-label muted">posts</span>
+                </div>
+              </div>
+            </div>
 
-          <div class="col-status">
-            <span v-if="user.isDeleted" class="status-badge status-deleted">
-              {{ strings.deleted }}
-            </span>
-            <span v-else class="status-badge status-active">
-              {{ strings.active }}
-            </span>
+            <div class="col-roles">
+              <div v-if="editingUserId === user.userId" class="roles-editor">
+                <NcSelect
+                  v-model="editingRoles"
+                  :options="roleOptions"
+                  :placeholder="strings.selectRoles"
+                  :multiple="true"
+                  label="name"
+                  track-by="id"
+                  input-label="name"
+                  class="roles-select"
+                />
+                <div class="edit-actions">
+                  <NcButton
+                    @click="cancelEdit"
+                    :aria-label="strings.cancel"
+                    :title="strings.cancel"
+                  >
+                    <template #icon>
+                      <CloseIcon :size="20" />
+                    </template>
+                  </NcButton>
+                  <NcButton
+                    variant="primary"
+                    @click="saveRoles(user.userId)"
+                    :aria-label="strings.save"
+                    :title="strings.save"
+                  >
+                    <template #icon>
+                      <CheckIcon :size="20" />
+                    </template>
+                  </NcButton>
+                </div>
+              </div>
+              <div v-else class="roles-display">
+                <div class="roles-list">
+                  <span
+                    v-for="roleId in user.roles"
+                    :key="roleId"
+                    class="role-badge"
+                    :class="getRoleBadgeClass(roleId)"
+                  >
+                    {{ getRoleName(roleId) }}
+                  </span>
+                  <span v-if="user.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
+                </div>
+                <NcButton
+                  @click="startEdit(user.userId, user.roles)"
+                  :aria-label="strings.edit"
+                  :title="strings.edit"
+                >
+                  <template #icon>
+                    <PencilIcon :size="20" />
+                  </template>
+                </NcButton>
+              </div>
+            </div>
+
+            <div class="col-joined">
+              <NcDateTime :timestamp="user.createdAt * 1000" />
+            </div>
+
+            <div class="col-status">
+              <span v-if="user.isDeleted" class="status-badge status-deleted">
+                {{ strings.deleted }}
+              </span>
+              <span v-else class="status-badge status-active">
+                {{ strings.active }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Empty state -->
-    <NcEmptyContent
-      v-else
-      :title="strings.emptyTitle"
-      :description="strings.emptyDesc"
-      class="mt-16"
-    />
-  </div>
+      <!-- Empty state -->
+      <NcEmptyContent
+        v-else
+        :title="strings.emptyTitle"
+        :description="strings.emptyDesc"
+        class="mt-16"
+      />
+    </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">
@@ -153,6 +159,7 @@ import UserInfo from '@/components/UserInfo.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import CheckIcon from '@icons/Check.vue'
 import CloseIcon from '@icons/Close.vue'
+import PageWrapper from '@/components/PageWrapper.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Role } from '@/types'
@@ -186,6 +193,7 @@ export default defineComponent({
     PencilIcon,
     CheckIcon,
     CloseIcon,
+    PageWrapper,
   },
   data() {
     return {

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.2.1...v0.3.0) (2025-11-18)
+
+
+### Features
+
+* add page header component ([2d10b46](https://github.com/chenasraf/nextcloud-forum/commit/2d10b461c018160d63ed6e63479e1488ba8da38e))
+* add skeleton component + update categories header ui ([e59a6f4](https://github.com/chenasraf/nextcloud-forum/commit/e59a6f4dc7b60ad0b370b801d541f0007d1896c3))
+* load forum title/subtitle from public endpoint ([9719f51](https://github.com/chenasraf/nextcloud-forum/commit/9719f518e2b1a9dced781431a6b0d4123aef952c))
+* user preferences page & auto thread subs pref ([278f1b3](https://github.com/chenasraf/nextcloud-forum/commit/278f1b3cc48b6d2e74c383dec34015e3e3cd1e81))
+
+
+### Bug Fixes
+
+* user stats post is_first_post counts ([5ee8a16](https://github.com/chenasraf/nextcloud-forum/commit/5ee8a16aa13510c7b6a6b48238bc156c27045e7b))
+
 ## [0.2.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.2.0...v0.2.1) (2025-11-17)
 
 

@@ -1,12 +1,6 @@
 <template>
   <PageWrapper :full-width="true">
-    <div class="categories-view">
-      <header class="page-header">
-        <h2>{{ forumTitle }}</h2>
-        <p class="muted">{{ forumSubtitle }}</p>
-      </header>
-
-      <!-- Toolbar -->
+    <template #toolbar>
       <AppToolbar>
         <template #left>
           <h2 class="view-title">{{ strings.title }}</h2>
@@ -25,6 +19,13 @@
           </NcButton>
         </template>
       </AppToolbar>
+    </template>
+
+    <div class="categories-view">
+      <header class="page-header">
+        <h2>{{ forumTitle }}</h2>
+        <p class="muted">{{ forumSubtitle }}</p>
+      </header>
 
       <!-- Loading state -->
       <div class="center mt-16" v-if="loading">

@@ -1,31 +1,32 @@
 <template>
-  <div class="profile-view">
-    <!-- Toolbar -->
-    <AppToolbar>
-      <template #left>
-        <NcButton @click="goBack">
-          <template #icon>
-            <ArrowLeftIcon :size="20" />
-          </template>
-          {{ strings.back }}
-        </NcButton>
-      </template>
+  <PageWrapper>
+    <template #toolbar>
+      <AppToolbar>
+        <template #left>
+          <NcButton @click="goBack">
+            <template #icon>
+              <ArrowLeftIcon :size="20" />
+            </template>
+            {{ strings.back }}
+          </NcButton>
+        </template>
 
-      <template #right>
-        <NcButton
-          @click="refresh"
-          :disabled="loading"
-          :aria-label="strings.refresh"
-          :title="strings.refresh"
-        >
-          <template #icon>
-            <RefreshIcon :size="20" />
-          </template>
-        </NcButton>
-      </template>
-    </AppToolbar>
+        <template #right>
+          <NcButton
+            @click="refresh"
+            :disabled="loading"
+            :aria-label="strings.refresh"
+            :title="strings.refresh"
+          >
+            <template #icon>
+              <RefreshIcon :size="20" />
+            </template>
+          </NcButton>
+        </template>
+      </AppToolbar>
+    </template>
 
-    <PageWrapper>
+    <div class="profile-view">
       <!-- Loading state -->
       <div class="center mt-16" v-if="loading">
         <NcLoadingIcon :size="32" />
@@ -149,8 +150,8 @@
           </div>
         </div>
       </div>
-    </PageWrapper>
-  </div>
+    </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">

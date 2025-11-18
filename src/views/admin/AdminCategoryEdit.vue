@@ -1,15 +1,20 @@
 <template>
   <PageWrapper>
-    <div class="admin-category-edit">
-      <div class="page-header">
-        <div class="header-actions">
+    <template #toolbar>
+      <AppToolbar>
+        <template #left>
           <NcButton @click="goBack">
             <template #icon>
               <ArrowLeftIcon :size="20" />
             </template>
             {{ strings.back }}
           </NcButton>
-        </div>
+        </template>
+      </AppToolbar>
+    </template>
+
+    <div class="admin-category-edit">
+      <div class="page-header">
         <div>
           <h2>{{ isEditing ? strings.editCategory : strings.createCategory }}</h2>
           <p class="muted">{{ strings.subtitle }}</p>
@@ -190,6 +195,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import AppToolbar from '@/components/AppToolbar.vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
@@ -215,6 +221,7 @@ export default defineComponent({
     NcTextField,
     NcTextArea,
     PageWrapper,
+    AppToolbar,
     ArrowLeftIcon,
     PlusIcon,
     PencilIcon,
@@ -584,10 +591,6 @@ export default defineComponent({
 
   .page-header {
     margin-bottom: 24px;
-
-    .header-actions {
-      margin-bottom: 12px;
-    }
 
     h2 {
       margin: 0 0 6px 0;

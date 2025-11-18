@@ -1,12 +1,11 @@
 <template>
   <PageWrapper>
-    <div class="admin-bbcode-list">
-      <div class="page-header">
-        <div>
+    <template #toolbar>
+      <AppToolbar>
+        <template #left>
           <h2>{{ strings.title }}</h2>
-          <p class="muted">{{ strings.subtitle }}</p>
-        </div>
-        <div class="header-actions">
+        </template>
+        <template #right>
           <NcButton @click="showHelp = true">
             <template #icon>
               <HelpCircleIcon :size="20" />
@@ -19,7 +18,13 @@
             </template>
             {{ strings.createBBCode }}
           </NcButton>
-        </div>
+        </template>
+      </AppToolbar>
+    </template>
+
+    <div class="admin-bbcode-list">
+      <div class="page-header">
+        <p class="muted">{{ strings.subtitle }}</p>
       </div>
 
       <!-- BBCode Help Dialog -->
@@ -271,6 +276,7 @@ import EyeOffIcon from '@icons/EyeOff.vue'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import BBCodeHelpDialog from '@/components/BBCodeHelpDialog.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import AppToolbar from '@/components/AppToolbar.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 
@@ -296,6 +302,7 @@ export default defineComponent({
     NcTextField,
     NcTextArea,
     PageWrapper,
+    AppToolbar,
     PlusIcon,
     PencilIcon,
     DeleteIcon,

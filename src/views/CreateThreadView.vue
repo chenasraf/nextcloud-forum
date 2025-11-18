@@ -1,17 +1,18 @@
 <template>
-  <!-- Toolbar -->
-  <AppToolbar>
-    <template #left>
-      <NcButton @click="goBack">
-        <template #icon>
-          <ArrowLeftIcon :size="20" />
-        </template>
-        {{ strings.back }}
-      </NcButton>
-    </template>
-  </AppToolbar>
-
   <PageWrapper>
+    <template #toolbar>
+      <AppToolbar>
+        <template #left>
+          <NcButton @click="goBack">
+            <template #icon>
+              <ArrowLeftIcon :size="20" />
+            </template>
+            {{ strings.back }}
+          </NcButton>
+        </template>
+      </AppToolbar>
+    </template>
+
     <div class="create-thread-view">
       <!-- Page Header -->
       <div class="page-header mt-16">

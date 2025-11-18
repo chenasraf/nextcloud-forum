@@ -1,18 +1,19 @@
 <template>
-  <div class="user-preferences-view">
-    <!-- Toolbar -->
-    <AppToolbar>
-      <template #left>
-        <NcButton @click="goBack">
-          <template #icon>
-            <ArrowLeftIcon :size="20" />
-          </template>
-          {{ strings.back }}
-        </NcButton>
-      </template>
-    </AppToolbar>
+  <PageWrapper>
+    <template #toolbar>
+      <AppToolbar>
+        <template #left>
+          <NcButton @click="goBack">
+            <template #icon>
+              <ArrowLeftIcon :size="20" />
+            </template>
+            {{ strings.back }}
+          </NcButton>
+        </template>
+      </AppToolbar>
+    </template>
 
-    <PageWrapper>
+    <div class="user-preferences-view">
       <div class="page-header">
         <h2>{{ strings.title }}</h2>
         <p class="muted">{{ strings.subtitle }}</p>
@@ -71,8 +72,8 @@
           <span>{{ strings.saveSuccess }}</span>
         </div>
       </div>
-    </PageWrapper>
-  </div>
+    </div>
+  </PageWrapper>
 </template>
 
 <script lang="ts">

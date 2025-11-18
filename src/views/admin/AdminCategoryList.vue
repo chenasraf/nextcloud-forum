@@ -1,12 +1,11 @@
 <template>
   <PageWrapper>
-    <div class="admin-category-list">
-      <div class="page-header">
-        <div>
+    <template #toolbar>
+      <AppToolbar>
+        <template #left>
           <h2>{{ strings.title }}</h2>
-          <p class="muted">{{ strings.subtitle }}</p>
-        </div>
-        <div class="header-actions">
+        </template>
+        <template #right>
           <NcButton @click="createHeader">
             <template #icon>
               <PlusIcon :size="20" />
@@ -19,7 +18,13 @@
             </template>
             {{ strings.createCategory }}
           </NcButton>
-        </div>
+        </template>
+      </AppToolbar>
+    </template>
+
+    <div class="admin-category-list">
+      <div class="page-header">
+        <p class="muted">{{ strings.subtitle }}</p>
       </div>
 
       <!-- Loading state -->
@@ -352,6 +357,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import AppToolbar from '@/components/AppToolbar.vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
@@ -382,6 +388,7 @@ export default defineComponent({
     NcTextField,
     NcTextArea,
     PageWrapper,
+    AppToolbar,
     PlusIcon,
     PencilIcon,
     DeleteIcon,

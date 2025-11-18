@@ -1,7 +1,6 @@
 <template>
   <PageWrapper :full-width="true">
-    <div class="category-view">
-      <!-- Toolbar -->
+    <template #toolbar>
       <AppToolbar>
         <template #left>
           <NcButton @click="goBack">
@@ -31,7 +30,9 @@
           </NcButton>
         </template>
       </AppToolbar>
+    </template>
 
+    <div class="category-view">
       <!-- Category Header -->
       <div v-if="category && !loading" class="category-header mt-16">
         <h2 class="category-name">{{ category.name }}</h2>

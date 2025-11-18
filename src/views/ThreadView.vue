@@ -1,7 +1,6 @@
 <template>
   <PageWrapper :full-width="true">
-    <div class="thread-view">
-      <!-- Toolbar -->
+    <template #toolbar>
       <AppToolbar>
         <template #left>
           <NcButton @click="goBack">
@@ -74,7 +73,9 @@
           </NcButton>
         </template>
       </AppToolbar>
+    </template>
 
+    <div class="thread-view">
       <!-- Loading state -->
       <div class="center mt-16" v-if="loading">
         <NcLoadingIcon :size="32" />
@@ -289,7 +290,7 @@ export default defineComponent({
         threadUnlocked: t('forum', 'Thread unlocked'),
         threadPinned: t('forum', 'Thread pinned'),
         threadUnpinned: t('forum', 'Thread unpinned'),
-        subscribe: t('forum', 'Subscribe to thread'),
+        subscribe: t('forum', 'Subscribe'),
         subscribed: t('forum', 'Subscribed'),
         threadSubscribed: t('forum', 'Subscribed to thread'),
         threadUnsubscribed: t('forum', 'Unsubscribed from thread'),
@@ -731,14 +732,14 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+:deep(.icon-label) {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .thread-view {
   margin-bottom: 3rem;
-
-  .icon-label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
 
   .muted {
     color: var(--color-text-maxcontrast);

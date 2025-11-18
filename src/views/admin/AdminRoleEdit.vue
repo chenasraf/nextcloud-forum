@@ -1,15 +1,19 @@
 <template>
   <PageWrapper>
-    <div class="admin-role-edit">
-      <div class="page-header">
-        <div class="header-actions">
+    <template #toolbar>
+      <AppToolbar>
+        <template #left>
           <NcButton @click="goBack">
             <template #icon>
               <ArrowLeftIcon :size="20" />
             </template>
             {{ strings.back }}
           </NcButton>
-        </div>
+        </template>
+      </AppToolbar>
+    </template>
+    <div class="admin-role-edit">
+      <div class="page-header">
         <div>
           <h2>{{ isEditing ? strings.editRole : strings.createRole }}</h2>
           <p class="muted">{{ strings.subtitle }}</p>
@@ -173,6 +177,7 @@ import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import InformationIcon from '@icons/Information.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
+import AppToolbar from '@/components/AppToolbar.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Role, CategoryHeader } from '@/types'
@@ -194,6 +199,7 @@ export default defineComponent({
     ArrowLeftIcon,
     InformationIcon,
     PageWrapper,
+    AppToolbar,
   },
   data() {
     return {
@@ -454,10 +460,6 @@ export default defineComponent({
 
   .page-header {
     margin-bottom: 24px;
-
-    .header-actions {
-      margin-bottom: 12px;
-    }
 
     h2 {
       margin: 0 0 6px 0;

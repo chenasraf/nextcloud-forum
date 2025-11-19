@@ -14,48 +14,11 @@
     </button>
 
     <!-- Add custom reaction button -->
-    <div class="add-reaction">
-      <button
-        class="add-reaction-button"
-        :class="{ open: showPicker }"
-        :title="strings.addReaction"
-        @click="togglePicker"
-      >
+    <NcEmojiPicker @select="handleSelectEmoji" style="display: inline-block">
+      <button class="add-reaction-button" :title="strings.addReaction">
         <span class="icon">+</span>
       </button>
-    </div>
-
-    <!-- Emoji picker (teleported to body for proper fixed positioning) -->
-    <Teleport to="body">
-      <Transition name="fade">
-        <div v-if="showPicker" class="emoji-picker-overlay" @click="closePicker">
-          <div class="emoji-picker-container" @click.stop>
-            <button class="emoji-picker-close" :title="strings.close" @click="closePicker">
-              <Close :size="20" />
-            </button>
-            <div class="emoji-picker-content">
-              <h3>{{ strings.pickEmoji }}</h3>
-              <div class="emoji-categories">
-                <div v-for="group in emojiGroups" :key="group.name" class="emoji-category">
-                  <h4 class="category-header">{{ group.name }}</h4>
-                  <div class="emoji-grid">
-                    <button
-                      v-for="item in group.emojis"
-                      :key="item.emoji"
-                      class="emoji-option"
-                      :title="item.title"
-                      @click="handleSelectEmoji(item.emoji)"
-                    >
-                      {{ item.emoji }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
+    </NcEmojiPicker>
   </div>
 </template>
 
@@ -64,13 +27,12 @@ import { defineComponent, type PropType } from 'vue'
 import { t, n } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 import { useReactions, type ReactionGroup } from '@/composables/useReactions'
-import { EMOJI_GROUPS } from '@/constants/emojis'
-import Close from '@icons/Close.vue'
+import NcEmojiPicker from '@nextcloud/vue/components/NcEmojiPicker'
 
 export default defineComponent({
   name: 'PostReactions',
   components: {
-    Close,
+    NcEmojiPicker,
   },
   props: {
     postId: {
@@ -91,13 +53,9 @@ export default defineComponent({
     return {
       defaultEmojis: ['👍', '❤️', '😄', '🎉', '👏'],
       reactionGroups: [...this.reactions] as ReactionGroup[],
-      showPicker: false,
       strings: {
         addReaction: t('forum', 'Add reaction'),
-        pickEmoji: t('forum', 'Pick an emoji'),
-        close: t('forum', 'Close'),
       },
-      emojiGroups: EMOJI_GROUPS,
     }
   },
   computed: {
@@ -153,25 +111,8 @@ export default defineComponent({
     },
   },
   methods: {
-    togglePicker() {
-      this.showPicker = !this.showPicker
-    },
-    closePicker() {
-      this.showPicker = false
-    },
     handleSelectEmoji(emoji: string) {
       this.handleToggleReaction(emoji)
-      this.closePicker()
-    },
-    getEmojiTitle(emoji: string): string | null {
-      // Find the emoji title from the emoji groups
-      for (const group of this.emojiGroups) {
-        const item = group.emojis.find((e) => e.emoji === emoji)
-        if (item) {
-          return item.title
-        }
-      }
-      return null
     },
     getCount(emoji: string): number {
       const group = this.reactionGroups.find((g) => g.emoji === emoji)
@@ -229,28 +170,27 @@ export default defineComponent({
     getReactionTooltip(emoji: string): string {
       const count = this.getCount(emoji)
       const hasReacted = this.isReacted(emoji)
-      const title = this.getEmojiTitle(emoji) ?? emoji
 
       if (count === 0) {
-        return t('forum', 'React with {title}', { title })
+        return t('forum', 'React with {emoji}', { emoji })
       }
 
       if (count === 1) {
         return hasReacted
-          ? t('forum', 'You reacted with {title}', { title })
-          : t('forum', '1 person reacted with {title}', { title })
+          ? t('forum', 'You reacted with {emoji}', { emoji })
+          : t('forum', '1 person reacted with {emoji}', { emoji })
       }
 
       return hasReacted
         ? n(
             'forum',
-            'You and %n other reacted with {title}',
-            'You and %n others reacted with {title}',
+            'You and %n other reacted with {emoji}',
+            'You and %n others reacted with {emoji}',
             count - 1,
-            { title },
+            { emoji },
           )
-        : n('forum', '%n person reacted with {title}', '%n people reacted with {title}', count, {
-            title,
+        : n('forum', '%n person reacted with {emoji}', '%n people reacted with {emoji}', count, {
+            emoji,
           })
     },
   },
@@ -324,203 +264,40 @@ export default defineComponent({
     }
   }
 
-  .add-reaction {
-    position: relative;
+  .add-reaction-button {
     display: flex;
     align-items: center;
-
-    .add-reaction-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px 10px;
-      min-width: 30px;
-      min-height: 30px;
-      border: 1px dashed var(--color-border);
-      background: transparent;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      opacity: 0.6;
-
-      &:hover {
-        opacity: 1;
-        background: var(--color-background-hover);
-        border-color: var(--color-border-dark);
-        border-style: solid;
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-
-      &.open {
-        opacity: 1;
-        background: var(--color-background-hover);
-        border-color: var(--color-primary-element);
-        border-style: solid;
-      }
-
-      .icon {
-        font-size: 1.2rem;
-        line-height: 1;
-        font-weight: bold;
-        color: var(--color-text-maxcontrast);
-      }
-
-      &:hover .icon,
-      &.open .icon {
-        color: var(--color-main-text);
-      }
-    }
-  }
-}
-
-// Transition animations
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
-
-<style lang="scss">
-// Emoji picker overlay - not scoped because it's teleported to body
-.emoji-picker-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .emoji-picker-container {
-    background: var(--color-main-background);
+    justify-content: center;
+    padding: 4px 10px;
+    min-width: 30px;
+    min-height: 30px;
+    border: 1px dashed var(--color-border);
+    background: transparent;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    max-width: 90vw;
-    max-height: 80vh;
-    overflow: hidden;
-    position: relative;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    opacity: 0.6;
 
-    .emoji-picker-close {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 32px;
-      height: 32px;
-      border: none;
-      background: transparent;
-      color: var(--color-text-maxcontrast);
-      cursor: pointer;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-      z-index: 1;
-      padding: 0;
-
-      &:hover {
-        background: var(--color-background-hover);
-        color: var(--color-main-text);
-      }
-
-      &:active {
-        transform: scale(0.9);
-      }
+    &:hover {
+      opacity: 1;
+      background: var(--color-background-hover);
+      border-color: var(--color-border-dark);
+      border-style: solid;
     }
 
-    .emoji-picker-content {
-      padding: 20px;
+    &:active {
+      transform: scale(0.95);
+    }
 
-      h3 {
-        margin: 0 0 16px 0;
-        font-size: 1.1rem;
-        color: var(--color-main-text);
-      }
+    .icon {
+      font-size: 1.2rem;
+      line-height: 1;
+      font-weight: bold;
+      color: var(--color-text-maxcontrast);
+    }
 
-      .emoji-categories {
-        max-height: 500px;
-        overflow-y: auto;
-        padding: 4px;
-
-        &::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: var(--color-background-dark);
-          border-radius: 4px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: var(--color-border-dark);
-          border-radius: 4px;
-
-          &:hover {
-            background: var(--color-text-maxcontrast);
-          }
-        }
-
-        .emoji-category {
-          margin-bottom: 20px;
-
-          &:last-child {
-            margin-bottom: 0;
-          }
-
-          .category-header {
-            margin: 0 0 12px 0;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--color-text-maxcontrast);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding-left: 4px;
-          }
-
-          .emoji-grid {
-            display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 4px;
-
-            .emoji-option {
-              border: 1px solid transparent;
-              background: transparent;
-              border-radius: 8px;
-              padding: 8px;
-              font-size: 1.5rem;
-              cursor: pointer;
-              transition: all 0.15s ease;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              min-width: 40px;
-              min-height: 40px;
-
-              &:hover {
-                background: var(--color-background-hover);
-                border-color: var(--color-border);
-                transform: scale(1.15);
-              }
-
-              &:active {
-                transform: scale(0.9);
-              }
-            }
-          }
-        }
-      }
+    &:hover .icon {
+      color: var(--color-main-text);
     }
   }
 }

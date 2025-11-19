@@ -341,6 +341,9 @@ export default defineComponent({
       if (!this.isEditing && newVal !== oldVal && newVal !== this.toKebabCase(this.formData.name)) {
         this.slugManuallyEdited = true
       }
+      if (!newVal) {
+        this.slugManuallyEdited = false
+      }
     },
   },
   created() {
@@ -373,6 +376,24 @@ export default defineComponent({
         if (this.isEditing && this.categoryId) {
           await this.loadCategory()
           await this.loadPermissions()
+        } else {
+          // When creating a new category, prefill with default roles
+          // View: Member (role ID 3)
+          const memberRole = this.roles.find((r) => r.id === 3)
+          if (memberRole) {
+            this.selectedViewRoles = [{ id: memberRole.id, label: memberRole.name }]
+          }
+
+          // Moderate: Admin (ID 1) and Moderator (ID 2)
+          const adminRole = this.roles.find((r) => r.id === 1)
+          const moderatorRole = this.roles.find((r) => r.id === 2)
+          this.selectedModerateRoles = []
+          if (adminRole) {
+            this.selectedModerateRoles.push({ id: adminRole.id, label: adminRole.name })
+          }
+          if (moderatorRole) {
+            this.selectedModerateRoles.push({ id: moderatorRole.id, label: moderatorRole.name })
+          }
         }
       } catch (e) {
         console.error('Failed to load category', e)

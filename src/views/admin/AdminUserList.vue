@@ -95,6 +95,14 @@
         </template>
       </AdminTable>
 
+      <!-- Empty state -->
+      <NcEmptyContent
+        v-else
+        :title="strings.emptyTitle"
+        :description="strings.emptyDesc"
+        class="mt-16"
+      />
+
       <!-- Edit Roles Dialog -->
       <NcDialog v-if="editingUserId !== null" :name="strings.editRolesTitle" @close="cancelEdit">
         <div class="edit-roles-dialog">
@@ -118,14 +126,6 @@
           </NcButton>
         </template>
       </NcDialog>
-
-      <!-- Empty state -->
-      <NcEmptyContent
-        v-else
-        :title="strings.emptyTitle"
-        :description="strings.emptyDesc"
-        class="mt-16"
-      />
     </div>
   </PageWrapper>
 </template>

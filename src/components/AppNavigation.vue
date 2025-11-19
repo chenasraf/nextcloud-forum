@@ -237,6 +237,7 @@ export default defineComponent({
       searchValue: '',
       openHeaders: {} as Record<number, boolean>,
       isAdminOpen: true,
+      STORAGE_KEY: 'forum_navigation_state',
       strings: {
         searchLabel: t('forum', 'Search'),
         navHome: t('forum', 'Home'),
@@ -259,17 +260,62 @@ export default defineComponent({
     try {
       await this.fetchCategories()
 
-      // Initialize all headers as open by default
-      const openState: Record<number, boolean> = {}
-      this.categoryHeaders.forEach((header) => {
-        openState[header.id] = true
-      })
-      this.openHeaders = openState
+      // Load saved state from local storage
+      this.loadNavigationState()
     } catch (e) {
       console.error('Failed to load categories for sidebar:', e)
     }
   },
   methods: {
+    loadNavigationState(): void {
+      try {
+        const savedState = localStorage.getItem(this.STORAGE_KEY)
+        if (savedState) {
+          const parsed = JSON.parse(savedState)
+
+          // Load admin section state
+          if (typeof parsed.isAdminOpen === 'boolean') {
+            this.isAdminOpen = parsed.isAdminOpen
+          }
+
+          // Load category headers state
+          if (parsed.openHeaders && typeof parsed.openHeaders === 'object') {
+            this.openHeaders = parsed.openHeaders
+          }
+        }
+
+        // Initialize headers that don't have saved state to open by default
+        const openState: Record<number, boolean> = { ...this.openHeaders }
+        this.categoryHeaders.forEach((header) => {
+          if (openState[header.id] === undefined) {
+            openState[header.id] = true
+          }
+        })
+        this.openHeaders = openState
+      } catch (e) {
+        console.error('Failed to load navigation state from local storage:', e)
+
+        // Fallback: Initialize all headers as open by default
+        const openState: Record<number, boolean> = {}
+        this.categoryHeaders.forEach((header) => {
+          openState[header.id] = true
+        })
+        this.openHeaders = openState
+      }
+    },
+
+    saveNavigationState(): void {
+      try {
+        const state = {
+          isAdminOpen: this.isAdminOpen,
+          openHeaders: this.openHeaders,
+        }
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state))
+      } catch (e) {
+        console.error('Failed to save navigation state to local storage:', e)
+      }
+    },
+
     isPathActive(path: string, usePrefix = false): boolean {
       if (usePrefix) {
         return this.$route.path.startsWith(path)
@@ -282,6 +328,7 @@ export default defineComponent({
         ...this.openHeaders,
         [headerId]: !this.openHeaders[headerId],
       }
+      this.saveNavigationState()
     },
 
     isHeaderOpen(headerId: number): boolean {
@@ -290,6 +337,7 @@ export default defineComponent({
 
     toggleAdmin(): void {
       this.isAdminOpen = !this.isAdminOpen
+      this.saveNavigationState()
     },
 
     isCategoryActive(category: Category): boolean {

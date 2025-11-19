@@ -363,11 +363,19 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .profile-view {
+  @media (max-width: 768px) {
+    padding: 0 8px;
+  }
+
   .center {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 32px;
+
+    @media (max-width: 768px) {
+      padding: 16px;
+    }
   }
 
   .ml-8 {
@@ -380,6 +388,10 @@ export default defineComponent({
 
   .mt-24 {
     margin-top: 24px;
+
+    @media (max-width: 768px) {
+      margin-top: 16px;
+    }
   }
 
   .muted {
@@ -394,16 +406,38 @@ export default defineComponent({
     background: var(--color-main-background);
     border: 1px solid var(--color-border);
     border-radius: 8px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px;
+    }
+  }
+
+  .user-avatar {
+    @media (max-width: 768px) {
+      align-self: center;
+    }
   }
 
   .user-info {
     flex: 1;
+    width: 100%;
+
+    @media (max-width: 768px) {
+      text-align: center;
+    }
   }
 
   .user-name {
     margin: 0 0 8px 0;
     font-size: 24px;
     font-weight: 600;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+    }
   }
 
   .user-meta {
@@ -412,6 +446,17 @@ export default defineComponent({
     gap: 8px;
     color: var(--color-text-maxcontrast);
     font-size: 14px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      justify-content: center;
+      font-size: 13px;
+    }
+  }
+
+  .meta-item {
+    display: inline-flex;
+    align-items: center;
   }
 
   .meta-label {
@@ -425,6 +470,10 @@ export default defineComponent({
 
   .meta-divider {
     color: var(--color-text-maxcontrast);
+
+    @media (max-width: 480px) {
+      display: none;
+    }
   }
 
   .profile-tabs {
@@ -444,6 +493,12 @@ export default defineComponent({
       color: var(--color-text-maxcontrast);
       transition: all 0.2s;
       border-radius: 0;
+      flex: 1;
+
+      @media (max-width: 768px) {
+        padding: 12px 16px;
+        font-size: 13px;
+      }
 
       &:hover {
         color: var(--color-text-light);
@@ -481,6 +536,10 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.2s;
 
+    @media (max-width: 768px) {
+      padding: 12px;
+    }
+
     &:hover {
       background: var(--color-background-hover);
       border-color: var(--color-primary-element);
@@ -494,11 +553,23 @@ export default defineComponent({
     margin-bottom: 12px;
     font-size: 14px;
     color: var(--color-text-maxcontrast);
+    gap: 8px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      font-size: 13px;
+    }
   }
 
   .post-thread {
     strong {
       color: var(--color-text-light);
+    }
+
+    @media (max-width: 768px) {
+      word-break: break-word;
     }
   }
 

@@ -792,7 +792,6 @@ export default defineComponent({
     .categories-section {
       display: flex;
       flex-direction: column;
-      gap: 32px;
     }
 
     .header-row {
@@ -805,6 +804,11 @@ export default defineComponent({
       border: 1px solid var(--color-border);
       border-radius: 8px;
       margin-bottom: 12px;
+      margin-top: 32px;
+
+      &:first-child {
+        margin-top: 0;
+      }
 
       &:hover {
         background: var(--color-background-hover);

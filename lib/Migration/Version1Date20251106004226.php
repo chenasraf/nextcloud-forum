@@ -563,16 +563,14 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			return;
 		}
 
-		// Find first admin user (fallback to 'admin' if no admin group members found)
+		// Find first admin user (fallback to 'admin' if no admin users found)
 		$adminUserId = 'admin';
-		$adminGroup = $groupManager->get('admin');
-		if ($adminGroup) {
-			$adminUsers = $adminGroup->getUsers();
-			if (!empty($adminUsers)) {
-				$firstAdmin = reset($adminUsers);
-				$adminUserId = $firstAdmin->getUID();
+		$userManager->callForSeenUsers(function ($user) use ($groupManager, &$adminUserId) {
+			if ($groupManager->isAdmin($user->getUID())) {
+				$adminUserId = $user->getUID();
+				return false; // Stop iteration after finding first admin
 			}
-		}
+		});
 
 		// Create default roles
 		$qb = $db->getQueryBuilder();
@@ -753,9 +751,9 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		}
 
 		// Assign roles to all Nextcloud users
-		$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $userRoleId, $adminRoleId, $adminGroup) {
+		$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $userRoleId, $adminRoleId, $groupManager) {
 			$userId = $user->getUID();
-			$isAdmin = $adminGroup && $adminGroup->inGroup($user);
+			$isAdmin = $groupManager->isAdmin($userId);
 
 			// Assign User role to all users
 			$qb = $db->getQueryBuilder();

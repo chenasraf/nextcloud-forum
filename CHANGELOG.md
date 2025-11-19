@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.4.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.3.0...v0.4.0) (2025-11-19)
+
+
+### Features
+
+* **AppNavigation:** save collapse state to local storage ([a36da9f](https://github.com/chenasraf/nextcloud-forum/commit/a36da9f8822aa6b091e34d82cce8b56a86547b39))
+* **BBCodeEditor:** add attachment disclaimer ([b0bfbbc](https://github.com/chenasraf/nextcloud-forum/commit/b0bfbbccdf04bd92d374ed31e404c9fadc23f51b))
+* **BBCodeToolbar:** add emoji picker button ([255a5cf](https://github.com/chenasraf/nextcloud-forum/commit/255a5cf53dcce38c9356b30713a76e95592abe44))
+* **PostReactions:** use Nextcloud emoji picker ([feeefa2](https://github.com/chenasraf/nextcloud-forum/commit/feeefa2926589cbd0c62053f1700c9bfb6bca545))
+
+
+### Bug Fixes
+
+* mobile responsiveness ([c076215](https://github.com/chenasraf/nextcloud-forum/commit/c0762158d75e6eebf0ac77a512218cf7b4119a97))
+* **ProfileView:** mobile responsiveness ([67e9fb9](https://github.com/chenasraf/nextcloud-forum/commit/67e9fb9f8cdb9d1ada660b1d90e8de5aa35051de))
+* **ThreadCard:** mobile responsiveness ([9525ebf](https://github.com/chenasraf/nextcloud-forum/commit/9525ebfb9705e66281898af7fcb733ba1ae8208c))
+
 ## [0.3.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.2.1...v0.3.0) (2025-11-18)
 
 

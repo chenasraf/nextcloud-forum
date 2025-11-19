@@ -137,6 +137,11 @@ export default defineComponent({
     justify-content: space-between;
     align-items: center;
     gap: 16px;
+
+    @media (max-width: 768px) {
+      align-items: flex-start;
+      gap: 6px;
+    }
   }
 
   .unread-indicator {
@@ -212,16 +217,36 @@ export default defineComponent({
     padding: 8px;
     background: var(--color-background-hover);
     border-radius: 6px;
+
+    @media (max-width: 768px) {
+      flex-direction: row;
+      padding: 6px 8px;
+      gap: 6px;
+    }
   }
 
   .stat-icon {
     font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @media (max-width: 768px) {
+      :deep(svg) {
+        width: 20px;
+        height: 20px;
+      }
+    }
   }
 
   .stat-value {
     font-weight: 600;
     font-size: 1rem;
     color: var(--color-main-text);
+
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+    }
   }
 
   .stat-label {
@@ -229,6 +254,10 @@ export default defineComponent({
     color: var(--color-text-maxcontrast);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+
+    @media (max-width: 768px) {
+      font-size: 0.65rem;
+    }
   }
 }
 
@@ -239,8 +268,10 @@ export default defineComponent({
 
   .thread-stats {
     flex-direction: row;
+    flex-wrap: wrap;
     width: 100%;
     justify-content: flex-start;
+    gap: 8px;
   }
 }
 </style>

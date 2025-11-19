@@ -10,7 +10,7 @@
         <NcAppNavigationItem
           :name="strings.navSearch"
           :to="{ path: '/search' }"
-          :active="isSearchActive"
+          :active="isPathActive('/search')"
         >
           <template #icon>
             <MagnifyIcon :size="20" />
@@ -60,7 +60,7 @@
         <NcAppNavigationItem
           :name="strings.navPreferences"
           :to="{ path: '/preferences' }"
-          :active="isPreferencesActive"
+          :active="isPathActive('/preferences')"
         >
           <template #icon>
             <AccountCogIcon :size="20" />
@@ -91,7 +91,7 @@
           <NcAppNavigationItem
             :name="strings.navAdminDashboard"
             :to="{ path: '/admin' }"
-            :active="isAdminDashboardActive"
+            :active="isPathActive('/admin')"
           >
             <template #icon>
               <ChartLineIcon :size="20" />
@@ -101,7 +101,7 @@
           <NcAppNavigationItem
             :name="strings.navAdminSettings"
             :to="{ path: '/admin/settings' }"
-            :active="isAdminSettingsActive"
+            :active="isPathActive('/admin/settings')"
           >
             <template #icon>
               <CogIcon :size="20" />
@@ -111,7 +111,7 @@
           <NcAppNavigationItem
             :name="strings.navAdminUsers"
             :to="{ path: '/admin/users' }"
-            :active="isAdminUsersActive"
+            :active="isPathActive('/admin/users', true)"
           >
             <template #icon>
               <AccountMultipleIcon :size="20" />
@@ -121,7 +121,7 @@
           <NcAppNavigationItem
             :name="strings.navAdminRoles"
             :to="{ path: '/admin/roles' }"
-            :active="isAdminRolesActive"
+            :active="isPathActive('/admin/roles', true)"
           >
             <template #icon>
               <ShieldAccountIcon :size="20" />
@@ -131,7 +131,7 @@
           <NcAppNavigationItem
             :name="strings.navAdminCategories"
             :to="{ path: '/admin/categories' }"
-            :active="isAdminCategoriesActive"
+            :active="isPathActive('/admin/categories', true)"
           >
             <template #icon>
               <FolderIcon :size="20" />
@@ -141,7 +141,7 @@
           <NcAppNavigationItem
             :name="strings.navAdminBBCodes"
             :to="{ path: '/admin/bbcodes' }"
-            :active="isAdminBBCodesActive"
+            :active="isPathActive('/admin/bbcodes', true)"
           >
             <template #icon>
               <CodeBracketsIcon :size="20" />
@@ -241,10 +241,10 @@ export default defineComponent({
         searchLabel: t('forum', 'Search'),
         navHome: t('forum', 'Home'),
         navSearch: t('forum', 'Search'),
-        navPreferences: t('forum', 'Preferences'),
+        navPreferences: t('forum', 'User Preferences'),
         navAdmin: t('forum', 'Admin'),
         navAdminDashboard: t('forum', 'Dashboard'),
-        navAdminSettings: t('forum', 'Settings'),
+        navAdminSettings: t('forum', 'Forum Settings'),
         navAdminUsers: t('forum', 'Users'),
         navAdminRoles: t('forum', 'Roles'),
         navAdminCategories: t('forum', 'Categories'),
@@ -253,32 +253,6 @@ export default defineComponent({
         collapse: t('forum', 'Collapse'),
       },
     }
-  },
-  computed: {
-    isSearchActive(): boolean {
-      return this.$route.path === '/search'
-    },
-    isPreferencesActive(): boolean {
-      return this.$route.path === '/preferences'
-    },
-    isAdminDashboardActive(): boolean {
-      return this.$route.path === '/admin'
-    },
-    isAdminSettingsActive(): boolean {
-      return this.$route.path === '/admin/settings'
-    },
-    isAdminUsersActive(): boolean {
-      return this.$route.path.startsWith('/admin/users')
-    },
-    isAdminRolesActive(): boolean {
-      return this.$route.path.startsWith('/admin/roles')
-    },
-    isAdminCategoriesActive(): boolean {
-      return this.$route.path.startsWith('/admin/categories')
-    },
-    isAdminBBCodesActive(): boolean {
-      return this.$route.path.startsWith('/admin/bbcodes')
-    },
   },
   async created() {
     // Fetch categories for sidebar
@@ -296,6 +270,13 @@ export default defineComponent({
     }
   },
   methods: {
+    isPathActive(path: string, usePrefix = false): boolean {
+      if (usePrefix) {
+        return this.$route.path.startsWith(path)
+      }
+      return this.$route.path === path
+    },
+
     toggleHeader(headerId: number): void {
       this.openHeaders = {
         ...this.openHeaders,

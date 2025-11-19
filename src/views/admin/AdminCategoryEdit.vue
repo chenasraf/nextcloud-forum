@@ -240,6 +240,7 @@ export default defineComponent({
         slug: '',
         description: '',
       },
+      slugManuallyEdited: false,
       headerDialog: {
         show: false,
         isEditing: false,
@@ -329,11 +330,32 @@ export default defineComponent({
     selectedHeader(newVal: { id: number; label: string } | null) {
       this.formData.headerId = newVal?.id || null
     },
+    'formData.name'(newVal: string) {
+      // Only auto-update slug when creating (not editing) and user hasn't manually edited it
+      if (!this.isEditing && !this.slugManuallyEdited) {
+        this.formData.slug = this.toKebabCase(newVal)
+      }
+    },
+    'formData.slug'(newVal: string, oldVal: string) {
+      // Only track manual edits when creating (not when editing existing category)
+      if (!this.isEditing && newVal !== oldVal && newVal !== this.toKebabCase(this.formData.name)) {
+        this.slugManuallyEdited = true
+      }
+    },
   },
   created() {
     this.refresh()
   },
   methods: {
+    toKebabCase(str: string): string {
+      return str
+        .trim()
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
+        .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+    },
+
     async refresh(): Promise<void> {
       try {
         this.loading = true
@@ -370,6 +392,9 @@ export default defineComponent({
       this.formData.name = category.name
       this.formData.slug = category.slug
       this.formData.description = category.description || ''
+
+      // When editing, don't track manual slug edits (slug is pre-populated from DB)
+      this.slugManuallyEdited = false
 
       // Set selectedHeader based on headerId
       const header = this.headers.find((h) => h.id === category.headerId)

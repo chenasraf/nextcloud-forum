@@ -70,7 +70,9 @@ export default defineComponent({
       default: '98px',
     },
     rowClass: {
-      type: [String, Function] as PropType<string | ((row: any) => string)>,
+      type: [String, Function] as PropType<
+        string | ((row: any) => string | Record<string, boolean>)
+      >,
       default: '',
     },
   },
@@ -101,7 +103,7 @@ export default defineComponent({
     getRowKey(row: any): string | number {
       return row[this.rowKey]
     },
-    getRowClass(row: any): string {
+    getRowClass(row: any): string | Record<string, boolean> {
       if (typeof this.rowClass === 'function') {
         return this.rowClass(row)
       }

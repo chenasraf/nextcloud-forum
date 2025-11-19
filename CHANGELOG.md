@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.4.0...v0.5.0) (2025-11-19)
+
+
+### Features
+
+* **AdminCategoryEdit:** auto-populate slug on create ([363e04b](https://github.com/chenasraf/nextcloud-forum/commit/363e04b4e93f896648fa2d58d4d5718cc924236c))
+
+
+### Bug Fixes
+
+* **AdminCategoryList:** allow deleting empty categories/headers ([5c66f44](https://github.com/chenasraf/nextcloud-forum/commit/5c66f44da520fce0d35f384e13452f8cae1427ab))
+* improve admin role assignment to users ([1fd59c1](https://github.com/chenasraf/nextcloud-forum/commit/1fd59c1f0462e02aa49703191365a9d564f5c8e9))
+
 ## [0.4.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.3.0...v0.4.0) (2025-11-19)
 
 

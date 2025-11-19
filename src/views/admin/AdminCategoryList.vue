@@ -222,7 +222,11 @@
           </NcButton>
           <NcButton
             variant="error"
-            :disabled="deleteDialog.action === 'migrate' && !selectedTargetCategory"
+            :disabled="
+              deleteDialog.action === 'migrate' &&
+              deleteDialog.threadCount > 0 &&
+              !selectedTargetCategory
+            "
             @click="executeDelete"
           >
             {{ strings.deleteCategory }}
@@ -338,7 +342,11 @@
           </NcButton>
           <NcButton
             variant="error"
-            :disabled="deleteHeaderDialog.action === 'migrate' && !selectedTargetHeader"
+            :disabled="
+              deleteHeaderDialog.action === 'migrate' &&
+              deleteHeaderDialog.categoryCount > 0 &&
+              !selectedTargetHeader
+            "
             @click="executeDeleteHeader"
           >
             {{ strings.deleteHeader }}

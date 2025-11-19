@@ -22,117 +22,102 @@
       </NcEmptyContent>
 
       <!-- User list -->
-      <div v-else-if="users.length > 0" class="users-content">
-        <div class="users-table">
-          <div class="table-header">
-            <div class="col-user">{{ strings.user }}</div>
-            <div class="col-posts">{{ strings.posts }}</div>
-            <div class="col-roles">{{ strings.roles }}</div>
-            <div class="col-joined">{{ strings.joined }}</div>
-            <div class="col-status">{{ strings.status }}</div>
-          </div>
+      <AdminTable
+        v-else-if="users.length > 0"
+        :columns="tableColumns"
+        :rows="users"
+        row-key="userId"
+        :has-actions="true"
+        :actions-label="strings.actions"
+        :row-class="(user) => ({ 'is-deleted': user.isDeleted })"
+      >
+        <template #cell-user="{ row }">
+          <UserInfo :user-id="row.userId" :display-name="row.displayName" :avatar-size="40">
+            <template #meta>
+              <div class="user-id muted">@{{ row.userId }}</div>
+            </template>
+          </UserInfo>
+        </template>
 
-          <div
-            v-for="user in users"
-            :key="user.userId"
-            class="table-row"
-            :class="{ 'is-deleted': user.isDeleted }"
-          >
-            <div class="col-user">
-              <UserInfo :user-id="user.userId" :display-name="user.displayName" :avatar-size="40">
-                <template #meta>
-                  <div class="user-id muted">@{{ user.userId }}</div>
-                </template>
-              </UserInfo>
+        <template #cell-posts="{ row }">
+          <div class="post-stats">
+            <div class="stat-item">
+              <span class="stat-value">{{ row.threadCount }}</span>
+              <span class="stat-label muted">threads</span>
             </div>
-
-            <div class="col-posts">
-              <div class="post-stats">
-                <div class="stat-item">
-                  <span class="stat-value">{{ user.threadCount }}</span>
-                  <span class="stat-label muted">threads</span>
-                </div>
-                <div class="stat-divider">/</div>
-                <div class="stat-item">
-                  <span class="stat-value">{{ user.postCount }}</span>
-                  <span class="stat-label muted">posts</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-roles">
-              <div v-if="editingUserId === user.userId" class="roles-editor">
-                <NcSelect
-                  v-model="editingRoles"
-                  :options="roleOptions"
-                  :placeholder="strings.selectRoles"
-                  :multiple="true"
-                  label="name"
-                  track-by="id"
-                  input-label="name"
-                  class="roles-select"
-                />
-                <div class="edit-actions">
-                  <NcButton
-                    @click="cancelEdit"
-                    :aria-label="strings.cancel"
-                    :title="strings.cancel"
-                  >
-                    <template #icon>
-                      <CloseIcon :size="20" />
-                    </template>
-                  </NcButton>
-                  <NcButton
-                    variant="primary"
-                    @click="saveRoles(user.userId)"
-                    :aria-label="strings.save"
-                    :title="strings.save"
-                  >
-                    <template #icon>
-                      <CheckIcon :size="20" />
-                    </template>
-                  </NcButton>
-                </div>
-              </div>
-              <div v-else class="roles-display">
-                <div class="roles-list">
-                  <span
-                    v-for="roleId in user.roles"
-                    :key="roleId"
-                    class="role-badge"
-                    :class="getRoleBadgeClass(roleId)"
-                  >
-                    {{ getRoleName(roleId) }}
-                  </span>
-                  <span v-if="user.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
-                </div>
-                <NcButton
-                  @click="startEdit(user.userId, user.roles)"
-                  :aria-label="strings.edit"
-                  :title="strings.edit"
-                >
-                  <template #icon>
-                    <PencilIcon :size="20" />
-                  </template>
-                </NcButton>
-              </div>
-            </div>
-
-            <div class="col-joined">
-              <NcDateTime :timestamp="user.createdAt * 1000" />
-            </div>
-
-            <div class="col-status">
-              <span v-if="user.isDeleted" class="status-badge status-deleted">
-                {{ strings.deleted }}
-              </span>
-              <span v-else class="status-badge status-active">
-                {{ strings.active }}
-              </span>
+            <div class="stat-divider">/</div>
+            <div class="stat-item">
+              <span class="stat-value">{{ row.postCount }}</span>
+              <span class="stat-label muted">posts</span>
             </div>
           </div>
+        </template>
+
+        <template #cell-roles="{ row }">
+          <div class="roles-list">
+            <span
+              v-for="roleId in row.roles"
+              :key="roleId"
+              class="role-badge"
+              :class="getRoleBadgeClass(roleId)"
+            >
+              {{ getRoleName(roleId) }}
+            </span>
+            <span v-if="row.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
+          </div>
+        </template>
+
+        <template #cell-joined="{ row }">
+          <NcDateTime :timestamp="row.createdAt * 1000" />
+        </template>
+
+        <template #cell-status="{ row }">
+          <span v-if="row.isDeleted" class="status-badge status-deleted">
+            {{ strings.deleted }}
+          </span>
+          <span v-else class="status-badge status-active">
+            {{ strings.active }}
+          </span>
+        </template>
+
+        <template #actions="{ row }">
+          <NcActions variant="secondary">
+            <NcActionButton
+              @click="startEdit(row.userId, row.roles)"
+              :aria-label="strings.editRoles"
+              :title="strings.editRoles"
+            >
+              <template #icon>
+                <PencilIcon :size="20" />
+              </template>
+            </NcActionButton>
+          </NcActions>
+        </template>
+      </AdminTable>
+
+      <!-- Edit Roles Dialog -->
+      <NcDialog v-if="editingUserId !== null" :name="strings.editRolesTitle" @close="cancelEdit">
+        <div class="edit-roles-dialog">
+          <NcSelect
+            v-model="editingRoles"
+            :options="roleOptions"
+            :placeholder="strings.selectRoles"
+            :multiple="true"
+            label="name"
+            :input-label="strings.selectRoles"
+            track-by="id"
+            class="roles-select"
+          />
         </div>
-      </div>
+        <template #actions>
+          <NcButton @click="cancelEdit">
+            {{ strings.cancel }}
+          </NcButton>
+          <NcButton variant="primary" @click="saveRoles(editingUserId)">
+            {{ strings.save }}
+          </NcButton>
+        </template>
+      </NcDialog>
 
       <!-- Empty state -->
       <NcEmptyContent
@@ -148,14 +133,16 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
+import NcActions from '@nextcloud/vue/components/NcActions'
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
+import NcDialog from '@nextcloud/vue/components/NcDialog'
 import UserInfo from '@/components/UserInfo.vue'
+import AdminTable, { type TableColumn } from '@/components/AdminTable.vue'
 import PencilIcon from '@icons/Pencil.vue'
-import CheckIcon from '@icons/Check.vue'
-import CloseIcon from '@icons/Close.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { ocs } from '@/axios'
@@ -183,16 +170,18 @@ export default defineComponent({
   name: 'AdminUserList',
   components: {
     NcButton,
+    NcActions,
+    NcActionButton,
     NcEmptyContent,
     NcLoadingIcon,
     NcDateTime,
     NcSelect,
+    NcDialog,
     UserInfo,
+    AdminTable,
     PageWrapper,
     PageHeader,
     PencilIcon,
-    CheckIcon,
-    CloseIcon,
   },
   data() {
     return {
@@ -217,11 +206,13 @@ export default defineComponent({
         roles: t('forum', 'Roles'),
         joined: t('forum', 'Joined'),
         status: t('forum', 'Status'),
+        actions: t('forum', 'Actions'),
         active: t('forum', 'Active'),
         deleted: t('forum', 'Deleted'),
         noRoles: t('forum', 'No roles'),
         selectRoles: t('forum', 'Select roles'),
-        edit: t('forum', 'Edit roles'),
+        editRoles: t('forum', 'Edit roles'),
+        editRolesTitle: t('forum', 'Edit User Roles'),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
       },
@@ -233,6 +224,15 @@ export default defineComponent({
         id: role.id,
         name: role.name,
       }))
+    },
+    tableColumns(): TableColumn[] {
+      return [
+        { key: 'user', label: this.strings.user, minWidth: '200px' },
+        { key: 'posts', label: this.strings.posts, minWidth: '160px' },
+        { key: 'roles', label: this.strings.roles, minWidth: '150px' },
+        { key: 'joined', label: this.strings.joined, minWidth: '120px' },
+        { key: 'status', label: this.strings.status, minWidth: '80px' },
+      ]
     },
   },
   created() {
@@ -356,168 +356,104 @@ export default defineComponent({
     justify-content: center;
   }
 
-  .page-header {
-    margin-bottom: 24px;
+  // Row-specific styling
+  :deep(.is-deleted > div) {
+    opacity: 0.6;
+  }
 
-    h2 {
-      margin: 0 0 6px 0;
+  // Custom cell content styling
+  .user-id {
+    font-size: 0.85rem;
+  }
+
+  .post-stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+
+      .stat-value {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--color-main-text);
+      }
+
+      .stat-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .stat-divider {
+      color: var(--color-text-maxcontrast);
+      font-weight: 300;
     }
   }
 
-  .users-content {
-    .users-table {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      background: var(--color-border);
-      border-radius: 8px;
-      overflow: hidden;
+  .roles-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
 
-      .table-header,
-      .table-row {
-        display: grid;
-        grid-template-columns: 2fr 100px 2fr 150px 100px;
-        gap: 16px;
-        padding: 16px;
-        background: var(--color-main-background);
-        align-items: center;
+    .role-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+
+      &.role-admin {
+        background: var(--color-error-light);
+        color: var(--color-error-dark);
       }
 
-      .table-header {
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+      &.role-moderator {
+        background: var(--color-warning-light);
+        color: var(--color-warning-dark);
+      }
+
+      &.role-member {
+        background: var(--color-primary-light);
+        color: var(--color-primary-dark);
+      }
+
+      &.role-unknown {
+        background: var(--color-background-dark);
         color: var(--color-text-maxcontrast);
-        background: var(--color-background-hover);
       }
+    }
+  }
 
-      .table-row {
-        &:hover {
-          background: var(--color-background-hover);
-        }
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
 
-        &.is-deleted {
-          opacity: 0.6;
-        }
+    &.status-active {
+      background: var(--color-success-light);
+      color: var(--color-success-dark);
+    }
 
-        .col-user {
-          .user-id {
-            font-size: 0.85rem;
-          }
-        }
+    &.status-deleted {
+      background: var(--color-background-dark);
+      color: var(--color-text-maxcontrast);
+    }
+  }
 
-        .col-posts {
-          .post-stats {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+  .edit-roles-dialog {
+    padding: 16px 0;
 
-            .stat-item {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 2px;
-
-              .stat-value {
-                font-weight: 600;
-                font-size: 1rem;
-                color: var(--color-main-text);
-              }
-
-              .stat-label {
-                font-size: 0.7rem;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-              }
-            }
-
-            .stat-divider {
-              color: var(--color-text-maxcontrast);
-              font-weight: 300;
-            }
-          }
-        }
-
-        .col-roles {
-          .roles-editor {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            .roles-select {
-              flex: 1;
-              min-width: 200px;
-            }
-
-            .edit-actions {
-              display: flex;
-              gap: 4px;
-            }
-          }
-
-          .roles-display {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            .roles-list {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 6px;
-              flex: 1;
-
-              .role-badge {
-                padding: 4px 10px;
-                border-radius: 12px;
-                font-size: 0.75rem;
-                font-weight: 500;
-                white-space: nowrap;
-
-                &.role-admin {
-                  background: var(--color-error-light);
-                  color: var(--color-error-dark);
-                }
-
-                &.role-moderator {
-                  background: var(--color-warning-light);
-                  color: var(--color-warning-dark);
-                }
-
-                &.role-member {
-                  background: var(--color-primary-light);
-                  color: var(--color-primary-dark);
-                }
-
-                &.role-unknown {
-                  background: var(--color-background-dark);
-                  color: var(--color-text-maxcontrast);
-                }
-              }
-            }
-          }
-        }
-
-        .col-status {
-          .status-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            white-space: nowrap;
-
-            &.status-active {
-              background: var(--color-success-light);
-              color: var(--color-success-dark);
-            }
-
-            &.status-deleted {
-              background: var(--color-background-dark);
-              color: var(--color-text-maxcontrast);
-            }
-          }
-        }
-      }
+    .roles-select {
+      width: 100%;
+      min-width: 300px;
     }
   }
 }

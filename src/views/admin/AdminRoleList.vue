@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper>
+  <PageWrapper :full-width="true">
     <template #toolbar>
       <AppToolbar>
         <template #right>
@@ -35,53 +35,48 @@
       </NcEmptyContent>
 
       <!-- Role list -->
-      <div v-else-if="roles.length > 0" class="roles-content">
-        <div class="roles-table">
-          <div class="table-header">
-            <div class="col-id">{{ strings.id }}</div>
-            <div class="col-name">{{ strings.name }}</div>
-            <div class="col-description">{{ strings.description }}</div>
-            <div class="col-created">{{ strings.created }}</div>
-            <div class="col-actions">{{ strings.actions }}</div>
-          </div>
+      <AdminTable
+        v-else-if="roles.length > 0"
+        :columns="tableColumns"
+        :rows="roles"
+        row-key="id"
+        :has-actions="true"
+        :actions-label="strings.actions"
+      >
+        <template #cell-id="{ row }">
+          <span class="role-id">{{ row.id }}</span>
+        </template>
 
-          <div v-for="role in roles" :key="role.id" class="table-row">
-            <div class="col-id">
-              <span class="role-id">{{ role.id }}</span>
-            </div>
+        <template #cell-name="{ row }">
+          <span class="role-name" :class="getRoleClass(row.id)">{{ row.name }}</span>
+        </template>
 
-            <div class="col-name">
-              <span class="role-name" :class="getRoleClass(role.id)">{{ role.name }}</span>
-            </div>
+        <template #cell-description="{ row }">
+          <span v-if="row.description" class="role-description">{{ row.description }}</span>
+          <span v-else class="muted">{{ strings.noDescription }}</span>
+        </template>
 
-            <div class="col-description">
-              <span v-if="role.description" class="role-description">{{ role.description }}</span>
-              <span v-else class="muted">{{ strings.noDescription }}</span>
-            </div>
+        <template #cell-created="{ row }">
+          <NcDateTime :timestamp="row.createdAt * 1000" />
+        </template>
 
-            <div class="col-created">
-              <NcDateTime :timestamp="role.createdAt * 1000" />
-            </div>
-
-            <div class="col-actions">
-              <NcActions>
-                <NcActionButton @click="editRole(role.id)">
-                  <template #icon>
-                    <PencilIcon :size="20" />
-                  </template>
-                  {{ strings.edit }}
-                </NcActionButton>
-                <NcActionButton :disabled="isSystemRole(role.id)" @click="confirmDelete(role)">
-                  <template #icon>
-                    <DeleteIcon :size="20" />
-                  </template>
-                  {{ strings.delete }}
-                </NcActionButton>
-              </NcActions>
-            </div>
-          </div>
-        </div>
-      </div>
+        <template #actions="{ row }">
+          <NcActions variant="secondary">
+            <NcActionButton @click="editRole(row.id)">
+              <template #icon>
+                <PencilIcon :size="20" />
+              </template>
+              {{ strings.edit }}
+            </NcActionButton>
+            <NcActionButton :disabled="isSystemRole(row.id)" @click="confirmDelete(row)">
+              <template #icon>
+                <DeleteIcon :size="20" />
+              </template>
+              {{ strings.delete }}
+            </NcActionButton>
+          </NcActions>
+        </template>
+      </AdminTable>
 
       <!-- Empty state -->
       <NcEmptyContent
@@ -111,6 +106,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+import AdminTable, { type TableColumn } from '@/components/AdminTable.vue'
 import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
@@ -130,6 +126,7 @@ export default defineComponent({
     NcDateTime,
     NcActions,
     NcActionButton,
+    AdminTable,
     PlusIcon,
     PencilIcon,
     DeleteIcon,
@@ -169,6 +166,16 @@ export default defineComponent({
         systemRoleWarning: t('forum', 'System roles cannot be deleted'),
       },
     }
+  },
+  computed: {
+    tableColumns(): TableColumn[] {
+      return [
+        { key: 'id', label: this.strings.id, minWidth: '50px', maxWidth: '100px' },
+        { key: 'name', label: this.strings.name, minWidth: '120px' },
+        { key: 'description', label: this.strings.description, minWidth: '250px' },
+        { key: 'created', label: this.strings.created, minWidth: '120px' },
+      ]
+    },
   },
   created() {
     this.refresh()
@@ -256,96 +263,35 @@ export default defineComponent({
     justify-content: center;
   }
 
-  .page-header {
-    margin-bottom: 24px;
+  // Custom cell content styling
+  :deep(.role-id) {
+    font-weight: 600;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--color-text-maxcontrast);
+  }
 
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
+  :deep(.role-name) {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-main-text);
+
+    &.role-admin {
+      color: var(--color-error);
     }
 
-    h2 {
-      margin: 0 0 6px 0;
+    &.role-moderator {
+      color: var(--color-warning);
+    }
+
+    &.role-member {
+      color: var(--color-primary);
     }
   }
 
-  .roles-content {
-    .roles-table {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      background: var(--color-border);
-      border-radius: 8px;
-      overflow: hidden;
-
-      .table-header,
-      .table-row {
-        display: grid;
-        grid-template-columns: 60px 200px 1fr 150px 80px;
-        gap: 16px;
-        padding: 16px;
-        background: var(--color-main-background);
-        align-items: center;
-      }
-
-      .table-header {
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--color-text-maxcontrast);
-        background: var(--color-background-hover);
-      }
-
-      .table-row {
-        &:hover {
-          background: var(--color-background-hover);
-        }
-
-        .col-id {
-          .role-id {
-            font-weight: 600;
-            font-family: monospace;
-            font-size: 0.9rem;
-            color: var(--color-text-maxcontrast);
-          }
-        }
-
-        .col-name {
-          .role-name {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--color-main-text);
-
-            &.role-admin {
-              color: var(--color-error);
-            }
-
-            &.role-moderator {
-              color: var(--color-warning);
-            }
-
-            &.role-member {
-              color: var(--color-primary);
-            }
-          }
-        }
-
-        .col-description {
-          .role-description {
-            color: var(--color-text-lighter);
-            font-size: 0.9rem;
-          }
-        }
-
-        .col-actions {
-          display: flex;
-          justify-content: flex-end;
-        }
-      }
-    }
+  :deep(.role-description) {
+    color: var(--color-text-lighter);
+    font-size: 0.9rem;
   }
 }
 </style>

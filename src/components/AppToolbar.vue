@@ -22,7 +22,6 @@ export default defineComponent({
 .app-toolbar {
   margin-top: 8px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
@@ -33,15 +32,22 @@ export default defineComponent({
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+    max-width: 100%;
   }
 
   .toolbar-left {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 200px;
+
+    @media (max-width: 768px) {
+      padding-left: 32px;
+    }
   }
 
   .toolbar-right {
     flex-shrink: 0;
+    margin-left: auto;
+    justify-content: flex-end;
   }
 }
 </style>

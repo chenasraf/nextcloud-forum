@@ -103,6 +103,10 @@ export default defineComponent({
   padding: 1rem;
   min-height: 0;
   scroll-behavior: smooth;
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 }
 
 .bottom-spacer {
@@ -115,6 +119,7 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   height: 100%;
+  margin-top: 128px;
 }
 </style>
 

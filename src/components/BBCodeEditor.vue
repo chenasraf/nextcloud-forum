@@ -11,18 +11,24 @@
       class="bbcode-editor-textarea"
       ref="textarea"
     />
+    <NcNoteCard v-if="hasAttachmentBBCode" type="warning" class="attachment-disclaimer">
+      <span v-html="strings.attachmentDisclaimer"></span>
+    </NcNoteCard>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
+import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import BBCodeToolbar from './BBCodeToolbar.vue'
+import { t } from '@nextcloud/l10n'
 
 export default defineComponent({
   name: 'BBCodeEditor',
   components: {
     NcTextArea,
+    NcNoteCard,
     BBCodeToolbar,
   },
   props: {
@@ -51,7 +57,20 @@ export default defineComponent({
   data() {
     return {
       textareaElement: null as HTMLTextAreaElement | null,
+      strings: {
+        attachmentDisclaimer: t(
+          'forum',
+          "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings.",
+          { bStart: '<strong>', bEnd: '</strong>' },
+          { escape: false },
+        ),
+      },
     }
+  },
+  computed: {
+    hasAttachmentBBCode(): boolean {
+      return /\[attachment[^\]]*\]/i.test(this.modelValue)
+    },
   },
   mounted() {
     this.updateTextareaRef()
@@ -101,5 +120,9 @@ export default defineComponent({
     min-height: v-bind(minHeight);
     height: unset !important;
   }
+}
+
+.attachment-disclaimer {
+  margin-top: 8px;
 }
 </style>

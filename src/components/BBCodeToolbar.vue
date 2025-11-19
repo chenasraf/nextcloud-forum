@@ -14,12 +14,25 @@
       </template>
     </NcButton>
 
+    <NcEmojiPicker @select="handleEmojiSelect">
+      <NcButton
+        variant="tertiary"
+        :aria-label="strings.emojiLabel"
+        :title="strings.emojiLabel"
+        class="bbcode-button"
+      >
+        <template #icon>
+          <EmoticonIcon :size="20" />
+        </template>
+      </NcButton>
+    </NcEmojiPicker>
+
     <div class="toolbar-spacer"></div>
 
     <NcButton
       variant="tertiary"
-      :aria-label="helpLabel"
-      :title="helpLabel"
+      :aria-label="strings.helpLabel"
+      :title="strings.helpLabel"
       @click="showHelp = true"
       class="bbcode-button bbcode-help-button"
     >
@@ -36,6 +49,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
+import NcEmojiPicker from '@nextcloud/vue/components/NcEmojiPicker'
 import { getFilePickerBuilder } from '@nextcloud/dialogs'
 import FormatBoldIcon from '@icons/FormatBold.vue'
 import FormatItalicIcon from '@icons/FormatItalic.vue'
@@ -56,6 +70,7 @@ import FormatAlignRightIcon from '@icons/FormatAlignRight.vue'
 import EyeOffIcon from '@icons/EyeOff.vue'
 import FormatListBulletedIcon from '@icons/FormatListBulleted.vue'
 import PaperclipIcon from '@icons/Paperclip.vue'
+import EmoticonIcon from '@icons/Emoticon.vue'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
 import { t } from '@nextcloud/l10n'
@@ -76,7 +91,9 @@ export default defineComponent({
   name: 'BBCodeToolbar',
   components: {
     NcButton,
+    NcEmojiPicker,
     BBCodeHelpDialog,
+    EmoticonIcon,
     HelpCircleIcon,
   },
   props: {
@@ -89,12 +106,13 @@ export default defineComponent({
   data() {
     return {
       showHelp: false,
+      strings: {
+        helpLabel: t('forum', 'BBCode Help'),
+        emojiLabel: t('forum', 'Insert emoji'),
+      },
     }
   },
   computed: {
-    helpLabel(): string {
-      return t('forum', 'BBCode Help')
-    },
     bbcodeButtons(): BBCodeButton[] {
       return [
         {
@@ -365,6 +383,34 @@ export default defineComponent({
         }
         // Otherwise, user simply canceled - no need to log
       }
+    },
+
+    handleEmojiSelect(emoji: string): void {
+      if (!this.textareaRef) {
+        return
+      }
+
+      const textarea = this.textareaRef
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const beforeText = textarea.value.substring(0, start)
+      const afterText = textarea.value.substring(end)
+
+      const newText = beforeText + emoji + afterText
+      const cursorPos = beforeText.length + emoji.length
+
+      // Emit the insert event so the parent can update the model
+      this.$emit('insert', {
+        text: newText,
+        cursorPos,
+        selectedText: '',
+      })
+
+      // Focus the textarea after insertion
+      this.$nextTick(() => {
+        textarea.focus()
+        textarea.setSelectionRange(cursorPos, cursorPos)
+      })
     },
   },
 })

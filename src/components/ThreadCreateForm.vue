@@ -174,7 +174,7 @@ export default defineComponent({
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .hint {

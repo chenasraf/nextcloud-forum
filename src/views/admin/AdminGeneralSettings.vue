@@ -53,15 +53,15 @@
 
         <!-- Actions -->
         <div class="form-actions">
-          <NcButton :disabled="saving || !hasChanges" @click="saveSettings">
+          <NcButton :disabled="saving || !hasChanges" @click="resetForm">
+            {{ strings.cancel }}
+          </NcButton>
+          <NcButton variant="primary" :disabled="saving || !hasChanges" @click="saveSettings">
             <template #icon>
               <NcLoadingIcon v-if="saving" :size="20" />
               <CheckIcon v-else :size="20" />
             </template>
             {{ strings.save }}
-          </NcButton>
-          <NcButton :disabled="saving || !hasChanges" @click="resetForm">
-            {{ strings.cancel }}
           </NcButton>
         </div>
 
@@ -271,6 +271,7 @@ export default defineComponent({
 
     .form-actions {
       display: flex;
+      justify-content: flex-end;
       gap: 12px;
       align-items: center;
     }

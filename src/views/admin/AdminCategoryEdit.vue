@@ -692,7 +692,7 @@ export default defineComponent({
     .form-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 8px;
+      gap: 12px;
       padding-top: 16px;
       border-top: 1px solid var(--color-border);
     }

@@ -5756,6 +5756,18 @@
                                         "default": null,
                                         "description": "Role description"
                                     },
+                                    "colorLight": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Light mode color"
+                                    },
+                                    "colorDark": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Dark mode color"
+                                    },
                                     "canAccessAdminTools": {
                                         "type": "boolean",
                                         "default": false,
@@ -5986,6 +5998,18 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Role description"
+                                    },
+                                    "colorLight": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Light mode color"
+                                    },
+                                    "colorDark": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Dark mode color"
                                     },
                                     "canAccessAdminTools": {
                                         "type": "boolean",

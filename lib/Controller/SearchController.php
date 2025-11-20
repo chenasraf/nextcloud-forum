@@ -11,6 +11,7 @@ use OCA\Forum\Db\Post;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\SearchService;
+use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -26,6 +27,7 @@ class SearchController extends OCSController {
 		IRequest $request,
 		private SearchService $searchService,
 		private ThreadMapper $threadMapper,
+		private UserService $userService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -87,14 +89,27 @@ class SearchController extends OCSController {
 				$offset
 			);
 
-			// Enrich threads
-			$enrichedThreads = array_map(function ($thread) {
-				return Thread::enrichThread($thread);
+			// Collect all unique author IDs from both threads and posts
+			$allAuthorIds = [];
+			foreach ($results['threads'] as $thread) {
+				$allAuthorIds[] = $thread->getAuthorId();
+			}
+			foreach ($results['posts'] as $post) {
+				$allAuthorIds[] = $post->getAuthorId();
+			}
+			$allAuthorIds = array_unique($allAuthorIds);
+
+			// Batch fetch all author data once
+			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
+
+			// Enrich threads with pre-fetched author data
+			$enrichedThreads = array_map(function ($thread) use ($authors) {
+				return Thread::enrichThread($thread, $authors[$thread->getAuthorId()]);
 			}, $results['threads']);
 
-			// Enrich posts (with thread context)
-			$enrichedPosts = array_map(function ($post) {
-				$enriched = Post::enrichPostContent($post);
+			// Enrich posts with pre-fetched author data and thread context
+			$enrichedPosts = array_map(function ($post) use ($authors) {
+				$enriched = Post::enrichPostContent($post, [], [], null, $authors[$post->getAuthorId()]);
 				// Add thread info for context
 				try {
 					$thread = $this->threadMapper->find($post->getThreadId());

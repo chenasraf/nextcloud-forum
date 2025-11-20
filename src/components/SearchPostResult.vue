@@ -20,7 +20,7 @@
     <div class="result-meta">
       <span class="meta-item author">
         <AccountIcon :size="16" />
-        {{ post.authorDisplayName || strings.deletedUser }}
+        {{ post.author?.displayName || strings.deletedUser }}
       </span>
       <span class="meta-item time">
         <ClockIcon :size="16" />

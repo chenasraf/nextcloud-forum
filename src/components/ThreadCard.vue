@@ -19,10 +19,12 @@
         </div>
         <div class="thread-meta">
           <UserInfo
-            :user-id="thread.authorId"
-            :display-name="thread.authorDisplayName || thread.authorId"
-            :is-deleted="thread.authorIsDeleted"
+            :user-id="thread.author?.userId || thread.authorId"
+            :display-name="thread.author?.displayName || thread.authorId"
+            :is-deleted="thread.author?.isDeleted || false"
             :avatar-size="32"
+            :roles="thread.author?.roles || []"
+            :show-roles="false"
             layout="inline"
             @click.stop
           >

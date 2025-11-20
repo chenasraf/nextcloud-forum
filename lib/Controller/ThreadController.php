@@ -16,6 +16,7 @@ use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\UserPreferencesService;
+use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -36,6 +37,7 @@ class ThreadController extends OCSController {
 		private UserStatsMapper $userStatsMapper,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
 		private UserPreferencesService $userPreferencesService,
+		private UserService $userService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -54,7 +56,17 @@ class ThreadController extends OCSController {
 	public function index(): DataResponse {
 		try {
 			$threads = $this->threadMapper->findAll();
-			return new DataResponse(array_map(fn ($t) => Thread::enrichThread($t), $threads));
+
+			// Extract unique author IDs
+			$authorIds = array_unique(array_map(fn ($t) => $t->getAuthorId(), $threads));
+
+			// Batch fetch author data (includes roles)
+			$authors = $this->userService->enrichMultipleUsers($authorIds);
+
+			// Enrich threads with pre-fetched author data
+			return new DataResponse(array_map(function ($t) use ($authors) {
+				return Thread::enrichThread($t, $authors[$t->getAuthorId()]);
+			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -77,7 +89,17 @@ class ThreadController extends OCSController {
 	public function byCategory(int $categoryId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
 			$threads = $this->threadMapper->findByCategoryId($categoryId, $limit, $offset);
-			return new DataResponse(array_map(fn ($t) => Thread::enrichThread($t), $threads));
+
+			// Extract unique author IDs
+			$authorIds = array_unique(array_map(fn ($t) => $t->getAuthorId(), $threads));
+
+			// Batch fetch author data (includes roles)
+			$authors = $this->userService->enrichMultipleUsers($authorIds);
+
+			// Enrich threads with pre-fetched author data
+			return new DataResponse(array_map(function ($t) use ($authors) {
+				return Thread::enrichThread($t, $authors[$t->getAuthorId()]);
+			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads by category: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -99,7 +121,14 @@ class ThreadController extends OCSController {
 	public function byAuthor(string $authorId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
 			$threads = $this->threadMapper->findByAuthorId($authorId, $limit, $offset);
-			return new DataResponse(array_map(fn ($t) => Thread::enrichThread($t), $threads));
+
+			// For threads by a single author, we can optimize by fetching author data once
+			$author = $this->userService->enrichUserData($authorId);
+
+			// Enrich threads with pre-fetched author data
+			return new DataResponse(array_map(function ($t) use ($author) {
+				return Thread::enrichThread($t, $author);
+			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads by author: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);

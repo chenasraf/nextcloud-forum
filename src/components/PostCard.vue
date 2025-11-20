@@ -4,10 +4,11 @@
       <div class="author-info">
         <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
         <UserInfo
-          :user-id="post.authorId"
-          :display-name="post.authorDisplayName || post.authorId"
-          :is-deleted="post.authorIsDeleted"
+          :user-id="post.author?.userId || post.authorId"
+          :display-name="post.author?.displayName || post.authorId"
+          :is-deleted="post.author?.isDeleted || false"
           :avatar-size="32"
+          :roles="post.author?.roles || []"
         >
           <template #meta>
             <div class="post-meta">

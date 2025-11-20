@@ -117,15 +117,19 @@ class AdminController extends OCSController {
 				$statsByUserId[$stats->getUserId()] = $stats;
 			}
 
-			// Get all Nextcloud users and enrich with forum data
+			// Collect all user IDs first
+			$userIds = [];
+			$this->userManager->callForAllUsers(function ($user) use (&$userIds) {
+				$userIds[] = $user->getUID();
+			});
+
+			// Enrich all users at once for performance (includes roles)
+			$enrichedUserData = $this->userService->enrichMultipleUsers($userIds);
+
+			// Build final user list with forum stats
 			$enrichedUsers = [];
-			$this->userManager->callForAllUsers(function ($user) use (&$enrichedUsers, $statsByUserId) {
-				$userId = $user->getUID();
-
-				// Get user display name
-				$userInfo = $this->userService->enrichUserData($userId);
-
-				// Get stats if they exist, otherwise use defaults
+			foreach ($userIds as $userId) {
+				$userInfo = $enrichedUserData[$userId];
 				$stats = $statsByUserId[$userId] ?? null;
 
 				$userData = [
@@ -137,20 +141,11 @@ class AdminController extends OCSController {
 					'updatedAt' => $stats ? $stats->getUpdatedAt() : 0,
 					'deletedAt' => $stats ? $stats->getDeletedAt() : null,
 					'isDeleted' => $userInfo['isDeleted'],
-					'roles' => [],
+					'roles' => $userInfo['roles'],
 				];
 
-				// Get user roles
-				try {
-					$userRoles = $this->userRoleMapper->findByUserId($userId);
-					$userData['roles'] = array_map(fn ($ur) => $ur->getRoleId(), $userRoles);
-				} catch (\Exception $e) {
-					// User has no roles
-					$userData['roles'] = [];
-				}
-
 				$enrichedUsers[] = $userData;
-			});
+			}
 
 			return new DataResponse(['users' => $enrichedUsers]);
 		} catch (\Exception $e) {

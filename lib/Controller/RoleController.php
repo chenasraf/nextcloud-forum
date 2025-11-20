@@ -79,6 +79,8 @@ class RoleController extends OCSController {
 	 *
 	 * @param string $name Role name
 	 * @param string|null $description Role description
+	 * @param string|null $colorLight Light mode color
+	 * @param string|null $colorDark Dark mode color
 	 * @param bool $canAccessAdminTools Can access admin tools
 	 * @param bool $canEditRoles Can edit roles
 	 * @param bool $canEditCategories Can edit categories
@@ -92,6 +94,8 @@ class RoleController extends OCSController {
 	public function create(
 		string $name,
 		?string $description = null,
+		?string $colorLight = null,
+		?string $colorDark = null,
 		bool $canAccessAdminTools = false,
 		bool $canEditRoles = false,
 		bool $canEditCategories = false,
@@ -100,6 +104,8 @@ class RoleController extends OCSController {
 			$role = new \OCA\Forum\Db\Role();
 			$role->setName($name);
 			$role->setDescription($description);
+			$role->setColorLight($colorLight);
+			$role->setColorDark($colorDark);
 			$role->setCanAccessAdminTools($canAccessAdminTools);
 			$role->setCanEditRoles($canEditRoles);
 			$role->setCanEditCategories($canEditCategories);
@@ -120,6 +126,8 @@ class RoleController extends OCSController {
 	 * @param int $id Role ID
 	 * @param string|null $name Role name
 	 * @param string|null $description Role description
+	 * @param string|null $colorLight Light mode color
+	 * @param string|null $colorDark Dark mode color
 	 * @param bool|null $canAccessAdminTools Can access admin tools
 	 * @param bool|null $canEditRoles Can edit roles
 	 * @param bool|null $canEditCategories Can edit categories
@@ -134,6 +142,8 @@ class RoleController extends OCSController {
 		int $id,
 		?string $name = null,
 		?string $description = null,
+		?string $colorLight = null,
+		?string $colorDark = null,
 		?bool $canAccessAdminTools = null,
 		?bool $canEditRoles = null,
 		?bool $canEditCategories = null,
@@ -146,6 +156,12 @@ class RoleController extends OCSController {
 			}
 			if ($description !== null) {
 				$role->setDescription($description);
+			}
+			if ($colorLight !== null) {
+				$role->setColorLight($colorLight);
+			}
+			if ($colorDark !== null) {
+				$role->setColorDark($colorDark);
 			}
 			if ($canAccessAdminTools !== null) {
 				$role->setCanAccessAdminTools($canAccessAdminTools);

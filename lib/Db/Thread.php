@@ -91,16 +91,18 @@ class Thread extends Entity implements JsonSerializable {
 		];
 	}
 
-	public static function enrichThread(mixed $thread): array {
+	public static function enrichThread(mixed $thread, ?array $author = null): array {
 		if (!is_array($thread)) {
 			$thread = $thread->jsonSerialize();
 		}
 
-		// Add author display name (obfuscated if user is deleted)
-		$userService = \OC::$server->get(\OCA\Forum\Service\UserService::class);
-		$userData = $userService->enrichUserData($thread['authorId']);
-		$thread['authorDisplayName'] = $userData['displayName'];
-		$thread['authorIsDeleted'] = $userData['isDeleted'];
+		// Add author object (includes display name, deleted status, and roles)
+		if ($author === null) {
+			$userService = \OC::$server->get(\OCA\Forum\Service\UserService::class);
+			$thread['author'] = $userService->enrichUserData($thread['authorId']);
+		} else {
+			$thread['author'] = $author;
+		}
 
 		// Add category information (slug and name) for navigation
 		try {

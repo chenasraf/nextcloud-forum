@@ -20,6 +20,9 @@
         <span v-else class="user-name deleted-user">
           {{ displayName || userId }}
         </span>
+        <div v-if="showRoles && displayRoles.length > 0" class="role-badges">
+          <RoleBadge v-for="role in displayRoles" :key="role.id" :role="role" density="compact" />
+        </div>
         <template v-if="layout === 'inline'">
           <span class="meta-separator">·</span>
           <span class="meta-content">
@@ -33,13 +36,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, type PropType } from 'vue'
 import UserAvatar from './UserAvatar.vue'
+import RoleBadge from './RoleBadge.vue'
+import type { Role } from '@/types'
 
 export default defineComponent({
   name: 'UserInfo',
   components: {
     UserAvatar,
+    RoleBadge,
   },
   props: {
     userId: {
@@ -67,10 +73,55 @@ export default defineComponent({
       default: 'column',
       validator: (value: string) => ['column', 'inline'].includes(value),
     },
+    roles: {
+      type: Array as PropType<Role[]>,
+      default: () => [],
+    },
+    showRoles: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     isClickable(): boolean {
       return this.clickable && !this.isDeleted
+    },
+
+    displayRoles(): Role[] {
+      if (!this.roles || this.roles.length === 0) {
+        return []
+      }
+
+      // Define default role IDs and their precedence
+      const defaultRoleIds = [1, 2, 3] // Admin (1), Moderator (2), User (3)
+      const rolePrecedence: Record<number, number> = {
+        1: 1, // Admin - highest priority
+        2: 2, // Moderator - medium priority
+        3: 3, // User - lowest priority
+      }
+
+      // Separate default and custom roles
+      const defaultRoles = this.roles.filter((role) => defaultRoleIds.includes(role.id))
+      const customRoles = this.roles.filter((role) => !defaultRoleIds.includes(role.id))
+
+      // Find the most prominent default role
+      let primaryDefaultRole: Role | null = null
+      if (defaultRoles.length > 0) {
+        primaryDefaultRole = defaultRoles.reduce((mostProminent, currentRole) => {
+          const currentPrecedence = rolePrecedence[currentRole.id] || 999
+          const prominentPrecedence = rolePrecedence[mostProminent.id] || 999
+          return currentPrecedence < prominentPrecedence ? currentRole : mostProminent
+        })
+      }
+
+      // Build the display list: primary default role + all custom roles
+      const result: Role[] = []
+      if (primaryDefaultRole) {
+        result.push(primaryDefaultRole)
+      }
+      result.push(...customRoles)
+
+      return result
     },
   },
   methods: {
@@ -111,6 +162,14 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.role-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .user-name {

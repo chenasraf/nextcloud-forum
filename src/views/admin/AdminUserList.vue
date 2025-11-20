@@ -55,14 +55,7 @@
 
         <template #cell-roles="{ row }">
           <div class="roles-list">
-            <span
-              v-for="roleId in row.roles"
-              :key="roleId"
-              class="role-badge"
-              :class="getRoleBadgeClass(roleId)"
-            >
-              {{ getRoleName(roleId) }}
-            </span>
+            <RoleBadge v-for="role in row.roles" :key="role.id" :role="role" density="compact" />
             <span v-if="row.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
           </div>
         </template>
@@ -141,6 +134,7 @@ import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
 import UserInfo from '@/components/UserInfo.vue'
+import RoleBadge from '@/components/RoleBadge.vue'
 import AdminTable, { type TableColumn } from '@/components/AdminTable.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
@@ -158,7 +152,7 @@ interface AdminUser {
   updatedAt: number
   deletedAt: number | null
   isDeleted: boolean
-  roles: number[]
+  roles: Role[]
 }
 
 interface RoleOption {
@@ -178,6 +172,7 @@ export default defineComponent({
     NcSelect,
     NcDialog,
     UserInfo,
+    RoleBadge,
     AdminTable,
     PageWrapper,
     PageHeader,
@@ -260,27 +255,14 @@ export default defineComponent({
       }
     },
 
-    getRoleName(roleId: number): string {
-      const role = this.allRoles.find((r) => r.id === roleId)
-      return role?.name || t('forum', 'Unknown Role')
-    },
-
-    getRoleBadgeClass(roleId: number): string {
-      const roleClasses: Record<number, string> = {
-        1: 'role-admin',
-        2: 'role-moderator',
-        3: 'role-member',
-      }
-      return roleClasses[roleId] || 'role-unknown'
-    },
-
-    startEdit(userId: string, currentRoles: number[]): void {
+    startEdit(userId: string, currentRoles: Role[]): void {
       this.editingUserId = userId
-      this.originalRoles = [...currentRoles]
+      this.originalRoles = currentRoles.map((r) => r.id)
 
-      // Convert role IDs to role options for NcSelectTags
+      // Convert roles to role options for NcSelectTags
       // IMPORTANT: Must use the same object references from roleOptions
-      this.editingRoles = this.roleOptions.filter((option) => currentRoles.includes(option.id))
+      const currentRoleIds = currentRoles.map((r) => r.id)
+      this.editingRoles = this.roleOptions.filter((option) => currentRoleIds.includes(option.id))
     },
 
     cancelEdit(): void {
@@ -322,7 +304,7 @@ export default defineComponent({
         // Update local user data
         const user = this.users.find((u) => u.userId === userId)
         if (user) {
-          user.roles = newRoleIds
+          user.roles = this.allRoles.filter((r) => newRoleIds.includes(r.id))
         }
 
         this.cancelEdit()
@@ -400,34 +382,6 @@ export default defineComponent({
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-
-    .role-badge {
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      white-space: nowrap;
-
-      &.role-admin {
-        background: var(--color-error-light);
-        color: var(--color-error-dark);
-      }
-
-      &.role-moderator {
-        background: var(--color-warning-light);
-        color: var(--color-warning-dark);
-      }
-
-      &.role-member {
-        background: var(--color-primary-light);
-        color: var(--color-primary-dark);
-      }
-
-      &.role-unknown {
-        background: var(--color-background-dark);
-        color: var(--color-text-maxcontrast);
-      }
-    }
   }
 
   .status-badge {

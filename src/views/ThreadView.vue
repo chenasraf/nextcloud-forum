@@ -114,8 +114,8 @@
           <div class="thread-meta">
             <span class="meta-item">
               <span class="meta-label">{{ strings.by }}</span>
-              <span class="meta-value" :class="{ 'deleted-user': thread.authorIsDeleted }">
-                {{ thread.authorDisplayName || thread.authorId }}
+              <span class="meta-value" :class="{ 'deleted-user': thread.author?.isDeleted }">
+                {{ thread.author?.displayName || thread.authorId }}
               </span>
             </span>
             <span class="meta-divider">·</span>

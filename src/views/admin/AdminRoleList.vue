@@ -48,7 +48,7 @@
         </template>
 
         <template #cell-name="{ row }">
-          <span class="role-name" :class="getRoleClass(row.id)">{{ row.name }}</span>
+          <RoleBadge :role="row" />
         </template>
 
         <template #cell-description="{ row }">
@@ -107,6 +107,7 @@ import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import AdminTable, { type TableColumn } from '@/components/AdminTable.vue'
+import RoleBadge from '@/components/RoleBadge.vue'
 import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
@@ -127,6 +128,7 @@ export default defineComponent({
     NcActions,
     NcActionButton,
     AdminTable,
+    RoleBadge,
     PlusIcon,
     PencilIcon,
     DeleteIcon,
@@ -201,15 +203,6 @@ export default defineComponent({
       return roleId <= 3
     },
 
-    getRoleClass(roleId: number): string {
-      const roleClasses: Record<number, string> = {
-        1: 'role-admin',
-        2: 'role-moderator',
-        3: 'role-member',
-      }
-      return roleClasses[roleId] || ''
-    },
-
     createRole(): void {
       this.$router.push('/admin/roles/create')
     },
@@ -269,24 +262,6 @@ export default defineComponent({
     font-family: monospace;
     font-size: 0.9rem;
     color: var(--color-text-maxcontrast);
-  }
-
-  :deep(.role-name) {
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--color-main-text);
-
-    &.role-admin {
-      color: var(--color-error);
-    }
-
-    &.role-moderator {
-      color: var(--color-warning);
-    }
-
-    &.role-member {
-      color: var(--color-primary);
-    }
   }
 
   :deep(.role-description) {

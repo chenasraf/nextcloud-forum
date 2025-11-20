@@ -82,6 +82,7 @@ class Post extends Entity implements JsonSerializable {
 		array $bbcodes = [],
 		array $reactions = [],
 		?string $currentUserId = null,
+		?array $author = null,
 	): array {
 		if (!is_array($post)) {
 			$post = $post->jsonSerialize();
@@ -95,11 +96,13 @@ class Post extends Entity implements JsonSerializable {
 		}
 		$post['content'] = $service->parse($post['content'], $bbcodes, $post['authorId'], $post['id']);
 
-		// Add author display name (obfuscated if user is deleted)
-		$userService = \OC::$server->get(\OCA\Forum\Service\UserService::class);
-		$userData = $userService->enrichUserData($post['authorId']);
-		$post['authorDisplayName'] = $userData['displayName'];
-		$post['authorIsDeleted'] = $userData['isDeleted'];
+		// Add author object (includes display name, deleted status, and roles)
+		if ($author === null) {
+			$userService = \OC::$server->get(\OCA\Forum\Service\UserService::class);
+			$post['author'] = $userService->enrichUserData($post['authorId']);
+		} else {
+			$post['author'] = $author;
+		}
 
 		// Add reactions (grouped by emoji)
 		$post['reactions'] = self::groupReactions($reactions, $currentUserId);

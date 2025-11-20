@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use OCA\Forum\Db\RoleMapper;
+use OCA\Forum\Db\UserRoleMapper;
 use OCA\Forum\Db\UserStatsMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserManager;
@@ -19,6 +21,8 @@ class UserService {
 	public function __construct(
 		private IUserManager $userManager,
 		private UserStatsMapper $userStatsMapper,
+		private RoleMapper $roleMapper,
+		private UserRoleMapper $userRoleMapper,
 	) {
 	}
 
@@ -58,18 +62,35 @@ class UserService {
 	}
 
 	/**
-	 * Enrich user data with display name and deleted status
+	 * Enrich user data with display name, deleted status, and roles
 	 *
-	 * @return array{userId: string, displayName: string, isDeleted: bool}
+	 * @param string $userId
+	 * @param array|null $roles Optional pre-fetched roles array
+	 * @return array{userId: string, displayName: string, isDeleted: bool, roles: array}
 	 */
-	public function enrichUserData(string $userId): array {
+	public function enrichUserData(string $userId, ?array $roles = null): array {
 		$isDeleted = $this->isUserDeleted($userId);
 		$displayName = $this->getUserDisplayName($userId);
+
+		// If roles not provided, fetch them
+		if ($roles === null) {
+			$userRoles = $this->userRoleMapper->findByUserId($userId);
+			$roles = [];
+			foreach ($userRoles as $userRole) {
+				try {
+					$role = $this->roleMapper->find($userRole->getRoleId());
+					$roles[] = $role->jsonSerialize();
+				} catch (\Exception $e) {
+					// Role not found, skip
+				}
+			}
+		}
 
 		return [
 			'userId' => $userId,
 			'displayName' => $displayName,
 			'isDeleted' => $isDeleted,
+			'roles' => $roles,
 		];
 	}
 
@@ -77,13 +98,82 @@ class UserService {
 	 * Enrich multiple users at once (for performance)
 	 *
 	 * @param array<string> $userIds
-	 * @return array<string, array{userId: string, displayName: string, isDeleted: bool}>
+	 * @param array<string, array> $rolesMap Optional pre-fetched roles map (userId => roles[])
+	 * @return array<string, array{userId: string, displayName: string, isDeleted: bool, roles: array}>
 	 */
-	public function enrichMultipleUsers(array $userIds): array {
+	public function enrichMultipleUsers(array $userIds, ?array $rolesMap = null): array {
 		$result = [];
+
+		// If roles not provided, fetch them all at once
+		if ($rolesMap === null) {
+			$rolesMap = $this->fetchRolesForUsers($userIds);
+		}
+
 		foreach ($userIds as $userId) {
-			$result[$userId] = $this->enrichUserData($userId);
+			$isDeleted = $this->isUserDeleted($userId);
+			$displayName = $this->getUserDisplayName($userId);
+
+			$result[$userId] = [
+				'userId' => $userId,
+				'displayName' => $displayName,
+				'isDeleted' => $isDeleted,
+				'roles' => $rolesMap[$userId] ?? [],
+			];
 		}
 		return $result;
+	}
+
+	/**
+	 * Fetch roles for multiple users efficiently
+	 *
+	 * @param array<string> $userIds
+	 * @return array<string, array> Map of userId => roles[]
+	 */
+	private function fetchRolesForUsers(array $userIds): array {
+		if (empty($userIds)) {
+			return [];
+		}
+
+		$rolesMap = [];
+
+		// Initialize all user IDs with empty arrays
+		foreach ($userIds as $userId) {
+			$rolesMap[$userId] = [];
+		}
+
+		// Fetch all user roles for these users
+		$userRoles = $this->userRoleMapper->findByUserIds($userIds);
+
+		// Group by user ID and fetch role details
+		$roleIds = [];
+		$userRolesByUser = [];
+		foreach ($userRoles as $userRole) {
+			$userId = $userRole->getUserId();
+			$roleId = $userRole->getRoleId();
+
+			if (!isset($userRolesByUser[$userId])) {
+				$userRolesByUser[$userId] = [];
+			}
+			$userRolesByUser[$userId][] = $roleId;
+			$roleIds[$roleId] = true;
+		}
+
+		// Fetch all roles at once
+		$roles = [];
+		$roleEntities = $this->roleMapper->findByIds(array_keys($roleIds));
+		foreach ($roleEntities as $role) {
+			$roles[$role->getId()] = $role->jsonSerialize();
+		}
+
+		// Map roles to users
+		foreach ($userRolesByUser as $userId => $userRoleIds) {
+			foreach ($userRoleIds as $roleId) {
+				if (isset($roles[$roleId])) {
+					$rolesMap[$userId][] = $roles[$roleId];
+				}
+			}
+		}
+
+		return $rolesMap;
 	}
 }

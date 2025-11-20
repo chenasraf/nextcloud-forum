@@ -18,6 +18,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setName(string $value)
  * @method string|null getDescription()
  * @method void setDescription(?string $value)
+ * @method string|null getColorLight()
+ * @method void setColorLight(?string $value)
+ * @method string|null getColorDark()
+ * @method void setColorDark(?string $value)
  * @method bool getCanAccessAdminTools()
  * @method void setCanAccessAdminTools(bool $value)
  * @method bool getCanEditRoles()
@@ -30,6 +34,8 @@ use OCP\AppFramework\Db\Entity;
 class Role extends Entity implements JsonSerializable {
 	protected $name;
 	protected $description;
+	protected $colorLight;
+	protected $colorDark;
 	protected $canAccessAdminTools;
 	protected $canEditRoles;
 	protected $canEditCategories;
@@ -39,6 +45,8 @@ class Role extends Entity implements JsonSerializable {
 		$this->addType('id', 'integer');
 		$this->addType('name', 'string');
 		$this->addType('description', 'string');
+		$this->addType('colorLight', 'string');
+		$this->addType('colorDark', 'string');
 		$this->addType('canAccessAdminTools', 'boolean');
 		$this->addType('canEditRoles', 'boolean');
 		$this->addType('canEditCategories', 'boolean');
@@ -50,6 +58,8 @@ class Role extends Entity implements JsonSerializable {
 			'id' => $this->getId(),
 			'name' => $this->getName(),
 			'description' => $this->getDescription(),
+			'colorLight' => $this->getColorLight(),
+			'colorDark' => $this->getColorDark(),
 			'canAccessAdminTools' => $this->getCanAccessAdminTools(),
 			'canEditRoles' => $this->getCanEditRoles(),
 			'canEditCategories' => $this->getCanEditCategories(),

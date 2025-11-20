@@ -75,6 +75,27 @@ class RoleMapper extends QBMapper {
 	}
 
 	/**
+	 * Find multiple roles by IDs at once
+	 *
+	 * @param array<int> $ids
+	 * @return array<Role>
+	 */
+	public function findByIds(array $ids): array {
+		if (empty($ids)) {
+			return [];
+		}
+
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->in('id', $qb->createNamedParameter($ids, IQueryBuilder::PARAM_INT_ARRAY))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * @return array<Role>
 	 */
 	public function findAll(): array {

@@ -25,6 +25,13 @@ export interface CategoryHeader {
   categories?: Category[]
 }
 
+export interface User {
+  userId: string
+  displayName: string
+  isDeleted: boolean
+  roles: Role[]
+}
+
 export interface Thread {
   id: number
   categoryId: number
@@ -39,9 +46,8 @@ export interface Thread {
   isHidden: boolean
   createdAt: number
   updatedAt: number
-  // Enriched fields (added by Thread::enrichThreadAuthor)
-  authorDisplayName?: string
-  authorIsDeleted?: boolean
+  // Enriched fields
+  author?: User
   categorySlug?: string | null
   categoryName?: string | null
   isSubscribed?: boolean
@@ -59,9 +65,8 @@ export interface Post {
   editedAt: number | null
   createdAt: number
   updatedAt: number
-  // Enriched fields (added by Post::enrichPostContent)
-  authorDisplayName?: string
-  authorIsDeleted?: boolean
+  // Enriched fields
+  author?: User
   // Thread context (added by SearchController for search results)
   threadTitle?: string
   threadSlug?: string
@@ -109,6 +114,8 @@ export interface Role {
   id: number
   name: string
   description: string | null
+  colorLight: string | null
+  colorDark: string | null
   canAccessAdminTools: boolean
   canEditRoles: boolean
   canEditCategories: boolean

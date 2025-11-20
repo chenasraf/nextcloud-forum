@@ -19,6 +19,7 @@ use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
+use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -43,6 +44,7 @@ class PostController extends OCSController {
 		private PermissionService $permissionService,
 		private ReadMarkerMapper $readMarkerMapper,
 		private NotificationService $notificationService,
+		private UserService $userService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -86,10 +88,16 @@ class PostController extends OCSController {
 			// Get current user ID to mark user's reactions
 			$currentUserId = $this->userSession->getUser()?->getUID();
 
-			// Enrich posts with content and reactions
-			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId) {
+			// Extract unique author IDs
+			$authorIds = array_unique(array_map(fn ($p) => $p->getAuthorId(), $posts));
+
+			// Batch fetch author data (includes roles)
+			$authors = $this->userService->enrichMultipleUsers($authorIds);
+
+			// Enrich posts with content, reactions, and pre-fetched author data
+			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors) {
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				return Post::enrichPostContent($p, $bbcodes, $postReactions, $currentUserId);
+				return Post::enrichPostContent($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()]);
 			}, $posts));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
@@ -134,10 +142,13 @@ class PostController extends OCSController {
 			// Get current user ID to mark user's reactions
 			$currentUserId = $this->userSession->getUser()?->getUID();
 
-			// Enrich posts with content and reactions
-			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId) {
+			// For posts by a single author, we can optimize by fetching author data once
+			$author = $this->userService->enrichUserData($authorId);
+
+			// Enrich posts with content, reactions, and pre-fetched author data
+			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $author) {
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				return Post::enrichPostContent($p, $bbcodes, $postReactions, $currentUserId);
+				return Post::enrichPostContent($p, $bbcodes, $postReactions, $currentUserId, $author);
 			}, $posts));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching posts by author: ' . $e->getMessage());

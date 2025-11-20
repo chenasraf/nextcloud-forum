@@ -48,7 +48,6 @@
                 v-model="formData.name"
                 :label="strings.name"
                 :placeholder="strings.namePlaceholder"
-                :disabled="isSystemRole"
                 :required="true"
               />
               <p v-if="isSystemRole" class="help-text muted">
@@ -63,6 +62,48 @@
                 :placeholder="strings.descriptionPlaceholder"
                 :rows="3"
               />
+            </div>
+          </div>
+        </section>
+
+        <!-- Colors Section -->
+        <section class="form-section">
+          <h3>{{ strings.colors }}</h3>
+          <p class="muted">{{ strings.colorsDesc }}</p>
+
+          <div class="colors-grid">
+            <div class="color-group">
+              <label>{{ strings.colorLight }}</label>
+              <div class="color-picker-row">
+                <NcColorPicker v-model="formData.colorLight" @update:value="onLightColorChange">
+                  <NcButton>
+                    <template #icon>
+                      <div
+                        class="color-preview"
+                        :style="{ backgroundColor: formData.colorLight }"
+                      />
+                    </template>
+                    {{ formData.colorLight || strings.colorLightPlaceholder }}
+                  </NcButton>
+                </NcColorPicker>
+              </div>
+            </div>
+
+            <div class="color-group">
+              <label>{{ strings.colorDark }}</label>
+              <div class="color-picker-row">
+                <NcColorPicker v-model="formData.colorDark" @update:value="onDarkColorChange">
+                  <NcButton>
+                    <template #icon>
+                      <div class="color-preview" :style="{ backgroundColor: formData.colorDark }" />
+                    </template>
+                    {{ formData.colorDark || strings.colorDarkPlaceholder }}
+                  </NcButton>
+                </NcColorPicker>
+                <NcButton @click="resetDarkColor">
+                  {{ strings.reset }}
+                </NcButton>
+              </div>
             </div>
           </div>
         </section>
@@ -169,6 +210,7 @@
 import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
+import NcColorPicker from '@nextcloud/vue/components/NcColorPicker'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
@@ -192,6 +234,7 @@ export default defineComponent({
   components: {
     NcButton,
     NcCheckboxRadioSwitch,
+    NcColorPicker,
     NcEmptyContent,
     NcLoadingIcon,
     NcTextField,
@@ -211,10 +254,13 @@ export default defineComponent({
       formData: {
         name: '',
         description: '',
+        colorLight: '#000000',
+        colorDark: '#ffffff',
         canAccessAdminTools: false,
         canEditRoles: false,
         canEditCategories: false,
       },
+      darkColorModified: false,
       permissions: {} as Record<number, CategoryPermission>,
 
       strings: {
@@ -231,6 +277,13 @@ export default defineComponent({
         namePlaceholder: t('forum', 'Enter role name'),
         descriptionPlaceholder: t('forum', 'Enter role description (optional)'),
         systemRoleNameWarning: t('forum', 'System role names cannot be changed'),
+        colors: t('forum', 'Colors'),
+        colorsDesc: t('forum', 'Set colors for this role badge'),
+        colorLight: t('forum', 'Light Mode Color'),
+        colorDark: t('forum', 'Dark Mode Color'),
+        colorLightPlaceholder: t('forum', '#000000'),
+        colorDarkPlaceholder: t('forum', '#ffffff'),
+        reset: t('forum', 'Reset'),
         rolePermissions: t('forum', 'Role Permissions'),
         rolePermissionsDesc: t('forum', 'Set global permissions for this role'),
         canAccessAdminTools: t('forum', 'Can Access Admin Tools'),
@@ -339,9 +392,16 @@ export default defineComponent({
 
       this.formData.name = role.name
       this.formData.description = role.description || ''
+      this.formData.colorLight = role.colorLight || '#000000'
+      this.formData.colorDark = role.colorDark || '#ffffff'
       this.formData.canAccessAdminTools = role.canAccessAdminTools || false
       this.formData.canEditRoles = role.canEditRoles || false
       this.formData.canEditCategories = role.canEditCategories || false
+
+      // If colors are different, mark dark as modified
+      if (role.colorLight && role.colorDark && role.colorLight !== role.colorDark) {
+        this.darkColorModified = true
+      }
 
       // Load role permissions
       const permsResponse = await ocs.get<
@@ -389,6 +449,8 @@ export default defineComponent({
         const roleData = {
           name: this.formData.name.trim(),
           description: this.formData.description.trim() || null,
+          colorLight: this.formData.colorLight || null,
+          colorDark: this.formData.colorDark || null,
           canAccessAdminTools: this.formData.canAccessAdminTools,
           canEditRoles: this.formData.canEditRoles,
           canEditCategories: this.formData.canEditCategories,
@@ -433,6 +495,24 @@ export default defineComponent({
 
     goBack(): void {
       this.$router.push('/admin/roles')
+    },
+
+    onLightColorChange(): void {
+      // If dark color hasn't been manually modified, update it too
+      if (!this.darkColorModified) {
+        this.formData.colorDark = this.formData.colorLight
+      }
+    },
+
+    onDarkColorChange(): void {
+      // Mark dark color as manually modified
+      this.darkColorModified = true
+    },
+
+    resetDarkColor(): void {
+      // Reset dark color to match light color
+      this.formData.colorDark = this.formData.colorLight
+      this.darkColorModified = false
     },
   },
 })
@@ -506,6 +586,39 @@ export default defineComponent({
       .help-text {
         font-size: 0.85rem;
         margin-top: 4px;
+      }
+    }
+
+    .colors-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 12px;
+
+      .color-group {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        flex: 0 1 auto;
+
+        label {
+          font-weight: 600;
+          color: var(--color-main-text);
+          font-size: 0.95rem;
+        }
+
+        .color-picker-row {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+
+        .color-preview {
+          width: 20px;
+          height: 20px;
+          border-radius: 4px;
+          border: 1px solid var(--color-border);
+        }
       }
     }
 

@@ -70,6 +70,27 @@ class UserRoleMapper extends QBMapper {
 	}
 
 	/**
+	 * Find user roles for multiple users at once
+	 *
+	 * @param array<string> $userIds
+	 * @return array<UserRole>
+	 */
+	public function findByUserIds(array $userIds): array {
+		if (empty($userIds)) {
+			return [];
+		}
+
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->in('user_id', $qb->createNamedParameter($userIds, IQueryBuilder::PARAM_STR_ARRAY))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * @return array<UserRole>
 	 */
 	public function findAll(): array {

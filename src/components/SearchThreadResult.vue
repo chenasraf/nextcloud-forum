@@ -15,7 +15,7 @@
       </span>
       <span class="meta-item author">
         <AccountIcon :size="16" />
-        {{ thread.authorDisplayName || strings.deletedUser }}
+        {{ thread.author?.displayName || strings.deletedUser }}
       </span>
       <span class="meta-item">
         <MessageIcon :size="16" />

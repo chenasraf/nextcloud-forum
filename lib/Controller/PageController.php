@@ -18,35 +18,7 @@ class PageController extends Controller {
 		IRequest $request,
 		private LoggerInterface $logger,
 	) {
-		$this->logger->info('Forum page controller loaded');
 		parent::__construct($appName, $request);
-	}
-
-	/**
-	 * Helper to parse Vite Manifest
-	 */
-	private function getViteEntryScript(string $entryName): string {
-		$jsDir = realpath(__DIR__ . '/../' . Application::JS_DIR);
-		$manifestPath = dirname($jsDir) . '/.vite/manifest.json';
-
-		if (!file_exists($manifestPath)) {
-			return '';
-		}
-
-		$manifest = json_decode(file_get_contents($manifestPath), true);
-
-		if (isset($manifest[$entryName]['file'])) {
-			$manifestFile = $manifest[$entryName]['file'];
-			$fullPath = dirname($jsDir) . '/' . $manifestFile;
-
-			if (!file_exists($fullPath)) {
-				return '';
-			}
-
-			return pathinfo($manifestFile, PATHINFO_FILENAME);
-		}
-
-		return '';
 	}
 
 	/**
@@ -59,11 +31,10 @@ class PageController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	public function index(): TemplateResponse {
-		$this->logger->info('Forum main page loaded');
-		$mainScript = $this->getViteEntryScript('app.ts');
+		$mainScript = Application::getViteEntryScript('app.ts');
 		return new TemplateResponse(Application::APP_ID, 'app', [
-			'script' => $this->getViteEntryScript('app.ts'),
-			'style' => $this->getViteEntryScript('style.css'),
+			'script' => Application::getViteEntryScript('app.ts'),
+			'style' => Application::getViteEntryScript('style.css'),
 		]);
 	}
 

@@ -6,7 +6,6 @@ const manualChunksList = [
   'emoji-mart-vue-fast',
   'date-fns',
   'lodash',
-  'linkifyjs',
   'floating-vue',
   'vue-material-design-icons',
 ]
@@ -70,13 +69,10 @@ export default createAppConfig(
               const pkgPath = parts[parts.length - 1]
 
               // Check for @nextcloud/xxx or nextcloud-xxx
-              const scopedMatch = pkgPath.match(/^@nextcloud\/([^/]+)/)
-              const hyphenMatch = pkgPath.match(/^nextcloud-([^/]+)/)
+              const ncMatch = pkgPath.match(/^@?nextcloud[/-]([^/]+)/)
 
               // Get the package name (e.g., 'auth', 'vue', 'axios')
-              let ncPkgName = null
-              if (scopedMatch) ncPkgName = scopedMatch[1]
-              else if (hyphenMatch) ncPkgName = hyphenMatch[1]
+              const ncPkgName = ncMatch?.[1]
 
               if (ncPkgName) {
                 if (nextcloudSharedList.includes(ncPkgName)) {

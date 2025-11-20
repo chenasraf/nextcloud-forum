@@ -404,11 +404,15 @@ export default defineComponent({
 
   .edit-roles-dialog {
     padding: 16px 0;
+    width: 100%;
+  }
+}
+</style>
 
-    .roles-select {
-      width: 100%;
-      min-width: 300px;
-    }
+<style lang="scss">
+.edit-roles-dialog {
+  .roles-select {
+    width: 100%;
   }
 }
 </style>

@@ -49,7 +49,7 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 	<website>https://github.com/chenasraf/nextcloud-forum</website>
 	<bugs>https://github.com/chenasraf/nextcloud-forum/issues</bugs>
 	<repository>https://github.com/chenasraf/nextcloud-forum</repository>
-	<screenshot>https://raw.githubusercontent.com/chenasraf/nextcloud-forum/refs/heads/master/screenshots/screenshot-01.png</screenshot>
+	<screenshot>https://raw.githubusercontent.com/chenasraf/nextcloud-forum/master/screenshots/screenshot-01.png</screenshot>
 	<donation>https://ko-fi.com/casraf</donation>
 	<donation type="paypal"><![CDATA[https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TSH3C3ABGQM22&currency_code=ILS&source=url]]></donation>
 	<dependencies>

@@ -188,7 +188,8 @@ appstore:
 		--exclude="bower.json" \
 		--exclude="karma.*" \
 		--exclude="protractor\.*" \
-		--exclude=".*" \
+		--exclude="/gen" \
+		--exclude="/.*" \
 		--exclude="dist/js/.*" \
 		--exclude="/src" \
 		--exclude="rename-template.sh" \

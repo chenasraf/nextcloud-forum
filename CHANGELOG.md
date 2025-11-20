@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.5.0...v0.6.0) (2025-11-20)
+
+
+### Features
+
+* **AdminCategoryEdit:** pre-populate role dropdowns with default roles ([c8ca4f9](https://github.com/chenasraf/nextcloud-forum/commit/c8ca4f9168d597d1f6281a9fab794052b6f9a33b))
+* **AdminTable:** improve users/role tables design ([432c31f](https://github.com/chenasraf/nextcloud-forum/commit/432c31f6e2c71c1b18216f59a31e69d34223baff))
+
+
+### Bug Fixes
+
+* **AdminCategoryList:** list spacing ([22f9b78](https://github.com/chenasraf/nextcloud-forum/commit/22f9b78b1be0b9787a5d8ea0bf648630d086c7f6))
+* **AdminUserList:** empty state display condition ([c16e804](https://github.com/chenasraf/nextcloud-forum/commit/c16e804d16480936f9f38903989e90aeecc4cd5b))
+
 ## [0.5.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.4.0...v0.5.0) (2025-11-19)
 
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.6.0...v0.7.0) (2025-11-20)
+
+
+### Features
+
+* add forum:set-role occ command ([96a4252](https://github.com/chenasraf/nextcloud-forum/commit/96a42525d342ca0e791ea20b224838fc395f906c))
+* weekly task now calculates category/thread post counts ([84edf8e](https://github.com/chenasraf/nextcloud-forum/commit/84edf8ecbe3512d948960948299d378fae4b2c91))
+
+
+### Bug Fixes
+
+* build excluded files ([d6d4694](https://github.com/chenasraf/nextcloud-forum/commit/d6d4694ce0cc64c0c220bb834bcec15ec107e343))
+
 ## [0.6.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.5.0...v0.6.0) (2025-11-20)
 
 

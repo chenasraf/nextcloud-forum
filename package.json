@@ -42,6 +42,7 @@
     "lint-staged": "^16.2.6",
     "prettier": "^2.8.8",
     "prettier-plugin-vue": "^1.1.6",
+    "rollup-plugin-visualizer": "^6.0.5",
     "sass": "^1.94.0",
     "sass-embedded": "^1.93.3",
     "typescript": "5.9.2",

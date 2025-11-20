@@ -14,11 +14,11 @@
     </button>
 
     <!-- Add custom reaction button -->
-    <NcEmojiPicker @select="handleSelectEmoji" style="display: inline-block">
+    <LazyEmojiPicker @select="handleSelectEmoji" style="display: inline-block">
       <button class="add-reaction-button" :title="strings.addReaction">
         <span class="icon">+</span>
       </button>
-    </NcEmojiPicker>
+    </LazyEmojiPicker>
   </div>
 </template>
 
@@ -27,12 +27,12 @@ import { defineComponent, type PropType } from 'vue'
 import { t, n } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 import { useReactions, type ReactionGroup } from '@/composables/useReactions'
-import NcEmojiPicker from '@nextcloud/vue/components/NcEmojiPicker'
+import LazyEmojiPicker from '@/components/LazyEmojiPicker'
 
 export default defineComponent({
   name: 'PostReactions',
   components: {
-    NcEmojiPicker,
+    LazyEmojiPicker,
   },
   props: {
     postId: {

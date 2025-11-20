@@ -23,6 +23,33 @@ class PageController extends Controller {
 	}
 
 	/**
+	 * Helper to parse Vite Manifest
+	 */
+	private function getViteEntryScript(string $entryName): string {
+		$jsDir = realpath(__DIR__ . '/../' . Application::JS_DIR);
+		$manifestPath = dirname($jsDir) . '/.vite/manifest.json';
+
+		if (!file_exists($manifestPath)) {
+			return '';
+		}
+
+		$manifest = json_decode(file_get_contents($manifestPath), true);
+
+		if (isset($manifest[$entryName]['file'])) {
+			$manifestFile = $manifest[$entryName]['file'];
+			$fullPath = dirname($jsDir) . '/' . $manifestFile;
+
+			if (!file_exists($fullPath)) {
+				return '';
+			}
+
+			return pathinfo($manifestFile, PATHINFO_FILENAME);
+		}
+
+		return '';
+	}
+
+	/**
 	 * Main app page
 	 *
 	 * @return TemplateResponse<Http::STATUS_OK,array{}>
@@ -33,8 +60,10 @@ class PageController extends Controller {
 	#[NoCSRFRequired]
 	public function index(): TemplateResponse {
 		$this->logger->info('Forum main page loaded');
+		$mainScript = $this->getViteEntryScript('app.ts');
 		return new TemplateResponse(Application::APP_ID, 'app', [
-			'script' => 'app',
+			'script' => $this->getViteEntryScript('app.ts'),
+			'style' => $this->getViteEntryScript('style.css'),
 		]);
 	}
 

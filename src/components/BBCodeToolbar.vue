@@ -14,7 +14,7 @@
       </template>
     </NcButton>
 
-    <NcEmojiPicker @select="handleEmojiSelect">
+    <LazyEmojiPicker @select="handleEmojiSelect">
       <NcButton
         variant="tertiary"
         :aria-label="strings.emojiLabel"
@@ -25,7 +25,7 @@
           <EmoticonIcon :size="20" />
         </template>
       </NcButton>
-    </NcEmojiPicker>
+    </LazyEmojiPicker>
 
     <div class="toolbar-spacer"></div>
 
@@ -49,7 +49,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
-import NcEmojiPicker from '@nextcloud/vue/components/NcEmojiPicker'
+import LazyEmojiPicker from '@/components/LazyEmojiPicker'
 import { getFilePickerBuilder } from '@nextcloud/dialogs'
 import FormatBoldIcon from '@icons/FormatBold.vue'
 import FormatItalicIcon from '@icons/FormatItalic.vue'
@@ -91,7 +91,7 @@ export default defineComponent({
   name: 'BBCodeToolbar',
   components: {
     NcButton,
-    NcEmojiPicker,
+    LazyEmojiPicker,
     BBCodeHelpDialog,
     EmoticonIcon,
     HelpCircleIcon,

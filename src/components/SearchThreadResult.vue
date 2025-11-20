@@ -1,11 +1,15 @@
 <template>
-  <div class="search-thread-result" @click="$emit('click')">
+  <div class="search-thread-result" :class="{ 'dark-theme': isDarkTheme }" @click="$emit('click')">
     <div class="result-header">
-      <h4 class="thread-title" v-html="highlightedTitle"></h4>
-      <div class="thread-badges">
-        <span v-if="thread.isPinned" class="badge badge-pinned">{{ strings.pinned }}</span>
-        <span v-if="thread.isLocked" class="badge badge-locked">{{ strings.locked }}</span>
-      </div>
+      <h4 class="thread-title">
+        <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
+          <PinIcon :size="16" />
+        </span>
+        <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">
+          <LockIcon :size="16" />
+        </span>
+        <span v-html="highlightedTitle"></span>
+      </h4>
     </div>
 
     <div class="result-meta">
@@ -38,11 +42,14 @@ import { defineComponent, type PropType } from 'vue'
 import type { Thread } from '@/types'
 import { n, t } from '@nextcloud/l10n'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import { isDarkTheme } from '@nextcloud/vue/functions/isDarkTheme'
 import FolderIcon from '@icons/Folder.vue'
 import AccountIcon from '@icons/Account.vue'
 import MessageIcon from '@icons/Message.vue'
 import EyeIcon from '@icons/Eye.vue'
 import ClockIcon from '@icons/Clock.vue'
+import PinIcon from '@icons/Pin.vue'
+import LockIcon from '@icons/Lock.vue'
 
 export default defineComponent({
   name: 'SearchThreadResult',
@@ -53,6 +60,8 @@ export default defineComponent({
     MessageIcon,
     EyeIcon,
     ClockIcon,
+    PinIcon,
+    LockIcon,
   },
   props: {
     thread: {
@@ -67,9 +76,10 @@ export default defineComponent({
   emits: ['click'],
   data() {
     return {
+      isDarkTheme,
       strings: {
-        pinned: t('forum', 'Pinned'),
-        locked: t('forum', 'Locked'),
+        pinned: t('forum', 'Pinned thread'),
+        locked: t('forum', 'Locked thread'),
         uncategorized: t('forum', 'Uncategorized'),
         deletedUser: t('forum', 'Deleted User'),
       },
@@ -168,10 +178,6 @@ export default defineComponent({
   }
 
   .result-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
     margin-bottom: 12px;
 
     .thread-title {
@@ -179,40 +185,41 @@ export default defineComponent({
       font-size: 1.125rem;
       font-weight: 600;
       color: var(--color-main-text);
-      flex: 1;
       line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .badge {
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        &.badge-pinned {
+          opacity: 0.9;
+        }
+
+        &.badge-locked {
+          opacity: 0.8;
+        }
+      }
 
       :deep(mark) {
-        background: var(--color-primary-element-light);
-        color: var(--color-primary-element-text);
+        background: #ffc107;
+        color: #000;
         padding: 2px 4px;
         border-radius: 3px;
         font-weight: 700;
       }
     }
+  }
 
-    .thread-badges {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-
-      .badge {
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-
-        &.badge-pinned {
-          background: var(--color-primary-element-light);
-          color: var(--color-primary-element-text);
-        }
-
-        &.badge-locked {
-          background: var(--color-warning);
-          color: var(--color-main-background);
-        }
+  &.dark-theme {
+    .thread-title {
+      :deep(mark) {
+        background: #ff9800;
+        color: #fff;
       }
     }
   }

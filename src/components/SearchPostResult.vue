@@ -1,5 +1,5 @@
 <template>
-  <div class="search-post-result" @click="navigateToPost">
+  <div class="search-post-result" :class="{ 'dark-theme': isDarkTheme }" @click="navigateToPost">
     <div class="result-header">
       <div class="thread-context">
         <span class="meta-label">{{ strings.inThread }}:</span>
@@ -39,6 +39,7 @@ import { defineComponent, type PropType } from 'vue'
 import type { Post } from '@/types'
 import { t } from '@nextcloud/l10n'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import { isDarkTheme } from '@nextcloud/vue/functions/isDarkTheme'
 import AccountIcon from '@icons/Account.vue'
 import ClockIcon from '@icons/Clock.vue'
 import PencilIcon from '@icons/Pencil.vue'
@@ -63,6 +64,7 @@ export default defineComponent({
   },
   data() {
     return {
+      isDarkTheme,
       strings: {
         inThread: t('forum', 'In thread'),
         threadUnavailable: t('forum', 'Thread unavailable'),
@@ -221,11 +223,20 @@ export default defineComponent({
     font-size: 0.9375rem;
 
     :deep(mark) {
-      background: var(--color-primary-element-light);
-      color: var(--color-primary-element-text);
+      background: #ffc107;
+      color: #000;
       padding: 2px 4px;
       border-radius: 3px;
       font-weight: 700;
+    }
+  }
+
+  &.dark-theme {
+    .post-content {
+      :deep(mark) {
+        background: #ff9800;
+        color: #fff;
+      }
     }
   }
 

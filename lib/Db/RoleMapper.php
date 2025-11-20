@@ -56,6 +56,25 @@ class RoleMapper extends QBMapper {
 	}
 
 	/**
+	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
+	 * @throws DoesNotExistException
+	 */
+	public function findByNameCaseInsensitive(string $name): Role {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()
+					->eq(
+						$qb->func()->lower('name'),
+						$qb->func()->lower($qb->createNamedParameter($name, IQueryBuilder::PARAM_STR))
+					)
+			);
+		return $this->findEntity($qb);
+	}
+
+	/**
 	 * @return array<Role>
 	 */
 	public function findAll(): array {

@@ -547,13 +547,14 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$userManager = \OC::$server->get(\OCP\IUserManager::class);
 		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
+		$l = \OC::$server->getL10N('forum');
 		$timestamp = time();
 
-		// Check if data has already been seeded by looking for the Admin role
+		// Check if data has already been seeded by looking for id 1
 		$qb = $db->getQueryBuilder();
 		$qb->select('id')
 			->from('forum_roles')
-			->where($qb->expr()->eq('name', $qb->createNamedParameter('Admin')));
+			->where($qb->expr()->eq('id', $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
 		$result = $qb->executeQuery();
 		$exists = $result->fetch();
 		$result->closeCursor();
@@ -576,8 +577,8 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_roles')
 			->values([
-				'name' => $qb->createNamedParameter('Admin'),
-				'description' => $qb->createNamedParameter('Administrator role with full permissions'),
+				'name' => $qb->createNamedParameter($l->t('Admin')),
+				'description' => $qb->createNamedParameter($l->t('Administrator role with full permissions')),
 				'can_access_admin_tools' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'can_edit_roles' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'can_edit_categories' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -589,8 +590,8 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_roles')
 			->values([
-				'name' => $qb->createNamedParameter('Moderator'),
-				'description' => $qb->createNamedParameter('Moderator role with elevated permissions'),
+				'name' => $qb->createNamedParameter($l->t('Moderator')),
+				'description' => $qb->createNamedParameter($l->t('Moderator role with elevated permissions')),
 				'can_access_admin_tools' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'can_edit_roles' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'can_edit_categories' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -602,8 +603,8 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_roles')
 			->values([
-				'name' => $qb->createNamedParameter('User'),
-				'description' => $qb->createNamedParameter('Default user role with basic permissions'),
+				'name' => $qb->createNamedParameter($l->t('User')),
+				'description' => $qb->createNamedParameter($l->t('Default user role with basic permissions')),
 				'can_access_admin_tools' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'can_edit_roles' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 				'can_edit_categories' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -616,8 +617,8 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_cat_headers')
 			->values([
-				'name' => $qb->createNamedParameter('General'),
-				'description' => $qb->createNamedParameter('General discussion categories'),
+				'name' => $qb->createNamedParameter($l->t('General')),
+				'description' => $qb->createNamedParameter($l->t('General discussion categories')),
 				'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 			])
@@ -629,8 +630,8 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb->insert('forum_categories')
 			->values([
 				'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'name' => $qb->createNamedParameter('General Discussions'),
-				'description' => $qb->createNamedParameter('A place for general conversations and discussions'),
+				'name' => $qb->createNamedParameter($l->t('General Discussions')),
+				'description' => $qb->createNamedParameter($l->t('A place for general conversations and discussions')),
 				'slug' => $qb->createNamedParameter('general-discussions'),
 				'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'thread_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
@@ -646,8 +647,8 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$qb->insert('forum_categories')
 			->values([
 				'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				'name' => $qb->createNamedParameter('Support'),
-				'description' => $qb->createNamedParameter('Ask questions about the forum, provide feedback or report issues.'),
+				'name' => $qb->createNamedParameter($l->t('Support')),
+				'description' => $qb->createNamedParameter($l->t('Ask questions about the forum, provide feedback or report issues.')),
 				'slug' => $qb->createNamedParameter('support'),
 				'sort_order' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
@@ -708,7 +709,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 				'tag' => 'icode',
 				'replacement' => '<code>{content}</code>',
 				'example' => '[icode]inline code[/icode]',
-				'description' => 'Inline code',
+				'description' => $l->t('Inline code'),
 				'parse_inner' => false,
 				'is_builtin' => true,
 				'special_handler' => null,
@@ -717,7 +718,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 				'tag' => 'spoiler',
 				'replacement' => '<details><summary>{title}</summary>{content}</details>',
 				'example' => '[spoiler="Spoiler Title"]Hidden content[/spoiler]',
-				'description' => 'Spoilers',
+				'description' => $l->t('Spoilers'),
 				'parse_inner' => false,
 				'is_builtin' => true,
 				'special_handler' => null,
@@ -726,7 +727,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 				'tag' => 'attachment',
 				'replacement' => '[attachment]/file/path.txt[/attachment]',
 				'example' => '',
-				'description' => 'Attachment',
+				'description' => $l->t('Attachment'),
 				'parse_inner' => false,
 				'is_builtin' => true,
 				'special_handler' => 'attachment',
@@ -784,7 +785,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			->values([
 				'category_id' => $qb->createNamedParameter($generalCategoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'author_id' => $qb->createNamedParameter($adminUserId),
-				'title' => $qb->createNamedParameter('Welcome to Nextcloud Forums'),
+				'title' => $qb->createNamedParameter($l->t('Welcome to Nextcloud Forums')),
 				'slug' => $qb->createNamedParameter('welcome-to-nextcloud-forums'),
 				'view_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'post_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
@@ -799,25 +800,25 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$threadId = $qb->getLastInsertId();
 
 		// Create welcome post
-		$welcomeContent = "Welcome to the Nextcloud Forums!\n\n"
-			. 'This is a community-driven forum built right into your Nextcloud instance. '
-			. "Here you can discuss topics, share ideas, and collaborate with other users.\n\n"
-			. "[b]Features:[/b]\n"
+		$welcomeContent = $l->t('Welcome to the Nextcloud Forums!') . "\n\n"
+			. $l->t('This is a community-driven forum built right into your Nextcloud instance. '
+			. 'Here you can discuss topics, share ideas, and collaborate with other users.') . "\n\n"
+			. '[b]' . $l->t('Features:') . "[/b]\n"
 			. "[list]\n"
-			. "[*]Create and reply to threads\n"
-			. "[*]Organize discussions by categories\n"
-			. "[*]Use BBCode for rich text formatting\n"
-			. "[*]Attach files from your Nextcloud storage\n"
-			. "[*]React to posts\n"
-			. "[*]Track read/unread threads\n\n"
+			. '[*]' . $l->t('Create and reply to threads') . "\n"
+			. '[*]' . $l->t('Organize discussions by categories') . "\n"
+			. '[*]' . $l->t('Use BBCode for rich text formatting') . "\n"
+			. '[*]' . $l->t('Attach files from your Nextcloud storage') . "\n"
+			. '[*]' . $l->t('React to posts') . "\n"
+			. '[*]' . $l->t('Track read/unread threads') . "\n\n"
 			. "[/list]\n"
-			. "[b]BBCode Examples:[/b]\n"
+			. '[b]' . $l->t('BBCode Examples:') . "[/b]\n"
 			. "[list]\n"
-			. "[*][b]Bold text[/b] - Use [icode][b]text[/b][/icode]\n"
-			. "[*][i]Italic text[/i] - Use [icode][i]text[/i][/icode]\n"
-			. "[*][u]Underlined text[/u] - Use [icode][u]text[/u][/icode]\n\n"
+			. '[*][b]' . $l->t('Bold text') . '[/b] - ' . $l->t('Use [icode][b]text[/b][/icode]') . "\n"
+			. '[*][i]' . $l->t('Italic text') . '[/i] - ' . $l->t('Use [icode][i]text[/i][/icode]') . "\n"
+			. '[*][u]' . $l->t('Underlined text') . '[/u] - ' . $l->t('Use [icode][u]text[/u][/icode]') . "\n\n"
 			. "[/list]\n"
-			. 'Feel free to start a new discussion or reply to existing threads. Happy posting!';
+			. $l->t('Feel free to start a new discussion or reply to existing threads. Happy posting!');
 
 		$qb = $db->getQueryBuilder();
 		$qb->insert('forum_posts')

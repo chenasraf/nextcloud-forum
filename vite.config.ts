@@ -3,17 +3,31 @@ import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 
 const manualChunksList = [
+  'emoji-mart-vue-fast',
   'date-fns',
   'lodash',
-  'dompurify',
   'linkifyjs',
   'floating-vue',
-  'focus-trap',
-  'floating-ui',
-  'vue-router',
   'vue-material-design-icons',
-  'vue',
+]
+
+const manualChunksGroups = {
+  vue: ['vue-router', 'vue'],
+}
+
+const nextcloudSharedList = [
+  'auth',
   'axios',
+  'browser-storage',
+  'capabilities',
+  'event-bus',
+  'files',
+  'initial-state',
+  'l10n',
+  'logger',
+  'paths',
+  'router',
+  'sharing',
 ]
 
 // https://vite.dev/config/
@@ -47,31 +61,44 @@ export default createAppConfig(
             chunkFileNames: 'js/[name]-[hash].mjs',
             assetFileNames: '[ext]/[name]-[hash].[ext]',
             manualChunks(id) {
-              if (id.includes('node_modules')) {
-                if (id.includes('emoji-mart')) {
-                  return 'emoji-mart'
-                }
-
-                const parts = id.split('node_modules/')
-                const pkgPath = parts[parts.length - 1]
-
-                const scopedNextcloudMatch = pkgPath.match(/^@nextcloud\/([^/]+)/)
-                if (scopedNextcloudMatch) {
-                  return `nextcloud-${scopedNextcloudMatch[1]}`
-                }
-                const nextcloudMatch = pkgPath.match(/^nextcloud-([^/]+)/)
-                if (nextcloudMatch) {
-                  return `nextcloud-${nextcloudMatch[1]}`
-                }
-
-                for (const chunk of manualChunksList) {
-                  if (pkgPath.includes(chunk)) {
-                    return chunk
-                  }
-                }
-
-                return 'vendor'
+              if (!id.includes('node_modules')) {
+                return
               }
+
+              // Parse package path
+              const parts = id.split('node_modules/')
+              const pkgPath = parts[parts.length - 1]
+
+              // Check for @nextcloud/xxx or nextcloud-xxx
+              const scopedMatch = pkgPath.match(/^@nextcloud\/([^/]+)/)
+              const hyphenMatch = pkgPath.match(/^nextcloud-([^/]+)/)
+
+              // Get the package name (e.g., 'auth', 'vue', 'axios')
+              let ncPkgName = null
+              if (scopedMatch) ncPkgName = scopedMatch[1]
+              else if (hyphenMatch) ncPkgName = hyphenMatch[1]
+
+              if (ncPkgName) {
+                if (nextcloudSharedList.includes(ncPkgName)) {
+                  return 'nextcloud-common'
+                }
+                return `nextcloud-${ncPkgName}`
+              }
+
+              for (const chunk of manualChunksList) {
+                if (pkgPath.includes(chunk)) {
+                  return chunk
+                }
+              }
+
+              for (const [groupName, groupPackages] of Object.entries(manualChunksGroups)) {
+                if (groupPackages.some((pkg) => pkgPath.includes(pkg))) {
+                  return groupName
+                }
+              }
+
+              // Fallback
+              return 'vendor'
             },
           },
         },

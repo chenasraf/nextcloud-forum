@@ -1,24 +1,23 @@
 <template>
-  <div class="jukebox-{{ kebabCase name }}">{{ startCase name }} Page</div>
+  <div class="forum-{{ kebabCase name }}">{{ startCase name }} Page</div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComopnent, type PropType } from 'vue'
 // import NcComponentExample from '@nextcloud/vue/components/NcComponentExample'
 
-//
-// import IconExample from 'vue-material-design-icons/Example.vue'
+// import IconExample from '@icons/Example.vue'
 
-export default {
+export default defineComponent({
   name: '{{pascalCase name}}Page',
   components: {
     //
   },
-}
+})
 </script>
 
 <style scoped lang="scss">
-/*
-#jukebox-{{ kebabCase name }} {
+#forum-{{ kebabCase name }} {
+  /* Your styles here */
 }
-*/
 </style>

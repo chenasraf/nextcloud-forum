@@ -24,7 +24,7 @@ class {{pascalCase name}} extends Command {
 	 */
 	protected function configure(): void {
 		parent::configure();
-		$this->setName('jukebox:{{kebabCase name}}');
+		$this->setName('forum:{{kebabCase name}}');
 	}
 
 	/**

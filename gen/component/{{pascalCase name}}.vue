@@ -1,22 +1,19 @@
 <template>
-
   <div>{{ startCase name }}</div>
-
 </template>
 
-<script>
-// import NcComponentExample from '@nextcloud/vue/dist/Components/NcComponentExample.js'
+<script lang="ts">
+import { defineComopnent, type PropType } from 'vue'
+// import NcComponentExample from '@nextcloud/vue/components/NcComponentExample'
 
-//
-// import IconExample from 'vue-material-design-icons/Example.vue'
+// import IconExample from '@icons/Example.vue'
 
-export default {
+export default defineComponent({
   name: '{{pascalCase name}}',
   components: {
     //
   },
-}
+})
 </script>
 
 <style scoped lang="scss"></style>
-

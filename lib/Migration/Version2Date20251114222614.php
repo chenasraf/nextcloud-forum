@@ -8,14 +8,14 @@ declare(strict_types=1);
 namespace OCA\Forum\Migration;
 
 use Closure;
-use OCA\Forum\Service\UserStatsService;
+use OCA\Forum\Service\StatsService;
 use OCP\DB\ISchemaWrapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 class Version2Date20251114222614 extends SimpleMigrationStep {
 	public function __construct(
-		private UserStatsService $userStatsService,
+		private StatsService $statsService,
 	) {
 	}
 
@@ -108,7 +108,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 		$output->info('Creating user statistics for all users...');
 
-		$result = $this->userStatsService->createStatsForAllUsers();
+		$result = $this->statsService->rebuildAllUserStats();
 
 		$output->info(sprintf('Processed %d users', $result['users']));
 		$output->info(sprintf('Created %d new user stats', $result['created']));

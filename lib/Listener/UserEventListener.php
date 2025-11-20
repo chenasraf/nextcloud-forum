@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Listener;
 
 use OCA\Forum\Db\UserStatsMapper;
-use OCA\Forum\Service\UserStatsService;
+use OCA\Forum\Service\StatsService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\User\Events\UserCreatedEvent;
@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
 class UserEventListener implements IEventListener {
 	public function __construct(
 		private UserStatsMapper $userStatsMapper,
-		private UserStatsService $userStatsService,
+		private StatsService $statsService,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -40,7 +40,7 @@ class UserEventListener implements IEventListener {
 
 		try {
 			// Create user stats with zero counts for new user
-			$this->userStatsService->rebuildUserStats($userId);
+			$this->statsService->rebuildUserStats($userId);
 			$this->logger->info("Created user stats for new Nextcloud user: {$userId}");
 		} catch (\Exception $ex) {
 			$this->logger->error("Failed to create user stats for new user: {$userId}", [

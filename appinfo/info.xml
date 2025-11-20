@@ -56,11 +56,12 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 		<nextcloud min-version="29" max-version="33"/>
 	</dependencies>
 	<background-jobs>
-		<job>OCA\Forum\Cron\RebuildUserStatsTask</job>
+		<job>OCA\Forum\Cron\RebuildStatsTask</job>
 	</background-jobs>
 	<commands>
 		<command>OCA\Forum\Command\TestNotifier</command>
 		<command>OCA\Forum\Command\RebuildUserStats</command>
+		<command>OCA\Forum\Command\SetRole</command>
 	</commands>
 	<navigations>
 		<navigation role="all">

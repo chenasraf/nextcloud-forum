@@ -11,7 +11,7 @@ use OCP\IDBConnection;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
-class UserStatsService {
+class StatsService {
 	public function __construct(
 		private IDBConnection $db,
 		private IUserManager $userManager,
@@ -24,7 +24,7 @@ class UserStatsService {
 	 *
 	 * @return array{users: int, updated: int, created: int} Statistics about the creation
 	 */
-	public function createStatsForAllUsers(): array {
+	public function rebuildAllUserStats(): array {
 		// Get all user IDs from Nextcloud
 		$users = [];
 		$this->userManager->callForAllUsers(function ($user) use (&$users) {
@@ -48,16 +48,6 @@ class UserStatsService {
 			'updated' => $updated,
 			'created' => $created,
 		];
-	}
-
-	/**
-	 * Rebuild user statistics from actual post and thread counts
-	 *
-	 * @return array{users: int, updated: int, created: int} Statistics about the rebuild
-	 */
-	public function rebuildAllUserStats(): array {
-		// Delegate to createStatsForAllUsers which processes all Nextcloud users
-		return $this->createStatsForAllUsers();
 	}
 
 	/**
@@ -169,5 +159,129 @@ class UserStatsService {
 				return false;
 			}
 		}
+	}
+
+	/**
+	 * Rebuild thread and post counts for all categories
+	 *
+	 * @return array{categories: int, updated: int} Statistics about the rebuild
+	 */
+	public function rebuildAllCategoryStats(): array {
+		// Get all category IDs
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')
+			->from('forum_categories');
+		$result = $qb->executeQuery();
+		$categoryIds = [];
+		while ($row = $result->fetch()) {
+			$categoryIds[] = (int)$row['id'];
+		}
+		$result->closeCursor();
+
+		$updated = 0;
+		foreach ($categoryIds as $categoryId) {
+			$this->rebuildCategoryStats($categoryId);
+			$updated++;
+		}
+
+		return [
+			'categories' => count($categoryIds),
+			'updated' => $updated,
+		];
+	}
+
+	/**
+	 * Rebuild statistics for a single category
+	 *
+	 * @param int $categoryId The category ID to rebuild stats for
+	 * @return void
+	 */
+	public function rebuildCategoryStats(int $categoryId): void {
+		// Count non-deleted threads in this category
+		$threadQb = $this->db->getQueryBuilder();
+		$threadQb->select($threadQb->func()->count('*', 'count'))
+			->from('forum_threads')
+			->where($threadQb->expr()->eq('category_id', $threadQb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+			->andWhere($threadQb->expr()->isNull('deleted_at'));
+		$threadResult = $threadQb->executeQuery();
+		$threadCount = (int)($threadResult->fetchOne() ?? 0);
+		$threadResult->closeCursor();
+
+		// Count non-deleted posts in non-deleted threads in this category
+		$postQb = $this->db->getQueryBuilder();
+		$postQb->select($postQb->func()->count('*', 'count'))
+			->from('forum_posts', 'p')
+			->innerJoin('p', 'forum_threads', 't', $postQb->expr()->eq('p.thread_id', 't.id'))
+			->where($postQb->expr()->eq('t.category_id', $postQb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+			->andWhere($postQb->expr()->isNull('p.deleted_at'))
+			->andWhere($postQb->expr()->isNull('t.deleted_at'));
+		$postResult = $postQb->executeQuery();
+		$postCount = (int)($postResult->fetchOne() ?? 0);
+		$postResult->closeCursor();
+
+		// Update category stats
+		$updateQb = $this->db->getQueryBuilder();
+		$updateQb->update('forum_categories')
+			->set('thread_count', $updateQb->createNamedParameter($threadCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
+			->set('post_count', $updateQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
+			->set('updated_at', $updateQb->createNamedParameter(time(), \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
+			->where($updateQb->expr()->eq('id', $updateQb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+		$updateQb->executeStatement();
+	}
+
+	/**
+	 * Rebuild post counts for all threads
+	 *
+	 * @return array{threads: int, updated: int} Statistics about the rebuild
+	 */
+	public function rebuildAllThreadStats(): array {
+		// Get all non-deleted thread IDs
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')
+			->from('forum_threads')
+			->where($qb->expr()->isNull('deleted_at'));
+		$result = $qb->executeQuery();
+		$threadIds = [];
+		while ($row = $result->fetch()) {
+			$threadIds[] = (int)$row['id'];
+		}
+		$result->closeCursor();
+
+		$updated = 0;
+		foreach ($threadIds as $threadId) {
+			$this->rebuildThreadStats($threadId);
+			$updated++;
+		}
+
+		return [
+			'threads' => count($threadIds),
+			'updated' => $updated,
+		];
+	}
+
+	/**
+	 * Rebuild statistics for a single thread
+	 *
+	 * @param int $threadId The thread ID to rebuild stats for
+	 * @return void
+	 */
+	public function rebuildThreadStats(int $threadId): void {
+		// Count non-deleted posts in this thread
+		$postQb = $this->db->getQueryBuilder();
+		$postQb->select($postQb->func()->count('*', 'count'))
+			->from('forum_posts')
+			->where($postQb->expr()->eq('thread_id', $postQb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+			->andWhere($postQb->expr()->isNull('deleted_at'));
+		$postResult = $postQb->executeQuery();
+		$postCount = (int)($postResult->fetchOne() ?? 0);
+		$postResult->closeCursor();
+
+		// Update thread stats
+		$updateQb = $this->db->getQueryBuilder();
+		$updateQb->update('forum_threads')
+			->set('post_count', $updateQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
+			->set('updated_at', $updateQb->createNamedParameter(time(), \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
+			->where($updateQb->expr()->eq('id', $updateQb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+		$updateQb->executeStatement();
 	}
 }

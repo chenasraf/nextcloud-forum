@@ -7,14 +7,14 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Command;
 
-use OCA\Forum\Service\UserStatsService;
+use OCA\Forum\Service\StatsService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RebuildUserStats extends Command {
 	public function __construct(
-		private UserStatsService $userStatsService,
+		private StatsService $statsService,
 	) {
 		parent::__construct();
 	}
@@ -28,7 +28,7 @@ class RebuildUserStats extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$output->writeln('<info>Rebuilding user statistics for all users...</info>');
 
-		$result = $this->userStatsService->createStatsForAllUsers();
+		$result = $this->statsService->rebuildAllUserStats();
 
 		$output->writeln(sprintf('Processed %d users', $result['users']));
 		$output->writeln(sprintf('Created %d new user stats', $result['created']));

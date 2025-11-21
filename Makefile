@@ -41,6 +41,7 @@ composer_phar=$(build_tools_directory)/composer.phar
 composer_bin := $(if $(composer),$(composer),php $(composer_phar))
 pnpm_wrapper=$(build_tools_directory)/pnpm.sh
 pnpm_cmd=$(if $(pnpm),$(pnpm),$(pnpm_wrapper))
+NEXTCLOUD_ROOT=
 
 # Default target: install deps & build JS (and PHP if composer.json exists)
 all: build
@@ -198,11 +199,35 @@ appstore:
 	tar czf $(appstore_package_name).tar.gz $(app_name)
 
 # test:
-#   - Run PHP unit tests (standard + optional integration config)
+#   - Run PHP unit tests locally with a configured Nextcloud installation
+#   - Requires: A fully configured and installed Nextcloud instance with database
+#   - Auto-detects Nextcloud installation or uses NEXTCLOUD_ROOT env var
+#   - RECOMMENDED: Use 'make test-docker' instead (works in any environment)
 .PHONY: test
 test: composer
-	$(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
-	( test ! -f tests/phpunit.integration.xml ) || $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.integration.xml
+	@NC_ROOT="$$NEXTCLOUD_ROOT"; \
+	if [ -z "$$NC_ROOT" ]; then \
+		if [ -d "$(CURDIR)/../../../tests/bootstrap.php" ]; then \
+			NC_ROOT="$(CURDIR)/../../.."; \
+		fi; \
+	fi; \
+	if [ -z "$$NC_ROOT" ]; then \
+		echo "\x1b[33mCould not find Nextcloud installation.\x1b[0m"; \
+		echo ""; \
+		echo "Local testing requires a fully configured Nextcloud instance."; \
+		echo ""; \
+		echo "Options:"; \
+		echo "  1. Use Docker tests (recommended): \x1b[32mmake test-docker\x1b[0m"; \
+		echo "  2. Set NEXTCLOUD_ROOT to your Nextcloud installation:"; \
+		echo "     \x1b[32mNEXTCLOUD_ROOT=/path/to/nextcloud make test\x1b[0m"; \
+		echo ""; \
+		exit 1; \
+	fi; \
+	echo "\x1b[32mUsing Nextcloud root: $$NC_ROOT\x1b[0m"; \
+	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.local.xml; \
+	if [ -f tests/phpunit.integration.xml ]; then \
+		NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.integration.xml; \
+	fi
 
 # test-docker:
 #  - Run PHP unit tests inside a Nextcloud Docker container

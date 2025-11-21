@@ -19,6 +19,7 @@ use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
+use OCA\Forum\Service\PostEnrichmentService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -44,6 +45,7 @@ class PostController extends OCSController {
 		private PermissionService $permissionService,
 		private ReadMarkerMapper $readMarkerMapper,
 		private NotificationService $notificationService,
+		private PostEnrichmentService $postEnrichmentService,
 		private UserService $userService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
@@ -97,7 +99,7 @@ class PostController extends OCSController {
 			// Enrich posts with content, reactions, and pre-fetched author data
 			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors) {
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				return Post::enrichPostContent($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()]);
+				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()]);
 			}, $posts));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
@@ -148,7 +150,7 @@ class PostController extends OCSController {
 			// Enrich posts with content, reactions, and pre-fetched author data
 			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $author) {
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				return Post::enrichPostContent($p, $bbcodes, $postReactions, $currentUserId, $author);
+				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $author);
 			}, $posts));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching posts by author: ' . $e->getMessage());
@@ -170,7 +172,7 @@ class PostController extends OCSController {
 	public function show(int $id): DataResponse {
 		try {
 			$post = $this->postMapper->find($id);
-			return new DataResponse(Post::enrichPostContent($post));
+			return new DataResponse($this->postEnrichmentService->enrichPost($post));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -192,7 +194,7 @@ class PostController extends OCSController {
 	public function bySlug(string $slug): DataResponse {
 		try {
 			$post = $this->postMapper->findBySlug($slug);
-			return new DataResponse(Post::enrichPostContent($post));
+			return new DataResponse($this->postEnrichmentService->enrichPost($post));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -289,7 +291,7 @@ class PostController extends OCSController {
 				// Don't fail the request if notification sending fails
 			}
 
-			return new DataResponse(Post::enrichPostContent($createdPost), Http::STATUS_CREATED);
+			return new DataResponse($this->postEnrichmentService->enrichPost($createdPost), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating post: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create post'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -335,7 +337,7 @@ class PostController extends OCSController {
 
 			/** @var \OCA\Forum\Db\Post */
 			$updatedPost = $this->postMapper->update($post);
-			return new DataResponse(Post::enrichPostContent($updatedPost));
+			return new DataResponse($this->postEnrichmentService->enrichPost($updatedPost));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

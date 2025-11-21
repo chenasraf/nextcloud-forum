@@ -15,6 +15,7 @@ use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Db\UserStats;
 use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -32,6 +33,7 @@ class ThreadControllerTest extends TestCase {
 	private PostMapper $postMapper;
 	private UserStatsMapper $userStatsMapper;
 	private ThreadSubscriptionMapper $threadSubscriptionMapper;
+	private ThreadEnrichmentService $threadEnrichmentService;
 	private UserPreferencesService $userPreferencesService;
 	private UserService $userService;
 	private IUserSession $userSession;
@@ -45,10 +47,22 @@ class ThreadControllerTest extends TestCase {
 		$this->postMapper = $this->createMock(PostMapper::class);
 		$this->userStatsMapper = $this->createMock(UserStatsMapper::class);
 		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
+		$this->threadEnrichmentService = $this->createMock(ThreadEnrichmentService::class);
 		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
 		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+
+		// Mock thread enrichment service to return serialized thread with mock data
+		$this->threadEnrichmentService->method('enrichThread')
+			->willReturnCallback(function ($thread) {
+				$data = is_array($thread) ? $thread : $thread->jsonSerialize();
+				$data['author'] = ['userId' => $data['authorId'], 'displayName' => 'Test User'];
+				$data['categorySlug'] = 'test-category';
+				$data['categoryName'] = 'Test Category';
+				$data['isSubscribed'] = false;
+				return $data;
+			});
 
 		$this->controller = new ThreadController(
 			Application::APP_ID,
@@ -58,6 +72,7 @@ class ThreadControllerTest extends TestCase {
 			$this->postMapper,
 			$this->userStatsMapper,
 			$this->threadSubscriptionMapper,
+			$this->threadEnrichmentService,
 			$this->userPreferencesService,
 			$this->userService,
 			$this->userSession,

@@ -90,47 +90,4 @@ class Thread extends Entity implements JsonSerializable {
 			'updatedAt' => $this->getUpdatedAt(),
 		];
 	}
-
-	public static function enrichThread(mixed $thread, ?array $author = null): array {
-		if (!is_array($thread)) {
-			$thread = $thread->jsonSerialize();
-		}
-
-		// Add author object (includes display name, deleted status, and roles)
-		if ($author === null) {
-			$userService = \OC::$server->get(\OCA\Forum\Service\UserService::class);
-			$thread['author'] = $userService->enrichUserData($thread['authorId']);
-		} else {
-			$thread['author'] = $author;
-		}
-
-		// Add category information (slug and name) for navigation
-		try {
-			$categoryMapper = \OC::$server->get(\OCA\Forum\Db\CategoryMapper::class);
-			$category = $categoryMapper->find($thread['categoryId']);
-			$thread['categorySlug'] = $category->getSlug();
-			$thread['categoryName'] = $category->getName();
-		} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
-			// Category doesn't exist
-			$thread['categorySlug'] = null;
-			$thread['categoryName'] = null;
-		}
-
-		// Add subscription status for the current user
-		try {
-			$userSession = \OC::$server->get(\OCP\IUserSession::class);
-			$user = $userSession->getUser();
-			if ($user) {
-				$subscriptionMapper = \OC::$server->get(\OCA\Forum\Db\ThreadSubscriptionMapper::class);
-				$thread['isSubscribed'] = $subscriptionMapper->isUserSubscribed($user->getUID(), $thread['id']);
-			} else {
-				$thread['isSubscribed'] = false;
-			}
-		} catch (\Exception $e) {
-			// If there's an error checking subscription, default to false
-			$thread['isSubscribed'] = false;
-		}
-
-		return $thread;
-	}
 }

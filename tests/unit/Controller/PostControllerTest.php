@@ -22,6 +22,7 @@ use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
+use OCA\Forum\Service\PostEnrichmentService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -43,6 +44,7 @@ class PostControllerTest extends TestCase {
 	private PermissionService $permissionService;
 	private ReadMarkerMapper $readMarkerMapper;
 	private NotificationService $notificationService;
+	private PostEnrichmentService $postEnrichmentService;
 	private UserService $userService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
@@ -60,9 +62,19 @@ class PostControllerTest extends TestCase {
 		$this->permissionService = $this->createMock(PermissionService::class);
 		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->notificationService = $this->createMock(NotificationService::class);
+		$this->postEnrichmentService = $this->createMock(PostEnrichmentService::class);
 		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+
+		// Mock post enrichment service to return serialized post with mock data
+		$this->postEnrichmentService->method('enrichPost')
+			->willReturnCallback(function ($post) {
+				$data = is_array($post) ? $post : $post->jsonSerialize();
+				$data['author'] = ['userId' => $data['authorId'], 'displayName' => 'Test User'];
+				$data['reactions'] = [];
+				return $data;
+			});
 
 		$this->controller = new PostController(
 			Application::APP_ID,
@@ -77,6 +89,7 @@ class PostControllerTest extends TestCase {
 			$this->permissionService,
 			$this->readMarkerMapper,
 			$this->notificationService,
+			$this->postEnrichmentService,
 			$this->userService,
 			$this->userSession,
 			$this->logger

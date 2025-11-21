@@ -9,7 +9,9 @@ use OCA\Forum\Controller\SearchController;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Service\PostEnrichmentService;
 use OCA\Forum\Service\SearchService;
+use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -23,6 +25,8 @@ class SearchControllerTest extends TestCase {
 	private SearchController $controller;
 	private SearchService $searchService;
 	private ThreadMapper $threadMapper;
+	private PostEnrichmentService $postEnrichmentService;
+	private ThreadEnrichmentService $threadEnrichmentService;
 	private UserService $userService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
@@ -32,15 +36,39 @@ class SearchControllerTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->searchService = $this->createMock(SearchService::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
+		$this->postEnrichmentService = $this->createMock(PostEnrichmentService::class);
+		$this->threadEnrichmentService = $this->createMock(ThreadEnrichmentService::class);
 		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+
+		// Mock post enrichment service
+		$this->postEnrichmentService->method('enrichPost')
+			->willReturnCallback(function ($post) {
+				$data = is_array($post) ? $post : $post->jsonSerialize();
+				$data['author'] = ['userId' => $data['authorId'], 'displayName' => 'Test User'];
+				$data['reactions'] = [];
+				return $data;
+			});
+
+		// Mock thread enrichment service
+		$this->threadEnrichmentService->method('enrichThread')
+			->willReturnCallback(function ($thread) {
+				$data = is_array($thread) ? $thread : $thread->jsonSerialize();
+				$data['author'] = ['userId' => $data['authorId'], 'displayName' => 'Test User'];
+				$data['categorySlug'] = 'test-category';
+				$data['categoryName'] = 'Test Category';
+				$data['isSubscribed'] = false;
+				return $data;
+			});
 
 		$this->controller = new SearchController(
 			Application::APP_ID,
 			$this->request,
 			$this->searchService,
 			$this->threadMapper,
+			$this->postEnrichmentService,
+			$this->threadEnrichmentService,
 			$this->userService,
 			$this->userSession,
 			$this->logger

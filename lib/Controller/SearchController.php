@@ -10,7 +10,9 @@ namespace OCA\Forum\Controller;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Service\PostEnrichmentService;
 use OCA\Forum\Service\SearchService;
+use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -27,6 +29,8 @@ class SearchController extends OCSController {
 		IRequest $request,
 		private SearchService $searchService,
 		private ThreadMapper $threadMapper,
+		private PostEnrichmentService $postEnrichmentService,
+		private ThreadEnrichmentService $threadEnrichmentService,
 		private UserService $userService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
@@ -104,12 +108,12 @@ class SearchController extends OCSController {
 
 			// Enrich threads with pre-fetched author data
 			$enrichedThreads = array_map(function ($thread) use ($authors) {
-				return Thread::enrichThread($thread, $authors[$thread->getAuthorId()]);
+				return $this->threadEnrichmentService->enrichThread($thread, $authors[$thread->getAuthorId()]);
 			}, $results['threads']);
 
 			// Enrich posts with pre-fetched author data and thread context
 			$enrichedPosts = array_map(function ($post) use ($authors) {
-				$enriched = Post::enrichPostContent($post, [], [], null, $authors[$post->getAuthorId()]);
+				$enriched = $this->postEnrichmentService->enrichPost($post, [], [], null, $authors[$post->getAuthorId()]);
 				// Add thread info for context
 				try {
 					$thread = $this->threadMapper->find($post->getThreadId());

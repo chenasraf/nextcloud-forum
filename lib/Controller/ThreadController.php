@@ -15,6 +15,7 @@ use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -36,6 +37,7 @@ class ThreadController extends OCSController {
 		private PostMapper $postMapper,
 		private UserStatsMapper $userStatsMapper,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
+		private ThreadEnrichmentService $threadEnrichmentService,
 		private UserPreferencesService $userPreferencesService,
 		private UserService $userService,
 		private IUserSession $userSession,
@@ -65,7 +67,7 @@ class ThreadController extends OCSController {
 
 			// Enrich threads with pre-fetched author data
 			return new DataResponse(array_map(function ($t) use ($authors) {
-				return Thread::enrichThread($t, $authors[$t->getAuthorId()]);
+				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()]);
 			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads: ' . $e->getMessage());
@@ -98,7 +100,7 @@ class ThreadController extends OCSController {
 
 			// Enrich threads with pre-fetched author data
 			return new DataResponse(array_map(function ($t) use ($authors) {
-				return Thread::enrichThread($t, $authors[$t->getAuthorId()]);
+				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()]);
 			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads by category: ' . $e->getMessage());
@@ -127,7 +129,7 @@ class ThreadController extends OCSController {
 
 			// Enrich threads with pre-fetched author data
 			return new DataResponse(array_map(function ($t) use ($author) {
-				return Thread::enrichThread($t, $author);
+				return $this->threadEnrichmentService->enrichThread($t, $author);
 			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads by author: ' . $e->getMessage());
@@ -158,7 +160,7 @@ class ThreadController extends OCSController {
 				$thread = $this->threadMapper->update($thread);
 			}
 
-			return new DataResponse(Thread::enrichThread($thread));
+			return new DataResponse($this->threadEnrichmentService->enrichThread($thread));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -189,7 +191,7 @@ class ThreadController extends OCSController {
 				$thread = $this->threadMapper->update($thread);
 			}
 
-			return new DataResponse(Thread::enrichThread($thread));
+			return new DataResponse($this->threadEnrichmentService->enrichThread($thread));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -362,7 +364,7 @@ class ThreadController extends OCSController {
 
 			/** @var \OCA\Forum\Db\Thread */
 			$updatedThread = $this->threadMapper->update($thread);
-			return new DataResponse(Thread::enrichThread($updatedThread));
+			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -391,7 +393,7 @@ class ThreadController extends OCSController {
 
 			/** @var \OCA\Forum\Db\Thread */
 			$updatedThread = $this->threadMapper->update($thread);
-			return new DataResponse(Thread::enrichThread($updatedThread));
+			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

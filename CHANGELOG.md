@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.9.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.8.2...v0.9.0) (2025-11-21)
+
+
+### Features
+
+* 404 pages ([7c5bf4a](https://github.com/chenasraf/nextcloud-forum/commit/7c5bf4a82b88c3dc64604f73aa66b9742b0f2ee8))
+
+
+### Bug Fixes
+
+* **Notifications:** test-notifier command ([8ecddc0](https://github.com/chenasraf/nextcloud-forum/commit/8ecddc032f11eae72ba6a12447313d87b2d01570))
+* **RepairSeeds:** output logs ([4e867cd](https://github.com/chenasraf/nextcloud-forum/commit/4e867cdf0a91c9d246b87cd2c829a37bbbeefd56))
+
 ## [0.8.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.8.1...v0.8.2) (2025-11-21)
 
 

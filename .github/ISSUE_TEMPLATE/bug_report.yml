@@ -94,25 +94,119 @@ body:
       description: Which browser are you using? (if applicable)
       placeholder: e.g., Firefox 120, Chrome 119, Safari 17
 
-  - type: textarea
-    id: logs
+  - type: markdown
     attributes:
-      label: Relevant Logs
+      value: |
+        ## 📋 Debugging Information
+
+        The following information helps us investigate and fix issues quickly. Please provide as much detail as possible.
+
+  - type: textarea
+    id: migration-status
+    attributes:
+      label: Migration Status
       description: |
-        Please paste any relevant logs from:
-        - Nextcloud log (Settings → Logging)
-        - Browser console (F12 → Console tab)
-        - PHP error logs
+        **How to check migration status:**
+
+        This shows which database migrations have been executed for the Forum app.
+
+        **For Docker installations:**
+        ```bash
+        docker exec --user www-data -i nextcloud-aio-nextcloud php occ migrations:status forum
+        ```
+
+        **For standard installations:**
+        ```bash
+        php occ migrations:status forum
+        ```
+
+        Or from the Nextcloud directory:
+        ```bash
+        sudo -u www-data php occ migrations:status forum
+        ```
+      placeholder: Paste the migration status output here...
+      render: shell
+
+  - type: textarea
+    id: nextcloud-logs
+    attributes:
+      label: Nextcloud Server Logs
+      description: |
+        **How to get server logs:**
+
+        Look for errors related to the Forum app (last 20-50 lines recommended).
+
+        **Via Web UI:**
+        - Go to Nextcloud Settings → Administration → Logging (or `/settings/admin/logging`)
+        - Look for entries containing "forum"
+
+        **For Docker installations:**
+        ```bash
+        docker exec --user www-data -i nextcloud-aio-nextcloud tail -100 /var/www/html/data/nextcloud.log | grep -i forum
+        ```
+
+        **For standard installations:**
+        ```bash
+        tail -100 /path/to/nextcloud/data/nextcloud.log | grep -i forum
+        ```
+
+        Or from the Nextcloud directory:
+        ```bash
+        sudo -u www-data tail -100 data/nextcloud.log | grep -i forum
+        ```
+      placeholder: Paste Nextcloud server logs here...
+      render: shell
+
+  - type: textarea
+    id: browser-console
+    attributes:
+      label: Browser Console Errors
+      description: |
+        **How to check browser console:**
+        1. Open the page where the issue occurs
+        2. Press **F12** (or right-click → Inspect → Console tab)
+        3. Look for red error messages
+        4. Copy any errors related to the Forum app
+
+        **Tip:** You can right-click on an error and select "Copy message" or "Copy stack trace"
+      placeholder: Paste browser console errors here...
+      render: javascript
+
+  - type: textarea
+    id: network-errors
+    attributes:
+      label: Network Request Errors
+      description: |
+        **How to check network requests:**
+        1. Open the page where the issue occurs
+        2. Press **F12** → Go to the **Network** tab
+        3. Reproduce the issue
+        4. Look for failed requests (shown in red or with 4xx/5xx status codes)
+        5. Click on the failed request
+        6. Copy the following information:
+           - **Request URL** (e.g., `/apps/forum/api/...`)
+           - **Status Code** (e.g., 500, 404, 403)
+           - **Response** tab content (the error message/data returned)
+
+        **Example format:**
+        ```
+        Request: POST /apps/forum/api/threads
+        Status: 500 Internal Server Error
+        Response: {"error": "Database connection failed"}
+        ```
+      placeholder: Paste network error details here...
       render: shell
 
   - type: textarea
     id: screenshots
     attributes:
       label: Screenshots
-      description: If applicable, add screenshots to help explain your problem
+      description: |
+        If applicable, add screenshots to help explain your problem.
+        You can drag and drop images directly into this field.
 
   - type: textarea
     id: additional
     attributes:
       label: Additional Context
-      description: Add any other context about the problem here
+      description: Add any other context about the problem here (e.g., recent changes, specific configuration, workarounds attempted)

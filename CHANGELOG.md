@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.8.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.7.0...v0.8.0) (2025-11-21)
+
+
+### Features
+
+* add role colors + improve user data structure/enrichment ([88cb7f5](https://github.com/chenasraf/nextcloud-forum/commit/88cb7f5aa946fae974344622e194f0ef23392913))
+* **AdminDashboard:** add recent contributors view ([bc3892e](https://github.com/chenasraf/nextcloud-forum/commit/bc3892e9a2a2c47520973dfeaf810d2d32366a1c))
+* **CategoryView:** use fixed-width page ([b93c45a](https://github.com/chenasraf/nextcloud-forum/commit/b93c45adc78377c7e9971446c8c03b749bc523fc))
+* rebuild-all-stats and rebuild-thread-stats commands ([ba552a2](https://github.com/chenasraf/nextcloud-forum/commit/ba552a2c01783de7161b5b6d16fdd7c4081a8b28))
+* unify action buttons ui/design ([85f2b4c](https://github.com/chenasraf/nextcloud-forum/commit/85f2b4c66794c7f6b622406954fd57cf88bba371))
+
+
+### Bug Fixes
+
+* **AdminUserList:** edit role dialog select width ([7de5cc5](https://github.com/chenasraf/nextcloud-forum/commit/7de5cc56efee39a892ca200da7f52a7727b8cd00))
+* search results ui ([3af9c9c](https://github.com/chenasraf/nextcloud-forum/commit/3af9c9ce68bc7966b94d89fb6a32f163ad4aaadc))
+* use l10n for db seeds ([9045936](https://github.com/chenasraf/nextcloud-forum/commit/90459368b1b6a4536ba75d139422019f0e836676))
+
 ## [0.7.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.6.0...v0.7.0) (2025-11-20)
 
 

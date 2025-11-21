@@ -88,55 +88,17 @@ Most development processes are automated:
 While automation handles most workflows, the following commands are available for local development
 and debugging:
 
-#### Build the App
-
-```bash
-make
-```
-
-Installs dependencies and compiles frontend/backend assets.
-
-#### Run Tests
-
-```bash
-make test
-```
-
-Runs unit and integration tests (if available).
-
-#### Format & Lint
-
-```bash
-make format   # Auto-fix code style
-make lint     # Check code quality
-```
-
-#### Generate OpenAPI Docs
-
-```bash
-make openapi
-```
-
-Output is saved to `build/openapi/openapi.json`.
-
-#### Packaging for Release
-
-```bash
-make appstore    # Production build for Nextcloud app store
-make source      # Full source package
-make distclean   # Clean build artifacts and dependencies
-```
-
-#### Sign Releases
-
-After uploading the archive to GitHub:
-
-```bash
-make sign
-```
-
-Downloads the `.tar.gz` release, verifies it, and prints a SHA-512 signature using your key at
-`~/.nextcloud/certificates/forum.key`.
+| Command          | Description                                                | Notes                                                                               |
+| ---------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `make`           | Installs dependencies and compiles frontend/backend assets |                                                                                     |
+| `make test`      | Runs unit and integration tests                            |                                                                                     |
+| `make format`    | Auto-fix code style                                        |                                                                                     |
+| `make lint`      | Check code quality                                         |                                                                                     |
+| `make openapi`   | Generate OpenAPI documentation                             | Output saved to `openapi.json`                                                      |
+| `make appstore`  | Production build for Nextcloud app store                   |                                                                                     |
+| `make source`    | Create full source package                                 |                                                                                     |
+| `make distclean` | Clean build artifacts and dependencies                     |                                                                                     |
+| `make sign`      | Sign release archive with SHA-512 signature                | Run after uploading `.tar.gz` to GitHub. Uses `~/.nextcloud/certificates/forum.key` |
 
 ---
 
@@ -174,50 +136,6 @@ it for you. It also injects:
 - `dt` — a timestamp like `YYYYMMDDHHmmss` (via `date-fns`)
 
 You don’t pass a name for migrations.
-
-#### Examples
-
-Create a Vue component:
-
-```bash
-pnpm gen component UserListItem
-# → src/components/UserListItem.vue
-```
-
-Create a Vue page:
-
-```bash
-pnpm gen view Settings
-# → src/views/Settings.vue
-```
-
-Create an API controller:
-
-```bash
-pnpm gen api Users
-# → lib/Controller/UsersController.php
-```
-
-Create a service:
-
-```bash
-pnpm gen service MyService
-# → lib/Service/MyService.php
-```
-
-Create a queued job:
-
-```bash
-pnpm gen task-queued UpdateUsers
-# → lib/Cron/UpdateUsers.php
-```
-
-Create a migration (no name):
-
-```bash
-pnpm gen migration
-# → lib/Migration/Version{NEXT}.php   (with injected {version} and {dt})
-```
 
 ## Resources
 

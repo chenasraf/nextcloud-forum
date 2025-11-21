@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.9.0...v0.9.1) (2025-11-21)
+
+
+### Bug Fixes
+
+* **l10n:** fix welcome post & bbcode example strings ([a3b0582](https://github.com/chenasraf/nextcloud-forum/commit/a3b0582d2cce2c22cd5070f3c335a732c25c5e67))
+
 ## [0.9.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.8.2...v0.9.0) (2025-11-21)
 
 

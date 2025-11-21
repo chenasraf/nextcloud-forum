@@ -82,7 +82,10 @@
         <span class="muted ml-8">{{ strings.loading }}</span>
       </div>
 
-      <!-- Error state -->
+      <!-- Error state: Thread not found -->
+      <ThreadNotFound v-else-if="error && (error.includes('not found') || error.includes('404'))" />
+
+      <!-- Error state: Other errors -->
       <NcEmptyContent
         v-else-if="error"
         :title="strings.errorTitle"
@@ -206,6 +209,7 @@ import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PostCard from '@/components/PostCard.vue'
 import PostReplyForm from '@/components/PostReplyForm.vue'
+import ThreadNotFound from '@/views/ThreadNotFound.vue'
 import PinIcon from '@icons/Pin.vue'
 import PinOffIcon from '@icons/PinOff.vue'
 import LockIcon from '@icons/Lock.vue'
@@ -234,6 +238,7 @@ export default defineComponent({
     PageWrapper,
     PostCard,
     PostReplyForm,
+    ThreadNotFound,
     PinIcon,
     PinOffIcon,
     LockIcon,
@@ -336,12 +341,15 @@ export default defineComponent({
           throw new Error(t('forum', 'No thread ID or slug provided'))
         }
 
-        // Fetch posts
-        if (threadData) {
-          await this.fetchPosts()
-          // Check moderation permission
-          await this.checkModerationPermission()
+        // Check if thread was found
+        if (!threadData) {
+          throw new Error(t('forum', 'Thread not found'))
         }
+
+        // Fetch posts
+        await this.fetchPosts()
+        // Check moderation permission
+        await this.checkModerationPermission()
       } catch (e) {
         console.error('Failed to refresh', e)
         this.error = (e as Error).message || t('forum', 'An unexpected error occurred')

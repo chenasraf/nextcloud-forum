@@ -47,7 +47,10 @@
         <span class="muted ml-8">{{ strings.loading }}</span>
       </div>
 
-      <!-- Error state -->
+      <!-- Error state: Category not found -->
+      <CategoryNotFound v-else-if="error && error.includes('not found')" />
+
+      <!-- Error state: Other errors -->
       <NcEmptyContent
         v-else-if="error"
         :title="strings.errorTitle"
@@ -111,6 +114,7 @@ import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ThreadCard from '@/components/ThreadCard.vue'
+import CategoryNotFound from '@/views/CategoryNotFound.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import MessagePlusIcon from '@icons/MessagePlus.vue'
@@ -128,6 +132,7 @@ export default defineComponent({
     PageWrapper,
     PageHeader,
     ThreadCard,
+    CategoryNotFound,
     ArrowLeftIcon,
     RefreshIcon,
     MessagePlusIcon,

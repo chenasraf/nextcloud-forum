@@ -31,7 +31,7 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/admin/bbcodes', component: () => import('@/views/admin/AdminBBCodeList.vue') },
   // Catch-all route - must be last
-  { path: '/:pathMatch(.*)*', component: () => import('@/views/CategoriesView.vue') },
+  { path: '/:pathMatch(.*)*', component: () => import('@/views/GenericNotFound.vue') },
 ]
 
 const router = createRouter({

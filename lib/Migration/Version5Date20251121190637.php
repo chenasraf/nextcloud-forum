@@ -48,7 +48,7 @@ class Version5Date20251121190637 extends SimpleMigrationStep {
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$logger->info('Forum migration repair: Checking and repairing incomplete installations');
 
-		SeedHelper::seedAll();
+		SeedHelper::seedAll($output);
 
 		$logger->info('Forum migration repair: Completed');
 	}

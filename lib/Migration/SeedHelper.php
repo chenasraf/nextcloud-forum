@@ -15,28 +15,40 @@ class SeedHelper {
 	/**
 	 * Seed all initial data
 	 * Each function checks its own state and returns early if already seeded
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function seedAll(): void {
+	public static function seedAll($output = null): void {
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$logger->info('Forum seeding: Starting data seed/repair');
 
+		if ($output) {
+			$output->info('Forum: Starting data seed/repair...');
+		}
+
 		// Each function checks its own state and returns early if already seeded
 		// They run independently so one failure doesn't block others
-		self::seedDefaultRoles();
-		self::seedCategoryHeaders();
-		self::seedDefaultCategories();
-		self::seedCategoryPermissions();
-		self::seedDefaultBBCodes();
-		self::assignUserRoles();
-		self::seedWelcomeThread();
+		self::seedDefaultRoles($output);
+		self::seedCategoryHeaders($output);
+		self::seedDefaultCategories($output);
+		self::seedCategoryPermissions($output);
+		self::seedDefaultBBCodes($output);
+		self::assignUserRoles($output);
+		self::seedWelcomeThread($output);
 
 		$logger->info('Forum seeding: Completed data seed/repair');
+
+		if ($output) {
+			$output->info('Forum: Data seed/repair completed');
+		}
 	}
 
 	/**
 	 * Seed default roles (Admin, Moderator, User)
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function seedDefaultRoles(): void {
+	public static function seedDefaultRoles($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$l = \OC::$server->getL10N('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
@@ -54,7 +66,14 @@ class SeedHelper {
 
 			if ($exists) {
 				$logger->info('Forum seeding: Default roles already exist, skipping');
+				if ($output) {
+					$output->info('  ✓ Default roles already exist');
+				}
 				return;
+			}
+
+			if ($output) {
+				$output->info('  → Creating default roles...');
 			}
 
 			$db->beginTransaction();
@@ -98,6 +117,9 @@ class SeedHelper {
 
 			$db->commit();
 			$logger->info('Forum seeding: Created default roles (IDs 1, 2, 3)');
+			if ($output) {
+				$output->info('  ✓ Created default roles (Admin, Moderator, User)');
+			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
 				$db->rollBack();
@@ -105,13 +127,18 @@ class SeedHelper {
 			$logger->error('Forum seeding: Failed to create default roles', [
 				'exception' => $e->getMessage(),
 			]);
+			if ($output) {
+				$output->warning('  ✗ Failed to create default roles: ' . $e->getMessage());
+			}
 		}
 	}
 
 	/**
 	 * Seed category headers
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function seedCategoryHeaders(): void {
+	public static function seedCategoryHeaders($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$l = \OC::$server->getL10N('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
@@ -129,7 +156,14 @@ class SeedHelper {
 
 			if ($exists) {
 				$logger->info('Forum seeding: Category headers already exist, skipping');
+				if ($output) {
+					$output->info('  ✓ Category headers already exist');
+				}
 				return;
+			}
+
+			if ($output) {
+				$output->info('  → Creating category headers...');
 			}
 
 			$db->beginTransaction();
@@ -147,6 +181,9 @@ class SeedHelper {
 
 			$db->commit();
 			$logger->info('Forum seeding: Created category headers');
+			if ($output) {
+				$output->info('  ✓ Created category headers');
+			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
 				$db->rollBack();
@@ -154,13 +191,18 @@ class SeedHelper {
 			$logger->error('Forum seeding: Failed to create category headers', [
 				'exception' => $e->getMessage(),
 			]);
+			if ($output) {
+				$output->warning('  ✗ Failed to create category headers: ' . $e->getMessage());
+			}
 		}
 	}
 
 	/**
 	 * Seed default categories
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function seedDefaultCategories(): void {
+	public static function seedDefaultCategories($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$l = \OC::$server->getL10N('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
@@ -178,6 +220,9 @@ class SeedHelper {
 
 			if ($exists) {
 				$logger->info('Forum seeding: Categories already exist, skipping');
+				if ($output) {
+					$output->info('  ✓ Categories already exist');
+				}
 				return;
 			}
 
@@ -193,7 +238,14 @@ class SeedHelper {
 
 			if (!$header) {
 				$logger->warning('Forum seeding: No category headers found, skipping category creation');
+				if ($output) {
+					$output->warning('  ⚠ No category headers found, skipping category creation');
+				}
 				return;
+			}
+
+			if ($output) {
+				$output->info('  → Creating default categories...');
 			}
 
 			$headerId = (int)$header['id'];
@@ -233,6 +285,9 @@ class SeedHelper {
 
 			$db->commit();
 			$logger->info('Forum seeding: Created default categories');
+			if ($output) {
+				$output->info('  ✓ Created default categories (General Discussions, Support)');
+			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
 				$db->rollBack();
@@ -240,13 +295,18 @@ class SeedHelper {
 			$logger->error('Forum seeding: Failed to create default categories', [
 				'exception' => $e->getMessage(),
 			]);
+			if ($output) {
+				$output->warning('  ✗ Failed to create default categories: ' . $e->getMessage());
+			}
 		}
 	}
 
 	/**
 	 * Seed category permissions for all roles
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function seedCategoryPermissions(): void {
+	public static function seedCategoryPermissions($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 
@@ -262,6 +322,9 @@ class SeedHelper {
 
 			if ($exists) {
 				$logger->info('Forum seeding: Category permissions already exist, skipping');
+				if ($output) {
+					$output->info('  ✓ Category permissions already exist');
+				}
 				return;
 			}
 
@@ -275,7 +338,14 @@ class SeedHelper {
 
 			if (empty($categories)) {
 				$logger->warning('Forum seeding: No categories found, skipping permission creation');
+				if ($output) {
+					$output->warning('  ⚠ No categories found, skipping permission creation');
+				}
 				return;
+			}
+
+			if ($output) {
+				$output->info('  → Creating category permissions...');
 			}
 
 			$db->beginTransaction();
@@ -326,6 +396,9 @@ class SeedHelper {
 
 			$db->commit();
 			$logger->info('Forum seeding: Created category permissions');
+			if ($output) {
+				$output->info('  ✓ Created category permissions for ' . count($categories) . ' categories');
+			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
 				$db->rollBack();
@@ -333,13 +406,18 @@ class SeedHelper {
 			$logger->error('Forum seeding: Failed to create category permissions', [
 				'exception' => $e->getMessage(),
 			]);
+			if ($output) {
+				$output->warning('  ✗ Failed to create category permissions: ' . $e->getMessage());
+			}
 		}
 	}
 
 	/**
 	 * Seed default BBCodes
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function seedDefaultBBCodes(): void {
+	public static function seedDefaultBBCodes($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$l = \OC::$server->getL10N('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
@@ -357,7 +435,14 @@ class SeedHelper {
 
 			if ($exists) {
 				$logger->info('Forum seeding: BBCodes already exist, skipping');
+				if ($output) {
+					$output->info('  ✓ BBCodes already exist');
+				}
 				return;
+			}
+
+			if ($output) {
+				$output->info('  → Creating default BBCodes...');
 			}
 
 			$db->beginTransaction();
@@ -411,6 +496,9 @@ class SeedHelper {
 
 			$db->commit();
 			$logger->info('Forum seeding: Created default BBCodes');
+			if ($output) {
+				$output->info('  ✓ Created default BBCodes (icode, spoiler, attachment)');
+			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
 				$db->rollBack();
@@ -418,13 +506,18 @@ class SeedHelper {
 			$logger->error('Forum seeding: Failed to create default BBCodes', [
 				'exception' => $e->getMessage(),
 			]);
+			if ($output) {
+				$output->warning('  ✗ Failed to create default BBCodes: ' . $e->getMessage());
+			}
 		}
 	}
 
 	/**
 	 * Assign roles to all Nextcloud users
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function assignUserRoles(): void {
+	public static function assignUserRoles($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$userManager = \OC::$server->get(\OCP\IUserManager::class);
 		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
@@ -443,12 +536,19 @@ class SeedHelper {
 
 			if ($exists) {
 				$logger->info('Forum seeding: User roles already assigned, skipping');
+				if ($output) {
+					$output->info('  ✓ User roles already assigned');
+				}
 				return;
+			}
+
+			if ($output) {
+				$output->info('  → Assigning roles to users...');
 			}
 
 			// Assign roles to all users
 			$usersProcessed = 0;
-			$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $groupManager, $logger, &$usersProcessed) {
+			$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $groupManager, $logger, $output, &$usersProcessed) {
 				try {
 					$userId = $user->getUID();
 					$isAdmin = $groupManager->isAdmin($userId);
@@ -478,6 +578,9 @@ class SeedHelper {
 					$usersProcessed++;
 					if ($usersProcessed % 100 === 0) {
 						$logger->info("Forum seeding: Processed $usersProcessed users");
+						if ($output) {
+							$output->info("    → Processed $usersProcessed users...");
+						}
 					}
 				} catch (\Exception $e) {
 					// Log error but continue with other users
@@ -488,17 +591,25 @@ class SeedHelper {
 			});
 
 			$logger->info("Forum seeding: Assigned roles to $usersProcessed users");
+			if ($output) {
+				$output->info("  ✓ Assigned roles to $usersProcessed users");
+			}
 		} catch (\Exception $e) {
 			$logger->error('Forum seeding: Failed to assign user roles', [
 				'exception' => $e->getMessage(),
 			]);
+			if ($output) {
+				$output->warning('  ✗ Failed to assign user roles: ' . $e->getMessage());
+			}
 		}
 	}
 
 	/**
 	 * Seed welcome thread
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function seedWelcomeThread(): void {
+	public static function seedWelcomeThread($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$userManager = \OC::$server->get(\OCP\IUserManager::class);
 		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
@@ -518,6 +629,9 @@ class SeedHelper {
 
 			if ($exists) {
 				$logger->info('Forum seeding: Welcome thread already exists, skipping');
+				if ($output) {
+					$output->info('  ✓ Welcome thread already exists');
+				}
 				return;
 			}
 
@@ -533,7 +647,14 @@ class SeedHelper {
 
 			if (!$category) {
 				$logger->warning('Forum seeding: No categories found, skipping welcome thread creation');
+				if ($output) {
+					$output->warning('  ⚠ No categories found, skipping welcome thread creation');
+				}
 				return;
+			}
+
+			if ($output) {
+				$output->info('  → Creating welcome thread...');
 			}
 
 			$categoryId = (int)$category['id'];
@@ -637,6 +758,9 @@ class SeedHelper {
 
 			$db->commit();
 			$logger->info('Forum seeding: Created welcome thread');
+			if ($output) {
+				$output->info('  ✓ Created welcome thread');
+			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
 				$db->rollBack();
@@ -644,6 +768,9 @@ class SeedHelper {
 			$logger->error('Forum seeding: Failed to create welcome thread', [
 				'exception' => $e->getMessage(),
 			]);
+			if ($output) {
+				$output->warning('  ✗ Failed to create welcome thread: ' . $e->getMessage());
+			}
 		}
 	}
 }

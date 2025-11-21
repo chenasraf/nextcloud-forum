@@ -537,14 +537,16 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 		// Seed initial data after schema is created
-		$this->seedInitialData();
+		$this->seedInitialData($output);
 	}
 
 	/**
 	 * Seed initial data after schema is created
 	 * Each step is independent and can succeed/fail without affecting others
+	 *
+	 * @param IOutput $output
 	 */
-	private function seedInitialData(): void {
-		SeedHelper::seedAll();
+	private function seedInitialData(IOutput $output): void {
+		SeedHelper::seedAll($output);
 	}
 }

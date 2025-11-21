@@ -31,6 +31,11 @@ regularly.
 - **Search**: Full-text search across threads and posts
 - **Modern UI**: Built with Vue 3 and Nextcloud Vue components
 
+## Documentation
+
+For detailed usage instructions, administration guides, and more, visit the
+[Forum Wiki](https://github.com/chenasraf/nextcloud-forum/wiki).
+
 ## Installation
 
 ### From the Nextcloud App Store
@@ -57,40 +62,11 @@ php occ app:enable forum
 
 ### OCC Commands
 
-The Forum app provides several OCC commands for administration and maintenance:
+The Forum app provides several OCC commands for administration and maintenance, including commands
+for repairing installations, rebuilding statistics, and managing user roles.
 
-| Command                        | Description                                                                                   |
-| ------------------------------ | --------------------------------------------------------------------------------------------- |
-| `forum:repair-seeds`           | Repair/seed forum data (roles, categories, permissions, BBCodes). Safe to run multiple times. |
-| `forum:rebuild-user-stats`     | Rebuild statistics for all users (post counts, thread counts)                                 |
-| `forum:rebuild-thread-stats`   | Rebuild statistics for categories and threads                                                 |
-| `forum:rebuild-all-stats`      | Rebuild all statistics (users, categories, threads)                                           |
-| `forum:set-role <user> <role>` | Assign a role to a user                                                                       |
-
-#### Repairing Incomplete Installations
-
-If a migration failed or data is missing, you can use the repair command:
-
-```bash
-# For Docker installations
-docker exec --user www-data -i nextcloud-nextcloud-1 php occ forum:repair-seeds
-
-# For standard installations
-php occ forum:repair-seeds
-# Or:
-sudo -u www-data php occ forum:repair-seeds
-```
-
-This command will check for and create any missing:
-
-- Default roles (Admin, Moderator, User)
-- Category headers and categories
-- Category permissions
-- Default BBCodes
-- User role assignments
-- Welcome thread
-
-The command is idempotent and safe to run multiple times - it will skip data that already exists.
+For a complete list of available commands, usage examples, and detailed documentation, see the
+[OCC Commands Wiki page](https://github.com/chenasraf/nextcloud-forum/wiki/OCC-Commands).
 
 ## Contributing
 

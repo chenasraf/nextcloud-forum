@@ -66,12 +66,14 @@
               </span>
               <span v-if="userStats && userStats.createdAt" class="meta-divider">·</span>
               <span class="meta-item">
-                <span class="meta-label">{{ strings.threads }}</span>
+                <span class="meta-label">{{
+                  strings.threadsLabel(userStats?.threadCount || 0)
+                }}</span>
                 <span class="meta-value">{{ userStats?.threadCount || 0 }}</span>
               </span>
               <span class="meta-divider">·</span>
               <span class="meta-item">
-                <span class="meta-label">{{ strings.posts }}</span>
+                <span class="meta-label">{{ strings.postsLabel(userStats?.postCount || 0) }}</span>
                 <span class="meta-value">{{ userStats?.postCount || 0 }}</span>
               </span>
             </div>
@@ -86,14 +88,14 @@
               :class="{ active: activeTab === 'threads' }"
               @click="activeTab = 'threads'"
             >
-              {{ strings.threads }} ({{ threads.length }})
+              {{ strings.threadsTab(threads.length) }}
             </button>
             <button
               class="tab-button"
               :class="{ active: activeTab === 'posts' }"
               @click="activeTab = 'posts'"
             >
-              {{ strings.replies }} ({{ posts.length }})
+              {{ strings.repliesTab(posts.length) }}
             </button>
           </div>
 
@@ -168,7 +170,7 @@ import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import type { UserStats, Thread, Post } from '@/types'
 import { ocs } from '@/axios'
-import { t } from '@nextcloud/l10n'
+import { t, n } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 
@@ -204,9 +206,10 @@ export default defineComponent({
         errorTitle: t('forum', 'Error'),
         retry: t('forum', 'Retry'),
         firstPost: t('forum', 'First post'),
-        posts: t('forum', 'Posts'),
-        threads: t('forum', 'Threads'),
-        replies: t('forum', 'Replies'),
+        postsLabel: (count: number) => n('forum', 'Post', 'Posts', count),
+        threadsLabel: (count: number) => n('forum', 'Thread', 'Threads', count),
+        threadsTab: (count: number) => n('forum', 'Thread (%n)', 'Threads (%n)', count),
+        repliesTab: (count: number) => n('forum', 'Reply (%n)', 'Replies (%n)', count),
         noThreads: t('forum', 'No threads'),
         noThreadsDesc: t('forum', 'This user has not created any threads yet'),
         noPosts: t('forum', 'No replies'),

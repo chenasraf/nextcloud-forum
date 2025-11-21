@@ -41,14 +41,14 @@
             <CommentIcon :size="20" />
           </span>
           <span class="stat-value">{{ (thread.postCount || 1) - 1 }}</span>
-          <span class="stat-label">{{ strings.replies }}</span>
+          <span class="stat-label">{{ strings.replies((thread.postCount || 1) - 1) }}</span>
         </div>
         <div class="stat">
           <span class="stat-icon">
             <EyeIcon :size="20" />
           </span>
           <span class="stat-value">{{ thread.viewCount || 0 }}</span>
-          <span class="stat-label">{{ strings.views }}</span>
+          <span class="stat-label">{{ strings.views(thread.viewCount || 0) }}</span>
         </div>
       </div>
     </div>
@@ -63,7 +63,7 @@ import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import CommentIcon from '@icons/Comment.vue'
 import EyeIcon from '@icons/Eye.vue'
-import { t } from '@nextcloud/l10n'
+import { t, n } from '@nextcloud/l10n'
 import type { Thread } from '@/types'
 
 export default defineComponent({
@@ -89,8 +89,8 @@ export default defineComponent({
   data() {
     return {
       strings: {
-        replies: t('forum', 'Replies'),
-        views: t('forum', 'Views'),
+        replies: (count: number) => n('forum', 'Reply', 'Replies', count),
+        views: (count: number) => n('forum', 'View', 'Views', count),
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
         unread: t('forum', 'Unread'),

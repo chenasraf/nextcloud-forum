@@ -73,9 +73,9 @@
               <div class="header-info">
                 <h3>{{ header.name }}</h3>
                 <span v-if="header.description" class="muted">{{ header.description }}</span>
-                <span class="muted category-count"
-                  >{{ header.categories?.length || 0 }} {{ strings.categoriesCount }}</span
-                >
+                <span class="muted category-count">{{
+                  strings.categoriesCount(header.categories?.length || 0)
+                }}</span>
               </div>
               <div class="header-actions">
                 <NcButton @click="editHeaderById(header.id)">
@@ -135,9 +135,9 @@
                   <div class="category-meta muted">
                     <span>Slug: {{ category.slug }}</span>
                     <span>•</span>
-                    <span>Threads: {{ category.threadCount || 0 }}</span>
+                    <span>{{ strings.threadsCount(category.threadCount || 0) }}</span>
                     <span>•</span>
-                    <span>Posts: {{ category.postCount || 0 }}</span>
+                    <span>{{ strings.postsCount(category.postCount || 0) }}</span>
                   </div>
                 </div>
                 <div class="category-actions">
@@ -446,7 +446,12 @@ export default defineComponent({
         deleteConfirmMessage: (name: string) =>
           t('forum', `Are you sure you want to delete the category "{name}"?`, { name }),
         threadWarning: (count: number) =>
-          t('forum', `This category contains {count} thread(s).`, { count }),
+          n(
+            'forum',
+            'This category contains %d thread.',
+            'This category contains %d threads.',
+            count,
+          ),
         whatToDoWithThreads: t('forum', 'What should happen to the threads?'),
         migrateThreads: t('forum', 'Move threads to another category'),
         softDeleteThreads: t('forum', 'Delete all threads (soft delete)'),
@@ -456,7 +461,9 @@ export default defineComponent({
         cancel: t('forum', 'Cancel'),
         deleteCategory: t('forum', 'Delete Category'),
         createHeader: t('forum', 'Create Header'),
-        categoriesCount: t('forum', 'categories'),
+        categoriesCount: (count: number) => n('forum', '%d category', '%d categories', count),
+        threadsCount: (count: number) => n('forum', '%d thread', '%d threads', count),
+        postsCount: (count: number) => n('forum', '%d post', '%d posts', count),
         createHeaderTitle: t('forum', 'Create Category Header'),
         editHeaderTitle: t('forum', 'Edit Category Header'),
         headerName: t('forum', 'Header Name'),

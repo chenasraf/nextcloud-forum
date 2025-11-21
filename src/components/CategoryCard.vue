@@ -5,12 +5,12 @@
       <div class="category-stats">
         <span class="stat">
           <span class="stat-value">{{ category.threadCount || 0 }}</span>
-          <span class="stat-label">{{ strings.threads }}</span>
+          <span class="stat-label">{{ strings.threads(category.threadCount || 0) }}</span>
         </span>
         <span class="stat-divider">·</span>
         <span class="stat">
           <span class="stat-value">{{ category.postCount || 0 }}</span>
-          <span class="stat-label">{{ strings.posts }}</span>
+          <span class="stat-label">{{ strings.posts(category.postCount || 0) }}</span>
         </span>
       </div>
     </div>
@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
-import { t } from '@nextcloud/l10n'
+import { t, n } from '@nextcloud/l10n'
 import type { Category } from '@/types'
 
 export default defineComponent({
@@ -35,8 +35,8 @@ export default defineComponent({
   data() {
     return {
       strings: {
-        threads: t('forum', 'Threads'),
-        posts: t('forum', 'Posts'),
+        threads: (count: number) => n('forum', 'Thread', 'Threads', count),
+        posts: (count: number) => n('forum', 'Post', 'Posts', count),
         noDescription: t('forum', 'No description available'),
       },
     }

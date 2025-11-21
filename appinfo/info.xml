@@ -41,8 +41,8 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 	<author mail="contact@casraf.dev" homepage="https://casraf.dev">Chen Asraf</author>
 	<namespace>Forum</namespace>
 	<documentation>
-		<user>https://github.com/chenasraf/nextcloud-forum/blob/master/README.md</user>
-		<admin>https://github.com/chenasraf/nextcloud-forum#administration</admin>
+		<user>https://github.com/chenasraf/nextcloud-forum/wiki/Users</user>
+		<admin>https://github.com/chenasraf/nextcloud-forum/wiki/Administration</admin>
 		<developer>https://github.com/chenasraf/nextcloud-forum#development</developer>
 	</documentation>
 	<category>social</category>

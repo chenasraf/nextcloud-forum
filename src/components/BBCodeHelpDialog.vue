@@ -111,68 +111,151 @@ export default defineComponent({
       builtinDbCodes: [] as BBCode[],
 
       builtInCodes: [
-        { tag: 'b', name: t('forum', 'Font style bold'), example: '[b]Hello world[/b]' },
-        { tag: 'i', name: t('forum', 'Font style italic'), example: '[i]Hello world[/i]' },
-        { tag: 's', name: t('forum', 'Font style struck through'), example: '[s]Hello world[/s]' },
-        { tag: 'u', name: t('forum', 'Font style underlined'), example: '[u]Hello world[/u]' },
-        { tag: 'code', name: t('forum', 'Code'), example: '[code]Hello world[/code]' },
+        {
+          tag: 'b',
+          name: t('forum', 'Font style bold'),
+          example: t('forum', '{bStart}Hello world{bEnd}', { bStart: '[b]', bEnd: '[/b]' }),
+        },
+        {
+          tag: 'i',
+          name: t('forum', 'Font style italic'),
+          example: t('forum', '{iStart}Hello world{iEnd}', { iStart: '[i]', iEnd: '[/i]' }),
+        },
+        {
+          tag: 's',
+          name: t('forum', 'Font style struck through'),
+          example: t('forum', '{sStart}Hello world{sEnd}', { sStart: '[s]', sEnd: '[/s]' }),
+        },
+        {
+          tag: 'u',
+          name: t('forum', 'Font style underlined'),
+          example: t('forum', '{uStart}Hello world{uEnd}', { uStart: '[u]', uEnd: '[/u]' }),
+        },
+        {
+          tag: 'code',
+          name: t('forum', 'Code'),
+          example: t('forum', '{codeStart}Hello world{codeEnd}', {
+            codeStart: '[code]',
+            codeEnd: '[/code]',
+          }),
+        },
         {
           tag: 'email',
           name: t('forum', 'Email (clickable)'),
-          example: '[email]test@example.com[/email]',
+          example: t('forum', '{emailStart}test@example.com{emailEnd}', {
+            emailStart: '[email]',
+            emailEnd: '[/email]',
+          }),
         },
         {
           tag: 'url',
           name: t('forum', 'URL (clickable)'),
-          example: '[url=http://example.com]Example.com[/url]',
+          example: t('forum', '{urlStart}Example.com{urlEnd}', {
+            urlStart: '[url=http://example.com]',
+            urlEnd: '[/url]',
+          }),
         },
         {
           tag: 'img',
           name: t('forum', 'Image (not clickable)'),
-          example: '[img]http://example.com/example.png[/img]',
+          example: t('forum', '{imgStart}http://example.com/example.png{imgEnd}', {
+            imgStart: '[img]',
+            imgEnd: '[/img]',
+          }),
         },
-        { tag: 'quote', name: t('forum', 'Quote'), example: '[quote]Hello world[/quote]' },
+        {
+          tag: 'quote',
+          name: t('forum', 'Quote'),
+          example: t('forum', '{quoteStart}Hello world{quoteEnd}', {
+            quoteStart: '[quote]',
+            quoteEnd: '[/quote]',
+          }),
+        },
         {
           tag: 'youtube',
           name: t('forum', 'Embedded YouTube video'),
-          example: '[youtube]a-video-id-123456[/youtube]',
+          example: t('forum', '{youtubeStart}a-video-id-123456{youtubeEnd}', {
+            youtubeStart: '[youtube]',
+            youtubeEnd: '[/youtube]',
+          }),
         },
         {
           tag: 'font',
           name: t('forum', 'Font (name)'),
-          example: '[font=Arial]Hello world![/font]',
+          example: t('forum', '{fontStart}Hello world!{fontEnd}', {
+            fontStart: '[font=Arial]',
+            fontEnd: '[/font]',
+          }),
         },
-        { tag: 'size', name: t('forum', 'Font size'), example: '[size=12]Hello world![/size]' },
+        {
+          tag: 'size',
+          name: t('forum', 'Font size'),
+          example: t('forum', '{sizeStart}Hello world!{sizeEnd}', {
+            sizeStart: '[size=12]',
+            sizeEnd: '[/size]',
+          }),
+        },
         {
           tag: 'color',
           name: t('forum', 'Font color'),
-          example: '[color=red]Hello world![/color]',
+          example: t('forum', '{colorStart}Hello world!{colorEnd}', {
+            colorStart: '[color=red]',
+            colorEnd: '[/color]',
+          }),
         },
-        { tag: 'left', name: t('forum', 'Text-align: left'), example: '[left]Hello world[/left]' },
+        {
+          tag: 'left',
+          name: t('forum', 'Text-align: left'),
+          example: t('forum', '{leftStart}Hello world{leftEnd}', {
+            leftStart: '[left]',
+            leftEnd: '[/left]',
+          }),
+        },
         {
           tag: 'center',
           name: t('forum', 'Text-align: center'),
-          example: '[center]Hello world[/center]',
+          example: t('forum', '{centerStart}Hello world{centerEnd}', {
+            centerStart: '[center]',
+            centerEnd: '[/center]',
+          }),
         },
         {
           tag: 'right',
           name: t('forum', 'Text-align: right'),
-          example: '[right]Hello world[/right]',
+          example: t('forum', '{rightStart}Hello world{rightEnd}', {
+            rightStart: '[right]',
+            rightEnd: '[/right]',
+          }),
         },
         {
           tag: 'list',
           name: t('forum', 'List'),
-          example: '[list][*]Hello world![li]Hello moon![/li][/list]',
+          example: t(
+            'forum',
+            '{listStart}{item1Start}Hello world!{item2Start}Hello moon!{item2End}{listEnd}',
+            {
+              listStart: '[list]',
+              item1Start: '[*]',
+              item2Start: '[li]',
+              item2End: '[/li]',
+              listEnd: '[/list]',
+            },
+          ),
         },
         {
           tag: '*',
           name: t('forum', 'List item within a list'),
-          example: '[*]Hello world!\\r\\n[*]Hello moon!',
+          example: t('forum', '{itemStart}Hello world!\\r\\n{itemStart}Hello moon!', {
+            itemStart: '[*]',
+          }),
         },
         {
           tag: 'li',
           name: t('forum', 'List item within a list (alias)'),
-          example: '[li]Hello world!\\r\\n[/li][li]Hello moon![/li]',
+          example: t('forum', '{liStart}Hello world!\\r\\n{liEnd}{liStart}Hello moon!{liEnd}', {
+            liStart: '[li]',
+            liEnd: '[/li]',
+          }),
         },
       ] as BuiltInCode[],
 

@@ -1,0 +1,21 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Forum" : "Forum",
+    "User" : "Gebruiker",
+    "Underlined text" : "Onderstreepte tekst",
+    "Light" : "Licht",
+    "Clear" : "Terug",
+    "Duplicate" : "Duplicaat",
+    "Save" : "Opslaan",
+    "Loading…" : "Laden…",
+    "Dashboard" : "Dashboard",
+    "Collapse" : "Inklappen",
+    "Delete" : "Verwijderen",
+    "React with {emoji}" : "Reageer met {emoji}",
+    "Uncategorized" : "Niet gecategoriseerd",
+    "Preferences" : "Voorkeuren",
+    "Create" : "Creëer",
+    "Active" : "Actief"
+},
+"nplurals=2; plural=(n != 1);");

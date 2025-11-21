@@ -1,0 +1,20 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Forum" : "Forum",
+    "User" : "Utente",
+    "Light" : "Craru",
+    "Clear" : "Lìmpia",
+    "Save" : "Sarva",
+    "Loading…" : "Carrighende…",
+    "Dashboard" : "Pannellu de controllu",
+    "Collapse" : "Cuntrae",
+    "Delete" : "Cantzella",
+    "Reply" : "Risponde",
+    "Preferences" : "Preferèntzias",
+    "Create" : "Crea",
+    "Failed to save settings" : "No at fatu a sarvare is informatziones",
+    "Category" : "Categorias",
+    "Active" : "Ativu"
+},
+"nplurals=2; plural=(n != 1);");

@@ -1,0 +1,27 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Forum" : "Форум",
+    "User" : "Корисник",
+    "Underlined text" : "Подвучени текст",
+    "Light" : "светла",
+    "Clear" : "Очисти",
+    "Duplicate" : "Дупликат",
+    "Save" : "Сачувај",
+    "Loading…" : "Учитавам…",
+    "Dashboard" : "Контролна табла",
+    "Collapse" : "Скупи",
+    "Delete" : "Обриши",
+    "React with {emoji}" : "Реагуј са {emoji}",
+    "Uncategorized" : "Некатегоризовано",
+    "Refresh" : "Освежи",
+    "Reply" : "Одговори",
+    "Preferences" : "Поставке",
+    "Create" : "Креирање",
+    "Permissions" : "Дозволе",
+    "Last 7 Days" : "Последњих 7 дана",
+    "Failed to save settings" : "Грешка приликом чувања поставки",
+    "Category" : "Категорија",
+    "Active" : "Активан"
+},
+"nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

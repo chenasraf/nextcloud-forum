@@ -1,0 +1,27 @@
+{ "translations": {
+    "Forum" : "Forum",
+    "User" : "Användare",
+    "Underlined text" : "Understruken text",
+    "Light" : "Ljust",
+    "Dark" : "Mörkt",
+    "Clear" : "Rensa",
+    "Duplicate" : "Duplicera",
+    "Save" : "Spara",
+    "Loading…" : "Laddar...",
+    "Dashboard" : "Dashboard",
+    "Collapse" : "Dölj",
+    "Delete" : "Ta bort",
+    "Unread" : "Oläst",
+    "React with {emoji}" : "Reagera med {emoji}",
+    "Uncategorized" : "Okategoriserade",
+    "Refresh" : "Uppdatera",
+    "Reply" : "Svara",
+    "Preferences" : "Inställningar",
+    "Create" : "Skapa",
+    "Permissions" : "Behörigheter",
+    "Last 7 Days" : "Senaste 7 dagarna",
+    "Failed to save settings" : "Kunde inte spara inställningarna",
+    "Category" : "Kategori",
+    "Active" : "Aktiv"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

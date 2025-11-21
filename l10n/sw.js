@@ -1,0 +1,27 @@
+OC.L10N.register(
+    "forum",
+    {
+    "User" : "Mtumiaji",
+    "Light" : "Mwanga/nuru",
+    "Dark" : "Giza",
+    "Clear" : "Futa",
+    "Duplicate" : "Zalisha",
+    "Save" : "Hifadhi",
+    "Loading…" : "Inapakia",
+    "Dashboard" : " Dashibodi",
+    "Collapse" : "Vunja",
+    "Delete" : "Futa",
+    "React with {emoji}" : "Jibu kwa {emoji}",
+    "Uncategorized" : "Haitambuliki",
+    "Refresh" : "Onyesha upya",
+    "Reply" : "Jibu",
+    "Preferences" : "Vitu vya upendeleo",
+    "Create" : "Tengeneza",
+    "Enter category name" : "Enter category name",
+    "Permissions" : "Ruhusa",
+    "Last 7 Days" : "Siku 7 zilizopita",
+    "Failed to save settings" : "Imeshindwa kuhifadhi mipangilio",
+    "Category" : "Kipengele",
+    "Active" : "Inayotumika"
+},
+"nplurals=2; plural=(n != 1);");

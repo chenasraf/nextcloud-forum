@@ -1,0 +1,18 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Underlined text" : "下線を引きたい文字",
+    "Light" : "明るい",
+    "Clear" : "クリア",
+    "Save" : "保存する",
+    "Loading…" : "読み込み中…",
+    "Dashboard" : "ダッシュボード",
+    "Collapse" : "折りたたむ",
+    "Delete" : "削除",
+    "React with {emoji}" : "{emoji} で反応する",
+    "Uncategorized" : "未分類",
+    "Preferences" : "環境設定",
+    "Create" : "作成",
+    "Last 7 Days" : "7日以内"
+},
+"nplurals=1; plural=0;");

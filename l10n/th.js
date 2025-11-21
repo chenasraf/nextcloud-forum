@@ -1,0 +1,21 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Forum" : "ฟอรัม",
+    "User" : "ผู้ใช้",
+    "Light" : "สว่าง",
+    "Dark" : "มืด",
+    "Clear" : "ล้าง",
+    "Save" : "บันทึก",
+    "Loading…" : "กำลังโหลด…",
+    "Dashboard" : "แดชบอร์ด",
+    "Collapse" : "ย่อ",
+    "Delete" : "ลบ",
+    "Uncategorized" : "ไม่ได้จัดหมวดหมู่",
+    "Refresh" : "รีเฟรช",
+    "Preferences" : "การกำหนดลักษณะ",
+    "Create" : "สร้าง",
+    "Failed to save settings" : "ไม่สามารถบันทึกการตั้งค่าได้",
+    "Category" : "หมวดหมู่"
+},
+"nplurals=1; plural=0;");

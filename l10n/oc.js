@@ -1,0 +1,18 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Forum" : "Forum",
+    "User" : "Utilizator",
+    "Light" : "Clar",
+    "Clear" : "Escafar",
+    "Save" : "Enregistrar",
+    "Loading…" : "Telecargament…",
+    "Dashboard" : "Tablèu de bòrd",
+    "Collapse" : "Replegar",
+    "Delete" : "Suprimir",
+    "React with {emoji}" : "Reagir amb {emoji}",
+    "Uncategorized" : "Desorganizadas",
+    "Create" : "Crear",
+    "Active" : "Activa"
+},
+"nplurals=2; plural=(n > 1);");

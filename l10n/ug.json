@@ -1,0 +1,27 @@
+{ "translations": {
+    "Forum" : "مۇنبەر",
+    "User" : "ئىشلەتكۈچى",
+    "Underlined text" : "ئاستى سىزىقلىق تېكىست",
+    "Light" : "نۇر",
+    "Dark" : "Dark",
+    "Clear" : "Clear",
+    "Duplicate" : "كۆپەيتىلگەن",
+    "Save" : "ساقلاش",
+    "Loading…" : "يۈكلەۋاتىدۇ…",
+    "Dashboard" : "باش تاختا",
+    "Collapse" : "يىمىرىلىش",
+    "Delete" : "ئۆچۈر",
+    "Unread" : "ئوقۇمىغان",
+    "React with {emoji}" : "{emoji} with بىلەن ئىنكاس قايتۇرۇڭ",
+    "Uncategorized" : "تۈرگە ئايرىلمىغان",
+    "Refresh" : "يېڭىلاش",
+    "Reply" : "جاۋاب",
+    "Preferences" : "مايىللىق",
+    "Create" : "قۇر",
+    "Permissions" : "ئىجازەت",
+    "Last 7 Days" : "ئاخىرقى 7 كۈن",
+    "Failed to save settings" : "تەڭشەكلەرنى ساقلىيالمىدى",
+    "Category" : "سەھىپە",
+    "Active" : "ئاكتىپ"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

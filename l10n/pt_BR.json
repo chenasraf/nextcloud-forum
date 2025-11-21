@@ -1,0 +1,23 @@
+{ "translations": {
+    "Forum" : "Fórum",
+    "User" : "Usuário",
+    "Underlined text" : "Texto sublinhado",
+    "Light" : "Claro",
+    "Clear" : "Limpar",
+    "Duplicate" : "Duplicar",
+    "Save" : "Salvar",
+    "Loading…" : "Carregando…",
+    "Dashboard" : "Painel",
+    "Collapse" : "Recolher",
+    "Delete" : "Excluir",
+    "React with {emoji}" : "Reagir com {emoji}",
+    "Uncategorized" : "Sem categoria",
+    "Reply" : "Resposta",
+    "Preferences" : "Preferências",
+    "Create" : "Criar",
+    "Enter category name" : "Insira o nome da categoria",
+    "Last 7 Days" : "Nos Últimos 7 Dias",
+    "Failed to save settings" : "Falha ao salvar configurações",
+    "Active" : "Ativada"
+},"pluralForm" :"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
+}

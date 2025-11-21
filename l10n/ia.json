@@ -1,0 +1,7 @@
+{ "translations": {
+    "Save" : "Salveguardar",
+    "Loading…" : "Cargante...",
+    "Collapse" : "Collaber",
+    "Delete" : "Deler"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

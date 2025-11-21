@@ -1,0 +1,28 @@
+{ "translations": {
+    "Forum" : "Forum",
+    "User" : "Kullanıcı",
+    "Underlined text" : "Altı çizili yazı",
+    "Light" : "Açık",
+    "Dark" : "Koyu",
+    "Clear" : "Temizle",
+    "Duplicate" : "Çoğalt",
+    "Save" : "Kaydet",
+    "Loading…" : "Yükleniyor…",
+    "Dashboard" : "Dashboard",
+    "Collapse" : "Daralt",
+    "Delete" : "Sil",
+    "Unread" : "Okunmamış",
+    "React with {emoji}" : "{emoji} ile tepki ver",
+    "Uncategorized" : "Kategorisiz",
+    "Refresh" : "Yenlle",
+    "Reply" : "Yanıtla",
+    "Preferences" : "Tercihler",
+    "Create" : "Oluştur",
+    "Enter category name" : "Kategori adını yazın",
+    "Permissions" : "İzinler",
+    "Last 7 Days" : "Son 7 gün",
+    "Failed to save settings" : "Ayarlar kaydedilemedi",
+    "Category" : "Kategori",
+    "Active" : "Etkin"
+},"pluralForm" :"nplurals=2; plural=(n > 1);"
+}

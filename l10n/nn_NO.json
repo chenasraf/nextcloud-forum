@@ -1,0 +1,10 @@
+{ "translations": {
+    "Forum" : "Forum",
+    "User" : "Bruker",
+    "Save" : "Lagre",
+    "Loading…" : "Lastar...",
+    "Dashboard" : "Skrivebord",
+    "Delete" : "Slett",
+    "Reply" : "Svare"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

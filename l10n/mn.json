@@ -1,0 +1,8 @@
+{ "translations": {
+    "Forum" : "Хэлэлцүүлэг",
+    "Save" : "Хадгалах",
+    "Loading…" : "уншиж байна",
+    "Delete" : "Устгах",
+    "Create" : "үүсгэх"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

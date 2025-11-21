@@ -1,0 +1,9 @@
+{ "translations": {
+    "Clear" : "გასუფთავება",
+    "Save" : "შენახვა",
+    "Dashboard" : "მთავარი დაფა",
+    "Collapse" : "აკეცვა",
+    "Delete" : "წაშლა",
+    "Uncategorized" : "არაკატეგორიზირებული"
+},"pluralForm" :"nplurals=2; plural=(n!=1);"
+}

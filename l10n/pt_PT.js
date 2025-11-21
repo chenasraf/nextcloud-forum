@@ -1,0 +1,21 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Forum" : "Fórum",
+    "User" : "Utilizador",
+    "Underlined text" : "Texto sublinhado",
+    "Light" : "Claro",
+    "Clear" : "Limpar",
+    "Save" : "Guardar",
+    "Loading…" : "A carregar…",
+    "Dashboard" : "Painel de controle",
+    "Collapse" : "Expandir",
+    "Delete" : "Eliminar",
+    "Uncategorized" : "Sem categoria ",
+    "Reply" : "Responder",
+    "Preferences" : "Preferências",
+    "Create" : "Criar",
+    "Failed to save settings" : "Erro ao gravar as definições",
+    "Category" : "Categoria"
+},
+"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

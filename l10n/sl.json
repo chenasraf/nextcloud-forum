@@ -1,0 +1,22 @@
+{ "translations": {
+    "Forum" : "Spletni forum",
+    "User" : "Uporabnik",
+    "Underlined text" : "Podpisano besedilo",
+    "Light" : "Svetla",
+    "Clear" : "Počisti",
+    "Duplicate" : "Podvoji",
+    "Save" : "Shrani",
+    "Loading…" : "Poteka nalaganje …",
+    "Dashboard" : "Nadzorna plošča",
+    "Collapse" : "Skrči",
+    "Delete" : "Izbriši",
+    "React with {emoji}" : "Odzovi se z {emoji}",
+    "Uncategorized" : "Neopredeljeno",
+    "Preferences" : "Nastavitve",
+    "Create" : "Ustvari",
+    "Permissions" : "Dovoljenja",
+    "Failed to save settings" : "Shranjevanje nastavitev je spodletelo",
+    "Category" : "Kategorija",
+    "Active" : "Dejavno"
+},"pluralForm" :"nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
+}

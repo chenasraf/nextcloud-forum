@@ -1,0 +1,12 @@
+{ "translations": {
+    "User" : "Ulanyjy",
+    "Light" : "Ýagtylyk",
+    "Dark" : "Garaňky",
+    "Save" : "Saklamak",
+    "Loading…" : "Ýüklenýär…",
+    "Delete" : "Pozmak",
+    "Refresh" : "Täzelemek",
+    "Preferences" : "Saýlamalar",
+    "Create" : "Dörediň"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

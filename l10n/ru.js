@@ -1,0 +1,25 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Forum" : "Форум",
+    "User" : "Пользователь",
+    "Underlined text" : "Подчеркнутый текст",
+    "Light" : "Светлое",
+    "Clear" : "Очистить",
+    "Duplicate" : "Дублировать",
+    "Save" : "Сохранить",
+    "Loading…" : "Загрузка…",
+    "Dashboard" : "Виджеты",
+    "Collapse" : "Свернуть",
+    "Delete" : "Удалить",
+    "React with {emoji}" : "Отреагируйте с {emoji}",
+    "Uncategorized" : "Без категории",
+    "Reply" : "Ответ",
+    "Preferences" : "Свойства",
+    "Create" : "Создать",
+    "Last 7 Days" : "Последние 7 дней",
+    "Failed to save settings" : "Не удалось сохранить параметры",
+    "Category" : "Категория",
+    "Active" : "Активно"
+},
+"nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);");

@@ -1,0 +1,25 @@
+OC.L10N.register(
+    "forum",
+    {
+    "Forum" : "Fórum",
+    "User" : "Používateľ",
+    "Underlined text" : "Podčiarknutý text",
+    "Light" : "Svetlé",
+    "Clear" : "Vyčistiť",
+    "Duplicate" : "Duplikát",
+    "Save" : "Uložiť",
+    "Loading…" : "Nahrávam...",
+    "Dashboard" : "Infopanel",
+    "Collapse" : "Zvinúť",
+    "Delete" : "Vymazať",
+    "React with {emoji}" : "Reagovať s {emoji}",
+    "Uncategorized" : "Nezaradené",
+    "Reply" : "Odpovedať",
+    "Preferences" : "Nastavenia",
+    "Create" : "Vytvoriť",
+    "Last 7 Days" : "Posledných 7 dní",
+    "Failed to save settings" : "Nepodarilo sa uložiť nastavenia",
+    "Category" : "Kategória",
+    "Active" : "Aktívne"
+},
+"nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);");

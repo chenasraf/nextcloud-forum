@@ -41,7 +41,10 @@ composer_phar=$(build_tools_directory)/composer.phar
 composer_bin := $(if $(composer),$(composer),php $(composer_phar))
 pnpm_wrapper=$(build_tools_directory)/pnpm.sh
 pnpm_cmd=$(if $(pnpm),$(pnpm),$(pnpm_wrapper))
-NEXTCLOUD_ROOT=
+
+# Optional: Set path to Nextcloud installation for local testing
+# Can be overridden by environment variable: NEXTCLOUD_ROOT=/path make test
+NEXTCLOUD_ROOT ?=
 
 # Default target: install deps & build JS (and PHP if composer.json exists)
 all: build
@@ -201,11 +204,14 @@ appstore:
 # test:
 #   - Run PHP unit tests locally with a configured Nextcloud installation
 #   - Requires: A fully configured and installed Nextcloud instance with database
-#   - Auto-detects Nextcloud installation or uses NEXTCLOUD_ROOT env var
+#   - Auto-detects Nextcloud installation or uses NEXTCLOUD_ROOT (Makefile var or env var)
 #   - RECOMMENDED: Use 'make test-docker' instead (works in any environment)
 .PHONY: test
 test: composer
-	@NC_ROOT="$$NEXTCLOUD_ROOT"; \
+	@NC_ROOT="$(NEXTCLOUD_ROOT)"; \
+	if [ -n "$$NC_ROOT" ]; then \
+		NC_ROOT=$$(echo "$$NC_ROOT" | sed "s|^\\\~|$$HOME|" | sed "s|^~|$$HOME|"); \
+	fi; \
 	if [ -z "$$NC_ROOT" ]; then \
 		if [ -d "$(CURDIR)/../../../tests/bootstrap.php" ]; then \
 			NC_ROOT="$(CURDIR)/../../.."; \
@@ -218,7 +224,7 @@ test: composer
 		echo ""; \
 		echo "Options:"; \
 		echo "  1. Use Docker tests (recommended): \x1b[32mmake test-docker\x1b[0m"; \
-		echo "  2. Set NEXTCLOUD_ROOT to your Nextcloud installation:"; \
+		echo "  2. Set NEXTCLOUD_ROOT in Makefile (line 47) or as env var:"; \
 		echo "     \x1b[32mNEXTCLOUD_ROOT=/path/to/nextcloud make test\x1b[0m"; \
 		echo ""; \
 		exit 1; \

@@ -68,6 +68,12 @@ class RepairSeeds extends Command {
 					$this->output->writeln('<comment>' . $message . '</comment>');
 				}
 
+				public function debug($message): void {
+					if ($this->output->isVerbose()) {
+						$this->output->writeln('<info>[DEBUG]</info> ' . $message);
+					}
+				}
+
 				public function startProgress($max = 0): void {
 					// Not needed for this command
 				}

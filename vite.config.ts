@@ -1,6 +1,7 @@
 import { createAppConfig } from '@nextcloud/vite-config'
 import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
+import checker from 'vite-plugin-checker'
 
 const manualChunksList = [
   'emoji-mart-vue-fast',
@@ -44,6 +45,9 @@ export default createAppConfig(
         },
       },
       plugins: [
+        checker({
+          vueTsc: true,
+        }),
         visualizer({
           open: process.env.VITE_BUILD_ANALYZE === 'true',
           filename: 'stats.html',

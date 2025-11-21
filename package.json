@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vue-tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint src",
     "format": "eslint --fix src && prettier --write {vite.config.ts,src/,README.md}",
     "prepare": "husky",
@@ -48,6 +48,7 @@
     "typescript": "5.9.2",
     "typescript-eslint": "^8.46.4",
     "vite": "^6.4.1",
+    "vite-plugin-checker": "^0.11.0",
     "vue-router": "^4.6.3",
     "vue-tsc": "^2.2.12"
   }

@@ -124,6 +124,12 @@ body:
         ```bash
         sudo -u www-data php occ migrations:status forum
         ```
+
+        **Note:** If you suspect data is missing (roles, categories, etc.), try running the repair command:
+        ```bash
+        php occ forum:repair-seeds
+        ```
+        See the [Administration section](https://github.com/chenasraf/nextcloud-forum#administration) in the README for more details.
       placeholder: Paste the migration status output here...
       render: shell
 

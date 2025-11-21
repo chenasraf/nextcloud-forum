@@ -42,7 +42,7 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 	<namespace>Forum</namespace>
 	<documentation>
 		<user>https://github.com/chenasraf/nextcloud-forum/blob/master/README.md</user>
-		<admin>https://github.com/chenasraf/nextcloud-forum#installation</admin>
+		<admin>https://github.com/chenasraf/nextcloud-forum#administration</admin>
 		<developer>https://github.com/chenasraf/nextcloud-forum#development</developer>
 	</documentation>
 	<category>social</category>
@@ -59,11 +59,12 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 		<job>OCA\Forum\Cron\RebuildStatsTask</job>
 	</background-jobs>
 	<commands>
-		<command>OCA\Forum\Command\TestNotifier</command>
-		<command>OCA\Forum\Command\RebuildUserStats</command>
-		<command>OCA\Forum\Command\RebuildThreadStats</command>
 		<command>OCA\Forum\Command\RebuildAllStats</command>
+		<command>OCA\Forum\Command\RebuildThreadStats</command>
+		<command>OCA\Forum\Command\RebuildUserStats</command>
+		<command>OCA\Forum\Command\RepairSeeds</command>
 		<command>OCA\Forum\Command\SetRole</command>
+		<command>OCA\Forum\Command\TestNotifier</command>
 	</commands>
 	<navigations>
 		<navigation role="all">

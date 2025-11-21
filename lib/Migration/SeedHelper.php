@@ -130,6 +130,7 @@ class SeedHelper {
 			if ($output) {
 				$output->warning('  ✗ Failed to create default roles: ' . $e->getMessage());
 			}
+			throw new \RuntimeException('Failed to create default roles: ' . $e->getMessage(), 0, $e);
 		}
 	}
 
@@ -194,6 +195,7 @@ class SeedHelper {
 			if ($output) {
 				$output->warning('  ✗ Failed to create category headers: ' . $e->getMessage());
 			}
+			throw new \RuntimeException('Failed to create category headers: ' . $e->getMessage(), 0, $e);
 		}
 	}
 
@@ -237,11 +239,11 @@ class SeedHelper {
 			$result->closeCursor();
 
 			if (!$header) {
-				$logger->warning('Forum seeding: No category headers found, skipping category creation');
+				$logger->error('Forum seeding: No category headers found, cannot create categories');
 				if ($output) {
-					$output->warning('  ⚠ No category headers found, skipping category creation');
+					$output->warning('  ✗ No category headers found, cannot create categories');
 				}
-				return;
+				throw new \RuntimeException('Cannot create categories: category headers must be created first');
 			}
 
 			if ($output) {
@@ -298,6 +300,7 @@ class SeedHelper {
 			if ($output) {
 				$output->warning('  ✗ Failed to create default categories: ' . $e->getMessage());
 			}
+			throw new \RuntimeException('Failed to create default categories: ' . $e->getMessage(), 0, $e);
 		}
 	}
 
@@ -337,11 +340,28 @@ class SeedHelper {
 			$result->closeCursor();
 
 			if (empty($categories)) {
-				$logger->warning('Forum seeding: No categories found, skipping permission creation');
+				$logger->error('Forum seeding: No categories found, cannot create permissions');
 				if ($output) {
-					$output->warning('  ⚠ No categories found, skipping permission creation');
+					$output->warning('  ✗ No categories found, cannot create permissions');
 				}
-				return;
+				throw new \RuntimeException('Cannot create category permissions: categories must be created first');
+			}
+
+			// Check if roles exist
+			$qb = $db->getQueryBuilder();
+			$qb->select('id')
+				->from('forum_roles')
+				->where($qb->expr()->in('id', $qb->createNamedParameter([1, 2, 3], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
+			$result = $qb->executeQuery();
+			$roles = $result->fetchAll();
+			$result->closeCursor();
+
+			if (count($roles) < 3) {
+				$logger->error('Forum seeding: Not all required roles exist, cannot create permissions');
+				if ($output) {
+					$output->warning('  ✗ Required roles do not exist, cannot create permissions');
+				}
+				throw new \RuntimeException('Cannot create category permissions: roles must be created first');
 			}
 
 			if ($output) {
@@ -409,6 +429,7 @@ class SeedHelper {
 			if ($output) {
 				$output->warning('  ✗ Failed to create category permissions: ' . $e->getMessage());
 			}
+			throw new \RuntimeException('Failed to create category permissions: ' . $e->getMessage(), 0, $e);
 		}
 	}
 
@@ -509,6 +530,7 @@ class SeedHelper {
 			if ($output) {
 				$output->warning('  ✗ Failed to create default BBCodes: ' . $e->getMessage());
 			}
+			throw new \RuntimeException('Failed to create default BBCodes: ' . $e->getMessage(), 0, $e);
 		}
 	}
 
@@ -540,6 +562,23 @@ class SeedHelper {
 					$output->info('  ✓ User roles already assigned');
 				}
 				return;
+			}
+
+			// Check if roles exist before assigning
+			$qb = $db->getQueryBuilder();
+			$qb->select('id')
+				->from('forum_roles')
+				->where($qb->expr()->in('id', $qb->createNamedParameter([1, 3], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
+			$result = $qb->executeQuery();
+			$roles = $result->fetchAll();
+			$result->closeCursor();
+
+			if (count($roles) < 2) {
+				$logger->error('Forum seeding: Required roles do not exist, cannot assign user roles');
+				if ($output) {
+					$output->warning('  ✗ Required roles do not exist, cannot assign user roles');
+				}
+				throw new \RuntimeException('Cannot assign user roles: roles must be created first');
 			}
 
 			if ($output) {
@@ -601,6 +640,7 @@ class SeedHelper {
 			if ($output) {
 				$output->warning('  ✗ Failed to assign user roles: ' . $e->getMessage());
 			}
+			throw new \RuntimeException('Failed to assign user roles: ' . $e->getMessage(), 0, $e);
 		}
 	}
 
@@ -646,11 +686,11 @@ class SeedHelper {
 			$result->closeCursor();
 
 			if (!$category) {
-				$logger->warning('Forum seeding: No categories found, skipping welcome thread creation');
+				$logger->error('Forum seeding: No categories found, cannot create welcome thread');
 				if ($output) {
-					$output->warning('  ⚠ No categories found, skipping welcome thread creation');
+					$output->warning('  ✗ No categories found, cannot create welcome thread');
 				}
-				return;
+				throw new \RuntimeException('Cannot create welcome thread: categories must be created first');
 			}
 
 			if ($output) {
@@ -771,6 +811,7 @@ class SeedHelper {
 			if ($output) {
 				$output->warning('  ✗ Failed to create welcome thread: ' . $e->getMessage());
 			}
+			throw new \RuntimeException('Failed to create welcome thread: ' . $e->getMessage(), 0, $e);
 		}
 	}
 }

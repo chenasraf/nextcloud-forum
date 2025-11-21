@@ -377,7 +377,7 @@ import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import InformationIcon from '@icons/Information.vue'
 import { ocs } from '@/axios'
-import { t } from '@nextcloud/l10n'
+import { t, n } from '@nextcloud/l10n'
 import type { CategoryHeader, Category, CatHeader } from '@/types'
 
 export default defineComponent({
@@ -472,7 +472,12 @@ export default defineComponent({
         deleteHeaderMessage: (name: string) =>
           t('forum', `Are you sure you want to delete the header "{name}"?`, { name }),
         headerCategoryWarning: (count: number) =>
-          t('forum', `This header contains {count} category(ies).`, { count }),
+          n(
+            'forum',
+            'This header contains %d category.',
+            'This header contains %d categories.',
+            count,
+          ),
         deleteHeaderHelp: t('forum', 'This action cannot be undone'),
         deleteHeader: t('forum', 'Delete Header'),
         whatToDoWithCategories: t('forum', 'What should happen to the categories?'),

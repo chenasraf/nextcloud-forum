@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper :full-width="true">
+  <PageWrapper>
     <template #toolbar>
       <AppToolbar>
         <template #left>

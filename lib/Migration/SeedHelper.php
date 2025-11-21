@@ -472,7 +472,7 @@ class SeedHelper {
 				[
 					'tag' => 'icode',
 					'replacement' => '<code>{content}</code>',
-					'example' => '[icode]inline code[/icode]',
+					'example' => $l->t('[icode]inline code[/icode]'),
 					'description' => $l->t('Inline code'),
 					'parse_inner' => false,
 					'is_builtin' => true,
@@ -481,7 +481,7 @@ class SeedHelper {
 				[
 					'tag' => 'spoiler',
 					'replacement' => '<details><summary>{title}</summary>{content}</details>',
-					'example' => '[spoiler="Spoiler Title"]Hidden content[/spoiler]',
+					'example' => $l->t('[spoiler="%1$s"]%2$s[/spoiler]', ['Spoiler Title', 'Hidden content']),
 					'description' => $l->t('Spoilers'),
 					'parse_inner' => false,
 					'is_builtin' => true,
@@ -489,8 +489,8 @@ class SeedHelper {
 				],
 				[
 					'tag' => 'attachment',
-					'replacement' => '[attachment]/file/path.txt[/attachment]',
-					'example' => '',
+					'replacement' => '{content}',
+					'example' => '[attachment]/file/path.txt[/attachment]',
 					'description' => $l->t('Attachment'),
 					'parse_inner' => false,
 					'is_builtin' => true,
@@ -745,9 +745,9 @@ class SeedHelper {
 				. "[/list]\n"
 				. '[b]' . $l->t('BBCode Examples:') . "[/b]\n"
 				. "[list]\n"
-				. '[*][b]' . $l->t('Bold text') . '[/b] - ' . $l->t('Use {codeStart}text{codeEnd}', ['{codeStart}' => '[icode][b]', '{codeEnd}' => '[/b][/icode]']) . "\n"
-				. '[*][i]' . $l->t('Italic text') . '[/i] - ' . $l->t('Use {codeStart}text{codeEnd}', ['{codeStart}' => '[icode][i]', '{codeEnd}' => '[/i][/icode]']) . "\n"
-				. '[*][u]' . $l->t('Underlined text') . '[/u] - ' . $l->t('Use {codeStart}text{codeEnd}', ['{codeStart}' => '[icode][u]', '{codeEnd}' => '[/u][/icode]']) . "\n\n"
+				. '[*][b]' . $l->t('Bold text') . '[/b] - ' . $l->t('Use %1$stext%2$s', ['[icode][b]', '[/b][/icode]']) . "\n"
+				. '[*][i]' . $l->t('Italic text') . '[/i] - ' . $l->t('Use %1$stext%2$s', ['[icode][i]', '[/i][/icode]']) . "\n"
+				. '[*][u]' . $l->t('Underlined text') . '[/u] - ' . $l->t('Use %1$stext%2$s', ['[icode][u]', '[/u][/icode]']) . "\n\n"
 				. "[/list]\n"
 				. $l->t('Feel free to start a new discussion or reply to existing threads. Happy posting!');
 

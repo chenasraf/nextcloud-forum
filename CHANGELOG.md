@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.8.0...v0.8.1) (2025-11-21)
+
+
+### Bug Fixes
+
+* migration ([c6d757b](https://github.com/chenasraf/nextcloud-forum/commit/c6d757bee606280061a3ba359d3137b95838f444))
+
 ## [0.8.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.7.0...v0.8.0) (2025-11-21)
 
 

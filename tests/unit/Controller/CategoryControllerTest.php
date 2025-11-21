@@ -12,9 +12,12 @@ use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeader;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -24,6 +27,9 @@ class CategoryControllerTest extends TestCase {
 	private CategoryMapper $categoryMapper;
 	private CategoryPermMapper $categoryPermMapper;
 	private ThreadMapper $threadMapper;
+	private UserRoleMapper $userRoleMapper;
+	private IUserSession $userSession;
+	private IGroupManager $groupManager;
 	private LoggerInterface $logger;
 	private IRequest $request;
 
@@ -33,6 +39,9 @@ class CategoryControllerTest extends TestCase {
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
 		$this->categoryPermMapper = $this->createMock(CategoryPermMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
+		$this->userRoleMapper = $this->createMock(UserRoleMapper::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->controller = new CategoryController(
@@ -42,6 +51,9 @@ class CategoryControllerTest extends TestCase {
 			$this->categoryMapper,
 			$this->categoryPermMapper,
 			$this->threadMapper,
+			$this->userRoleMapper,
+			$this->userSession,
+			$this->groupManager,
 			$this->logger
 		);
 	}

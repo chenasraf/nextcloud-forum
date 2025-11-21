@@ -10,8 +10,6 @@ use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\Category;
 use OCA\Forum\Db\CategoryMapper;
-use OCA\Forum\Db\ForumUser;
-use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Reaction;
@@ -19,8 +17,12 @@ use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\UserStats;
+use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\BBCodeService;
+use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
+use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -34,12 +36,14 @@ class PostControllerTest extends TestCase {
 	private PostMapper $postMapper;
 	private ThreadMapper $threadMapper;
 	private CategoryMapper $categoryMapper;
-	private ForumUserMapper $forumUserMapper;
+	private UserStatsMapper $userStatsMapper;
 	private ReactionMapper $reactionMapper;
 	private BBCodeService $bbCodeService;
 	private BBCodeMapper $bbCodeMapper;
 	private PermissionService $permissionService;
 	private ReadMarkerMapper $readMarkerMapper;
+	private NotificationService $notificationService;
+	private UserService $userService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -49,12 +53,14 @@ class PostControllerTest extends TestCase {
 		$this->postMapper = $this->createMock(PostMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
-		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
+		$this->userStatsMapper = $this->createMock(UserStatsMapper::class);
 		$this->reactionMapper = $this->createMock(ReactionMapper::class);
 		$this->bbCodeService = $this->createMock(BBCodeService::class);
 		$this->bbCodeMapper = $this->createMock(BBCodeMapper::class);
 		$this->permissionService = $this->createMock(PermissionService::class);
 		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
+		$this->notificationService = $this->createMock(NotificationService::class);
+		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -64,12 +70,14 @@ class PostControllerTest extends TestCase {
 			$this->postMapper,
 			$this->threadMapper,
 			$this->categoryMapper,
-			$this->forumUserMapper,
+			$this->userStatsMapper,
 			$this->reactionMapper,
 			$this->bbCodeService,
 			$this->bbCodeMapper,
 			$this->permissionService,
 			$this->readMarkerMapper,
+			$this->notificationService,
+			$this->userService,
 			$this->userSession,
 			$this->logger
 		);
@@ -115,6 +123,15 @@ class PostControllerTest extends TestCase {
 			->method('findByPostIds')
 			->with([1, 2])
 			->willReturn([$reaction1, $reaction2]);
+
+		// Mock userService to return enriched user data
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->with(['user1', 'user2'])
+			->willReturn([
+				'user1' => ['userId' => 'user1', 'displayName' => 'User 1', 'roles' => []],
+				'user2' => ['userId' => 'user2', 'displayName' => 'User 2', 'roles' => []],
+			]);
 
 		// Execute
 		$response = $this->controller->byThread($threadId, $limit, $offset);
@@ -195,7 +212,7 @@ class PostControllerTest extends TestCase {
 		$this->userSession->method('getUser')->willReturn($user);
 
 		// Mock forum user
-		$forumUser = new ForumUser();
+		$forumUser = new UserStats();
 		$forumUser->setId(1);
 		$forumUser->setUserId($userId);
 		$forumUser->setPostCount(0);
@@ -218,17 +235,18 @@ class PostControllerTest extends TestCase {
 		// Mock created post
 		$createdPost = $this->createMockPost(1, $threadId, $userId, $content);
 
-		$this->forumUserMapper->expects($this->once())
-			->method('findByUserId')
-			->with($userId)
-			->willReturn($forumUser);
-
 		$this->postMapper->expects($this->once())
 			->method('insert')
 			->willReturnCallback(function ($post) use ($createdPost) {
 				return $createdPost;
 			});
 
+		// Mock readMarkerMapper
+		$this->readMarkerMapper->expects($this->once())
+			->method('createOrUpdate')
+			->with($userId, $threadId, 1);
+
+		// Mock thread update
 		$this->threadMapper->expects($this->once())
 			->method('find')
 			->with($threadId)
@@ -238,10 +256,7 @@ class PostControllerTest extends TestCase {
 			->method('update')
 			->willReturn($thread);
 
-		$this->forumUserMapper->expects($this->once())
-			->method('update')
-			->willReturn($forumUser);
-
+		// Mock category update
 		$this->categoryMapper->expects($this->once())
 			->method('find')
 			->willReturn($category);
@@ -250,9 +265,15 @@ class PostControllerTest extends TestCase {
 			->method('update')
 			->willReturn($category);
 
-		$this->readMarkerMapper->expects($this->once())
-			->method('createOrUpdate')
-			->with($userId, $threadId, 1);
+		// Mock user stats increment (void methods, no return value expectations)
+		$this->userStatsMapper->expects($this->once())
+			->method('incrementPostCount')
+			->with($userId);
+
+		// Mock notification service
+		$this->notificationService->expects($this->once())
+			->method('notifyThreadSubscribers')
+			->with($threadId, 1, $userId);
 
 		$response = $this->controller->create($threadId, $content);
 
@@ -273,26 +294,6 @@ class PostControllerTest extends TestCase {
 
 		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
-	}
-
-	public function testCreatePostReturnsForbiddenWhenForumUserDoesNotExist(): void {
-		$threadId = 1;
-		$content = 'New post content';
-		$userId = 'user1';
-
-		$user = $this->createMock(IUser::class);
-		$user->method('getUID')->willReturn($userId);
-		$this->userSession->method('getUser')->willReturn($user);
-
-		$this->forumUserMapper->expects($this->once())
-			->method('findByUserId')
-			->with($userId)
-			->willThrowException(new DoesNotExistException('Forum user not found'));
-
-		$response = $this->controller->create($threadId, $content);
-
-		$this->assertEquals(Http::STATUS_FORBIDDEN, $response->getStatus());
-		$this->assertEquals(['error' => 'User not registered in forum'], $response->getData());
 	}
 
 	public function testUpdatePostSuccessfullyAsAuthor(): void {

@@ -7,6 +7,8 @@ namespace OCA\Forum\Tests\Service;
 use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Service\BBCodeService;
+use OCP\Files\IRootFolder;
+use OCP\IURLGenerator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -14,14 +16,20 @@ class BBCodeServiceTest extends TestCase {
 	private BBCodeService $service;
 	private BBCodeMapper $bbCodeMapper;
 	private LoggerInterface $logger;
+	private IRootFolder $rootFolder;
+	private IURLGenerator $urlGenerator;
 
 	protected function setUp(): void {
 		$this->bbCodeMapper = $this->createMock(BBCodeMapper::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->rootFolder = $this->createMock(IRootFolder::class);
+		$this->urlGenerator = $this->createMock(IURLGenerator::class);
 
 		$this->service = new BBCodeService(
 			$this->bbCodeMapper,
-			$this->logger
+			$this->logger,
+			$this->rootFolder,
+			$this->urlGenerator
 		);
 	}
 

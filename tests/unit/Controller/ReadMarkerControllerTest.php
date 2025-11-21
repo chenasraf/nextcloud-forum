@@ -8,6 +8,7 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\ReadMarkerController;
 use OCA\Forum\Db\ReadMarker;
 use OCA\Forum\Db\ReadMarkerMapper;
+use OCA\Forum\Service\NotificationService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -19,6 +20,7 @@ use Psr\Log\LoggerInterface;
 class ReadMarkerControllerTest extends TestCase {
 	private ReadMarkerController $controller;
 	private ReadMarkerMapper $readMarkerMapper;
+	private NotificationService $notificationService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -26,6 +28,7 @@ class ReadMarkerControllerTest extends TestCase {
 	protected function setUp(): void {
 		$this->request = $this->createMock(IRequest::class);
 		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
+		$this->notificationService = $this->createMock(NotificationService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -33,6 +36,7 @@ class ReadMarkerControllerTest extends TestCase {
 			Application::APP_ID,
 			$this->request,
 			$this->readMarkerMapper,
+			$this->notificationService,
 			$this->userSession,
 			$this->logger
 		);

@@ -10,6 +10,7 @@ use OCA\Forum\Db\Post;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\SearchService;
+use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -22,6 +23,7 @@ class SearchControllerTest extends TestCase {
 	private SearchController $controller;
 	private SearchService $searchService;
 	private ThreadMapper $threadMapper;
+	private UserService $userService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -30,6 +32,7 @@ class SearchControllerTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->searchService = $this->createMock(SearchService::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
+		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -38,6 +41,7 @@ class SearchControllerTest extends TestCase {
 			$this->request,
 			$this->searchService,
 			$this->threadMapper,
+			$this->userService,
 			$this->userSession,
 			$this->logger
 		);
@@ -125,6 +129,14 @@ class SearchControllerTest extends TestCase {
 				[2, $thread2],
 			]);
 
+		// Mock userService
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn([
+				'user1' => ['userId' => 'user1', 'displayName' => 'User 1'],
+				'user2' => ['userId' => 'user2', 'displayName' => 'User 2'],
+			]);
+
 		$response = $this->controller->index('test query');
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -159,6 +171,10 @@ class SearchControllerTest extends TestCase {
 			->method('search')
 			->with('test query', 'user1', true, false, null, 50, 0)
 			->willReturn($searchResults);
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn(['user1' => ['userId' => 'user1', 'displayName' => 'User 1']]);
 
 		$response = $this->controller->index('test query', true, false);
 
@@ -196,6 +212,10 @@ class SearchControllerTest extends TestCase {
 			->with(1)
 			->willReturn($thread1);
 
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn(['user1' => ['userId' => 'user1', 'displayName' => 'User 1']]);
+
 		$response = $this->controller->index('test query', false, true);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -224,6 +244,10 @@ class SearchControllerTest extends TestCase {
 			->method('search')
 			->with('test query', 'user1', true, true, 1, 50, 0)
 			->willReturn($searchResults);
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn(['user1' => ['userId' => 'user1', 'displayName' => 'User 1']]);
 
 		$response = $this->controller->index('test query', true, true, 1);
 
@@ -277,6 +301,10 @@ class SearchControllerTest extends TestCase {
 			->method('find')
 			->with(1)
 			->willThrowException(new DoesNotExistException('Thread not found'));
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn(['user1' => ['userId' => 'user1', 'displayName' => 'User 1']]);
 
 		$response = $this->controller->index('test query');
 

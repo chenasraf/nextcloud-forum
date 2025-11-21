@@ -34,12 +34,12 @@ class BBCodeControllerTest extends TestCase {
 	}
 
 	public function testIndexReturnsAllBBCodesSuccessfully(): void {
-		$bbcode1 = $this->createBBCode(1, 'b', '<strong>{content}</strong>', true, true);
-		$bbcode2 = $this->createBBCode(2, 'i', '<em>{content}</em>', true, true);
-		$bbcode3 = $this->createBBCode(3, 'code', '<code>{content}</code>', false, false);
+		$bbcode1 = $this->createBBCode(1, 'b', '<strong>{content}</strong>', '[b]text[/b]', true, true);
+		$bbcode2 = $this->createBBCode(2, 'i', '<em>{content}</em>', '[i]text[/i]', true, true);
+		$bbcode3 = $this->createBBCode(3, 'code', '<code>{content}</code>', '[code]text[/code]', false, false);
 
 		$this->bbCodeMapper->expects($this->once())
-			->method('findAll')
+			->method('findAllNonBuiltin')
 			->willReturn([$bbcode1, $bbcode2, $bbcode3]);
 
 		$response = $this->controller->index();
@@ -51,8 +51,8 @@ class BBCodeControllerTest extends TestCase {
 	}
 
 	public function testEnabledReturnsOnlyEnabledBBCodes(): void {
-		$bbcode1 = $this->createBBCode(1, 'b', '<strong>{content}</strong>', true, true);
-		$bbcode2 = $this->createBBCode(2, 'i', '<em>{content}</em>', true, true);
+		$bbcode1 = $this->createBBCode(1, 'b', '<strong>{content}</strong>', '[b]text[/b]', true, true);
+		$bbcode2 = $this->createBBCode(2, 'i', '<em>{content}</em>', '[i]text[/i]', true, true);
 
 		$this->bbCodeMapper->expects($this->once())
 			->method('findAllEnabled')
@@ -68,7 +68,7 @@ class BBCodeControllerTest extends TestCase {
 
 	public function testShowReturnsBBCodeSuccessfully(): void {
 		$bbcodeId = 1;
-		$bbcode = $this->createBBCode($bbcodeId, 'b', '<strong>{content}</strong>', true, true);
+		$bbcode = $this->createBBCode($bbcodeId, 'b', '<strong>{content}</strong>', '[b]text[/b]', true, true);
 
 		$this->bbCodeMapper->expects($this->once())
 			->method('find')
@@ -100,10 +100,11 @@ class BBCodeControllerTest extends TestCase {
 	public function testCreateBBCodeSuccessfully(): void {
 		$tag = 'url';
 		$replacement = '<a href="{url}">{content}</a>';
+		$example = '[url=https://example.com]link[/url]';
 		$description = 'URL link';
 		$enabled = true;
 
-		$createdBBCode = $this->createBBCode(1, $tag, $replacement, $enabled, true);
+		$createdBBCode = $this->createBBCode(1, $tag, $replacement, $example, $enabled, true);
 		$createdBBCode->setDescription($description);
 
 		$this->bbCodeMapper->expects($this->once())
@@ -112,13 +113,14 @@ class BBCodeControllerTest extends TestCase {
 				return $createdBBCode;
 			});
 
-		$response = $this->controller->create($tag, $replacement, $description, $enabled);
+		$response = $this->controller->create($tag, $replacement, $example, $description, $enabled);
 
 		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
 		$data = $response->getData();
 		$this->assertEquals(1, $data['id']);
 		$this->assertEquals($tag, $data['tag']);
 		$this->assertEquals($replacement, $data['replacement']);
+		$this->assertEquals($example, $data['example']);
 		$this->assertEquals($description, $data['description']);
 		$this->assertTrue($data['enabled']);
 	}
@@ -126,8 +128,9 @@ class BBCodeControllerTest extends TestCase {
 	public function testCreateBBCodeWithDefaultValues(): void {
 		$tag = 'b';
 		$replacement = '<strong>{content}</strong>';
+		$example = '[b]text[/b]';
 
-		$createdBBCode = $this->createBBCode(1, $tag, $replacement, true, true);
+		$createdBBCode = $this->createBBCode(1, $tag, $replacement, $example, true, true);
 
 		$this->bbCodeMapper->expects($this->once())
 			->method('insert')
@@ -135,18 +138,19 @@ class BBCodeControllerTest extends TestCase {
 				return $createdBBCode;
 			});
 
-		$response = $this->controller->create($tag, $replacement);
+		$response = $this->controller->create($tag, $replacement, $example);
 
 		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
 		$data = $response->getData();
 		$this->assertEquals($tag, $data['tag']);
+		$this->assertEquals($example, $data['example']);
 		$this->assertTrue($data['enabled']);
 	}
 
 	public function testUpdateBBCodeSuccessfully(): void {
 		$bbcodeId = 1;
 		$newTag = 'bold';
-		$bbcode = $this->createBBCode($bbcodeId, 'b', '<strong>{content}</strong>', true, true);
+		$bbcode = $this->createBBCode($bbcodeId, 'b', '<strong>{content}</strong>', '[b]text[/b]', true, true);
 
 		$this->bbCodeMapper->expects($this->once())
 			->method('find')
@@ -171,10 +175,11 @@ class BBCodeControllerTest extends TestCase {
 		$bbcodeId = 1;
 		$newTag = 'bold';
 		$newReplacement = '<b>{content}</b>';
+		$newExample = '[bold]text[/bold]';
 		$newDescription = 'Bold text';
 		$newEnabled = false;
 
-		$bbcode = $this->createBBCode($bbcodeId, 'b', '<strong>{content}</strong>', true, true);
+		$bbcode = $this->createBBCode($bbcodeId, 'b', '<strong>{content}</strong>', '[b]text[/b]', true, true);
 
 		$this->bbCodeMapper->expects($this->once())
 			->method('find')
@@ -183,15 +188,16 @@ class BBCodeControllerTest extends TestCase {
 
 		$this->bbCodeMapper->expects($this->once())
 			->method('update')
-			->willReturnCallback(function ($updatedBBCode) use ($newTag, $newReplacement, $newDescription, $newEnabled) {
+			->willReturnCallback(function ($updatedBBCode) use ($newTag, $newReplacement, $newExample, $newDescription, $newEnabled) {
 				$this->assertEquals($newTag, $updatedBBCode->getTag());
 				$this->assertEquals($newReplacement, $updatedBBCode->getReplacement());
+				$this->assertEquals($newExample, $updatedBBCode->getExample());
 				$this->assertEquals($newDescription, $updatedBBCode->getDescription());
 				$this->assertEquals($newEnabled, $updatedBBCode->getEnabled());
 				return $updatedBBCode;
 			});
 
-		$response = $this->controller->update($bbcodeId, $newTag, $newReplacement, $newDescription, $newEnabled);
+		$response = $this->controller->update($bbcodeId, $newTag, $newReplacement, $newExample, $newDescription, $newEnabled);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 	}
@@ -212,7 +218,7 @@ class BBCodeControllerTest extends TestCase {
 
 	public function testDestroyBBCodeSuccessfully(): void {
 		$bbcodeId = 1;
-		$bbcode = $this->createBBCode($bbcodeId, 'b', '<strong>{content}</strong>', true, true);
+		$bbcode = $this->createBBCode($bbcodeId, 'b', '<strong>{content}</strong>', '[b]text[/b]', true, true);
 
 		$this->bbCodeMapper->expects($this->once())
 			->method('find')
@@ -243,11 +249,12 @@ class BBCodeControllerTest extends TestCase {
 		$this->assertEquals(['error' => 'BBCode not found'], $response->getData());
 	}
 
-	private function createBBCode(int $id, string $tag, string $replacement, bool $enabled, bool $parseInner): BBCode {
+	private function createBBCode(int $id, string $tag, string $replacement, string $example, bool $enabled, bool $parseInner): BBCode {
 		$bbcode = new BBCode();
 		$bbcode->setId($id);
 		$bbcode->setTag($tag);
 		$bbcode->setReplacement($replacement);
+		$bbcode->setExample($example);
 		$bbcode->setDescription(null);
 		$bbcode->setEnabled($enabled);
 		$bbcode->setParseInner($parseInner);

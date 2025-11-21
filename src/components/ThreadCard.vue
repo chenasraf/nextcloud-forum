@@ -40,8 +40,8 @@
           <span class="stat-icon">
             <CommentIcon :size="20" />
           </span>
-          <span class="stat-value">{{ (thread.postCount || 1) - 1 }}</span>
-          <span class="stat-label">{{ strings.replies((thread.postCount || 1) - 1) }}</span>
+          <span class="stat-value">{{ thread.postCount || 0 }}</span>
+          <span class="stat-label">{{ strings.replies(thread.postCount || 0) }}</span>
         </div>
         <div class="stat">
           <span class="stat-icon">

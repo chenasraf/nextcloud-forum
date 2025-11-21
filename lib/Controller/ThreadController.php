@@ -257,23 +257,22 @@ class ThreadController extends OCSController {
 			$createdPost = $this->postMapper->insert($post);
 
 			// Update thread with post count and last post
-			$createdThread->setPostCount(1);
+			// Note: post_count does NOT include the first post (is_first_post=true)
+			$createdThread->setPostCount(0);
 			$createdThread->setLastPostId($createdPost->getId());
 			$this->threadMapper->update($createdThread);
 
-			// Update category counts (thread count and post count)
+			// Update category counts (thread count only, first post doesn't count)
 			try {
 				$category = $this->categoryMapper->find($categoryId);
 				$category->setThreadCount($category->getThreadCount() + 1);
-				$category->setPostCount($category->getPostCount() + 1);
 				$this->categoryMapper->update($category);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update category counts: ' . $e->getMessage());
 			}
 
-			// Update user stats (post count and thread count, auto-creates stats if needed)
+			// Update user stats (thread count only, first post doesn't count)
 			try {
-				$this->userStatsMapper->incrementPostCount($user->getUID());
 				$this->userStatsMapper->incrementThreadCount($user->getUID());
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update user stats: ' . $e->getMessage());

@@ -207,14 +207,15 @@ class StatsService {
 		$threadCount = (int)($threadResult->fetchOne() ?? 0);
 		$threadResult->closeCursor();
 
-		// Count non-deleted posts in non-deleted threads in this category
+		// Count non-deleted posts in non-deleted threads in this category (excluding first posts)
 		$postQb = $this->db->getQueryBuilder();
 		$postQb->select($postQb->func()->count('*', 'count'))
 			->from('forum_posts', 'p')
 			->innerJoin('p', 'forum_threads', 't', $postQb->expr()->eq('p.thread_id', 't.id'))
 			->where($postQb->expr()->eq('t.category_id', $postQb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
 			->andWhere($postQb->expr()->isNull('p.deleted_at'))
-			->andWhere($postQb->expr()->isNull('t.deleted_at'));
+			->andWhere($postQb->expr()->isNull('t.deleted_at'))
+			->andWhere($postQb->expr()->eq('p.is_first_post', $postQb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL)));
 		$postResult = $postQb->executeQuery();
 		$postCount = (int)($postResult->fetchOne() ?? 0);
 		$postResult->closeCursor();
@@ -266,12 +267,13 @@ class StatsService {
 	 * @return void
 	 */
 	public function rebuildThreadStats(int $threadId): void {
-		// Count non-deleted posts in this thread
+		// Count non-deleted posts in this thread (excluding first post)
 		$postQb = $this->db->getQueryBuilder();
 		$postQb->select($postQb->func()->count('*', 'count'))
 			->from('forum_posts')
 			->where($postQb->expr()->eq('thread_id', $postQb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
-			->andWhere($postQb->expr()->isNull('deleted_at'));
+			->andWhere($postQb->expr()->isNull('deleted_at'))
+			->andWhere($postQb->expr()->eq('is_first_post', $postQb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL)));
 		$postResult = $postQb->executeQuery();
 		$postCount = (int)($postResult->fetchOne() ?? 0);
 		$postResult->closeCursor();

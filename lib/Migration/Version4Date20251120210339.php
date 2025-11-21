@@ -74,15 +74,15 @@ class Version4Date20251120210339 extends SimpleMigrationStep {
 		// Light mode uses darker colors, dark mode uses lighter colors for better contrast
 		$roleColors = [
 			1 => [
-				'light' => '#dc2626', // Red 600
+				'light' => '#dc2626', // Red 600 - Admin
 				'dark' => '#f87171',  // Red 400
 			],
 			2 => [
-				'light' => '#2563eb', // Blue 600
+				'light' => '#2563eb', // Blue 600 - Moderator
 				'dark' => '#60a5fa',  // Blue 400
 			],
-			'User' => [
-				'light' => '#059669', // Emerald 600
+			3 => [
+				'light' => '#059669', // Emerald 600 - User
 				'dark' => '#34d399',  // Emerald 400
 			],
 		];

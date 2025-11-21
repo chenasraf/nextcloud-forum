@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.8.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.8.1...v0.8.2) (2025-11-21)
+
+
+### Bug Fixes
+
+* **AdminCategoryList:** pluralization string ([53c1b98](https://github.com/chenasraf/nextcloud-forum/commit/53c1b980a960cf9a27cee68b4da6d4560b426b9c))
+* initial seed ([749c30c](https://github.com/chenasraf/nextcloud-forum/commit/749c30c2f276813e19dfa91a81bc12573429c784))
+* **l10n:** update bbcode-including strings ([49c1201](https://github.com/chenasraf/nextcloud-forum/commit/49c12011fa4e5dd08f905b3d921f434b9adfc244))
+* **l10n:** Update pluralization strings ([d537244](https://github.com/chenasraf/nextcloud-forum/commit/d53724407bd709993c6036b27fd17ced5c82d926))
+* **l10n:** update string with literal name ([83b7c33](https://github.com/chenasraf/nextcloud-forum/commit/83b7c3392e8c328391430c3b1945a77ecc6b1a33))
+* **l10n:** Update translations from Transifex ([387be93](https://github.com/chenasraf/nextcloud-forum/commit/387be93d3ad5c744fcaca7bb6073293431727e35))
+* **Seeds:** log seed statuses in console ([d9cb3a6](https://github.com/chenasraf/nextcloud-forum/commit/d9cb3a6d9b715fe59f383323c3ab30424b25b430))
+* **Seeds:** update seed output & add repair command ([e2fd638](https://github.com/chenasraf/nextcloud-forum/commit/e2fd6383d31609076981c38ccf9062a5d505cb19))
+
 ## [0.8.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.8.0...v0.8.1) (2025-11-21)
 
 

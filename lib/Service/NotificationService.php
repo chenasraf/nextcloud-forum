@@ -60,6 +60,14 @@ class NotificationService {
 	}
 
 	/**
+	 * Send a test notification to a user
+	 * Useful for testing the notification system
+	 */
+	public function sendTestNotification(string $userId): void {
+		$this->createOrUpdateNotification($userId, 1, 1, 'Test Thread', 'test-thread');
+	}
+
+	/**
 	 * Create or update a notification for a user about a thread
 	 * This allows collating multiple posts into a single notification
 	 */

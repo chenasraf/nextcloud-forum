@@ -76,7 +76,8 @@ class AdminController extends OCSController {
 			$recentPosts = $this->postMapper->countSince($weekAgo);
 
 			// Get top contributors (users with most posts)
-			$topContributors = $this->userStatsMapper->getTopContributors(5);
+			$topContributorsAllTime = $this->userStatsMapper->getTopContributors(5);
+			$topContributorsRecent = $this->userStatsMapper->getTopContributorsSince($weekAgo, 5);
 
 			return new DataResponse([
 				'totals' => [
@@ -90,7 +91,8 @@ class AdminController extends OCSController {
 					'threads' => $recentThreads,
 					'posts' => $recentPosts,
 				],
-				'topContributors' => $topContributors,
+				'topContributorsAllTime' => $topContributorsAllTime,
+				'topContributorsRecent' => $topContributorsRecent,
 			]);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching dashboard stats: ' . $e->getMessage());

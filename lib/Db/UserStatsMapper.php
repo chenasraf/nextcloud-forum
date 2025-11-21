@@ -123,26 +123,116 @@ class UserStatsMapper extends QBMapper {
 	}
 
 	/**
-	 * Get top contributors by post count
+	 * Get top contributors by total activity (posts + threads)
 	 *
-	 * @return array<array{userId: string, postCount: int}>
+	 * @return array<array{userId: string, postCount: int, threadCount: int}>
 	 */
 	public function getTopContributors(int $limit = 10): array {
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('user_id', 'post_count')
+		$qb->select('user_id', 'post_count', 'thread_count')
 			->from($this->getTableName())
 			->where($qb->expr()->isNull('deleted_at'))
-			->orderBy('post_count', 'DESC')
-			->setMaxResults($limit);
+			->andWhere(
+				$qb->expr()->orX(
+					$qb->expr()->gt('post_count', $qb->createNamedParameter(0, IQueryBuilder::PARAM_INT)),
+					$qb->expr()->gt('thread_count', $qb->createNamedParameter(0, IQueryBuilder::PARAM_INT))
+				)
+			);
 
 		$result = $qb->executeQuery();
 		$rows = $result->fetchAll();
 		$result->closeCursor();
 
-		return array_map(fn ($row) => [
+		// Calculate total and sort in PHP
+		$contributors = array_map(fn ($row) => [
 			'userId' => $row['user_id'],
 			'postCount' => (int)$row['post_count'],
+			'threadCount' => (int)$row['thread_count'],
+			'total' => (int)$row['post_count'] + (int)$row['thread_count'],
 		], $rows);
+
+		// Sort by total descending
+		usort($contributors, fn ($a, $b) => $b['total'] <=> $a['total']);
+
+		// Return top N (remove the total field as it was just for sorting)
+		return array_slice(array_map(fn ($c) => [
+			'userId' => $c['userId'],
+			'postCount' => $c['postCount'],
+			'threadCount' => $c['threadCount'],
+		], $contributors), 0, $limit);
+	}
+
+	/**
+	 * Get top contributors for a specific time period by counting posts/threads directly
+	 *
+	 * @return array<array{userId: string, postCount: int, threadCount: int}>
+	 */
+	public function getTopContributorsSince(int $timestamp, int $limit = 10): array {
+		// Count posts per user since timestamp (excluding first posts which are counted as threads)
+		$postsQb = $this->db->getQueryBuilder();
+		$postsQb->select('author_id')
+			->selectAlias($postsQb->func()->count('*'), 'count')
+			->from(Application::tableName('forum_posts'))
+			->where($postsQb->expr()->gte('created_at', $postsQb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)))
+			->andWhere($postsQb->expr()->isNull('deleted_at'))
+			->andWhere($postsQb->expr()->eq('is_first_post', $postsQb->createNamedParameter(0, IQueryBuilder::PARAM_INT)))
+			->groupBy('author_id');
+
+		$postsResult = $postsQb->executeQuery();
+		$postsRows = $postsResult->fetchAll();
+		$postsResult->closeCursor();
+
+		$postsByUser = [];
+		foreach ($postsRows as $row) {
+			$postsByUser[$row['author_id']] = (int)$row['count'];
+		}
+
+		// Count threads per user since timestamp
+		$threadsQb = $this->db->getQueryBuilder();
+		$threadsQb->select('author_id')
+			->selectAlias($threadsQb->func()->count('*'), 'count')
+			->from(Application::tableName('forum_threads'))
+			->where($threadsQb->expr()->gte('created_at', $threadsQb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)))
+			->andWhere($threadsQb->expr()->isNull('deleted_at'))
+			->groupBy('author_id');
+
+		$threadsResult = $threadsQb->executeQuery();
+		$threadsRows = $threadsResult->fetchAll();
+		$threadsResult->closeCursor();
+
+		$threadsByUser = [];
+		foreach ($threadsRows as $row) {
+			$threadsByUser[$row['author_id']] = (int)$row['count'];
+		}
+
+		// Combine and calculate totals
+		$allUserIds = array_unique(array_merge(array_keys($postsByUser), array_keys($threadsByUser)));
+		$contributors = [];
+
+		foreach ($allUserIds as $userId) {
+			$postCount = $postsByUser[$userId] ?? 0;
+			$threadCount = $threadsByUser[$userId] ?? 0;
+			$total = $postCount + $threadCount;
+
+			if ($total > 0) {
+				$contributors[] = [
+					'userId' => $userId,
+					'postCount' => $postCount,
+					'threadCount' => $threadCount,
+					'total' => $total,
+				];
+			}
+		}
+
+		// Sort by total descending
+		usort($contributors, fn ($a, $b) => $b['total'] <=> $a['total']);
+
+		// Return top N (remove the total field as it was just for sorting)
+		return array_slice(array_map(fn ($c) => [
+			'userId' => $c['userId'],
+			'postCount' => $c['postCount'],
+			'threadCount' => $c['threadCount'],
+		], $contributors), 0, $limit);
 	}
 
 	/**

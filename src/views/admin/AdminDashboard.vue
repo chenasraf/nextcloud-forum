@@ -108,27 +108,61 @@
         <!-- Top contributors section -->
         <section class="stats-section mt-24">
           <h3>{{ strings.topContributors }}</h3>
-          <div v-if="stats.topContributors.length > 0" class="contributors-list">
-            <div
-              v-for="(contributor, index) in stats.topContributors"
-              :key="contributor.userId"
-              class="contributor-item"
-            >
-              <div class="contributor-rank">{{ index + 1 }}</div>
-              <UserInfo
-                :user-id="contributor.userId"
-                :display-name="contributor.userId"
-                :avatar-size="40"
-              >
-                <template #meta>
-                  <div class="contributor-stats muted">
-                    {{ strings.postsCount(contributor.postCount) }}
-                  </div>
-                </template>
-              </UserInfo>
+          <div class="contributors-grid">
+            <!-- Recent contributors (last 7 days) -->
+            <div class="contributors-column">
+              <h4>{{ strings.last7Days }}</h4>
+              <div v-if="stats.topContributorsRecent.length > 0" class="contributors-list">
+                <div
+                  v-for="(contributor, index) in stats.topContributorsRecent"
+                  :key="contributor.userId"
+                  class="contributor-item"
+                >
+                  <div class="contributor-rank">{{ index + 1 }}</div>
+                  <UserInfo
+                    :user-id="contributor.userId"
+                    :display-name="contributor.userId"
+                    :avatar-size="40"
+                  >
+                    <template #meta>
+                      <div class="contributor-stats muted">
+                        {{ strings.threadsCount(contributor.threadCount) }} /
+                        {{ strings.postsCount(contributor.postCount) }}
+                      </div>
+                    </template>
+                  </UserInfo>
+                </div>
+              </div>
+              <div v-else class="muted">{{ strings.noContributors }}</div>
+            </div>
+
+            <!-- All-time contributors -->
+            <div class="contributors-column">
+              <h4>{{ strings.allTime }}</h4>
+              <div v-if="stats.topContributorsAllTime.length > 0" class="contributors-list">
+                <div
+                  v-for="(contributor, index) in stats.topContributorsAllTime"
+                  :key="contributor.userId"
+                  class="contributor-item"
+                >
+                  <div class="contributor-rank">{{ index + 1 }}</div>
+                  <UserInfo
+                    :user-id="contributor.userId"
+                    :display-name="contributor.userId"
+                    :avatar-size="40"
+                  >
+                    <template #meta>
+                      <div class="contributor-stats muted">
+                        {{ strings.threadsCount(contributor.threadCount) }} /
+                        {{ strings.postsCount(contributor.postCount) }}
+                      </div>
+                    </template>
+                  </UserInfo>
+                </div>
+              </div>
+              <div v-else class="muted">{{ strings.noContributors }}</div>
             </div>
           </div>
-          <div v-else class="muted">{{ strings.noContributors }}</div>
         </section>
       </div>
     </div>
@@ -163,9 +197,15 @@ interface DashboardStats {
     threads: number
     posts: number
   }
-  topContributors: Array<{
+  topContributorsAllTime: Array<{
     userId: string
     postCount: number
+    threadCount: number
+  }>
+  topContributorsRecent: Array<{
+    userId: string
+    postCount: number
+    threadCount: number
   }>
 }
 
@@ -207,6 +247,9 @@ export default defineComponent({
         newPosts: t('forum', 'New Posts'),
         topContributors: t('forum', 'Top Contributors'),
         noContributors: t('forum', 'No contributors yet'),
+        last7Days: t('forum', 'Last 7 Days'),
+        allTime: t('forum', 'All Time'),
+        threadsCount: (count: number) => n('forum', '%n thread', '%n threads', count),
         postsCount: (count: number) => n('forum', '%n post', '%n posts', count),
       },
     }
@@ -324,11 +367,29 @@ export default defineComponent({
       }
     }
 
+    .contributors-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .contributors-column {
+      h4 {
+        margin: 0 0 12px 0;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--color-text-maxcontrast);
+      }
+    }
+
     .contributors-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      max-width: 600px;
     }
 
     .contributor-item {

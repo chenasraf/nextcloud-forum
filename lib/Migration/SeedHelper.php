@@ -783,6 +783,18 @@ class SeedHelper {
 				->where($qb->expr()->eq('id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
 				->executeStatement();
 
+			// Subscribe the admin user to the welcome thread
+			if ($db->tableExists('forum_thread_subs')) {
+				$qb = $db->getQueryBuilder();
+				$qb->insert('forum_thread_subs')
+					->values([
+						'thread_id' => $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'user_id' => $qb->createNamedParameter($adminUserId),
+						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					])
+					->executeStatement();
+			}
+
 			// Create user stats for the admin user
 			$qb = $db->getQueryBuilder();
 			$qb->insert('forum_user_stats')

@@ -265,7 +265,9 @@ export default defineComponent({
         namePlaceholder: t('forum', 'Enter category name'),
         slug: t('forum', 'Slug'),
         slugPlaceholder: t('forum', 'category-slug'),
-        slugHelp: t('forum', 'URL-friendly identifier (e.g., "general-discussion")'),
+        slugHelp: t('forum', 'URL-friendly identifier (e.g., "{slug}")', {
+          slug: 'general-discussion',
+        }),
         description: t('forum', 'Description'),
         descriptionPlaceholder: t('forum', 'Enter category description (optional)'),
         sortOrder: t('forum', 'Sort Order'),

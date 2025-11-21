@@ -16,8 +16,8 @@ threads, and posts within their Nextcloud instance.
 
 **This app is in early stages of development.** While functional, you may encounter bugs or
 incomplete features. Please report any issues on
-[GitHub](https://github.com/chenasraf/nextcloud-forum/issues) and consider backing up your data
-regularly.
+[GitHub](https://github.com/chenasraf/nextcloud-forum/issues/new/choose) and consider backing up
+your data regularly.
 
 ## Features
 

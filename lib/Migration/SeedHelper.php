@@ -745,9 +745,9 @@ class SeedHelper {
 				. "[/list]\n"
 				. '[b]' . $l->t('BBCode Examples:') . "[/b]\n"
 				. "[list]\n"
-				. '[*][b]' . $l->t('Bold text') . '[/b] - ' . $l->t('Use [icode][b]text[/b][/icode]') . "\n"
-				. '[*][i]' . $l->t('Italic text') . '[/i] - ' . $l->t('Use [icode][i]text[/i][/icode]') . "\n"
-				. '[*][u]' . $l->t('Underlined text') . '[/u] - ' . $l->t('Use [icode][u]text[/u][/icode]') . "\n\n"
+				. '[*][b]' . $l->t('Bold text') . '[/b] - ' . $l->t('Use {codeStart}text{codeEnd}', ['{codeStart}' => '[icode][b]', '{codeEnd}' => '[/b][/icode]']) . "\n"
+				. '[*][i]' . $l->t('Italic text') . '[/i] - ' . $l->t('Use {codeStart}text{codeEnd}', ['{codeStart}' => '[icode][i]', '{codeEnd}' => '[/i][/icode]']) . "\n"
+				. '[*][u]' . $l->t('Underlined text') . '[/u] - ' . $l->t('Use {codeStart}text{codeEnd}', ['{codeStart}' => '[icode][u]', '{codeEnd}' => '[/u][/icode]']) . "\n\n"
 				. "[/list]\n"
 				. $l->t('Feel free to start a new discussion or reply to existing threads. Happy posting!');
 

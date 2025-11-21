@@ -352,7 +352,7 @@ export default defineComponent({
         replacement: t('forum', 'Replacement'),
         deleteDialogTitle: t('forum', 'Delete BBCode'),
         deleteConfirmMessage: (tag: string) =>
-          t('forum', `Are you sure you want to delete the BBCode tag "[{tag}]"?`, { tag }),
+          t('forum', 'Are you sure you want to delete the BBCode tag [{tag}]?', { tag }),
         deleteWarning: t('forum', 'This action cannot be undone.'),
         cancel: t('forum', 'Cancel'),
         deleteBBCode: t('forum', 'Delete BBCode'),
@@ -362,13 +362,21 @@ export default defineComponent({
         tagPlaceholder: t('forum', 'e.g., b, i, url, color'),
         tagHelp: t('forum', 'The BBCode tag name (without brackets)'),
         replacementLabel: t('forum', 'HTML Replacement'),
-        replacementPlaceholder: t('forum', 'e.g., <strong>{content}</strong>'),
+        replacementPlaceholder: t(
+          'forum',
+          'e.g., {strongStart}{content}{strongEnd}',
+          { strongStart: '<strong>', strongEnd: '</strong>' },
+          { escape: false },
+        ),
         replacementHelp: t(
           'forum',
           'Use {content} for the tag content and {paramName} for parameters',
         ),
         exampleLabel: t('forum', 'Example'),
-        examplePlaceholder: t('forum', 'e.g., [b]Hello world[/b]'),
+        examplePlaceholder: t('forum', 'e.g., {bStart}Hello world{bEnd}', {
+          bStart: '[b]',
+          bEnd: '[/b]',
+        }),
         exampleHelp: t('forum', 'Example usage of this BBCode tag'),
         description: t('forum', 'Description'),
         descriptionPlaceholder: t('forum', 'Brief description of what this BBCode does'),

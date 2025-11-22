@@ -8,8 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Command;
 
 use OCA\Forum\Db\RoleMapper;
-use OCA\Forum\Db\UserRole;
-use OCA\Forum\Db\UserRoleMapper;
+use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCP\IUserManager;
@@ -21,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class SetRole extends Command {
 	public function __construct(
 		private RoleMapper $roleMapper,
-		private UserRoleMapper $userRoleMapper,
+		private UserRoleService $userRoleService,
 		private IUserManager $userManager,
 	) {
 		parent::__construct();
@@ -70,22 +69,19 @@ class SetRole extends Command {
 		}
 
 		// Check if user already has this role
-		$userRoles = $this->userRoleMapper->findByUserId($username);
-		foreach ($userRoles as $userRole) {
-			if ($userRole->getRoleId() === $role->getId()) {
-				$output->writeln("<comment>User '$username' already has the role '{$role->getName()}'.</comment>");
-				return 0;
-			}
+		if ($this->userRoleService->hasRole($username, $role->getId())) {
+			$output->writeln("<comment>User '$username' already has the role '{$role->getName()}'.</comment>");
+			return 0;
 		}
 
-		// Add the role to the user
-		$userRole = new UserRole();
-		$userRole->setUserId($username);
-		$userRole->setRoleId($role->getId());
-		$userRole->setCreatedAt(time());
-		$this->userRoleMapper->insert($userRole);
-
-		$output->writeln("<info>Successfully assigned role '{$role->getName()}' to user '$username'.</info>");
-		return 0;
+		// Add the role to the user using the service
+		try {
+			$this->userRoleService->assignRole($username, $role->getId(), skipIfExists: false);
+			$output->writeln("<info>Successfully assigned role '{$role->getName()}' to user '$username'.</info>");
+			return 0;
+		} catch (\Exception $ex) {
+			$output->writeln("<error>Failed to assign role '{$role->getName()}' to user '$username': {$ex->getMessage()}</error>");
+			return 1;
+		}
 	}
 }

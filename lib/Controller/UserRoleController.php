@@ -9,6 +9,7 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\UserRoleMapper;
+use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -23,6 +24,7 @@ class UserRoleController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private UserRoleMapper $userRoleMapper,
+		private UserRoleService $userRoleService,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -75,22 +77,29 @@ class UserRoleController extends OCSController {
 	 *
 	 * @param string $userId Nextcloud user ID
 	 * @param int $roleId Role ID
-	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
+	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>|DataResponse<Http::STATUS_CONFLICT, array{error: string}, array{}>
 	 *
 	 * 201: Role assigned to user
+	 * 409: User already has this role
 	 */
 	#[NoAdminRequired]
 	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'POST', url: '/api/user-roles')]
 	public function create(string $userId, int $roleId): DataResponse {
 		try {
-			$userRole = new \OCA\Forum\Db\UserRole();
-			$userRole->setUserId($userId);
-			$userRole->setRoleId($roleId);
-			$userRole->setCreatedAt(time());
+			// Check if user already has the role
+			if ($this->userRoleService->hasRole($userId, $roleId)) {
+				return new DataResponse(['error' => 'User already has this role'], Http::STATUS_CONFLICT);
+			}
 
-			/** @var \OCA\Forum\Db\UserRole */
-			$createdUserRole = $this->userRoleMapper->insert($userRole);
+			// Assign the role using the service
+			$createdUserRole = $this->userRoleService->assignRole($userId, $roleId, skipIfExists: false);
+
+			if ($createdUserRole === null) {
+				// This shouldn't happen since we checked hasRole above, but handle it just in case
+				return new DataResponse(['error' => 'Failed to assign role'], Http::STATUS_INTERNAL_SERVER_ERROR);
+			}
+
 			return new DataResponse($createdUserRole->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error assigning role to user: ' . $e->getMessage());

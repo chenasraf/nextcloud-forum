@@ -545,4 +545,211 @@ class PostControllerTest extends TestCase {
 		$reaction->setCreatedAt(time());
 		return $reaction;
 	}
+
+	public function testCreatePostIncrementsThreadPostCount(): void {
+		$threadId = 1;
+		$content = 'New reply post content';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$thread = new Thread();
+		$thread->setId($threadId);
+		$thread->setCategoryId(1);
+		$thread->setPostCount(5); // Thread has 5 replies
+
+		$category = new Category();
+		$category->setId(1);
+		$category->setPostCount(10); // Category has 10 total replies
+
+		$createdPost = $this->createMockPost(1, $threadId, $userId, $content);
+
+		$this->postMapper->expects($this->once())
+			->method('insert')
+			->willReturn($createdPost);
+
+		$this->readMarkerMapper->method('createOrUpdate');
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->willReturn($thread);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) {
+				// Thread post count should be incremented from 5 to 6
+				$this->assertEquals(6, $updatedThread->getPostCount());
+				return $updatedThread;
+			});
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->willReturn($category);
+
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedCategory) {
+				// Category post count should be incremented from 10 to 11
+				$this->assertEquals(11, $updatedCategory->getPostCount());
+				return $updatedCategory;
+			});
+
+		$this->userStatsMapper->expects($this->once())
+			->method('incrementPostCount')
+			->with($userId);
+
+		$this->notificationService->method('notifyThreadSubscribers');
+
+		$response = $this->controller->create($threadId, $content);
+
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
+	}
+
+	public function testDestroyPostDecrementsThreadPostCount(): void {
+		$postId = 1;
+		$userId = 'user1';
+		$post = $this->createMockPost($postId, 1, $userId, 'Test content');
+		$post->setIsFirstPost(false); // Regular reply post
+
+		$thread = new Thread();
+		$thread->setId(1);
+		$thread->setCategoryId(1);
+		$thread->setPostCount(5); // Thread has 5 replies
+		$thread->setLastPostId($postId); // This post is the last post
+
+		$category = new Category();
+		$category->setId(1);
+		$category->setPostCount(10); // Category has 10 total replies
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->permissionService->method('getCategoryIdFromPost')->willReturn(1);
+		$this->permissionService->method('hasCategoryPermission')->willReturn(false);
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->willReturn($post);
+
+		$this->postMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedPost) {
+				$this->assertNotNull($updatedPost->getDeletedAt());
+				return $updatedPost;
+			});
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->willReturn($thread);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) {
+				// Thread post count should be decremented from 5 to 4
+				$this->assertEquals(4, $updatedThread->getPostCount());
+				return $updatedThread;
+			});
+
+		// Mock finding the last post (not the deleted one)
+		$lastPost = $this->createMockPost(2, 1, $userId, 'Last post');
+		$this->postMapper->expects($this->once())
+			->method('findLatestByThreadId')
+			->with(1, $postId)
+			->willReturn($lastPost);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->willReturn($category);
+
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedCategory) {
+				// Category post count should be decremented from 10 to 9
+				$this->assertEquals(9, $updatedCategory->getPostCount());
+				return $updatedCategory;
+			});
+
+		$this->userStatsMapper->expects($this->once())
+			->method('decrementPostCount')
+			->with($userId);
+
+		$response = $this->controller->destroy($postId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testDestroyFirstPostDecrementsThreadCount(): void {
+		$postId = 1;
+		$userId = 'user1';
+		$post = $this->createMockPost($postId, 1, $userId, 'First post content');
+		$post->setIsFirstPost(true); // First post
+
+		$thread = new Thread();
+		$thread->setId(1);
+		$thread->setCategoryId(1);
+		$thread->setPostCount(3); // Thread has 3 replies
+		$thread->setLastPostId($postId); // This post is the last post
+
+		$category = new Category();
+		$category->setId(1);
+		$category->setPostCount(10); // Category has 10 total replies
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->permissionService->method('getCategoryIdFromPost')->willReturn(1);
+		$this->permissionService->method('hasCategoryPermission')->willReturn(false);
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->willReturn($post);
+
+		$this->postMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedPost) {
+				$this->assertNotNull($updatedPost->getDeletedAt());
+				return $updatedPost;
+			});
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->willReturn($thread);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) {
+				// Thread post count should stay at 3 (first posts don't count)
+				$this->assertEquals(3, $updatedThread->getPostCount());
+				return $updatedThread;
+			});
+
+		$lastPost = $this->createMockPost(2, 1, $userId, 'Last post');
+		$this->postMapper->expects($this->once())
+			->method('findLatestByThreadId')
+			->with(1, $postId)
+			->willReturn($lastPost);
+
+		// Category mapper should not be called for first post deletion
+		$this->categoryMapper->expects($this->never())
+			->method('find');
+
+		$this->categoryMapper->expects($this->never())
+			->method('update');
+
+		// First post deletion should decrement thread count, not post count
+		$this->userStatsMapper->expects($this->once())
+			->method('decrementThreadCount')
+			->with($userId);
+
+		$this->userStatsMapper->expects($this->never())
+			->method('decrementPostCount');
+
+		$response = $this->controller->destroy($postId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
 }

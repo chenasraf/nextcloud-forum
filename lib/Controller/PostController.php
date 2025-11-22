@@ -383,7 +383,10 @@ class PostController extends OCSController {
 			// Update thread post count and lastPostId
 			try {
 				$thread = $this->threadMapper->find($post->getThreadId());
-				$thread->setPostCount(max(0, $thread->getPostCount() - 1));
+				// Only decrement post count for reply posts (not first posts)
+				if (!$post->getIsFirstPost()) {
+					$thread->setPostCount(max(0, $thread->getPostCount() - 1));
+				}
 				$thread->setUpdatedAt(time());
 
 				// If the deleted post was the last post, update lastPostId to the previous non-deleted post
@@ -406,22 +409,25 @@ class PostController extends OCSController {
 
 			// Update user stats - decrement post count, and thread count if it's the first post
 			try {
-				$this->userStatsMapper->decrementPostCount($post->getAuthorId());
-
-				// If this is the first post of a thread, also decrement thread count
 				if ($post->getIsFirstPost()) {
+					// First post: decrement thread count only
 					$this->userStatsMapper->decrementThreadCount($post->getAuthorId());
+				} else {
+					// Reply post: decrement post count only
+					$this->userStatsMapper->decrementPostCount($post->getAuthorId());
 				}
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update user stats after post deletion: ' . $e->getMessage());
 				// Don't fail the request if stats update fails
 			}
 
-			// Update category post count
+			// Update category post count (only for reply posts, not first posts)
 			try {
-				$category = $this->categoryMapper->find($categoryId);
-				$category->setPostCount(max(0, $category->getPostCount() - 1));
-				$this->categoryMapper->update($category);
+				if (!$post->getIsFirstPost()) {
+					$category = $this->categoryMapper->find($categoryId);
+					$category->setPostCount(max(0, $category->getPostCount() - 1));
+					$this->categoryMapper->update($category);
+				}
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update category post count after post deletion: ' . $e->getMessage());
 				// Don't fail the request if category update fails

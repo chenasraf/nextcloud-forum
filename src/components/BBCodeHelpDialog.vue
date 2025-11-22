@@ -205,7 +205,7 @@ export default defineComponent({
         },
         {
           tag: 'left',
-          name: t('forum', 'Text-align: left'),
+          name: t('forum', 'Align left'),
           example: t('forum', '{leftStart}Hello world{leftEnd}', {
             leftStart: '[left]',
             leftEnd: '[/left]',
@@ -213,7 +213,7 @@ export default defineComponent({
         },
         {
           tag: 'center',
-          name: t('forum', 'Text-align: center'),
+          name: t('forum', 'Align center'),
           example: t('forum', '{centerStart}Hello world{centerEnd}', {
             centerStart: '[center]',
             centerEnd: '[/center]',
@@ -221,7 +221,7 @@ export default defineComponent({
         },
         {
           tag: 'right',
-          name: t('forum', 'Text-align: right'),
+          name: t('forum', 'Align right'),
           example: t('forum', '{rightStart}Hello world{rightEnd}', {
             rightStart: '[right]',
             rightEnd: '[/right]',

@@ -448,8 +448,8 @@ export default defineComponent({
         threadWarning: (count: number) =>
           n(
             'forum',
-            'This category contains %d thread.',
-            'This category contains %d threads.',
+            'This category contains %n thread.',
+            'This category contains %n threads.',
             count,
           ),
         whatToDoWithThreads: t('forum', 'What should happen to the threads?'),
@@ -461,9 +461,9 @@ export default defineComponent({
         cancel: t('forum', 'Cancel'),
         deleteCategory: t('forum', 'Delete category'),
         createHeader: t('forum', 'Create header'),
-        categoriesCount: (count: number) => n('forum', '%d category', '%d categories', count),
-        threadsCount: (count: number) => n('forum', '%d thread', '%d threads', count),
-        postsCount: (count: number) => n('forum', '%d post', '%d posts', count),
+        categoriesCount: (count: number) => n('forum', '%n category', '%n categories', count),
+        threadsCount: (count: number) => n('forum', '%n thread', '%n threads', count),
+        postsCount: (count: number) => n('forum', '%n post', '%n posts', count),
         createHeaderTitle: t('forum', 'Create category header'),
         editHeaderTitle: t('forum', 'Edit category header'),
         headerName: t('forum', 'Header name'),
@@ -481,8 +481,8 @@ export default defineComponent({
         headerCategoryWarning: (count: number) =>
           n(
             'forum',
-            'This header contains %d category.',
-            'This header contains %d categories.',
+            'This header contains %n category.',
+            'This header contains %n categories.',
             count,
           ),
         deleteHeaderHelp: t('forum', 'This action cannot be undone'),

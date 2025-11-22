@@ -222,9 +222,11 @@ class ThreadControllerTest extends TestCase {
 		$forumUser->setUserId($userId);
 		$forumUser->setPostCount(10);
 
-		// Mock user stats increment methods (void methods, no return value)
-		$this->userStatsMapper->method('incrementPostCount');
-		$this->userStatsMapper->method('incrementThreadCount');
+		// Mock user stats increment methods (first post doesn't count, only thread count increments)
+		$this->userStatsMapper->expects($this->never())
+			->method('incrementPostCount');
+		$this->userStatsMapper->expects($this->once())
+			->method('incrementThreadCount');
 
 		// Mock thread subscription
 		$this->userPreferencesService->method('getPreference')->willReturn(false);
@@ -261,7 +263,8 @@ class ThreadControllerTest extends TestCase {
 		$this->threadMapper->expects($this->once())
 			->method('update')
 			->willReturnCallback(function ($thread) {
-				$this->assertEquals(1, $thread->getPostCount());
+				// First post doesn't count, so postCount should be 0
+				$this->assertEquals(0, $thread->getPostCount());
 				return $thread;
 			});
 
@@ -274,7 +277,8 @@ class ThreadControllerTest extends TestCase {
 			->method('update')
 			->willReturnCallback(function ($updatedCategory) {
 				$this->assertEquals(6, $updatedCategory->getThreadCount());
-				$this->assertEquals(21, $updatedCategory->getPostCount());
+				// First post doesn't count, so postCount stays at 20
+				$this->assertEquals(20, $updatedCategory->getPostCount());
 				return $updatedCategory;
 			});
 

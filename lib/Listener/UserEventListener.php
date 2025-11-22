@@ -9,6 +9,7 @@ namespace OCA\Forum\Listener;
 
 use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\StatsService;
+use OCA\Forum\Service\UserRoleService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\User\Events\UserCreatedEvent;
@@ -22,6 +23,7 @@ class UserEventListener implements IEventListener {
 	public function __construct(
 		private UserStatsMapper $userStatsMapper,
 		private StatsService $statsService,
+		private UserRoleService $userRoleService,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -44,6 +46,16 @@ class UserEventListener implements IEventListener {
 			$this->logger->info("Created user stats for new Nextcloud user: {$userId}");
 		} catch (\Exception $ex) {
 			$this->logger->error("Failed to create user stats for new user: {$userId}", [
+				'exception' => $ex->getMessage(),
+			]);
+		}
+
+		try {
+			// Assign default user role to new user
+			$this->userRoleService->assignRole($userId, UserRoleService::ROLE_USER, skipIfExists: true);
+			$this->logger->info("Assigned default user role to new Nextcloud user: {$userId}");
+		} catch (\Exception $ex) {
+			$this->logger->error("Failed to assign default user role to new user: {$userId}", [
 				'exception' => $ex->getMessage(),
 			]);
 		}

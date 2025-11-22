@@ -189,9 +189,9 @@ export default defineComponent({
       originalRoles: [] as number[],
 
       strings: {
-        title: t('forum', 'User Management'),
-        subtitle: t('forum', 'Manage forum users, roles, and permissions'),
-        loading: t('forum', 'Loading users…'),
+        title: t('forum', 'User management'),
+        subtitle: t('forum', 'Manage forum users, roles and permissions'),
+        loading: t('forum', 'Loading users …'),
         errorTitle: t('forum', 'Error loading users'),
         retry: t('forum', 'Retry'),
         emptyTitle: t('forum', 'No users found'),
@@ -207,7 +207,7 @@ export default defineComponent({
         noRoles: t('forum', 'No roles'),
         selectRoles: t('forum', 'Select roles'),
         editRoles: t('forum', 'Edit roles'),
-        editRolesTitle: t('forum', 'Edit User Roles'),
+        editRolesTitle: t('forum', 'Edit user roles'),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
       },

@@ -83,10 +83,10 @@ export default defineComponent({
       submitting: false,
       strings: {
         titleLabel: t('forum', 'Title'),
-        titlePlaceholder: t('forum', 'Enter thread title...'),
-        contentPlaceholder: t('forum', 'Write your first post...'),
+        titlePlaceholder: t('forum', 'Enter thread title …'),
+        contentPlaceholder: t('forum', 'Write your first post …'),
         cancel: t('forum', 'Cancel'),
-        submit: t('forum', 'Create Thread'),
+        submit: t('forum', 'Create thread'),
         confirmCancel: t('forum', 'Are you sure you want to discard this thread?'),
       },
     }

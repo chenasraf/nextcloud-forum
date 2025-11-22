@@ -175,10 +175,8 @@ export default defineComponent({
         return t('forum', 'React with {emoji}', { emoji })
       }
 
-      if (count === 1) {
-        return hasReacted
-          ? t('forum', 'You reacted with {emoji}', { emoji })
-          : t('forum', '1 person reacted with {emoji}', { emoji })
+      if (count === 1 && hasReacted) {
+        return t('forum', 'You reacted with {emoji}', { emoji })
       }
 
       return hasReacted

@@ -260,7 +260,7 @@ export default defineComponent({
       ] as BuiltInCode[],
 
       strings: {
-        title: t('forum', 'BBCode Help'),
+        title: t('forum', 'BBCode help'),
         builtInTitle: t('forum', 'Built-in BBCodes'),
         builtInDescription: t('forum', 'These BBCodes are available by default.'),
         customTitle: t('forum', 'Custom BBCodes'),

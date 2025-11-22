@@ -121,7 +121,7 @@ export default defineComponent({
         title: t('forum', 'Preferences'),
         subtitle: t('forum', 'Customize your forum experience'),
         back: t('forum', 'Back'),
-        loading: t('forum', 'Loading preferences…'),
+        loading: t('forum', 'Loading preferences …'),
         errorTitle: t('forum', 'Error loading preferences'),
         retry: t('forum', 'Retry'),
         subscriptionsTitle: t('forum', 'Notifications'),
@@ -133,7 +133,7 @@ export default defineComponent({
         ),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
-        saveSuccess: t('forum', 'Preferences saved successfully'),
+        saveSuccess: t('forum', 'Preferences saved'),
       },
     }
   },

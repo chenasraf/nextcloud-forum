@@ -276,7 +276,7 @@ export default defineComponent({
           t('forum', 'Back to {category}', { category: categoryName }),
         refresh: t('forum', 'Refresh'),
         reply: t('forum', 'Reply'),
-        loading: t('forum', 'Loading…'),
+        loading: t('forum', 'Loading …'),
         errorTitle: t('forum', 'Error loading thread'),
         emptyPostsTitle: t('forum', 'No posts yet'),
         emptyPostsDesc: t('forum', 'Be the first to post in this thread.'),
@@ -494,7 +494,7 @@ export default defineComponent({
             postCard.finishEdit()
           }
 
-          showSuccess(t('forum', 'Post updated successfully'))
+          showSuccess(t('forum', 'Post updated'))
         }
       } catch (e) {
         console.error('Failed to update post', e)
@@ -523,7 +523,7 @@ export default defineComponent({
           )
 
           if (response.data?.success && response.data.categorySlug) {
-            showSuccess(t('forum', 'Thread deleted successfully'))
+            showSuccess(t('forum', 'Thread deleted'))
             // Navigate to the category
             this.$router.push(`/c/${response.data.categorySlug}`)
           }
@@ -537,7 +537,7 @@ export default defineComponent({
             this.posts.splice(index, 1)
           }
 
-          showSuccess(t('forum', 'Post deleted successfully'))
+          showSuccess(t('forum', 'Post deleted'))
         }
       } catch (e) {
         console.error('Failed to delete post', e)

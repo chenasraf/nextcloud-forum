@@ -58,7 +58,7 @@ class Notifier implements INotifier {
 				// Set the rich subject with thread title
 				$notification->setRichSubject(
 					$l->n(
-						'New reply in {thread}',
+						'{count} new reply in {thread}',
 						'{count} new replies in {thread}',
 						$postCount
 					),

@@ -332,10 +332,10 @@ export default defineComponent({
       },
 
       strings: {
-        title: t('forum', 'BBCode Management'),
+        title: t('forum', 'BBCode management'),
         subtitle: t('forum', 'Manage custom BBCode tags for post formatting'),
         help: t('forum', 'BBCode Help'),
-        loading: t('forum', 'Loading…'),
+        loading: t('forum', 'Loading …'),
         errorTitle: t('forum', 'Error loading BBCodes'),
         retry: t('forum', 'Retry'),
         createBBCode: t('forum', 'Create BBCode'),
@@ -361,7 +361,7 @@ export default defineComponent({
         tag: t('forum', 'Tag'),
         tagPlaceholder: t('forum', 'e.g., b, i, url, color'),
         tagHelp: t('forum', 'The BBCode tag name (without brackets)'),
-        replacementLabel: t('forum', 'HTML Replacement'),
+        replacementLabel: t('forum', 'HTML replacement'),
         replacementPlaceholder: t(
           'forum',
           'e.g., {strongStart}{content}{strongEnd}',
@@ -381,7 +381,7 @@ export default defineComponent({
         description: t('forum', 'Description'),
         descriptionPlaceholder: t('forum', 'Brief description of what this BBCode does'),
         enabledLabel: t('forum', 'Enabled'),
-        parseInnerLabel: t('forum', 'Parse Inner Content'),
+        parseInnerLabel: t('forum', 'Parse inner content'),
         parseInnerHelp: t('forum', 'If enabled, BBCode tags inside this tag will also be parsed'),
         update: t('forum', 'Update'),
         create: t('forum', 'Create'),

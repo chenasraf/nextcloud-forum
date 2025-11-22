@@ -202,7 +202,7 @@ export default defineComponent({
       strings: {
         back: t('forum', 'Back'),
         refresh: t('forum', 'Refresh'),
-        loading: t('forum', 'Loading...'),
+        loading: t('forum', 'Loading …'),
         errorTitle: t('forum', 'Error'),
         retry: t('forum', 'Retry'),
         firstPost: t('forum', 'First post'),
@@ -214,7 +214,7 @@ export default defineComponent({
         noThreadsDesc: t('forum', 'This user has not created any threads yet'),
         noPosts: t('forum', 'No replies'),
         noPostsDesc: t('forum', 'This user has not posted any replies yet'),
-        inThread: t('forum', 'in thread'),
+        inThread: t('forum', 'In thread'),
       },
     }
   },

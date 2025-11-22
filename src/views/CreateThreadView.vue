@@ -88,11 +88,11 @@ export default defineComponent({
       strings: {
         back: t('forum', 'Back'),
         title: t('forum', 'Create New Thread'),
-        subtitle: (categoryName: string) => t('forum', 'in {category}', { category: categoryName }),
-        loading: t('forum', 'Loading…'),
+        subtitle: (categoryName: string) => t('forum', 'In {category}', { category: categoryName }),
+        loading: t('forum', 'Loading …'),
         errorTitle: t('forum', 'Error loading category'),
-        creating: t('forum', 'Creating thread…'),
-        success: t('forum', 'Thread created successfully'),
+        creating: t('forum', 'Creating thread …'),
+        success: t('forum', 'Thread created'),
         errorCreating: t('forum', 'Failed to create thread'),
       },
     }

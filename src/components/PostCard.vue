@@ -127,7 +127,7 @@ export default defineComponent({
       isEditing: false,
       strings: {
         edited: t('forum', 'Edited'),
-        reply: t('forum', 'Quote Reply'),
+        reply: t('forum', 'Quote reply'),
         edit: t('forum', 'Edit'),
         delete: t('forum', 'Delete'),
         confirmDelete: t(

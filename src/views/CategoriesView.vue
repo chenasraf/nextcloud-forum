@@ -100,7 +100,7 @@ export default defineComponent({
       forumSubtitle: t('forum', 'Welcome to the forum'),
       strings: {
         refresh: t('forum', 'Refresh'),
-        loading: t('forum', 'Loading…'),
+        loading: t('forum', 'Loading …'),
         emptyTitle: t('forum', 'No categories yet'),
         emptyDesc: t('forum', 'Categories will appear here once they are created.'),
         noCategories: t('forum', 'No categories in this section'),

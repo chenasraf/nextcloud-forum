@@ -51,7 +51,7 @@ export default defineComponent({
       content: this.initialContent,
       submitting: false,
       strings: {
-        placeholder: t('forum', 'Edit your post...'),
+        placeholder: t('forum', 'Edit your post …'),
         cancel: t('forum', 'Cancel'),
         save: t('forum', 'Save'),
         confirmCancel: t('forum', 'Are you sure you want to discard your changes?'),

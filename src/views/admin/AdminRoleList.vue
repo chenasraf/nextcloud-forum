@@ -143,14 +143,14 @@ export default defineComponent({
       error: null as string | null,
 
       strings: {
-        title: t('forum', 'Role Management'),
+        title: t('forum', 'Role management'),
         subtitle: t('forum', 'Create and manage forum roles and permissions'),
-        loading: t('forum', 'Loading roles…'),
+        loading: t('forum', 'Loading roles …'),
         errorTitle: t('forum', 'Error loading roles'),
         retry: t('forum', 'Retry'),
         emptyTitle: t('forum', 'No roles found'),
         emptyDesc: t('forum', 'Create your first role to get started'),
-        createRole: t('forum', 'Create Role'),
+        createRole: t('forum', 'Create role'),
         id: t('forum', 'ID'),
         name: t('forum', 'Name'),
         description: t('forum', 'Description'),

@@ -107,7 +107,7 @@ export default defineComponent({
     return {
       showHelp: false,
       strings: {
-        helpLabel: t('forum', 'BBCode Help'),
+        helpLabel: t('forum', 'BBCode help'),
         emojiLabel: t('forum', 'Insert emoji'),
       },
     }

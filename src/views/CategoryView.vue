@@ -148,10 +148,10 @@ export default defineComponent({
       offset: 0,
 
       strings: {
-        back: t('forum', 'Back to Categories'),
+        back: t('forum', 'Back to categories'),
         refresh: t('forum', 'Refresh'),
-        newThread: t('forum', 'New Thread'),
-        loading: t('forum', 'Loading…'),
+        newThread: t('forum', 'New thread'),
+        loading: t('forum', 'Loading …'),
         errorTitle: t('forum', 'Error loading category'),
         emptyTitle: t('forum', 'No threads yet'),
         emptyDesc: t('forum', 'Be the first to start a discussion in this category.'),

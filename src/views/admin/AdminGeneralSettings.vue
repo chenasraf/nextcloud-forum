@@ -121,22 +121,22 @@ export default defineComponent({
       } as Settings,
 
       strings: {
-        title: t('forum', 'General Settings'),
+        title: t('forum', 'General settings'),
         subtitle: t('forum', 'Configure general forum settings'),
-        loading: t('forum', 'Loading settings…'),
+        loading: t('forum', 'Loading settings …'),
         errorTitle: t('forum', 'Error loading settings'),
         retry: t('forum', 'Retry'),
         appearanceTitle: t('forum', 'Appearance'),
         appearanceDesc: t('forum', 'Customize how your forum looks to users'),
-        forumTitle: t('forum', 'Forum Title'),
+        forumTitle: t('forum', 'Forum title'),
         forumTitlePlaceholder: t('forum', 'Forum'),
         forumTitleHint: t('forum', 'Displayed at the top of the forum home page'),
-        forumSubtitle: t('forum', 'Forum Subtitle'),
+        forumSubtitle: t('forum', 'Forum subtitle'),
         forumSubtitlePlaceholder: t('forum', 'Welcome to the forum'),
         forumSubtitleHint: t('forum', 'A brief description shown below the title'),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
-        saveSuccess: t('forum', 'Settings saved successfully'),
+        saveSuccess: t('forum', 'Settings saved'),
       },
     }
   },
@@ -242,7 +242,7 @@ export default defineComponent({
         font-weight: 600;
       }
 
-      > p {
+      >p {
         margin: 0 0 20px 0;
         font-size: 0.9rem;
       }

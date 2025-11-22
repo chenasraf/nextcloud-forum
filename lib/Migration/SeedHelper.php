@@ -258,7 +258,7 @@ class SeedHelper {
 			$qb->insert('forum_categories')
 				->values([
 					'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'name' => $qb->createNamedParameter($l->t('General Discussions')),
+					'name' => $qb->createNamedParameter($l->t('General discussions')),
 					'description' => $qb->createNamedParameter($l->t('A place for general conversations and discussions')),
 					'slug' => $qb->createNamedParameter('general-discussions'),
 					'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),

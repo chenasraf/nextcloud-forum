@@ -38,10 +38,10 @@ jobs:
           # Get server branches from version matrix
           BRANCHES='${{ steps.versions.outputs.branches }}'
 
-          # Build matrix with PHP 8.2 and 8.3 for all server versions
+          # Build minimal matrix: only latest Nextcloud with PHP 8.3
           MATRIX=$(jq -nc \
             --argjson branches "$BRANCHES" \
-            '{include: [($branches[] | {"php-versions": "8.2", "server-versions": .}), ($branches[] | {"php-versions": "8.3", "server-versions": .})]}'
+            '{include: [{"php-versions": "8.3", "server-versions": $branches[-1]}]}'
           )
 
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT

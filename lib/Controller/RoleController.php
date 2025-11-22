@@ -11,6 +11,7 @@ use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\RoleMapper;
+use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -188,17 +189,22 @@ class RoleController extends OCSController {
 	 * Delete a role
 	 *
 	 * @param int $id Role ID
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>|DataResponse<Http::STATUS_FORBIDDEN, array{error: string}, array{}>
 	 *
 	 * 200: Role deleted
+	 * 403: Cannot delete system roles
 	 */
 	#[NoAdminRequired]
 	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/roles/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {
-			// Prevent deleting system roles (Admin, Moderator, Member)
-			if ($id == 3) {
+			// Prevent deleting system roles (Admin, Moderator, User)
+			if (in_array($id, [
+				UserRoleService::ROLE_ADMIN,
+				UserRoleService::ROLE_MODERATOR,
+				UserRoleService::ROLE_USER,
+			], true)) {
 				return new DataResponse(['error' => 'System roles cannot be deleted'], Http::STATUS_FORBIDDEN);
 			}
 

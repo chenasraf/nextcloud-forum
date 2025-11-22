@@ -230,7 +230,7 @@ test: composer
 		exit 1; \
 	fi; \
 	echo "\x1b[32mUsing Nextcloud root: $$NC_ROOT\x1b[0m"; \
-	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.local.xml; \
+	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml; \
 	if [ -f tests/phpunit.integration.xml ]; then \
 		NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.integration.xml; \
 	fi
@@ -265,7 +265,7 @@ test-docker:
 		exit 1; \
 	fi; \
 	echo "\x1b[33mRunning tests in container $$CONTAINER_ID for app $$APP_DIR\x1b[0m"; \
-	docker exec $$CONTAINER_ID phpunit -c apps-shared/$$APP_DIR/tests/phpunit.xml
+	docker exec $$CONTAINER_ID phpunit -c apps-shared/$$APP_DIR/tests/phpunit.docker.xml
 
 # lint:
 #   - Lint JS via pnpm and PHP via composer script "lint"

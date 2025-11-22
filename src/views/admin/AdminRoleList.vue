@@ -117,6 +117,7 @@ import AppToolbar from '@/components/AppToolbar.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Role } from '@/types'
+import { SystemRole, isSystemRole } from '@/constants'
 
 export default defineComponent({
   name: 'AdminRoleList',
@@ -141,6 +142,7 @@ export default defineComponent({
       loading: false,
       roles: [] as Role[],
       error: null as string | null,
+      SystemRole, // Expose SystemRole constant to template
 
       strings: {
         title: t('forum', 'Role management'),
@@ -198,10 +200,7 @@ export default defineComponent({
       }
     },
 
-    isSystemRole(roleId: number): boolean {
-      // System roles (Admin, Moderator, Member) cannot be deleted
-      return roleId <= 3
-    },
+    isSystemRole,
 
     createRole(): void {
       this.$router.push('/admin/roles/create')

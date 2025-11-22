@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { ocs } from '@/axios'
 import type { UserRole } from '@/types'
+import { SystemRole } from '@/constants'
 
 const userRoles = ref<UserRole[]>([])
 const loading = ref<boolean>(false)
@@ -30,13 +31,11 @@ export function useUserRole() {
   }
 
   const isAdmin = computed<boolean>(() => {
-    // Admin role has ID 1 (from migration)
-    return userRoles.value.some((role) => role.roleId === 1)
+    return userRoles.value.some((role) => role.roleId === SystemRole.ADMIN)
   })
 
   const isModerator = computed<boolean>(() => {
-    // Moderator role has ID 2 (from migration)
-    return userRoles.value.some((role) => role.roleId === 2)
+    return userRoles.value.some((role) => role.roleId === SystemRole.MODERATOR)
   })
 
   const refresh = () => {

@@ -207,6 +207,7 @@ import PencilIcon from '@icons/Pencil.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Category, CatHeader, Role } from '@/types'
+import { SystemRole } from '@/constants'
 
 export default defineComponent({
   name: 'AdminCategoryEdit',
@@ -380,15 +381,15 @@ export default defineComponent({
           await this.loadPermissions()
         } else {
           // When creating a new category, prefill with default roles
-          // View: Member (role ID 3)
-          const memberRole = this.roles.find((r) => r.id === 3)
+          // View: User role
+          const memberRole = this.roles.find((r) => r.id === SystemRole.USER)
           if (memberRole) {
             this.selectedViewRoles = [{ id: memberRole.id, label: memberRole.name }]
           }
 
-          // Moderate: Admin (ID 1) and Moderator (ID 2)
-          const adminRole = this.roles.find((r) => r.id === 1)
-          const moderatorRole = this.roles.find((r) => r.id === 2)
+          // Moderate: Admin and Moderator
+          const adminRole = this.roles.find((r) => r.id === SystemRole.ADMIN)
+          const moderatorRole = this.roles.find((r) => r.id === SystemRole.MODERATOR)
           this.selectedModerateRoles = []
           if (adminRole) {
             this.selectedModerateRoles.push({ id: adminRole.id, label: adminRole.name })

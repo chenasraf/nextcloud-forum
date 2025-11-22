@@ -223,6 +223,7 @@ import AppToolbar from '@/components/AppToolbar.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import type { Role, CategoryHeader } from '@/types'
+import { SystemRole, isSystemRole } from '@/constants'
 
 interface CategoryPermission {
   canView: boolean
@@ -314,12 +315,12 @@ export default defineComponent({
       return this.$route.params.id ? parseInt(this.$route.params.id as string) : null
     },
     isSystemRole(): boolean {
-      // System roles (Admin, Moderator, Member) - only name is locked
-      return this.roleId !== null && this.roleId <= 3
+      // System roles (Admin, Moderator, User) - only name is locked
+      return this.roleId !== null && isSystemRole(this.roleId)
     },
     isAdmin(): boolean {
-      // Admin role (ID 1) has full access to everything
-      return this.roleId === 1
+      // Admin role has full access to everything
+      return this.roleId === SystemRole.ADMIN
     },
     canSubmit(): boolean {
       return this.formData.name.trim().length > 0

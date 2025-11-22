@@ -161,17 +161,18 @@ class PermissionServiceTest extends TestCase {
 		$categoryId = 1;
 		$permission = 'canPost';
 
-		$userRole = $this->createUserRole(1, $userId, 1);
-		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 1, true, true, true, false);
+		// Using role ID 3 (User) instead of 1 (Admin) to test normal permission check
+		$userRole = $this->createUserRole(1, $userId, 3);
+		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 3, true, true, true, false);
 
-		$this->userRoleMapper->expects($this->once())
+		$this->userRoleMapper->expects($this->exactly(2))
 			->method('findByUserId')
 			->with($userId)
 			->willReturn([$userRole]);
 
 		$this->categoryPermMapper->expects($this->once())
 			->method('findByCategoryAndRole')
-			->with($categoryId, 1)
+			->with($categoryId, 3)
 			->willReturn($categoryPerm);
 
 		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
@@ -184,17 +185,18 @@ class PermissionServiceTest extends TestCase {
 		$categoryId = 1;
 		$permission = 'canModerate';
 
-		$userRole = $this->createUserRole(1, $userId, 1);
-		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 1, true, true, true, false);
+		// Using role ID 2 (Moderator) instead of 1 (Admin) to test normal permission check
+		$userRole = $this->createUserRole(1, $userId, 2);
+		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 2, true, true, true, false);
 
-		$this->userRoleMapper->expects($this->once())
+		$this->userRoleMapper->expects($this->exactly(2))
 			->method('findByUserId')
 			->with($userId)
 			->willReturn([$userRole]);
 
 		$this->categoryPermMapper->expects($this->once())
 			->method('findByCategoryAndRole')
-			->with($categoryId, 1)
+			->with($categoryId, 2)
 			->willReturn($categoryPerm);
 
 		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
@@ -207,6 +209,29 @@ class PermissionServiceTest extends TestCase {
 		$categoryId = 1;
 		$permission = 'canPost';
 
+		$userRole = $this->createUserRole(1, $userId, 3); // Non-admin role
+
+		$this->userRoleMapper->expects($this->exactly(2))
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$userRole]);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryAndRole')
+			->with($categoryId, 3)
+			->willThrowException(new DoesNotExistException('Permission not found'));
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertFalse($result);
+	}
+
+	public function testHasCategoryPermissionReturnsTrueForAdminRoleRegardlessOfPermissions(): void {
+		$userId = 'admin1';
+		$categoryId = 1;
+		$permission = 'canModerate';
+
+		// User has Admin role (ID 1)
 		$userRole = $this->createUserRole(1, $userId, 1);
 
 		$this->userRoleMapper->expects($this->once())
@@ -214,14 +239,36 @@ class PermissionServiceTest extends TestCase {
 			->with($userId)
 			->willReturn([$userRole]);
 
-		$this->categoryPermMapper->expects($this->once())
-			->method('findByCategoryAndRole')
-			->with($categoryId, 1)
-			->willThrowException(new DoesNotExistException('Permission not found'));
+		// Should not even check category permissions for Admin
+		$this->categoryPermMapper->expects($this->never())
+			->method('findByCategoryAndRole');
 
 		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
 
-		$this->assertFalse($result);
+		$this->assertTrue($result);
+	}
+
+	public function testHasCategoryPermissionReturnsTrueForAdminEvenWithOtherRoles(): void {
+		$userId = 'admin1';
+		$categoryId = 1;
+		$permission = 'canView';
+
+		// User has both Admin (ID 1) and User (ID 3) roles
+		$userRole1 = $this->createUserRole(1, $userId, 1);
+		$userRole2 = $this->createUserRole(2, $userId, 3);
+
+		$this->userRoleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$userRole1, $userRole2]);
+
+		// Should not check category permissions for Admin
+		$this->categoryPermMapper->expects($this->never())
+			->method('findByCategoryAndRole');
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertTrue($result);
 	}
 
 	public function testGetCategoryIdFromThreadReturnsCorrectId(): void {

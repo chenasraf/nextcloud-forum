@@ -509,10 +509,11 @@ class CategoryControllerTest extends TestCase {
 	public function testGetPermissionsReturnsPermissionsSuccessfully(): void {
 		$categoryId = 1;
 
+		// Note: Only non-admin roles (2, 3) are returned - Admin role is excluded
 		$perm1 = new CategoryPerm();
 		$perm1->setId(1);
 		$perm1->setCategoryId($categoryId);
-		$perm1->setRoleId(1);
+		$perm1->setRoleId(2);
 		$perm1->setCanView(true);
 		$perm1->setCanPost(true);
 		$perm1->setCanReply(true);
@@ -521,14 +522,14 @@ class CategoryControllerTest extends TestCase {
 		$perm2 = new CategoryPerm();
 		$perm2->setId(2);
 		$perm2->setCategoryId($categoryId);
-		$perm2->setRoleId(2);
+		$perm2->setRoleId(3);
 		$perm2->setCanView(true);
 		$perm2->setCanPost(false);
 		$perm2->setCanReply(false);
 		$perm2->setCanModerate(false);
 
 		$this->categoryPermMapper->expects($this->once())
-			->method('findByCategoryId')
+			->method('findByCategoryIdExcludingAdmin')
 			->with($categoryId)
 			->willReturn([$perm1, $perm2]);
 
@@ -538,7 +539,7 @@ class CategoryControllerTest extends TestCase {
 		$data = $response->getData();
 		$this->assertIsArray($data);
 		$this->assertCount(2, $data);
-		$this->assertEquals(1, $data[0]['roleId']);
+		$this->assertEquals(2, $data[0]['roleId']);
 		$this->assertTrue($data[0]['canView']);
 		$this->assertFalse($data[0]['canModerate']);
 	}
@@ -546,8 +547,8 @@ class CategoryControllerTest extends TestCase {
 	public function testUpdatePermissionsSuccessfully(): void {
 		$categoryId = 1;
 		$permissions = [
-			['roleId' => 1, 'canView' => true, 'canModerate' => false],
-			['roleId' => 2, 'canView' => true, 'canModerate' => true],
+			['roleId' => 2, 'canView' => true, 'canModerate' => false],
+			['roleId' => 3, 'canView' => true, 'canModerate' => true],
 		];
 
 		$category = $this->createCategory($categoryId, 1, 'Test Category');
@@ -564,6 +565,41 @@ class CategoryControllerTest extends TestCase {
 		$this->categoryPermMapper->expects($this->exactly(2))
 			->method('insert')
 			->willReturnCallback(function ($perm) {
+				return $perm;
+			});
+
+		$response = $this->controller->updatePermissions($categoryId, $permissions);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
+	}
+
+	public function testUpdatePermissionsFiltersOutAdminRole(): void {
+		$categoryId = 1;
+		$permissions = [
+			['roleId' => 1, 'canView' => true, 'canModerate' => true], // Admin - should be filtered
+			['roleId' => 2, 'canView' => true, 'canModerate' => false],
+			['roleId' => 3, 'canView' => true, 'canModerate' => false],
+		];
+
+		$category = $this->createCategory($categoryId, 1, 'Test Category');
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($categoryId)
+			->willReturn($category);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('deleteByCategoryId')
+			->with($categoryId);
+
+		// Should only insert 2 permissions (Admin role ID 1 is filtered out)
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('insert')
+			->willReturnCallback(function ($perm) {
+				// Verify that Admin role (ID 1) is never inserted
+				$this->assertNotEquals(1, $perm->getRoleId());
 				return $perm;
 			});
 

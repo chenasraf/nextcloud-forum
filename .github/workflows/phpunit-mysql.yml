@@ -21,18 +21,31 @@ jobs:
   matrix:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.versions.outputs.sparse-matrix }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout app
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
 
-      - name: Get version matrix
+      - name: Get supported server versions
         id: versions
         uses: icewind1991/nextcloud-version-matrix@58becf3b4bb6dc6cef677b15e2fd8e7d48c0908f # v1.3.1
-        with:
-          matrix: '{"mysql-versions": ["8.4"], "php-versions": ["8.1", "8.3"]}'
+
+      - name: Build test matrix
+        id: set-matrix
+        run: |
+          # Get server branches from version matrix
+          BRANCHES='${{ steps.versions.outputs.branches }}'
+
+          # Build matrix with PHP 8.1 and 8.3, MySQL 8.4, and all server versions
+          MATRIX=$(jq -nc \
+            --argjson branches "$BRANCHES" \
+            '{include: [($branches[] | {"php-versions": "8.1", "mysql-versions": "8.4", "server-versions": .}), ($branches[] | {"php-versions": "8.3", "mysql-versions": "8.4", "server-versions": .})]}'
+          )
+
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          echo "Generated matrix: $MATRIX"
 
   changes:
     runs-on: ubuntu-latest

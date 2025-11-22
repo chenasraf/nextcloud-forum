@@ -8,15 +8,19 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\CategoryController;
 use OCA\Forum\Db\Category;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeader;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\UserRole;
 use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
+use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUser;
 use OCP\IUserSession;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -392,6 +396,232 @@ class CategoryControllerTest extends TestCase {
 
 		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
 		$this->assertEquals(['error' => 'Target category not found'], $response->getData());
+	}
+
+	public function testCheckPermissionReturnsTrue(): void {
+		$categoryId = 1;
+		$permission = 'canView';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// User is not an admin
+		$this->groupManager->method('get')->with('admin')->willReturn(null);
+
+		// User has a role
+		$userRole = new UserRole();
+		$userRole->setId(1);
+		$userRole->setUserId($userId);
+		$userRole->setRoleId(1);
+
+		$this->userRoleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$userRole]);
+
+		// Category permission allows viewing
+		$categoryPerm = new CategoryPerm();
+		$categoryPerm->setId(1);
+		$categoryPerm->setCategoryId($categoryId);
+		$categoryPerm->setRoleId(1);
+		$categoryPerm->setCanView(true);
+		$categoryPerm->setCanPost(false);
+		$categoryPerm->setCanReply(false);
+		$categoryPerm->setCanModerate(false);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryAndRoles')
+			->with($categoryId, [1])
+			->willReturn([$categoryPerm]);
+
+		$response = $this->controller->checkPermission($categoryId, $permission);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['hasPermission']);
+	}
+
+	public function testCheckPermissionReturnsFalseWhenNoPermission(): void {
+		$categoryId = 1;
+		$permission = 'canModerate';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->groupManager->method('get')->with('admin')->willReturn(null);
+
+		$userRole = new UserRole();
+		$userRole->setId(1);
+		$userRole->setUserId($userId);
+		$userRole->setRoleId(1);
+
+		$this->userRoleMapper->expects($this->once())
+			->method('findByUserId')
+			->willReturn([$userRole]);
+
+		// Category permission does not allow moderating
+		$categoryPerm = new CategoryPerm();
+		$categoryPerm->setId(1);
+		$categoryPerm->setCategoryId($categoryId);
+		$categoryPerm->setRoleId(1);
+		$categoryPerm->setCanView(true);
+		$categoryPerm->setCanPost(false);
+		$categoryPerm->setCanReply(false);
+		$categoryPerm->setCanModerate(false);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryAndRoles')
+			->with($categoryId, [1])
+			->willReturn([$categoryPerm]);
+
+		$response = $this->controller->checkPermission($categoryId, $permission);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertFalse($data['hasPermission']);
+	}
+
+	public function testCheckPermissionReturnsTrueForAdmin(): void {
+		$categoryId = 1;
+		$permission = 'canModerate';
+		$userId = 'admin1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// User is in admin group
+		$adminGroup = $this->createMock(IGroup::class);
+		$adminGroup->method('inGroup')->with($user)->willReturn(true);
+		$this->groupManager->method('get')->with('admin')->willReturn($adminGroup);
+
+		$response = $this->controller->checkPermission($categoryId, $permission);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['hasPermission']);
+	}
+
+	public function testGetPermissionsReturnsPermissionsSuccessfully(): void {
+		$categoryId = 1;
+
+		$perm1 = new CategoryPerm();
+		$perm1->setId(1);
+		$perm1->setCategoryId($categoryId);
+		$perm1->setRoleId(1);
+		$perm1->setCanView(true);
+		$perm1->setCanPost(true);
+		$perm1->setCanReply(true);
+		$perm1->setCanModerate(false);
+
+		$perm2 = new CategoryPerm();
+		$perm2->setId(2);
+		$perm2->setCategoryId($categoryId);
+		$perm2->setRoleId(2);
+		$perm2->setCanView(true);
+		$perm2->setCanPost(false);
+		$perm2->setCanReply(false);
+		$perm2->setCanModerate(false);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryId')
+			->with($categoryId)
+			->willReturn([$perm1, $perm2]);
+
+		$response = $this->controller->getPermissions($categoryId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertIsArray($data);
+		$this->assertCount(2, $data);
+		$this->assertEquals(1, $data[0]['roleId']);
+		$this->assertTrue($data[0]['canView']);
+		$this->assertFalse($data[0]['canModerate']);
+	}
+
+	public function testUpdatePermissionsSuccessfully(): void {
+		$categoryId = 1;
+		$permissions = [
+			['roleId' => 1, 'canView' => true, 'canModerate' => false],
+			['roleId' => 2, 'canView' => true, 'canModerate' => true],
+		];
+
+		$category = $this->createCategory($categoryId, 1, 'Test Category');
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($categoryId)
+			->willReturn($category);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('deleteByCategoryId')
+			->with($categoryId);
+
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('insert')
+			->willReturnCallback(function ($perm) {
+				return $perm;
+			});
+
+		$response = $this->controller->updatePermissions($categoryId, $permissions);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
+	}
+
+	public function testUpdatePermissionsReturnsNotFoundWhenCategoryDoesNotExist(): void {
+		$categoryId = 999;
+		$permissions = [
+			['roleId' => 1, 'canView' => true, 'canModerate' => false],
+		];
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($categoryId)
+			->willThrowException(new DoesNotExistException('Category not found'));
+
+		$response = $this->controller->updatePermissions($categoryId, $permissions);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'Category not found'], $response->getData());
+	}
+
+	public function testReorderUpdatesCategories(): void {
+		$categories = [
+			['id' => 1, 'sortOrder' => 2],
+			['id' => 2, 'sortOrder' => 1],
+		];
+
+		$category1 = $this->createCategory(1, 1, 'Category 1');
+		$category2 = $this->createCategory(2, 1, 'Category 2');
+
+		$this->categoryMapper->expects($this->exactly(2))
+			->method('find')
+			->willReturnCallback(function ($id) use ($category1, $category2) {
+				return $id === 1 ? $category1 : $category2;
+			});
+
+		$this->categoryMapper->expects($this->exactly(2))
+			->method('update')
+			->willReturnCallback(function ($category) use ($categories) {
+				if ($category->getId() === 1) {
+					$this->assertEquals(2, $category->getSortOrder());
+				} else {
+					$this->assertEquals(1, $category->getSortOrder());
+				}
+				return $category;
+			});
+
+		$response = $this->controller->reorder($categories);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
 	}
 
 	private function createCatHeader(int $id, string $name): CatHeader {

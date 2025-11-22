@@ -502,6 +502,137 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals(['error' => 'Thread not found'], $response->getData());
 	}
 
+	public function testByAuthorReturnsThreadsSuccessfully(): void {
+		$authorId = 'user1';
+		$limit = 50;
+		$offset = 0;
+
+		$thread1 = $this->createMockThread(1, 1, $authorId, 'Thread 1');
+		$thread2 = $this->createMockThread(2, 1, $authorId, 'Thread 2');
+		$threads = [$thread1, $thread2];
+
+		$enrichedAuthor = [
+			'userId' => $authorId,
+			'displayName' => 'Test User',
+		];
+
+		$this->threadMapper->expects($this->once())
+			->method('findByAuthorId')
+			->with($authorId, $limit, $offset)
+			->willReturn($threads);
+
+		$this->userService->expects($this->once())
+			->method('enrichUserData')
+			->with($authorId)
+			->willReturn($enrichedAuthor);
+
+		$this->threadEnrichmentService->expects($this->exactly(2))
+			->method('enrichThread')
+			->willReturnCallback(function ($thread, $author) {
+				$data = $thread->jsonSerialize();
+				$data['author'] = $author;
+				return $data;
+			});
+
+		$response = $this->controller->byAuthor($authorId, $limit, $offset);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertIsArray($data);
+		$this->assertCount(2, $data);
+		$this->assertEquals(1, $data[0]['id']);
+		$this->assertEquals(2, $data[1]['id']);
+		$this->assertEquals($enrichedAuthor, $data[0]['author']);
+	}
+
+	public function testSetLockedUpdatesThreadSuccessfully(): void {
+		$threadId = 1;
+		$thread = $this->createMockThread($threadId, 1, 'user1', 'Test Thread');
+		$thread->setIsLocked(false);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) {
+				$this->assertTrue($updatedThread->getIsLocked());
+				return $updatedThread;
+			});
+
+		$this->threadEnrichmentService->expects($this->once())
+			->method('enrichThread')
+			->willReturnCallback(function ($thread) {
+				return $thread->jsonSerialize();
+			});
+
+		$response = $this->controller->setLocked($threadId, true);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($threadId, $data['id']);
+	}
+
+	public function testSetLockedReturnsNotFoundWhenThreadDoesNotExist(): void {
+		$threadId = 999;
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willThrowException(new DoesNotExistException('Thread not found'));
+
+		$response = $this->controller->setLocked($threadId, true);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'Thread not found'], $response->getData());
+	}
+
+	public function testSetPinnedUpdatesThreadSuccessfully(): void {
+		$threadId = 1;
+		$thread = $this->createMockThread($threadId, 1, 'user1', 'Test Thread');
+		$thread->setIsPinned(false);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) {
+				$this->assertTrue($updatedThread->getIsPinned());
+				return $updatedThread;
+			});
+
+		$this->threadEnrichmentService->expects($this->once())
+			->method('enrichThread')
+			->willReturnCallback(function ($thread) {
+				return $thread->jsonSerialize();
+			});
+
+		$response = $this->controller->setPinned($threadId, true);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($threadId, $data['id']);
+	}
+
+	public function testSetPinnedReturnsNotFoundWhenThreadDoesNotExist(): void {
+		$threadId = 999;
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willThrowException(new DoesNotExistException('Thread not found'));
+
+		$response = $this->controller->setPinned($threadId, true);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'Thread not found'], $response->getData());
+	}
+
 	private function createMockThread(int $id, int $categoryId, string $authorId, string $title): Thread {
 		$thread = new Thread();
 		$thread->setId($id);

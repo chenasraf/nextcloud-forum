@@ -82,11 +82,17 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval 5s --health-timeout 2s --health-retries 10
 
     steps:
-      - name: Set app env
-        if: ${{ env.APP_NAME == '' }}
+      - name: Checkout app
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          path: app-checkout
+
+      - name: Detect app ID from appinfo/info.xml
         run: |
-          # Split and keep last
-          echo "APP_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
+          APP_ID=$(grep -oP '(?<=<id>)[^<]+' app-checkout/appinfo/info.xml | head -1)
+          echo "APP_NAME=$APP_ID" >> $GITHUB_ENV
+          echo "Detected app ID: $APP_ID"
 
       - name: Checkout server
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2

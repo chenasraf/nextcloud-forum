@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.9.1...v0.9.2) (2025-11-22)
+
+
+### Bug Fixes
+
+* **l10n:** bbcode help dialog strings ([d6c6626](https://github.com/chenasraf/nextcloud-forum/commit/d6c6626badf90636aae4f59fbe4765a5f786f5ab))
+* **l10n:** plural tokens + text alignment strings ([8408402](https://github.com/chenasraf/nextcloud-forum/commit/8408402148c9935b50df1f75915cffba7d76b043))
+* **l10n:** update translation source strings ([3d113f1](https://github.com/chenasraf/nextcloud-forum/commit/3d113f1f31887b7849753d07712a548392f574d6))
+* post counts in threads/categories ([257a12d](https://github.com/chenasraf/nextcloud-forum/commit/257a12dfc43d7784d7e63ab79a8545d80022251e))
+* **PostController:** exclude first posts from post_count fields ([a66bcd4](https://github.com/chenasraf/nextcloud-forum/commit/a66bcd4612a1889624e608e9e0207d7e09fc32df))
+* **SeedHelper:** subscribe author to welcome thread ([b67813f](https://github.com/chenasraf/nextcloud-forum/commit/b67813fa34746de8f999b16e609c6ee7a9458e9b))
+
 ## [0.9.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.9.0...v0.9.1) (2025-11-21)
 
 

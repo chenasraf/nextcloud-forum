@@ -38,10 +38,10 @@ jobs:
           # Get server branches from version matrix
           BRANCHES='${{ steps.versions.outputs.branches }}'
 
-          # Build matrix with PHP 8.1 and 8.3, MySQL 8.4, and all server versions
+          # Build matrix with PHP 8.2 and 8.3, MySQL 8.4, and all server versions
           MATRIX=$(jq -nc \
             --argjson branches "$BRANCHES" \
-            '{include: [($branches[] | {"php-versions": "8.1", "mysql-versions": "8.4", "server-versions": .}), ($branches[] | {"php-versions": "8.3", "mysql-versions": "8.4", "server-versions": .})]}'
+            '{include: [($branches[] | {"php-versions": "8.2", "mysql-versions": "8.4", "server-versions": .}), ($branches[] | {"php-versions": "8.3", "mysql-versions": "8.4", "server-versions": .})]}'
           )
 
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT

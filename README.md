@@ -5,8 +5,9 @@ SPDX-License-Identifier: CC0-1.0
 
 # Nextcloud Forum
 
-![GitHub Release](https://img.shields.io/github/v/release/chenasraf/nextcloud-forum?color=blue)
+[![GitHub Release](https://img.shields.io/github/v/release/chenasraf/nextcloud-forum?color=blue)](https://github.com/chenasraf/nextcloud-forum/releases/latest)
 [![PHPUnit MySQL](https://github.com/chenasraf/nextcloud-forum/actions/workflows/phpunit-mysql.yml/badge.svg)](https://github.com/chenasraf/nextcloud-forum/actions/workflows/phpunit-mysql.yml)
+[![PHPUnit PostgreSQL](https://github.com/chenasraf/nextcloud-forum/actions/workflows/phpunit-pgsql.yml/badge.svg)](https://github.com/chenasraf/nextcloud-forum/actions/workflows/phpunit-pgsql.yml)
 
 A full-featured forum application for Nextcloud, allowing users to create discussion categories,
 threads, and posts within their Nextcloud instance.

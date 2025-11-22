@@ -115,21 +115,21 @@
 
           <div class="permissions-checkboxes">
             <div class="checkbox-group">
-              <NcCheckboxRadioSwitch v-model="formData.canAccessAdminTools">
+              <NcCheckboxRadioSwitch v-model="formData.canAccessAdminTools" :disabled="isAdmin">
                 <strong>{{ strings.canAccessAdminTools }}</strong>
                 <span class="checkbox-desc muted">{{ strings.canAccessAdminToolsDesc }}</span>
               </NcCheckboxRadioSwitch>
             </div>
 
             <div class="checkbox-group">
-              <NcCheckboxRadioSwitch v-model="formData.canEditRoles">
+              <NcCheckboxRadioSwitch v-model="formData.canEditRoles" :disabled="isAdmin">
                 <strong>{{ strings.canEditRoles }}</strong>
                 <span class="checkbox-desc muted">{{ strings.canEditRolesDesc }}</span>
               </NcCheckboxRadioSwitch>
             </div>
 
             <div class="checkbox-group">
-              <NcCheckboxRadioSwitch v-model="formData.canEditCategories">
+              <NcCheckboxRadioSwitch v-model="formData.canEditCategories" :disabled="isAdmin">
                 <strong>{{ strings.canEditCategories }}</strong>
                 <span class="checkbox-desc muted">{{ strings.canEditCategoriesDesc }}</span>
               </NcCheckboxRadioSwitch>
@@ -399,6 +399,13 @@ export default defineComponent({
       this.formData.canEditRoles = role.canEditRoles || false
       this.formData.canEditCategories = role.canEditCategories || false
 
+      // Admin role always has all permissions
+      if (this.isAdmin) {
+        this.formData.canAccessAdminTools = true
+        this.formData.canEditRoles = true
+        this.formData.canEditCategories = true
+      }
+
       // If colors are different, mark dark as modified
       if (role.colorLight && role.colorDark && role.colorLight !== role.colorDark) {
         this.darkColorModified = true
@@ -452,9 +459,9 @@ export default defineComponent({
           description: this.formData.description.trim() || null,
           colorLight: this.formData.colorLight || null,
           colorDark: this.formData.colorDark || null,
-          canAccessAdminTools: this.formData.canAccessAdminTools,
-          canEditRoles: this.formData.canEditRoles,
-          canEditCategories: this.formData.canEditCategories,
+          canAccessAdminTools: this.isAdmin ? true : this.formData.canAccessAdminTools,
+          canEditRoles: this.isAdmin ? true : this.formData.canEditRoles,
+          canEditCategories: this.isAdmin ? true : this.formData.canEditCategories,
         }
 
         let roleId: number

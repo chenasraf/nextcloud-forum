@@ -29,10 +29,33 @@ class PermissionService {
 	}
 
 	/**
+	 * Check if user has Admin role
+	 *
+	 * @param string $userId Nextcloud user ID
+	 * @return bool True if user has Admin role
+	 */
+	private function hasAdminRole(string $userId): bool {
+		try {
+			$userRoles = $this->userRoleMapper->findByUserId($userId);
+
+			foreach ($userRoles as $userRole) {
+				if ($userRole->getRoleId() === UserRoleService::ROLE_ADMIN) {
+					return true;
+				}
+			}
+
+			return false;
+		} catch (\Exception $e) {
+			$this->logger->error("Error checking admin role for user $userId: " . $e->getMessage());
+			return false;
+		}
+	}
+
+	/**
 	 * Check if user has Admin or Moderator role
 	 *
 	 * @param string $userId Nextcloud user ID
-	 * @return bool True if user has Admin (roleId 1) or Moderator (roleId 2) role
+	 * @return bool True if user has Admin or Moderator role
 	 */
 	public function hasAdminOrModeratorRole(string $userId): bool {
 		try {
@@ -40,8 +63,7 @@ class PermissionService {
 
 			foreach ($userRoles as $userRole) {
 				$roleId = $userRole->getRoleId();
-				// Admin role = 1, Moderator role = 2
-				if ($roleId === 1 || $roleId === 2) {
+				if ($roleId === UserRoleService::ROLE_ADMIN || $roleId === UserRoleService::ROLE_MODERATOR) {
 					return true;
 				}
 			}
@@ -125,6 +147,12 @@ class PermissionService {
 	 * @return bool True if user has the permission
 	 */
 	public function hasCategoryPermission(string $userId, int $categoryId, string $permission): bool {
+		// Admin role has hardcoded full access to all categories
+		if ($this->hasAdminRole($userId)) {
+			$this->logger->debug("User $userId has Admin role - granting category permission '$permission' on category $categoryId");
+			return true;
+		}
+
 		try {
 			$userRoles = $this->userRoleMapper->findByUserId($userId);
 

@@ -164,14 +164,22 @@ class RoleController extends OCSController {
 			if ($colorDark !== null) {
 				$role->setColorDark($colorDark);
 			}
-			if ($canAccessAdminTools !== null) {
-				$role->setCanAccessAdminTools($canAccessAdminTools);
-			}
-			if ($canEditRoles !== null) {
-				$role->setCanEditRoles($canEditRoles);
-			}
-			if ($canEditCategories !== null) {
-				$role->setCanEditCategories($canEditCategories);
+
+			// Admin role always has all permissions - cannot be changed
+			if ($id === UserRoleService::ROLE_ADMIN) {
+				$role->setCanAccessAdminTools(true);
+				$role->setCanEditRoles(true);
+				$role->setCanEditCategories(true);
+			} else {
+				if ($canAccessAdminTools !== null) {
+					$role->setCanAccessAdminTools($canAccessAdminTools);
+				}
+				if ($canEditRoles !== null) {
+					$role->setCanEditRoles($canEditRoles);
+				}
+				if ($canEditCategories !== null) {
+					$role->setCanEditCategories($canEditCategories);
+				}
 			}
 
 			/** @var \OCA\Forum\Db\Role */

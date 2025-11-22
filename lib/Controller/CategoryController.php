@@ -14,6 +14,7 @@ use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeaderMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\UserRoleMapper;
+use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -384,7 +385,8 @@ class CategoryController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}/permissions')]
 	public function getPermissions(int $id): DataResponse {
 		try {
-			$permissions = $this->categoryPermMapper->findByCategoryId($id);
+			// Exclude Admin role - it has hardcoded full access to all categories
+			$permissions = $this->categoryPermMapper->findByCategoryIdExcludingAdmin($id);
 			return new DataResponse(array_map(fn ($perm) => $perm->jsonSerialize(), $permissions));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching category permissions: ' . $e->getMessage());
@@ -412,8 +414,13 @@ class CategoryController extends OCSController {
 			// Delete existing permissions for this category
 			$this->categoryPermMapper->deleteByCategoryId($id);
 
+			// Filter out Admin role - it has hardcoded full access
+			$filteredPermissions = array_filter($permissions, fn ($perm)
+				=> ($perm['roleId'] ?? null) !== UserRoleService::ROLE_ADMIN
+			);
+
 			// Insert new permissions
-			foreach ($permissions as $perm) {
+			foreach ($filteredPermissions as $perm) {
 				$categoryPerm = new CategoryPerm();
 				$categoryPerm->setCategoryId($id);
 				$categoryPerm->setRoleId($perm['roleId']);

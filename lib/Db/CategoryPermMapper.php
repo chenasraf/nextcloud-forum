@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Db;
 
 use OCA\Forum\AppInfo\Application;
+use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -63,6 +64,26 @@ class CategoryPermMapper extends QBMapper {
 			->from($this->getTableName())
 			->where(
 				$qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find permissions for a category, excluding Admin role (which has implicit full access)
+	 *
+	 * @param int $categoryId Category ID
+	 * @return array<CategoryPerm>
+	 */
+	public function findByCategoryIdExcludingAdmin(int $categoryId): array {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
+			)
+			->andWhere(
+				$qb->expr()->neq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, IQueryBuilder::PARAM_INT))
 			);
 		return $this->findEntities($qb);
 	}

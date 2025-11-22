@@ -323,10 +323,13 @@ export default defineComponent({
       }))
     },
     roleOptions(): Array<{ id: number; label: string }> {
-      return this.roles.map((role) => ({
-        id: role.id,
-        label: role.name,
-      }))
+      // Filter out Admin role - it has implicit full access to all categories
+      return this.roles
+        .filter((role) => role.id !== SystemRole.ADMIN)
+        .map((role) => ({
+          id: role.id,
+          label: role.name,
+        }))
     },
   },
   watch: {

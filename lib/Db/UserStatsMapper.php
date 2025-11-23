@@ -151,8 +151,10 @@ class UserStatsMapper extends QBMapper {
 			'total' => (int)$row['post_count'] + (int)$row['thread_count'],
 		], $rows);
 
-		// Sort by total descending
-		usort($contributors, fn ($a, $b) => $b['total'] <=> $a['total']);
+		// Sort by total descending, then by thread count descending (when totals are equal)
+		usort($contributors, fn ($a, $b)
+			=> $b['total'] <=> $a['total'] ?: $b['threadCount'] <=> $a['threadCount']
+		);
 
 		// Return top N (remove the total field as it was just for sorting)
 		return array_slice(array_map(fn ($c) => [
@@ -224,8 +226,10 @@ class UserStatsMapper extends QBMapper {
 			}
 		}
 
-		// Sort by total descending
-		usort($contributors, fn ($a, $b) => $b['total'] <=> $a['total']);
+		// Sort by total descending, then by thread count descending (when totals are equal)
+		usort($contributors, fn ($a, $b)
+			=> $b['total'] <=> $a['total'] ?: $b['threadCount'] <=> $a['threadCount']
+		);
 
 		// Return top N (remove the total field as it was just for sorting)
 		return array_slice(array_map(fn ($c) => [

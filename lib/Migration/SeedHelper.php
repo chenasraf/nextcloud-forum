@@ -361,7 +361,6 @@ class SeedHelper {
 			$qb->select('id')
 				->from('forum_roles')
 				->where($qb->expr()->in('id', $qb->createNamedParameter([
-					UserRoleService::ROLE_ADMIN,
 					UserRoleService::ROLE_MODERATOR,
 					UserRoleService::ROLE_USER,
 				], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
@@ -369,7 +368,7 @@ class SeedHelper {
 			$roles = $result->fetchAll();
 			$result->closeCursor();
 
-			if (count($roles) < 3) {
+			if (count($roles) < 2) {
 				$logger->error('Forum seeding: Not all required roles exist, cannot create permissions');
 				if ($output) {
 					$output->warning('  ✗ Required roles do not exist, cannot create permissions');
@@ -384,34 +383,9 @@ class SeedHelper {
 			$db->beginTransaction();
 			$permissionsCreated = 0;
 
-			// Role IDs: ROLE_ADMIN, ROLE_MODERATOR, ROLE_USER
+			// Role IDs: ROLE_MODERATOR, ROLE_USER (Admin has implicit permissions)
 			foreach ($categories as $category) {
 				$categoryId = (int)$category['id'];
-
-				// Check and create Admin role permissions
-				$qb = $db->getQueryBuilder();
-				$qb->select('id')
-					->from('forum_category_perms')
-					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
-					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
-				$result = $qb->executeQuery();
-				$exists = $result->fetch();
-				$result->closeCursor();
-
-				if (!$exists) {
-					$qb = $db->getQueryBuilder();
-					$qb->insert('forum_category_perms')
-						->values([
-							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'role_id' => $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						])
-						->executeStatement();
-					$permissionsCreated++;
-				}
 
 				// Check and create Moderator role permissions
 				$qb = $db->getQueryBuilder();

@@ -157,6 +157,22 @@
               <!-- Header row -->
               <div class="table-header-row">
                 <div class="header-name">{{ header.name }}</div>
+                <div class="header-permission">
+                  <NcCheckboxRadioSwitch
+                    :model-value="getHeaderViewState(header.id).checked"
+                    :indeterminate="getHeaderViewState(header.id).indeterminate"
+                    :disabled="isAdmin"
+                    @update:model-value="toggleHeaderView(header.id)"
+                  />
+                </div>
+                <div class="header-permission">
+                  <NcCheckboxRadioSwitch
+                    :model-value="getHeaderModerateState(header.id).checked"
+                    :indeterminate="getHeaderModerateState(header.id).indeterminate"
+                    :disabled="isAdmin"
+                    @update:model-value="toggleHeaderModerate(header.id)"
+                  />
+                </div>
               </div>
 
               <!-- Category rows under this header -->
@@ -170,8 +186,9 @@
 
                 <div class="col-permission">
                   <NcCheckboxRadioSwitch
-                    v-model="ensurePermission(category.id).canView"
+                    :model-value="permissions[category.id]?.canView || false"
                     :disabled="isAdmin"
+                    @update:model-value="updateCategoryView(category.id, $event)"
                   >
                     {{ strings.allow }}
                   </NcCheckboxRadioSwitch>
@@ -179,8 +196,9 @@
 
                 <div class="col-permission">
                   <NcCheckboxRadioSwitch
-                    v-model="ensurePermission(category.id).canModerate"
+                    :model-value="permissions[category.id]?.canModerate || false"
                     :disabled="isAdmin"
+                    @update:model-value="updateCategoryModerate(category.id, $event)"
                   >
                     {{ strings.allow }}
                   </NcCheckboxRadioSwitch>
@@ -338,6 +356,82 @@ export default defineComponent({
         }
       }
       return this.permissions[categoryId]
+    },
+
+    getHeaderViewState(headerId: number): { checked: boolean; indeterminate: boolean } {
+      const header = this.categoryHeaders.find((h) => h.id === headerId)
+      if (!header || !header.categories || header.categories.length === 0) {
+        return { checked: false, indeterminate: false }
+      }
+
+      const checkedCount = header.categories.filter(
+        (cat) => this.permissions[cat.id]?.canView,
+      ).length
+      const totalCount = header.categories.length
+
+      if (checkedCount === 0) {
+        return { checked: false, indeterminate: false }
+      } else if (checkedCount === totalCount) {
+        return { checked: true, indeterminate: false }
+      } else {
+        return { checked: false, indeterminate: true }
+      }
+    },
+
+    getHeaderModerateState(headerId: number): { checked: boolean; indeterminate: boolean } {
+      const header = this.categoryHeaders.find((h) => h.id === headerId)
+      if (!header || !header.categories || header.categories.length === 0) {
+        return { checked: false, indeterminate: false }
+      }
+
+      const checkedCount = header.categories.filter(
+        (cat) => this.permissions[cat.id]?.canModerate,
+      ).length
+      const totalCount = header.categories.length
+
+      if (checkedCount === 0) {
+        return { checked: false, indeterminate: false }
+      } else if (checkedCount === totalCount) {
+        return { checked: true, indeterminate: false }
+      } else {
+        return { checked: false, indeterminate: true }
+      }
+    },
+
+    updateCategoryView(categoryId: number, checked: boolean): void {
+      this.ensurePermission(categoryId).canView = checked
+    },
+
+    updateCategoryModerate(categoryId: number, checked: boolean): void {
+      this.ensurePermission(categoryId).canModerate = checked
+    },
+
+    toggleHeaderView(headerId: number): void {
+      const header = this.categoryHeaders.find((h) => h.id === headerId)
+      if (!header || !header.categories) return
+
+      const state = this.getHeaderViewState(headerId)
+      // If all are checked, uncheck all
+      // If some or none are checked, check all
+      const newValue = !state.checked
+
+      header.categories.forEach((cat) => {
+        this.ensurePermission(cat.id).canView = newValue
+      })
+    },
+
+    toggleHeaderModerate(headerId: number): void {
+      const header = this.categoryHeaders.find((h) => h.id === headerId)
+      if (!header || !header.categories) return
+
+      const state = this.getHeaderModerateState(headerId)
+      // If all are checked, uncheck all
+      // If some or none are checked, check all
+      const newValue = !state.checked
+
+      header.categories.forEach((cat) => {
+        this.ensurePermission(cat.id).canModerate = newValue
+      })
     },
     async refresh(): Promise<void> {
       try {
@@ -689,8 +783,12 @@ export default defineComponent({
       }
 
       .table-header-row {
+        display: grid;
+        grid-template-columns: 1fr 150px 150px;
+        gap: 16px;
         padding: 12px 16px;
         background: var(--color-background-dark);
+        align-items: center;
 
         .header-name {
           font-weight: 600;
@@ -698,6 +796,11 @@ export default defineComponent({
           color: var(--color-main-text);
           text-transform: uppercase;
           letter-spacing: 0.05em;
+        }
+
+        .header-permission {
+          display: flex;
+          align-items: center;
         }
       }
 

@@ -206,6 +206,7 @@ import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { useCategories } from '@/composables/useCategories'
 import type { Category, CatHeader, Role } from '@/types'
 import { SystemRole } from '@/constants'
 
@@ -224,6 +225,12 @@ export default defineComponent({
     ArrowLeftIcon,
     PlusIcon,
     PencilIcon,
+  },
+  setup() {
+    const { refresh: refreshCategories } = useCategories()
+    return {
+      refreshCategories,
+    }
   },
   data() {
     return {
@@ -503,6 +510,9 @@ export default defineComponent({
         // Update permissions
         await this.updatePermissions(categoryId)
 
+        // Refresh sidebar categories
+        this.refreshCategories()
+
         // Navigate back to category list
         this.$router.push('/admin/categories')
       } catch (e) {
@@ -605,6 +615,9 @@ export default defineComponent({
             label: header.name,
           }
         }
+
+        // Refresh sidebar categories
+        await this.refreshCategories()
 
         this.headerDialog.show = false
       } catch (e) {

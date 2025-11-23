@@ -378,6 +378,7 @@ import DeleteIcon from '@icons/Delete.vue'
 import InformationIcon from '@icons/Information.vue'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
+import { useCategories } from '@/composables/useCategories'
 import type { CategoryHeader, Category, CatHeader } from '@/types'
 
 export default defineComponent({
@@ -401,11 +402,17 @@ export default defineComponent({
     ChevronUpIcon,
     ChevronDownIcon,
   },
+  setup() {
+    const { categoryHeaders, loading, error, refresh: refreshCategories } = useCategories()
+    return {
+      categoryHeaders,
+      loading,
+      error,
+      refreshCategories,
+    }
+  },
   data() {
     return {
-      loading: false,
-      error: null as string | null,
-      categoryHeaders: [] as CategoryHeader[],
       selectedTargetCategory: null as { id: number; label: string } | null,
       deleteDialog: {
         show: false,
@@ -541,18 +548,7 @@ export default defineComponent({
   },
   methods: {
     async refresh(): Promise<void> {
-      try {
-        this.loading = true
-        this.error = null
-
-        const response = await ocs.get<CategoryHeader[]>('/categories')
-        this.categoryHeaders = response.data || []
-      } catch (e) {
-        console.error('Failed to load categories', e)
-        this.error = (e as Error).message || t('forum', 'An unexpected error occurred')
-      } finally {
-        this.loading = false
-      }
+      await this.refreshCategories()
     },
 
     createCategory(): void {
@@ -717,6 +713,9 @@ export default defineComponent({
         }))
 
         await ocs.post('/headers/reorder', { headers: sortOrders })
+
+        // Refresh sidebar categories
+        await this.refreshCategories()
       } catch (e) {
         console.error('Failed to update header sort orders', e)
         // Revert the swap on error
@@ -764,6 +763,9 @@ export default defineComponent({
         }))
 
         await ocs.post('/categories/reorder', { categories: sortOrders })
+
+        // Refresh sidebar categories
+        await this.refreshCategories()
       } catch (e) {
         console.error('Failed to update category sort orders', e)
         // Revert the swap on error

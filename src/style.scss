@@ -112,3 +112,7 @@
     color: var(--color-text-maxcontrast);
   }
 }
+
+.dialog__actions {
+  gap: 12px !important;
+}

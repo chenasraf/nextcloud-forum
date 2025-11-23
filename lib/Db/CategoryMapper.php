@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Db;
 
 use OCA\Forum\AppInfo\Application;
+use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -84,8 +85,14 @@ class CategoryMapper extends QBMapper {
 			return [];
 		}
 
-		$categoryIds = array_map(fn ($cat) => $cat->getId(), $categories);
 		$userRoleIds = $this->getUserRoleIds();
+
+		// Admin role has access to all categories - skip filtering
+		if (in_array(UserRoleService::ROLE_ADMIN, $userRoleIds)) {
+			return $categories;
+		}
+
+		$categoryIds = array_map(fn ($cat) => $cat->getId(), $categories);
 
 		// Get all permissions for these categories
 		$qb = $this->db->getQueryBuilder();

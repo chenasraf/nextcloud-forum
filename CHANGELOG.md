@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.10.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.9.2...v0.10.0) (2025-11-23)
+
+
+### Features
+
+* **Roles:** admin always has full permissions ([c9a76e5](https://github.com/chenasraf/nextcloud-forum/commit/c9a76e5cd97df0c82bb79825799eeba7ce66086e))
+
+
+### Bug Fixes
+
+* **AdminDashboard:** exclude thread posts from post count ([53875b1](https://github.com/chenasraf/nextcloud-forum/commit/53875b1eefaddcbe8c4024c98834e44c3a01aeb0))
+* modal actions spacing ([0f9d5ea](https://github.com/chenasraf/nextcloud-forum/commit/0f9d5ea9a5a99dda9bb351ed98d91ae880ddf64f))
+* **Roles:** prevent deleting system roles on backend ([328b37b](https://github.com/chenasraf/nextcloud-forum/commit/328b37be6eec2b0001517ef74779565457de7213))
+* **UserEventListener:** add User role to newly created users ([c7f84d4](https://github.com/chenasraf/nextcloud-forum/commit/c7f84d4a186ab7832d5fa96c2143bef30ddf3a85))
+
 ## [0.9.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.9.1...v0.9.2) (2025-11-22)
 
 

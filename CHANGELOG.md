@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.10.0...v0.10.1) (2025-11-23)
+
+
+### Bug Fixes
+
+* **Seed:** don't seed admin category permission ([09f6ea4](https://github.com/chenasraf/nextcloud-forum/commit/09f6ea4a3b56bdf723f7b90a204a2450d1b4137e))
+* **Seed:** improve seed idempotency ([e795ec2](https://github.com/chenasraf/nextcloud-forum/commit/e795ec266736f413c71ebd3f9f3c9081e86cf082))
+
 ## [0.10.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.9.2...v0.10.0) (2025-11-23)
 
 

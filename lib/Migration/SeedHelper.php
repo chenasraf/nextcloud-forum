@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Migration;
 
+use OCA\Forum\Service\UserRoleService;
+
 /**
  * Helper class for seeding initial forum data
  * Can be used by multiple migrations to ensure data exists
@@ -55,16 +57,22 @@ class SeedHelper {
 		$timestamp = time();
 
 		try {
-			// Check if roles already exist
+			// Get existing role IDs to check what needs to be created
 			$qb = $db->getQueryBuilder();
 			$qb->select('id')
 				->from('forum_roles')
-				->where($qb->expr()->eq('id', $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+				->where($qb->expr()->in('id', $qb->createNamedParameter([
+					UserRoleService::ROLE_ADMIN,
+					UserRoleService::ROLE_MODERATOR,
+					UserRoleService::ROLE_USER,
+				], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
 			$result = $qb->executeQuery();
-			$exists = $result->fetch();
+			$existingRoles = $result->fetchAll();
 			$result->closeCursor();
 
-			if ($exists) {
+			$existingIds = array_map(fn ($role) => (int)$role['id'], $existingRoles);
+
+			if (count($existingIds) === 3) {
 				$logger->info('Forum seeding: Default roles already exist, skipping');
 				if ($output) {
 					$output->info('  ✓ Default roles already exist');
@@ -77,48 +85,58 @@ class SeedHelper {
 			}
 
 			$db->beginTransaction();
+			$rolesCreated = 0;
 
-			// Create default roles
-			$qb = $db->getQueryBuilder();
-			$qb->insert('forum_roles')
-				->values([
-					'name' => $qb->createNamedParameter($l->t('Admin')),
-					'description' => $qb->createNamedParameter($l->t('Administrator role with full permissions')),
-					'can_access_admin_tools' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'can_edit_roles' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'can_edit_categories' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				])
-				->executeStatement();
+			// Define roles with their expected IDs and characteristics
+			$rolesToCreate = [
+				UserRoleService::ROLE_ADMIN => [
+					'name' => $l->t('Admin'),
+					'description' => $l->t('Administrator role with full permissions'),
+					'can_access_admin_tools' => true,
+					'can_edit_roles' => true,
+					'can_edit_categories' => true,
+				],
+				UserRoleService::ROLE_MODERATOR => [
+					'name' => $l->t('Moderator'),
+					'description' => $l->t('Moderator role with elevated permissions'),
+					'can_access_admin_tools' => true,
+					'can_edit_roles' => false,
+					'can_edit_categories' => false,
+				],
+				UserRoleService::ROLE_USER => [
+					'name' => $l->t('User'),
+					'description' => $l->t('Default user role with basic permissions'),
+					'can_access_admin_tools' => false,
+					'can_edit_roles' => false,
+					'can_edit_categories' => false,
+				],
+			];
 
-			$qb = $db->getQueryBuilder();
-			$qb->insert('forum_roles')
-				->values([
-					'name' => $qb->createNamedParameter($l->t('Moderator')),
-					'description' => $qb->createNamedParameter($l->t('Moderator role with elevated permissions')),
-					'can_access_admin_tools' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'can_edit_roles' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'can_edit_categories' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				])
-				->executeStatement();
-
-			$qb = $db->getQueryBuilder();
-			$qb->insert('forum_roles')
-				->values([
-					'name' => $qb->createNamedParameter($l->t('User')),
-					'description' => $qb->createNamedParameter($l->t('Default user role with basic permissions')),
-					'can_access_admin_tools' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'can_edit_roles' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'can_edit_categories' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				])
-				->executeStatement();
+			foreach ($rolesToCreate as $roleId => $roleData) {
+				if (!in_array($roleId, $existingIds)) {
+					// Note: We cannot force auto-increment IDs in a portable way
+					// This assumes roles are created in order during initial migration
+					// If roles are missing, they will be created with next available IDs
+					$qb = $db->getQueryBuilder();
+					$qb->insert('forum_roles')
+						->values([
+							'name' => $qb->createNamedParameter($roleData['name']),
+							'description' => $qb->createNamedParameter($roleData['description']),
+							'can_access_admin_tools' => $qb->createNamedParameter($roleData['can_access_admin_tools'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_edit_roles' => $qb->createNamedParameter($roleData['can_edit_roles'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_edit_categories' => $qb->createNamedParameter($roleData['can_edit_categories'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						])
+						->executeStatement();
+					$rolesCreated++;
+					$logger->warning("Forum seeding: Created role ID expected to be $roleId, but actual ID may differ due to database state");
+				}
+			}
 
 			$db->commit();
-			$logger->info('Forum seeding: Created default roles (IDs 1, 2, 3)');
+			$logger->info("Forum seeding: Created $rolesCreated default roles");
 			if ($output) {
-				$output->info('  ✓ Created default roles (Admin, Moderator, User)');
+				$output->info("  ✓ Created $rolesCreated default roles (Admin, Moderator, User)");
 			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
@@ -211,23 +229,6 @@ class SeedHelper {
 		$timestamp = time();
 
 		try {
-			// Check if categories already exist
-			$qb = $db->getQueryBuilder();
-			$qb->select('id')
-				->from('forum_categories')
-				->setMaxResults(1);
-			$result = $qb->executeQuery();
-			$exists = $result->fetch();
-			$result->closeCursor();
-
-			if ($exists) {
-				$logger->info('Forum seeding: Categories already exist, skipping');
-				if ($output) {
-					$output->info('  ✓ Categories already exist');
-				}
-				return;
-			}
-
 			// Get the header ID (should be 1 if created by seedCategoryHeaders)
 			$qb = $db->getQueryBuilder();
 			$qb->select('id')
@@ -252,43 +253,68 @@ class SeedHelper {
 
 			$headerId = (int)$header['id'];
 			$db->beginTransaction();
+			$categoriesCreated = 0;
 
-			// Create "General Discussions" category
+			// Check if "General Discussions" category exists
 			$qb = $db->getQueryBuilder();
-			$qb->insert('forum_categories')
-				->values([
-					'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'name' => $qb->createNamedParameter($l->t('General discussions')),
-					'description' => $qb->createNamedParameter($l->t('A place for general conversations and discussions')),
-					'slug' => $qb->createNamedParameter('general-discussions'),
-					'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				])
-				->executeStatement();
+			$qb->select('id')
+				->from('forum_categories')
+				->where($qb->expr()->eq('slug', $qb->createNamedParameter('general-discussions')));
+			$result = $qb->executeQuery();
+			$exists = $result->fetch();
+			$result->closeCursor();
 
-			// Create "Support" category
+			if (!$exists) {
+				// Create "General Discussions" category
+				$qb = $db->getQueryBuilder();
+				$qb->insert('forum_categories')
+					->values([
+						'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'name' => $qb->createNamedParameter($l->t('General discussions')),
+						'description' => $qb->createNamedParameter($l->t('A place for general conversations and discussions')),
+						'slug' => $qb->createNamedParameter('general-discussions'),
+						'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					])
+					->executeStatement();
+				$categoriesCreated++;
+			}
+
+			// Check if "Support" category exists
 			$qb = $db->getQueryBuilder();
-			$qb->insert('forum_categories')
-				->values([
-					'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'name' => $qb->createNamedParameter($l->t('Support')),
-					'description' => $qb->createNamedParameter($l->t('Ask questions about the forum, provide feedback or report issues.')),
-					'slug' => $qb->createNamedParameter('support'),
-					'sort_order' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				])
-				->executeStatement();
+			$qb->select('id')
+				->from('forum_categories')
+				->where($qb->expr()->eq('slug', $qb->createNamedParameter('support')));
+			$result = $qb->executeQuery();
+			$exists = $result->fetch();
+			$result->closeCursor();
+
+			if (!$exists) {
+				// Create "Support" category
+				$qb = $db->getQueryBuilder();
+				$qb->insert('forum_categories')
+					->values([
+						'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'name' => $qb->createNamedParameter($l->t('Support')),
+						'description' => $qb->createNamedParameter($l->t('Ask questions about the forum, provide feedback or report issues.')),
+						'slug' => $qb->createNamedParameter('support'),
+						'sort_order' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					])
+					->executeStatement();
+				$categoriesCreated++;
+			}
 
 			$db->commit();
-			$logger->info('Forum seeding: Created default categories');
+			$logger->info("Forum seeding: Created $categoriesCreated default categories");
 			if ($output) {
-				$output->info('  ✓ Created default categories (General Discussions, Support)');
+				$output->info("  ✓ Created $categoriesCreated default categories (General Discussions, Support)");
 			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
@@ -314,23 +340,6 @@ class SeedHelper {
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 
 		try {
-			// Check if permissions already exist
-			$qb = $db->getQueryBuilder();
-			$qb->select('id')
-				->from('forum_category_perms')
-				->setMaxResults(1);
-			$result = $qb->executeQuery();
-			$exists = $result->fetch();
-			$result->closeCursor();
-
-			if ($exists) {
-				$logger->info('Forum seeding: Category permissions already exist, skipping');
-				if ($output) {
-					$output->info('  ✓ Category permissions already exist');
-				}
-				return;
-			}
-
 			// Get all category IDs
 			$qb = $db->getQueryBuilder();
 			$qb->select('id')
@@ -351,7 +360,11 @@ class SeedHelper {
 			$qb = $db->getQueryBuilder();
 			$qb->select('id')
 				->from('forum_roles')
-				->where($qb->expr()->in('id', $qb->createNamedParameter([1, 2, 3], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
+				->where($qb->expr()->in('id', $qb->createNamedParameter([
+					UserRoleService::ROLE_ADMIN,
+					UserRoleService::ROLE_MODERATOR,
+					UserRoleService::ROLE_USER,
+				], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
 			$result = $qb->executeQuery();
 			$roles = $result->fetchAll();
 			$result->closeCursor();
@@ -369,55 +382,92 @@ class SeedHelper {
 			}
 
 			$db->beginTransaction();
+			$permissionsCreated = 0;
 
-			// Role IDs: 1=Admin, 2=Moderator, 3=User
+			// Role IDs: ROLE_ADMIN, ROLE_MODERATOR, ROLE_USER
 			foreach ($categories as $category) {
 				$categoryId = (int)$category['id'];
 
-				// Admin role - full access
+				// Check and create Admin role permissions
 				$qb = $db->getQueryBuilder();
-				$qb->insert('forum_category_perms')
-					->values([
-						'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'role_id' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					])
-					->executeStatement();
+				$qb->select('id')
+					->from('forum_category_perms')
+					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+				$result = $qb->executeQuery();
+				$exists = $result->fetch();
+				$result->closeCursor();
 
-				// Moderator role - can moderate
-				$qb = $db->getQueryBuilder();
-				$qb->insert('forum_category_perms')
-					->values([
-						'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'role_id' => $qb->createNamedParameter(2, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					])
-					->executeStatement();
+				if (!$exists) {
+					$qb = $db->getQueryBuilder();
+					$qb->insert('forum_category_perms')
+						->values([
+							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'role_id' => $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+						])
+						->executeStatement();
+					$permissionsCreated++;
+				}
 
-				// User role - basic access
+				// Check and create Moderator role permissions
 				$qb = $db->getQueryBuilder();
-				$qb->insert('forum_category_perms')
-					->values([
-						'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'role_id' => $qb->createNamedParameter(3, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'can_moderate' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					])
-					->executeStatement();
+				$qb->select('id')
+					->from('forum_category_perms')
+					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_MODERATOR, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+				$result = $qb->executeQuery();
+				$exists = $result->fetch();
+				$result->closeCursor();
+
+				if (!$exists) {
+					$qb = $db->getQueryBuilder();
+					$qb->insert('forum_category_perms')
+						->values([
+							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'role_id' => $qb->createNamedParameter(UserRoleService::ROLE_MODERATOR, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+						])
+						->executeStatement();
+					$permissionsCreated++;
+				}
+
+				// Check and create User role permissions
+				$qb = $db->getQueryBuilder();
+				$qb->select('id')
+					->from('forum_category_perms')
+					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_USER, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+				$result = $qb->executeQuery();
+				$exists = $result->fetch();
+				$result->closeCursor();
+
+				if (!$exists) {
+					$qb = $db->getQueryBuilder();
+					$qb->insert('forum_category_perms')
+						->values([
+							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'role_id' => $qb->createNamedParameter(UserRoleService::ROLE_USER, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'can_moderate' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+						])
+						->executeStatement();
+					$permissionsCreated++;
+				}
 			}
 
 			$db->commit();
-			$logger->info('Forum seeding: Created category permissions');
+			$logger->info("Forum seeding: Created $permissionsCreated category permissions");
 			if ($output) {
-				$output->info('  ✓ Created category permissions for ' . count($categories) . ' categories');
+				$output->info("  ✓ Created $permissionsCreated category permissions for " . count($categories) . ' categories');
 			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
@@ -445,23 +495,6 @@ class SeedHelper {
 		$timestamp = time();
 
 		try {
-			// Check if BBCodes already exist
-			$qb = $db->getQueryBuilder();
-			$qb->select('id')
-				->from('forum_bbcodes')
-				->setMaxResults(1);
-			$result = $qb->executeQuery();
-			$exists = $result->fetch();
-			$result->closeCursor();
-
-			if ($exists) {
-				$logger->info('Forum seeding: BBCodes already exist, skipping');
-				if ($output) {
-					$output->info('  ✓ BBCodes already exist');
-				}
-				return;
-			}
-
 			if ($output) {
 				$output->info('  → Creating default BBCodes...');
 			}
@@ -498,27 +531,40 @@ class SeedHelper {
 				],
 			];
 
+			$bbcodesCreated = 0;
 			foreach ($bbcodes as $bbcode) {
+				// Check if this specific BBCode already exists
 				$qb = $db->getQueryBuilder();
-				$qb->insert('forum_bbcodes')
-					->values([
-						'tag' => $qb->createNamedParameter($bbcode['tag']),
-						'replacement' => $qb->createNamedParameter($bbcode['replacement']),
-						'example' => $qb->createNamedParameter($bbcode['example']),
-						'description' => $qb->createNamedParameter($bbcode['description']),
-						'enabled' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'parse_inner' => $qb->createNamedParameter($bbcode['parse_inner'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'is_builtin' => $qb->createNamedParameter($bbcode['is_builtin'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						'special_handler' => $qb->createNamedParameter($bbcode['special_handler']),
-						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					])
-					->executeStatement();
+				$qb->select('id')
+					->from('forum_bbcodes')
+					->where($qb->expr()->eq('tag', $qb->createNamedParameter($bbcode['tag'])));
+				$result = $qb->executeQuery();
+				$exists = $result->fetch();
+				$result->closeCursor();
+
+				if (!$exists) {
+					$qb = $db->getQueryBuilder();
+					$qb->insert('forum_bbcodes')
+						->values([
+							'tag' => $qb->createNamedParameter($bbcode['tag']),
+							'replacement' => $qb->createNamedParameter($bbcode['replacement']),
+							'example' => $qb->createNamedParameter($bbcode['example']),
+							'description' => $qb->createNamedParameter($bbcode['description']),
+							'enabled' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'parse_inner' => $qb->createNamedParameter($bbcode['parse_inner'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'is_builtin' => $qb->createNamedParameter($bbcode['is_builtin'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							'special_handler' => $qb->createNamedParameter($bbcode['special_handler']),
+							'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						])
+						->executeStatement();
+					$bbcodesCreated++;
+				}
 			}
 
 			$db->commit();
-			$logger->info('Forum seeding: Created default BBCodes');
+			$logger->info("Forum seeding: Created $bbcodesCreated default BBCodes");
 			if ($output) {
-				$output->info('  ✓ Created default BBCodes (icode, spoiler, attachment)');
+				$output->info("  ✓ Created $bbcodesCreated default BBCodes (icode, spoiler, attachment)");
 			}
 		} catch (\Exception $e) {
 			if ($db->inTransaction()) {
@@ -547,28 +593,14 @@ class SeedHelper {
 		$timestamp = time();
 
 		try {
-			// Check if user roles already exist
-			$qb = $db->getQueryBuilder();
-			$qb->select('id')
-				->from('forum_user_roles')
-				->setMaxResults(1);
-			$result = $qb->executeQuery();
-			$exists = $result->fetch();
-			$result->closeCursor();
-
-			if ($exists) {
-				$logger->info('Forum seeding: User roles already assigned, skipping');
-				if ($output) {
-					$output->info('  ✓ User roles already assigned');
-				}
-				return;
-			}
-
 			// Check if roles exist before assigning
 			$qb = $db->getQueryBuilder();
 			$qb->select('id')
 				->from('forum_roles')
-				->where($qb->expr()->in('id', $qb->createNamedParameter([1, 3], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
+				->where($qb->expr()->in('id', $qb->createNamedParameter([
+					UserRoleService::ROLE_ADMIN,
+					UserRoleService::ROLE_USER,
+				], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
 			$result = $qb->executeQuery();
 			$roles = $result->fetchAll();
 			$result->closeCursor();
@@ -587,31 +619,56 @@ class SeedHelper {
 
 			// Assign roles to all users
 			$usersProcessed = 0;
-			$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $groupManager, $logger, $output, &$usersProcessed) {
+			$usersSkipped = 0;
+			$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $groupManager, $logger, $output, &$usersProcessed, &$usersSkipped) {
 				try {
 					$userId = $user->getUID();
 					$isAdmin = $groupManager->isAdmin($userId);
 
-					// Assign User role (ID 3) to all users
+					// Check if user already has the User role
 					$qb = $db->getQueryBuilder();
-					$qb->insert('forum_user_roles')
-						->values([
-							'user_id' => $qb->createNamedParameter($userId),
-							'role_id' => $qb->createNamedParameter(3, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						])
-						->executeStatement();
+					$qb->select('id')
+						->from('forum_user_roles')
+						->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+						->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_USER, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+					$result = $qb->executeQuery();
+					$hasUserRole = $result->fetch();
+					$result->closeCursor();
 
-					// Assign Admin role (ID 1) to admin group members
-					if ($isAdmin) {
+					// Assign User role to all users if they do not have it
+					if (!$hasUserRole) {
 						$qb = $db->getQueryBuilder();
 						$qb->insert('forum_user_roles')
 							->values([
 								'user_id' => $qb->createNamedParameter($userId),
-								'role_id' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'role_id' => $qb->createNamedParameter(UserRoleService::ROLE_USER, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 								'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 							])
 							->executeStatement();
+					}
+
+					// Check if admin user already has the Admin role
+					if ($isAdmin) {
+						$qb = $db->getQueryBuilder();
+						$qb->select('id')
+							->from('forum_user_roles')
+							->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
+							->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+						$result = $qb->executeQuery();
+						$hasAdminRole = $result->fetch();
+						$result->closeCursor();
+
+						// Assign Admin role to admin group members if they do not have it
+						if (!$hasAdminRole) {
+							$qb = $db->getQueryBuilder();
+							$qb->insert('forum_user_roles')
+								->values([
+									'user_id' => $qb->createNamedParameter($userId),
+									'role_id' => $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+									'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								])
+								->executeStatement();
+						}
 					}
 
 					$usersProcessed++;
@@ -626,12 +683,13 @@ class SeedHelper {
 					$logger->warning('Forum seeding: Failed to assign roles to user ' . $user->getUID(), [
 						'exception' => $e->getMessage(),
 					]);
+					$usersSkipped++;
 				}
 			});
 
-			$logger->info("Forum seeding: Assigned roles to $usersProcessed users");
+			$logger->info("Forum seeding: Assigned roles to $usersProcessed users" . ($usersSkipped > 0 ? " ($usersSkipped skipped due to errors)" : ''));
 			if ($output) {
-				$output->info("  ✓ Assigned roles to $usersProcessed users");
+				$output->info("  ✓ Assigned roles to $usersProcessed users" . ($usersSkipped > 0 ? " ($usersSkipped skipped)" : ''));
 			}
 		} catch (\Exception $e) {
 			$logger->error('Forum seeding: Failed to assign user roles', [
@@ -785,28 +843,59 @@ class SeedHelper {
 
 			// Subscribe the admin user to the welcome thread
 			if ($db->tableExists('forum_thread_subs')) {
+				// Check if subscription already exists
 				$qb = $db->getQueryBuilder();
-				$qb->insert('forum_thread_subs')
-					->values([
-						'thread_id' => $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'user_id' => $qb->createNamedParameter($adminUserId),
-						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					])
-					->executeStatement();
+				$qb->select('id')
+					->from('forum_thread_subs')
+					->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+					->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($adminUserId)));
+				$result = $qb->executeQuery();
+				$subExists = $result->fetch();
+				$result->closeCursor();
+
+				if (!$subExists) {
+					$qb = $db->getQueryBuilder();
+					$qb->insert('forum_thread_subs')
+						->values([
+							'thread_id' => $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'user_id' => $qb->createNamedParameter($adminUserId),
+							'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						])
+						->executeStatement();
+				}
 			}
 
-			// Create user stats for the admin user
+			// Create user stats for the admin user if it does not exist
 			$qb = $db->getQueryBuilder();
-			$qb->insert('forum_user_stats')
-				->values([
-					'user_id' => $qb->createNamedParameter($adminUserId),
-					'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'thread_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'last_post_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				])
-				->executeStatement();
+			$qb->select('user_id')
+				->from('forum_user_stats')
+				->where($qb->expr()->eq('user_id', $qb->createNamedParameter($adminUserId)));
+			$result = $qb->executeQuery();
+			$statsExists = $result->fetch();
+			$result->closeCursor();
+
+			if (!$statsExists) {
+				$qb = $db->getQueryBuilder();
+				$qb->insert('forum_user_stats')
+					->values([
+						'user_id' => $qb->createNamedParameter($adminUserId),
+						'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'thread_count' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'last_post_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					])
+					->executeStatement();
+			} else {
+				// Update existing stats to increment thread count
+				$qb = $db->getQueryBuilder();
+				$qb->update('forum_user_stats')
+					->set('thread_count', $qb->func()->add('thread_count', $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+					->set('last_post_at', $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
+					->set('updated_at', $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
+					->where($qb->expr()->eq('user_id', $qb->createNamedParameter($adminUserId)))
+					->executeStatement();
+			}
 
 			$db->commit();
 			$logger->info('Forum seeding: Created welcome thread');

@@ -165,6 +165,9 @@ class PostMapper extends QBMapper {
 			)
 			->andWhere(
 				$qb->expr()->isNull('t.deleted_at')
+			)
+			->andWhere(
+				$qb->expr()->eq('p.is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL))
 			);
 		$result = $qb->executeQuery();
 		$row = $result->fetch();

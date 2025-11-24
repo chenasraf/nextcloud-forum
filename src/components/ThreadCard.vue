@@ -89,8 +89,8 @@ export default defineComponent({
   data() {
     return {
       strings: {
-        replies: (count: number) => n('forum', 'Reply', 'Replies', count),
-        views: (count: number) => n('forum', 'View', 'Views', count),
+        replies: (count: number) => t('forum', 'Replies'),
+        views: (count: number) => t('forum', 'Views'),
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
         unread: t('forum', 'Unread'),

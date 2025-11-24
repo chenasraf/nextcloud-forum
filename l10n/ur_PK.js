@@ -1,17 +1,7 @@
 OC.L10N.register(
     "forum",
     {
-    "Admin" : "ایڈمن",
-    "User" : "User",
-    "Search" : "Search",
-    "Users" : "صارفین",
-    "Edit" : "تدوین کریں",
-    "Delete" : "حذف کریں",
-    "Cancel" : "Cancel",
     "Save" : "حفظ",
-    "Error" : "ایرر",
-    "Description" : "تصریح",
-    "Name" : "اسم",
     "Reset" : "ری سیٹ",
     "Deleted" : "حذف شدہ "
 },

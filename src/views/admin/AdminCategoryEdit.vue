@@ -278,7 +278,7 @@ export default defineComponent({
         }),
         description: t('forum', 'Description'),
         descriptionPlaceholder: t('forum', 'Enter category description (optional)'),
-        sortOrder: t('forum', 'Sort Order'),
+        sortOrder: t('forum', 'Sort order'),
         sortOrderPlaceholder: t('forum', '0'),
         sortOrderHelp: t('forum', 'Lower numbers appear first'),
         cancel: t('forum', 'Cancel'),

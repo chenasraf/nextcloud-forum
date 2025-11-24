@@ -270,7 +270,7 @@ export default defineComponent({
         ),
         example: t('forum', 'Example'),
         replacement: t('forum', 'Replacement'),
-        loading: t('forum', 'Loading custom BBCodes...'),
+        loading: t('forum', 'Loading custom BBCodes …'),
         noCustomCodes: t('forum', 'No custom BBCodes configured.'),
       },
     }

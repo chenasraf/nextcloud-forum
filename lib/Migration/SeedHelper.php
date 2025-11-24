@@ -765,7 +765,7 @@ class SeedHelper {
 			// Create welcome post
 			$welcomeContent = $l->t('Welcome to the Nextcloud Forums!') . "\n\n"
 				. $l->t('This is a community-driven forum built right into your Nextcloud instance. '
-				. 'Here you can discuss topics, share ideas, and collaborate with other users.') . "\n\n"
+				. 'Here you can discuss topics, share ideas and collaborate with other users.') . "\n\n"
 				. '[b]' . $l->t('Features:') . "[/b]\n"
 				. "[list]\n"
 				. '[*]' . $l->t('Create and reply to threads') . "\n"
@@ -775,7 +775,7 @@ class SeedHelper {
 				. '[*]' . $l->t('React to posts') . "\n"
 				. '[*]' . $l->t('Track read/unread threads') . "\n\n"
 				. "[/list]\n"
-				. '[b]' . $l->t('BBCode Examples:') . "[/b]\n"
+				. '[b]' . $l->t('BBCode examples:') . "[/b]\n"
 				. "[list]\n"
 				. '[*][b]' . $l->t('Bold text') . '[/b] - ' . $l->t('Use %1$stext%2$s', ['[icode][b]', '[/b][/icode]']) . "\n"
 				. '[*][i]' . $l->t('Italic text') . '[/i] - ' . $l->t('Use %1$stext%2$s', ['[icode][i]', '[/i][/icode]']) . "\n"

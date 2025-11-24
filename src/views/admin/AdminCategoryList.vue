@@ -482,7 +482,7 @@ export default defineComponent({
         sortOrderHelp: t('forum', 'Lower numbers appear first'),
         update: t('forum', 'Update'),
         create: t('forum', 'Create'),
-        deleteHeaderTitle: t('forum', 'Delete Header'),
+        deleteHeaderTitle: t('forum', 'Delete header'),
         deleteHeaderMessage: (name: string) =>
           t('forum', `Are you sure you want to delete the header "{name}"?`, { name }),
         headerCategoryWarning: (count: number) =>
@@ -493,7 +493,7 @@ export default defineComponent({
             count,
           ),
         deleteHeaderHelp: t('forum', 'This action cannot be undone'),
-        deleteHeader: t('forum', 'Delete Header'),
+        deleteHeader: t('forum', 'Delete header'),
         whatToDoWithCategories: t('forum', 'What should happen to the categories?'),
         migrateCategories: t('forum', 'Move categories to another header'),
         deleteCategories: t('forum', 'Delete all categories'),

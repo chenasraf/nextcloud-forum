@@ -81,7 +81,7 @@ export default defineComponent({
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
         uncategorized: t('forum', 'Uncategorized'),
-        deletedUser: t('forum', 'Deleted User'),
+        deletedUser: t('forum', 'Deleted user'),
       },
     }
   },

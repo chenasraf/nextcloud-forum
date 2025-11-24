@@ -241,7 +241,7 @@ export default defineComponent({
         totalThreads: t('forum', 'Total threads'),
         totalPosts: t('forum', 'Total posts'),
         totalCategories: t('forum', 'Total categories'),
-        recentActivity: t('forum', 'Recent Activity (Last 7 Days)'),
+        recentActivity: t('forum', 'Recent activity (last 7 days)'),
         newUsers: t('forum', 'New users'),
         newThreads: t('forum', 'New threads'),
         newPosts: t('forum', 'New posts'),

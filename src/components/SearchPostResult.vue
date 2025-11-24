@@ -68,7 +68,7 @@ export default defineComponent({
       strings: {
         inThread: t('forum', 'In thread'),
         threadUnavailable: t('forum', 'Thread unavailable'),
-        deletedUser: t('forum', 'Deleted User'),
+        deletedUser: t('forum', 'Deleted user'),
         edited: t('forum', 'Edited'),
       },
     }

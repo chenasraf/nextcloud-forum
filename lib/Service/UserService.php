@@ -11,6 +11,7 @@ use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\UserRoleMapper;
 use OCA\Forum\Db\UserStatsMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\IL10N;
 use OCP\IUserManager;
 
 /**
@@ -23,6 +24,7 @@ class UserService {
 		private UserStatsMapper $userStatsMapper,
 		private RoleMapper $roleMapper,
 		private UserRoleMapper $userRoleMapper,
+		private IL10N $l10n,
 	) {
 	}
 
@@ -37,7 +39,7 @@ class UserService {
 		}
 
 		// User doesn't exist in Nextcloud - return generic deleted user name
-		return 'Deleted User';
+		return $this->l10n->t('Deleted user');
 	}
 
 	/**

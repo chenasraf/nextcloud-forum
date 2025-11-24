@@ -114,29 +114,29 @@ export default defineComponent({
         {
           tag: 'b',
           name: t('forum', 'Font style bold'),
-          example: t('forum', '{bStart}Hello world{bEnd}', { bStart: '[b]', bEnd: '[/b]' }),
+          example: t('forum', '{tagStart}Hello world{tagEnd}', { tagStart: '[b]', tagEnd: '[/b]' }),
         },
         {
           tag: 'i',
           name: t('forum', 'Font style italic'),
-          example: t('forum', '{iStart}Hello world{iEnd}', { iStart: '[i]', iEnd: '[/i]' }),
+          example: t('forum', '{tagStart}Hello world{tagEnd}', { tagStart: '[i]', tagEnd: '[/i]' }),
         },
         {
           tag: 's',
           name: t('forum', 'Font style struck through'),
-          example: t('forum', '{sStart}Hello world{sEnd}', { sStart: '[s]', sEnd: '[/s]' }),
+          example: t('forum', '{tagStart}Hello world{tagEnd}', { tagStart: '[s]', tagEnd: '[/s]' }),
         },
         {
           tag: 'u',
           name: t('forum', 'Font style underlined'),
-          example: t('forum', '{uStart}Hello world{uEnd}', { uStart: '[u]', uEnd: '[/u]' }),
+          example: t('forum', '{tagStart}Hello world{tagEnd}', { tagStart: '[u]', tagEnd: '[/u]' }),
         },
         {
           tag: 'code',
           name: t('forum', 'Code'),
-          example: t('forum', '{codeStart}Hello world{codeEnd}', {
-            codeStart: '[code]',
-            codeEnd: '[/code]',
+          example: t('forum', '{tagStart}Hello world{tagEnd}', {
+            tagStart: '[code]',
+            tagEnd: '[/code]',
           }),
         },
         {
@@ -166,9 +166,9 @@ export default defineComponent({
         {
           tag: 'quote',
           name: t('forum', 'Quote'),
-          example: t('forum', '{quoteStart}Hello world{quoteEnd}', {
-            quoteStart: '[quote]',
-            quoteEnd: '[/quote]',
+          example: t('forum', '{tagStart}Hello world{tagEnd}', {
+            tagStart: '[quote]',
+            tagEnd: '[/quote]',
           }),
         },
         {
@@ -182,49 +182,49 @@ export default defineComponent({
         {
           tag: 'font',
           name: t('forum', 'Font (name)'),
-          example: t('forum', '{fontStart}Hello world!{fontEnd}', {
-            fontStart: '[font=Arial]',
-            fontEnd: '[/font]',
+          example: t('forum', '{tagStart}Hello world!{tagEnd}', {
+            tagStart: '[font=Arial]',
+            tagEnd: '[/font]',
           }),
         },
         {
           tag: 'size',
           name: t('forum', 'Font size'),
-          example: t('forum', '{sizeStart}Hello world!{sizeEnd}', {
-            sizeStart: '[size=12]',
-            sizeEnd: '[/size]',
+          example: t('forum', '{tagStart}Hello world!{tagEnd}', {
+            tagStart: '[size=12]',
+            tagEnd: '[/size]',
           }),
         },
         {
           tag: 'color',
           name: t('forum', 'Font color'),
-          example: t('forum', '{colorStart}Hello world!{colorEnd}', {
-            colorStart: '[color=red]',
-            colorEnd: '[/color]',
+          example: t('forum', '{tagStart}Hello world!{tagEnd}', {
+            tagStart: '[color=red]',
+            tagEnd: '[/color]',
           }),
         },
         {
           tag: 'left',
           name: t('forum', 'Align left'),
-          example: t('forum', '{leftStart}Hello world{leftEnd}', {
-            leftStart: '[left]',
-            leftEnd: '[/left]',
+          example: t('forum', '{tagStart}Hello world{tagEnd}', {
+            tagStart: '[left]',
+            tagEnd: '[/left]',
           }),
         },
         {
           tag: 'center',
           name: t('forum', 'Align center'),
-          example: t('forum', '{centerStart}Hello world{centerEnd}', {
-            centerStart: '[center]',
-            centerEnd: '[/center]',
+          example: t('forum', '{tagStart}Hello world{tagEnd}', {
+            tagStart: '[center]',
+            tagEnd: '[/center]',
           }),
         },
         {
           tag: 'right',
           name: t('forum', 'Align right'),
-          example: t('forum', '{rightStart}Hello world{rightEnd}', {
-            rightStart: '[right]',
-            rightEnd: '[/right]',
+          example: t('forum', '{tagStart}Hello world{tagEnd}', {
+            tagStart: '[right]',
+            tagEnd: '[/right]',
           }),
         },
         {

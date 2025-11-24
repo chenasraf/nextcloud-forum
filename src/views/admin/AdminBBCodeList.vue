@@ -373,9 +373,9 @@ export default defineComponent({
           'Use {content} for the tag content and {paramName} for parameters',
         ),
         exampleLabel: t('forum', 'Example'),
-        examplePlaceholder: t('forum', 'e.g., {bStart}Hello world{bEnd}', {
-          bStart: '[b]',
-          bEnd: '[/b]',
+        examplePlaceholder: t('forum', 'e.g., {tagStart}Hello world{tagEnd}', {
+          tagStart: '[b]',
+          tagEnd: '[/b]',
         }),
         exampleHelp: t('forum', 'Example usage of this BBCode tag'),
         description: t('forum', 'Description'),

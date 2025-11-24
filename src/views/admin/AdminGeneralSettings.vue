@@ -51,6 +51,18 @@
           </div>
         </div>
 
+        <div class="form-section">
+          <h3>{{ strings.accessControlTitle }}</h3>
+          <p class="muted">{{ strings.accessControlDesc }}</p>
+
+          <div class="form-group">
+            <NcCheckboxRadioSwitch v-model="formData.allow_guest_access" type="switch">
+              {{ strings.allowGuestAccess }}
+            </NcCheckboxRadioSwitch>
+            <p class="hint">{{ strings.allowGuestAccessHint }}</p>
+          </div>
+        </div>
+
         <!-- Actions -->
         <div class="form-actions">
           <NcButton :disabled="saving || !hasChanges" @click="resetForm">
@@ -82,15 +94,18 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
+import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import CheckIcon from '@icons/Check.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 
 interface Settings {
   title: string
   subtitle: string
+  allow_guest_access: boolean
 }
 
 export default defineComponent({
@@ -101,9 +116,17 @@ export default defineComponent({
     NcLoadingIcon,
     NcTextField,
     NcTextArea,
+    NcCheckboxRadioSwitch,
     PageHeader,
     PageWrapper,
     CheckIcon,
+  },
+  setup() {
+    const { refresh: refreshPublicSettings } = usePublicSettings()
+
+    return {
+      refreshPublicSettings,
+    }
   },
   data() {
     return {
@@ -114,10 +137,12 @@ export default defineComponent({
       originalData: {
         title: '',
         subtitle: '',
+        allow_guest_access: false,
       } as Settings,
       formData: {
         title: '',
         subtitle: '',
+        allow_guest_access: false,
       } as Settings,
 
       strings: {
@@ -134,6 +159,13 @@ export default defineComponent({
         forumSubtitle: t('forum', 'Forum subtitle'),
         forumSubtitlePlaceholder: t('forum', 'Welcome to the forum'),
         forumSubtitleHint: t('forum', 'A brief description shown below the title'),
+        accessControlTitle: t('forum', 'Access control'),
+        accessControlDesc: t('forum', 'Manage who can access the forum'),
+        allowGuestAccess: t('forum', 'Allow guest access'),
+        allowGuestAccessHint: t(
+          'forum',
+          'When enabled, unauthenticated users can view forum content in read-only mode',
+        ),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
         saveSuccess: t('forum', 'Settings saved'),
@@ -144,7 +176,8 @@ export default defineComponent({
     hasChanges(): boolean {
       return (
         this.formData.title !== this.originalData.title ||
-        this.formData.subtitle !== this.originalData.subtitle
+        this.formData.subtitle !== this.originalData.subtitle ||
+        this.formData.allow_guest_access !== this.originalData.allow_guest_access
       )
     },
   },
@@ -177,6 +210,9 @@ export default defineComponent({
 
         this.originalData = { ...this.formData }
         this.saveSuccess = true
+
+        // Refresh public settings in the composable to update cached values
+        await this.refreshPublicSettings()
 
         // Hide success message after 3 seconds
         setTimeout(() => {

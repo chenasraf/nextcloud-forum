@@ -12,9 +12,9 @@
         </template>
 
         <template #right>
-          <!-- Subscription toggle switch -->
+          <!-- Subscription toggle switch (authenticated users only) -->
           <NcCheckboxRadioSwitch
-            v-if="!loading && thread"
+            v-if="!loading && thread && userId !== null"
             v-model="thread.isSubscribed"
             @update:model-value="handleToggleSubscription"
             type="switch"
@@ -175,21 +175,31 @@
         </template>
       </NcEmptyContent>
 
-      <!-- Locked message (only shown to non-moderators) -->
-      <div
-        v-if="!loading && !error && thread && thread.isLocked && !canModerate"
-        class="locked-message mt-16"
+      <!-- Locked thread message (only shown to non-moderators) -->
+      <NcNoteCard
+        v-if="!loading && !error && thread && thread.isLocked && !canModerate && userId !== null"
+        type="warning"
+        class="mt-16"
       >
-        <NcEmptyContent :title="strings.locked" :description="strings.lockedMessage">
-          <template #icon>
-            <LockIcon :size="64" />
-          </template>
-        </NcEmptyContent>
-      </div>
+        <p>
+          <LockIcon :size="20" class="inline-icon" />
+          {{ strings.lockedMessage }}
+        </p>
+      </NcNoteCard>
 
-      <!-- Reply form (moderators can reply even when locked) -->
+      <!-- Guest user message -->
+      <NcNoteCard v-if="!loading && !error && thread && userId === null" type="info" class="mt-16">
+        <p>{{ strings.guestMessage }}</p>
+        <template #action>
+          <NcButton @click="replyToThread" variant="primary">
+            {{ strings.signInToReply }}
+          </NcButton>
+        </template>
+      </NcNoteCard>
+
+      <!-- Reply form (authenticated users only, moderators can reply even when locked) -->
       <PostReplyForm
-        v-if="!loading && !error && thread && (!thread.isLocked || canModerate)"
+        v-if="!loading && !error && thread && userId !== null && (!thread.isLocked || canModerate)"
         ref="replyForm"
         @submit="handleSubmitReply"
         @cancel="handleCancelReply"
@@ -205,6 +215,7 @@ import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwit
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
+import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PostCard from '@/components/PostCard.vue'
@@ -222,9 +233,11 @@ import ReplyIcon from '@icons/Reply.vue'
 import type { Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { useCurrentThread } from '@/composables/useCurrentThread'
 import { usePermissions } from '@/composables/usePermissions'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 export default defineComponent({
   name: 'ThreadView',
@@ -234,6 +247,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     NcDateTime,
+    NcNoteCard,
     AppToolbar,
     PageWrapper,
     PostCard,
@@ -252,11 +266,13 @@ export default defineComponent({
   setup() {
     const { currentThread: thread, fetchThread } = useCurrentThread()
     const { checkCategoryPermission } = usePermissions()
+    const { userId } = useCurrentUser()
 
     return {
       thread,
       fetchThread,
       checkCategoryPermission,
+      userId,
     }
   },
   data() {
@@ -286,6 +302,8 @@ export default defineComponent({
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
         lockedMessage: t('forum', 'This thread is locked. Only moderators can post replies.'),
+        guestMessage: t('forum', 'You must be signed in to reply to this thread.'),
+        signInToReply: t('forum', 'Sign in to reply'),
         showingPosts: (count: number) => n('forum', 'Showing %n post', 'Showing %n posts', count),
         lockThread: t('forum', 'Lock thread'),
         unlockThread: t('forum', 'Unlock thread'),
@@ -393,6 +411,11 @@ export default defineComponent({
 
     async fetchReadMarker(): Promise<void> {
       try {
+        // Guests don't have read markers
+        if (this.userId === null) {
+          return
+        }
+
         if (!this.thread) {
           return
         }
@@ -409,6 +432,11 @@ export default defineComponent({
     },
 
     isPostUnread(post: Post): boolean {
+      // Guests see everything as read
+      if (this.userId === null) {
+        return false
+      }
+
       if (this.lastReadPostId === null) {
         // No read marker means all posts are unread
         return true
@@ -419,6 +447,11 @@ export default defineComponent({
 
     async markAsRead(): Promise<void> {
       try {
+        // Guests can't mark as read
+        if (this.userId === null) {
+          return
+        }
+
         // Get the last post ID from the current view
         const lastPost = this.posts[this.posts.length - 1]
         if (!lastPost || !this.thread) {
@@ -546,6 +579,13 @@ export default defineComponent({
     },
 
     replyToThread(): void {
+      // Redirect guests to login
+      if (this.userId === null) {
+        const returnUrl = generateUrl(`/apps/forum/t/${this.thread?.slug}`)
+        window.location.href = generateUrl(`/login?redirect_url=${encodeURIComponent(returnUrl)}`)
+        return
+      }
+
       const replyForm = this.$refs.replyForm as any
       if (!replyForm) {
         return
@@ -744,6 +784,11 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.inline-icon {
+  vertical-align: middle;
+  margin-right: 4px;
 }
 
 .thread-view {

@@ -8,12 +8,12 @@ declare(strict_types=1);
 namespace OCA\Forum\Db;
 
 use OCA\Forum\AppInfo\Application;
-use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 
 /**
  * @template-extends QBMapper<Category>
@@ -22,7 +22,8 @@ class CategoryMapper extends QBMapper {
 	public function __construct(
 		IDBConnection $db,
 		private IUserSession $userSession,
-		private UserRoleMapper $userRoleMapper,
+		private RoleMapper $roleMapper,
+		private LoggerInterface $logger,
 	) {
 		parent::__construct($db, Application::tableName('forum_categories'), Category::class);
 	}
@@ -60,18 +61,47 @@ class CategoryMapper extends QBMapper {
 	}
 
 	/**
-	 * Get role IDs for the current user
+	 * Check if current user has admin role
+	 *
+	 * @return bool
+	 */
+	private function isCurrentUserAdmin(): bool {
+		$user = $this->userSession->getUser();
+		if (!$user) {
+			return false;
+		}
+
+		$roles = $this->roleMapper->findByUserId($user->getUID());
+		foreach ($roles as $role) {
+			if ($role->getRoleType() === Role::ROLE_TYPE_ADMIN) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get role IDs for the current user (or guest role if not authenticated)
 	 *
 	 * @return array<int>
 	 */
 	private function getUserRoleIds(): array {
 		$user = $this->userSession->getUser();
+
 		if (!$user) {
-			return [];
+			// User not authenticated - use guest role if available
+			try {
+				$guestRole = $this->roleMapper->findByRoleType(Role::ROLE_TYPE_GUEST);
+				return [$guestRole->getId()];
+			} catch (DoesNotExistException $e) {
+				// No guest role configured - this should never happen after migration
+				$this->logger->error('Guest role not found - guest access will not work. This indicates a migration issue.');
+				return [];
+			}
 		}
 
-		$userRoles = $this->userRoleMapper->findByUserId($user->getUID());
-		return array_map(fn ($ur) => $ur->getRoleId(), $userRoles);
+		$roles = $this->roleMapper->findByUserId($user->getUID());
+		return array_map(fn ($role) => $role->getId(), $roles);
 	}
 
 	/**
@@ -85,12 +115,12 @@ class CategoryMapper extends QBMapper {
 			return [];
 		}
 
-		$userRoleIds = $this->getUserRoleIds();
-
 		// Admin role has access to all categories - skip filtering
-		if (in_array(UserRoleService::ROLE_ADMIN, $userRoleIds)) {
+		if ($this->isCurrentUserAdmin()) {
 			return $categories;
 		}
+
+		$userRoleIds = $this->getUserRoleIds();
 
 		$categoryIds = array_map(fn ($cat) => $cat->getId(), $categories);
 

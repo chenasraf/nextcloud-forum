@@ -123,7 +123,7 @@
               <label>{{ strings.moderateRoles }}</label>
               <NcSelect
                 v-model="selectedModerateRoles"
-                :options="roleOptions"
+                :options="moderateRoleOptions"
                 :placeholder="strings.selectRoles"
                 label="label"
                 track-by="id"
@@ -206,9 +206,9 @@ import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { isAdminRole, isModeratorRole, isDefaultRole, isGuestRole } from '@/constants'
 import { useCategories } from '@/composables/useCategories'
 import type { Category, CatHeader, Role } from '@/types'
-import { SystemRole } from '@/constants'
 
 export default defineComponent({
   name: 'AdminCategoryEdit',
@@ -332,7 +332,18 @@ export default defineComponent({
     roleOptions(): Array<{ id: number; label: string }> {
       // Filter out Admin role - it has implicit full access to all categories
       return this.roles
-        .filter((role) => role.id !== SystemRole.ADMIN)
+        .filter((role) => !isAdminRole(role))
+        .map((role) => ({
+          id: role.id,
+          label: role.name,
+        }))
+    },
+    moderateRoleOptions(): Array<{ id: number; label: string }> {
+      // Filter out Admin, Guest, and Default roles
+      // - Admin has implicit full access
+      // - Guest and Default cannot moderate
+      return this.roles
+        .filter((role) => !isAdminRole(role) && !isGuestRole(role) && !isDefaultRole(role))
         .map((role) => ({
           id: role.id,
           label: role.name,
@@ -391,15 +402,15 @@ export default defineComponent({
           await this.loadPermissions()
         } else {
           // When creating a new category, prefill with default roles
-          // View: User role
-          const memberRole = this.roles.find((r) => r.id === SystemRole.USER)
+          // View: Default user role
+          const memberRole = this.roles.find(isDefaultRole)
           if (memberRole) {
             this.selectedViewRoles = [{ id: memberRole.id, label: memberRole.name }]
           }
 
           // Moderate: Admin and Moderator
-          const adminRole = this.roles.find((r) => r.id === SystemRole.ADMIN)
-          const moderatorRole = this.roles.find((r) => r.id === SystemRole.MODERATOR)
+          const adminRole = this.roles.find(isAdminRole)
+          const moderatorRole = this.roles.find(isModeratorRole)
           this.selectedModerateRoles = []
           if (adminRole) {
             this.selectedModerateRoles.push({ id: adminRole.id, label: adminRole.name })
@@ -475,7 +486,9 @@ export default defineComponent({
           .map((role) => ({ id: role.id, label: role.name }))
 
         this.selectedModerateRoles = this.roles
-          .filter((role) => moderateRoleIds.has(role.id))
+          .filter(
+            (role) => moderateRoleIds.has(role.id) && !isGuestRole(role) && !isDefaultRole(role),
+          )
           .map((role) => ({ id: role.id, label: role.name }))
       } catch (e) {
         console.error('Failed to load category permissions', e)
@@ -527,11 +540,23 @@ export default defineComponent({
       // Build permissions array combining view and moderate roles
       const allRoleIds = new Set<number>()
       const viewRoleIds = new Set(this.selectedViewRoles.map((r) => r.id))
-      const moderateRoleIds = new Set(this.selectedModerateRoles.map((r) => r.id))
+      // Filter out guest and default roles from moderate roles
+      const guestRole = this.roles.find(isGuestRole)
+      const defaultRole = this.roles.find(isDefaultRole)
+      const moderateRoleIds = new Set(
+        this.selectedModerateRoles
+          .filter((r) => r.id !== guestRole?.id && r.id !== defaultRole?.id)
+          .map((r) => r.id),
+      )
 
       // Add all selected role IDs to the set
       this.selectedViewRoles.forEach((r) => allRoleIds.add(r.id))
-      this.selectedModerateRoles.forEach((r) => allRoleIds.add(r.id))
+      this.selectedModerateRoles.forEach((r) => {
+        // Don't add guest or default to moderate permissions
+        if (r.id !== guestRole?.id && r.id !== defaultRole?.id) {
+          allRoleIds.add(r.id)
+        }
+      })
 
       const permissionsData = Array.from(allRoleIds).map((roleId) => ({
         roleId,

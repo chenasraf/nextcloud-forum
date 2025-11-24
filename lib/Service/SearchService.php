@@ -28,7 +28,7 @@ class SearchService {
 	 * Search threads and posts
 	 *
 	 * @param string $query Search query string
-	 * @param string $userId User ID for permission filtering
+	 * @param string|null $userId User ID for permission filtering (null for guests)
 	 * @param bool $searchThreads Include threads in search
 	 * @param bool $searchPosts Include posts in search
 	 * @param int|null $categoryId Optional category filter
@@ -38,7 +38,7 @@ class SearchService {
 	 */
 	public function search(
 		string $query,
-		string $userId,
+		?string $userId,
 		bool $searchThreads = true,
 		bool $searchPosts = true,
 		?int $categoryId = null,
@@ -103,11 +103,11 @@ class SearchService {
 	/**
 	 * Get category IDs accessible by the user
 	 *
-	 * @param string $userId User ID
+	 * @param string|null $userId User ID (null for guests)
 	 * @param int|null $categoryId Optional specific category filter
 	 * @return array<int> Array of category IDs
 	 */
-	private function getAccessibleCategoryIds(string $userId, ?int $categoryId = null): array {
+	private function getAccessibleCategoryIds(?string $userId, ?int $categoryId = null): array {
 		if ($categoryId !== null) {
 			// Check if user has access to specific category
 			if ($this->permissionService->hasCategoryPermission($userId, $categoryId, 'canView')) {

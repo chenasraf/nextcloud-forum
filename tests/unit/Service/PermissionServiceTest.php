@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Tests\Service;
 
+use OCA\Forum\Db\Category;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
@@ -54,18 +55,12 @@ class PermissionServiceTest extends TestCase {
 		$userId = 'user1';
 		$permission = 'canEditRoles';
 
-		$userRole = $this->createUserRole(1, $userId, 1);
-		$role = $this->createRole(1, 'Admin', true, true, true);
-
-		$this->userRoleMapper->expects($this->once())
-			->method('findByUserId')
-			->with($userId)
-			->willReturn([$userRole]);
+		$role = $this->createRole(1, 'Admin', true, true, true, true, Role::ROLE_TYPE_ADMIN);
 
 		$this->roleMapper->expects($this->once())
-			->method('find')
-			->with(1)
-			->willReturn($role);
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
 
 		$result = $this->service->hasGlobalPermission($userId, $permission);
 
@@ -76,18 +71,12 @@ class PermissionServiceTest extends TestCase {
 		$userId = 'user1';
 		$permission = 'canEditRoles';
 
-		$userRole = $this->createUserRole(1, $userId, 1);
-		$role = $this->createRole(1, 'User', false, false, false);
-
-		$this->userRoleMapper->expects($this->once())
-			->method('findByUserId')
-			->with($userId)
-			->willReturn([$userRole]);
+		$role = $this->createRole(1, 'User', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
 
 		$this->roleMapper->expects($this->once())
-			->method('find')
-			->with(1)
-			->willReturn($role);
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
 
 		$result = $this->service->hasGlobalPermission($userId, $permission);
 
@@ -98,7 +87,7 @@ class PermissionServiceTest extends TestCase {
 		$userId = 'user1';
 		$permission = 'canEditRoles';
 
-		$this->userRoleMapper->expects($this->once())
+		$this->roleMapper->expects($this->once())
 			->method('findByUserId')
 			->with($userId)
 			->willReturn([]);
@@ -112,44 +101,27 @@ class PermissionServiceTest extends TestCase {
 		$userId = 'user1';
 		$permission = 'canEditCategories';
 
-		$userRole1 = $this->createUserRole(1, $userId, 1);
-		$userRole2 = $this->createUserRole(2, $userId, 2);
+		$role1 = $this->createRole(1, 'User', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
+		$role2 = $this->createRole(2, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
 
-		$role1 = $this->createRole(1, 'User', false, false, false);
-		$role2 = $this->createRole(2, 'Moderator', true, false, true);
-
-		$this->userRoleMapper->expects($this->once())
+		$this->roleMapper->expects($this->once())
 			->method('findByUserId')
 			->with($userId)
-			->willReturn([$userRole1, $userRole2]);
-
-		$this->roleMapper->expects($this->exactly(2))
-			->method('find')
-			->willReturnMap([
-				[1, $role1],
-				[2, $role2],
-			]);
+			->willReturn([$role1, $role2]);
 
 		$result = $this->service->hasGlobalPermission($userId, $permission);
 
 		$this->assertTrue($result);
 	}
 
-	public function testHasGlobalPermissionHandlesNonExistentRole(): void {
+	public function testHasGlobalPermissionHandlesException(): void {
 		$userId = 'user1';
 		$permission = 'canEditRoles';
 
-		$userRole = $this->createUserRole(1, $userId, 999);
-
-		$this->userRoleMapper->expects($this->once())
+		$this->roleMapper->expects($this->once())
 			->method('findByUserId')
 			->with($userId)
-			->willReturn([$userRole]);
-
-		$this->roleMapper->expects($this->once())
-			->method('find')
-			->with(999)
-			->willThrowException(new DoesNotExistException('Role not found'));
+			->willThrowException(new \Exception('Database error'));
 
 		$result = $this->service->hasGlobalPermission($userId, $permission);
 
@@ -162,13 +134,14 @@ class PermissionServiceTest extends TestCase {
 		$permission = 'canPost';
 
 		// Using role ID 3 (User) instead of 1 (Admin) to test normal permission check
-		$userRole = $this->createUserRole(1, $userId, 3);
+		$role = $this->createRole(3, 'User', false, false, false, true, Role::ROLE_TYPE_DEFAULT);
 		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 3, true, true, true, false);
 
-		$this->userRoleMapper->expects($this->exactly(2))
+		// findByUserId called twice: once in hasAdminRole(), once for permission check
+		$this->roleMapper->expects($this->exactly(2))
 			->method('findByUserId')
 			->with($userId)
-			->willReturn([$userRole]);
+			->willReturn([$role]);
 
 		$this->categoryPermMapper->expects($this->once())
 			->method('findByCategoryAndRole')
@@ -186,13 +159,14 @@ class PermissionServiceTest extends TestCase {
 		$permission = 'canModerate';
 
 		// Using role ID 2 (Moderator) instead of 1 (Admin) to test normal permission check
-		$userRole = $this->createUserRole(1, $userId, 2);
+		$role = $this->createRole(2, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
 		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 2, true, true, true, false);
 
-		$this->userRoleMapper->expects($this->exactly(2))
+		// findByUserId called twice: once in hasAdminRole(), once for permission check
+		$this->roleMapper->expects($this->exactly(2))
 			->method('findByUserId')
 			->with($userId)
-			->willReturn([$userRole]);
+			->willReturn([$role]);
 
 		$this->categoryPermMapper->expects($this->once())
 			->method('findByCategoryAndRole')
@@ -209,12 +183,13 @@ class PermissionServiceTest extends TestCase {
 		$categoryId = 1;
 		$permission = 'canPost';
 
-		$userRole = $this->createUserRole(1, $userId, 3); // Non-admin role
+		$role = $this->createRole(3, 'User', false, false, false, true, Role::ROLE_TYPE_DEFAULT);
 
-		$this->userRoleMapper->expects($this->exactly(2))
+		// findByUserId called twice: once in hasAdminRole(), once for permission check
+		$this->roleMapper->expects($this->exactly(2))
 			->method('findByUserId')
 			->with($userId)
-			->willReturn([$userRole]);
+			->willReturn([$role]);
 
 		$this->categoryPermMapper->expects($this->once())
 			->method('findByCategoryAndRole')
@@ -232,12 +207,12 @@ class PermissionServiceTest extends TestCase {
 		$permission = 'canModerate';
 
 		// User has Admin role (ID 1)
-		$userRole = $this->createUserRole(1, $userId, 1);
+		$adminRole = $this->createRole(1, 'Admin', true, true, true, true, Role::ROLE_TYPE_ADMIN);
 
-		$this->userRoleMapper->expects($this->once())
+		$this->roleMapper->expects($this->once())
 			->method('findByUserId')
 			->with($userId)
-			->willReturn([$userRole]);
+			->willReturn([$adminRole]);
 
 		// Should not even check category permissions for Admin
 		$this->categoryPermMapper->expects($this->never())
@@ -254,13 +229,13 @@ class PermissionServiceTest extends TestCase {
 		$permission = 'canView';
 
 		// User has both Admin (ID 1) and User (ID 3) roles
-		$userRole1 = $this->createUserRole(1, $userId, 1);
-		$userRole2 = $this->createUserRole(2, $userId, 3);
+		$adminRole = $this->createRole(1, 'Admin', true, true, true, true, Role::ROLE_TYPE_ADMIN);
+		$userRole = $this->createRole(3, 'User', false, false, false, true, Role::ROLE_TYPE_DEFAULT);
 
-		$this->userRoleMapper->expects($this->once())
+		$this->roleMapper->expects($this->once())
 			->method('findByUserId')
 			->with($userId)
-			->willReturn([$userRole1, $userRole2]);
+			->willReturn([$adminRole, $userRole]);
 
 		// Should not check category permissions for Admin
 		$this->categoryPermMapper->expects($this->never())
@@ -269,6 +244,97 @@ class PermissionServiceTest extends TestCase {
 		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
 
 		$this->assertTrue($result);
+	}
+
+	public function testHasGlobalPermissionForGuestUserUsesGuestRole(): void {
+		$userId = null; // Guest user
+		$permission = 'canEditRoles';
+
+		$guestRole = $this->createRole(4, 'Guest', false, false, false, true, Role::ROLE_TYPE_GUEST);
+
+		$this->roleMapper->expects($this->once())
+			->method('findByRoleType')
+			->with(Role::ROLE_TYPE_GUEST)
+			->willReturn($guestRole);
+
+		$result = $this->service->hasGlobalPermission($userId, $permission);
+
+		$this->assertFalse($result);
+	}
+
+	public function testHasGlobalPermissionForGuestUserReturnsFalseWhenNoGuestRole(): void {
+		$userId = null; // Guest user
+		$permission = 'canEditRoles';
+
+		$this->roleMapper->expects($this->once())
+			->method('findByRoleType')
+			->with(Role::ROLE_TYPE_GUEST)
+			->willThrowException(new DoesNotExistException('Guest role not found'));
+
+		$result = $this->service->hasGlobalPermission($userId, $permission);
+
+		$this->assertFalse($result);
+	}
+
+	public function testHasCategoryPermissionForGuestUserUsesGuestRole(): void {
+		$userId = null; // Guest user
+		$categoryId = 1;
+		$permission = 'canView';
+
+		$guestRole = $this->createRole(4, 'Guest', false, false, false, true, Role::ROLE_TYPE_GUEST);
+		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 4, true, false, false, false);
+
+		$this->roleMapper->expects($this->once())
+			->method('findByRoleType')
+			->with(Role::ROLE_TYPE_GUEST)
+			->willReturn($guestRole);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryAndRole')
+			->with($categoryId, 4)
+			->willReturn($categoryPerm);
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertTrue($result);
+	}
+
+	public function testHasCategoryPermissionForGuestUserReturnsFalseWhenNoGuestRole(): void {
+		$userId = null; // Guest user
+		$categoryId = 1;
+		$permission = 'canView';
+
+		$this->roleMapper->expects($this->once())
+			->method('findByRoleType')
+			->with(Role::ROLE_TYPE_GUEST)
+			->willThrowException(new DoesNotExistException('Guest role not found'));
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertFalse($result);
+	}
+
+	public function testHasCategoryPermissionForGuestUserReturnsFalseWhenNoPermission(): void {
+		$userId = null; // Guest user
+		$categoryId = 1;
+		$permission = 'canPost';
+
+		$guestRole = $this->createRole(4, 'Guest', false, false, false, true, Role::ROLE_TYPE_GUEST);
+		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 4, true, false, false, false);
+
+		$this->roleMapper->expects($this->once())
+			->method('findByRoleType')
+			->with(Role::ROLE_TYPE_GUEST)
+			->willReturn($guestRole);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryAndRole')
+			->with($categoryId, 4)
+			->willReturn($categoryPerm);
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertFalse($result);
 	}
 
 	public function testGetCategoryIdFromThreadReturnsCorrectId(): void {
@@ -444,6 +510,115 @@ class PermissionServiceTest extends TestCase {
 		$this->assertFalse($result);
 	}
 
+	public function testGetAccessibleCategoriesReturnsViewableCategory(): void {
+		$userId = 'user1';
+		$role = $this->createRole(1, 'User', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
+
+		$category1 = $this->createCategory(1, 'Category 1', 'category-1');
+
+		$perm1 = $this->createCategoryPerm(1, 1, 1, true, false, false, false);
+
+		// Set up mocks without strict expectations
+		$this->roleMapper->method('findByUserId')
+			->willReturn([$role]);
+
+		$this->categoryMapper->method('findAll')
+			->willReturn([$category1]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturn($perm1);
+
+		$result = $this->service->getAccessibleCategories($userId);
+
+		$this->assertCount(1, $result);
+		$this->assertContains(1, $result);
+	}
+
+	public function testGetAccessibleCategoriesForGuestUser(): void {
+		$guestRole = $this->createRole(1, 'Guest', false, false, false, true, Role::ROLE_TYPE_GUEST);
+
+		$category1 = $this->createCategory(1, 'Public Category', 'public-category');
+		$category2 = $this->createCategory(2, 'Private Category', 'private-category');
+
+		$perm1 = $this->createCategoryPerm(1, 1, 1, true, false, false, false);
+		// Category 2 has no guest view permission
+
+		$this->roleMapper->method('findByRoleType')
+			->willReturn($guestRole);
+
+		$this->categoryMapper->method('findAll')
+			->willReturn([$category1, $category2]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturnCallback(function ($categoryId, $roleId) use ($perm1) {
+				if ($categoryId == 1 && $roleId == 1) {
+					return $perm1;
+				}
+				throw new DoesNotExistException('Permission not found');
+			});
+
+		$result = $this->service->getAccessibleCategories(null);
+
+		$this->assertCount(1, $result);
+		$this->assertContains(1, $result);
+		$this->assertNotContains(2, $result);
+	}
+
+	public function testGetAccessibleCategoriesForGuestUserWithNoGuestRole(): void {
+		$this->roleMapper->expects($this->once())
+			->method('findByRoleType')
+			->with(Role::ROLE_TYPE_GUEST)
+			->willThrowException(new DoesNotExistException('Guest role not found'));
+
+		$result = $this->service->getAccessibleCategories(null);
+
+		$this->assertCount(0, $result);
+	}
+
+	public function testGetAccessibleCategoriesReturnsEmptyWhenUserHasNoRoles(): void {
+		$userId = 'user1';
+
+		$this->roleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([]);
+
+		$result = $this->service->getAccessibleCategories($userId);
+
+		$this->assertCount(0, $result);
+	}
+
+	public function testGetAccessibleCategoriesReturnsEmptyWhenNoCategoriesExist(): void {
+		$userId = 'user1';
+		$role = $this->createRole(1, 'User', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
+
+		$this->roleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryMapper->expects($this->once())
+			->method('findAll')
+			->willReturn([]);
+
+		$result = $this->service->getAccessibleCategories($userId);
+
+		$this->assertCount(0, $result);
+	}
+
+	public function testGetAccessibleCategoriesHandlesExceptions(): void {
+		$userId = 'user1';
+
+		$this->roleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willThrowException(new \Exception('Database error'));
+
+		$result = $this->service->getAccessibleCategories($userId);
+
+		$this->assertCount(0, $result);
+	}
+
 	private function createUserRole(int $id, string $userId, int $roleId): UserRole {
 		$userRole = new UserRole();
 		$userRole->setId($id);
@@ -453,13 +628,15 @@ class PermissionServiceTest extends TestCase {
 		return $userRole;
 	}
 
-	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories): Role {
+	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM): Role {
 		$role = new Role();
 		$role->setId($id);
 		$role->setName($name);
 		$role->setCanAccessAdminTools($canAccessAdminTools);
 		$role->setCanEditRoles($canEditRoles);
 		$role->setCanEditCategories($canEditCategories);
+		$role->setIsSystemRole($isSystemRole);
+		$role->setRoleType($roleType);
 		$role->setCreatedAt(time());
 		return $role;
 	}
@@ -474,5 +651,19 @@ class PermissionServiceTest extends TestCase {
 		$perm->setCanReply($canReply);
 		$perm->setCanModerate($canModerate);
 		return $perm;
+	}
+
+	private function createCategory(int $id, string $name, string $slug): Category {
+		$category = new Category();
+		$category->setId($id);
+		$category->setName($name);
+		$category->setSlug($slug);
+		$category->setDescription('');
+		$category->setSortOrder(0);
+		$category->setThreadCount(0);
+		$category->setPostCount(0);
+		$category->setCreatedAt(time());
+		$category->setUpdatedAt(time());
+		return $category;
 	}
 }

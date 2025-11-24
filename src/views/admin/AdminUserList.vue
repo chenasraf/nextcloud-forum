@@ -55,8 +55,15 @@
 
         <template #cell-roles="{ row }">
           <div class="roles-list">
-            <RoleBadge v-for="role in row.roles" :key="role.id" :role="role" density="compact" />
-            <span v-if="row.roles.length === 0" class="muted">{{ strings.noRoles }}</span>
+            <RoleBadge
+              v-for="role in getNonGuestRoles(row.roles)"
+              :key="role.id"
+              :role="role"
+              density="compact"
+            />
+            <span v-if="getNonGuestRoles(row.roles).length === 0" class="muted">{{
+              strings.noRoles
+            }}</span>
           </div>
         </template>
 
@@ -141,6 +148,7 @@ import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { isGuestRole } from '@/constants'
 import type { Role } from '@/types'
 
 interface AdminUser {
@@ -215,10 +223,13 @@ export default defineComponent({
   },
   computed: {
     roleOptions(): RoleOption[] {
-      return this.allRoles.map((role) => ({
-        id: role.id,
-        name: role.name,
-      }))
+      // Filter out the guest role - it cannot be assigned to users
+      return this.allRoles
+        .filter((role) => !isGuestRole(role))
+        .map((role) => ({
+          id: role.id,
+          name: role.name,
+        }))
     },
     tableColumns(): TableColumn[] {
       return [
@@ -234,6 +245,11 @@ export default defineComponent({
     this.refresh()
   },
   methods: {
+    getNonGuestRoles(roles: Role[]): Role[] {
+      // Filter out guest role from display
+      return roles.filter((role) => !isGuestRole(role))
+    },
+
     async refresh(): Promise<void> {
       try {
         this.loading = true
@@ -257,11 +273,13 @@ export default defineComponent({
 
     startEdit(userId: string, currentRoles: Role[]): void {
       this.editingUserId = userId
-      this.originalRoles = currentRoles.map((r) => r.id)
+      // Filter out guest roles when initializing - they shouldn't be in user roles anyway
+      const nonGuestRoles = currentRoles.filter((role) => !isGuestRole(role))
+      this.originalRoles = nonGuestRoles.map((r) => r.id)
 
       // Convert roles to role options for NcSelectTags
       // IMPORTANT: Must use the same object references from roleOptions
-      const currentRoleIds = currentRoles.map((r) => r.id)
+      const currentRoleIds = nonGuestRoles.map((r) => r.id)
       this.editingRoles = this.roleOptions.filter((option) => currentRoleIds.includes(option.id))
     },
 

@@ -10,10 +10,12 @@ namespace OCA\Forum\Middleware;
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\Middleware;
 use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCS\OCSForbiddenException;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -27,6 +29,7 @@ class PermissionMiddleware extends Middleware {
 		private IRequest $request,
 		private IUserSession $userSession,
 		private PermissionService $permissionService,
+		private IAppConfig $config,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -39,16 +42,44 @@ class PermissionMiddleware extends Middleware {
 	 * @throws OCSForbiddenException If user lacks required permissions
 	 */
 	public function beforeController($controller, $methodName): void {
+		$reflectionMethod = new ReflectionMethod($controller, $methodName);
+
+		// Check if this is a public page - allows unauthenticated access but still enforces permissions
+		$publicPageAttrs = $reflectionMethod->getAttributes(PublicPage::class);
+		$isPublicPage = !empty($publicPageAttrs);
+
 		$user = $this->userSession->getUser();
+		$userId = $user ? $user->getUID() : null;
+		$guestAccessEnabled = $this->config->getAppValueBool('allow_guest_access', false, true);
+		$isReadOnlyMethod = in_array($this->request->getMethod(), ['GET', 'HEAD', 'OPTIONS']);
+
+		// If user is not authenticated
 		if (!$user) {
+			// Allow unauthenticated access for public pages or when guest access is enabled for read-only
+			$allowUnauthenticated = $isPublicPage || ($guestAccessEnabled && $isReadOnlyMethod);
+
+			if ($allowUnauthenticated) {
+				// Check if there are permission requirements - if so, check guest permissions
+				$permissionAttrs = $reflectionMethod->getAttributes(RequirePermission::class);
+
+				if (!empty($permissionAttrs)) {
+					// Check permissions using guest role (null userId)
+					$this->logger->debug('Checking permissions for unauthenticated user (public page or guest access)');
+					foreach ($permissionAttrs as $attr) {
+						/** @var RequirePermission $permission */
+						$permission = $attr->newInstance();
+						$this->checkPermission(null, $permission);
+					}
+				}
+				return;
+			}
+
+			// Guest access not enabled or not a read-only method - deny access
 			$this->logger->debug('Permission check failed: User not authenticated');
 			throw new OCSForbiddenException('User not authenticated');
 		}
 
-		$userId = $user->getUID();
-		$reflectionMethod = new ReflectionMethod($controller, $methodName);
-
-		// Get all RequirePermission attributes on the method
+		// User is authenticated - check permissions normally
 		$permissionAttrs = $reflectionMethod->getAttributes(RequirePermission::class);
 
 		if (empty($permissionAttrs)) {
@@ -67,11 +98,11 @@ class PermissionMiddleware extends Middleware {
 	/**
 	 * Check a single permission requirement
 	 *
-	 * @param string $userId Nextcloud user ID
+	 * @param string|null $userId Nextcloud user ID (null for guest users)
 	 * @param RequirePermission $permission Permission requirement to check
 	 * @throws OCSForbiddenException If permission check fails
 	 */
-	private function checkPermission(string $userId, RequirePermission $permission): void {
+	private function checkPermission(?string $userId, RequirePermission $permission): void {
 		$permissionName = $permission->getPermission();
 		$resourceType = $permission->getResourceType();
 

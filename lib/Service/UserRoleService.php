@@ -15,15 +15,6 @@ use Psr\Log\LoggerInterface;
  * Service for managing user role assignments
  */
 class UserRoleService {
-	/** @var int Admin role ID */
-	public const ROLE_ADMIN = 1;
-
-	/** @var int Moderator role ID */
-	public const ROLE_MODERATOR = 2;
-
-	/** @var int User role ID */
-	public const ROLE_USER = 3;
-
 	public function __construct(
 		private UserRoleMapper $userRoleMapper,
 		private LoggerInterface $logger,

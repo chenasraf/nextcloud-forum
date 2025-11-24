@@ -1,22 +1,72 @@
 // SPDX-FileCopyrightText: Chen Asraf <contact@casraf.dev>
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-/**
- * System role IDs
- * These roles are created during app installation and cannot be deleted
- */
-export const SystemRole = {
-  /** Admin role ID */
-  ADMIN: 1,
-  /** Moderator role ID */
-  MODERATOR: 2,
-  /** User role ID */
-  USER: 3,
-} as const
+import type { Role } from './types/models'
 
 /**
- * Check if a role ID is a system role
+ * Role type constants
+ * These match the role types defined in the backend (Role::ROLE_TYPE_*)
  */
-export function isSystemRole(roleId: number): boolean {
-  return Object.values(SystemRole).includes(roleId as (typeof SystemRole)[keyof typeof SystemRole])
+export const RoleType = {
+  ADMIN: 'admin',
+  MODERATOR: 'moderator',
+  DEFAULT: 'default',
+  GUEST: 'guest',
+  CUSTOM: 'custom',
+} as const
+
+export type RoleTypeValue = (typeof RoleType)[keyof typeof RoleType]
+
+/**
+ * Check if a role is a system role
+ * @param role Role object to check
+ * @returns True if the role is a system role (cannot be deleted)
+ */
+export function isSystemRole(role: Role): boolean {
+  return role.isSystemRole
+}
+
+/**
+ * Check if a role is the Admin role
+ * @param role Role object to check
+ * @returns True if the role is the Admin role
+ */
+export function isAdminRole(role: Role | null | undefined): boolean {
+  return role?.roleType === RoleType.ADMIN
+}
+
+/**
+ * Check if a role is the Moderator role
+ * @param role Role object to check
+ * @returns True if the role is the Moderator role
+ */
+export function isModeratorRole(role: Role | null | undefined): boolean {
+  return role?.roleType === RoleType.MODERATOR
+}
+
+/**
+ * Check if a role is the Default (user) role
+ * @param role Role object to check
+ * @returns True if the role is the Default role
+ */
+export function isDefaultRole(role: Role | null | undefined): boolean {
+  return role?.roleType === RoleType.DEFAULT
+}
+
+/**
+ * Check if a role is the Guest role
+ * @param role Role object to check
+ * @returns True if the role is the Guest role
+ */
+export function isGuestRole(role: Role | null | undefined): boolean {
+  return role?.roleType === RoleType.GUEST
+}
+
+/**
+ * Check if a role is a custom (non-system) role
+ * @param role Role object to check
+ * @returns True if the role is a custom role
+ */
+export function isCustomRole(role: Role | null | undefined): boolean {
+  return role?.roleType === RoleType.CUSTOM
 }

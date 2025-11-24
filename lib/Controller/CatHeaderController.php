@@ -14,6 +14,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -38,6 +39,7 @@ class CatHeaderController extends OCSController {
 	 * 200: Category headers returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/headers')]
 	public function index(): DataResponse {
 		try {
@@ -58,6 +60,7 @@ class CatHeaderController extends OCSController {
 	 * 200: Category header returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/headers/{id}')]
 	public function show(int $id): DataResponse {
 		try {

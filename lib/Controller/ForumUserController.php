@@ -12,6 +12,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -41,6 +42,7 @@ class ForumUserController extends OCSController {
 	 * 200: User statistics returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/users')]
 	public function index(): DataResponse {
 		try {
@@ -57,13 +59,13 @@ class ForumUserController extends OCSController {
 	 * Special case: use "me" to get current user stats
 	 *
 	 * @param string $userId Nextcloud user ID or "me" for current user
-	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>|DataResponse<Http::STATUS_NOT_FOUND, array{error: string}, array{}>|DataResponse<Http::STATUS_UNAUTHORIZED, array{error: string}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>|DataResponse<Http::STATUS_NOT_FOUND, array{error: string}, array{}>
 	 *
 	 * 200: User stats returned
-	 * 401: User not authenticated (when using "me")
-	 * 404: User has no stats (hasn't posted yet)
+	 * 404: User has no stats (hasn't posted yet) or guest user accessing "me"
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/users/{userId}')]
 	public function show(string $userId): DataResponse {
 		try {
@@ -71,7 +73,8 @@ class ForumUserController extends OCSController {
 			if ($userId === 'me') {
 				$currentUser = $this->userSession->getUser();
 				if (!$currentUser) {
-					return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+					// Guest users have no stats - return 404 like a user who hasn't posted yet
+					return new DataResponse(['error' => 'User stats not found'], Http::STATUS_NOT_FOUND);
 				}
 				$userId = $currentUser->getUID();
 			}

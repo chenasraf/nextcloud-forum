@@ -42,14 +42,6 @@ class Version5Date20251121190637 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		// Repair installations that went through the initial migration but didn't succeed completely
-		// This will fill in any missing roles, categories, permissions, BBCodes, or user roles
-		// Each seed function checks if data already exists before creating, so it's safe to run
-		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
-		$logger->info('Forum migration repair: Checking and repairing incomplete installations');
-
-		SeedHelper::seedAll($output);
-
-		$logger->info('Forum migration repair: Completed');
+		//
 	}
 }

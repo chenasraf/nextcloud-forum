@@ -119,6 +119,8 @@ export interface Role {
   canAccessAdminTools: boolean
   canEditRoles: boolean
   canEditCategories: boolean
+  isSystemRole: boolean
+  roleType: 'admin' | 'moderator' | 'default' | 'guest' | 'custom'
   createdAt: number
 }
 

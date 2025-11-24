@@ -9,7 +9,6 @@ namespace OCA\Forum\Migration;
 
 use Closure;
 use OCA\Forum\AppInfo\Application;
-use OCA\Forum\Service\UserRoleService;
 use OCP\DB\ISchemaWrapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
@@ -52,10 +51,11 @@ class Version6Date20251122233018 extends SimpleMigrationStep {
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 		// Remove Admin role permissions from categories
 		// Admin role now has hardcoded full access to all categories
+		// Using role ID 1 directly since this is a historical migration
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete(Application::tableName('forum_category_perms'))
 			->where(
-				$qb->expr()->eq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, IQueryBuilder::PARAM_INT))
+				$qb->expr()->eq('role_id', $qb->createNamedParameter(1, IQueryBuilder::PARAM_INT))
 			);
 		$deletedCount = $qb->executeStatement();
 

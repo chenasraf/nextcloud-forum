@@ -17,6 +17,7 @@ use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -52,6 +53,7 @@ class SearchController extends OCSController {
 	 * 200: Search results returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/search')]
 	public function index(
 		string $q = '',
@@ -63,9 +65,7 @@ class SearchController extends OCSController {
 	): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
-			if (!$user) {
-				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
-			}
+			$userId = $user?->getUID();
 
 			// Validate query
 			$q = trim($q);
@@ -85,7 +85,7 @@ class SearchController extends OCSController {
 			// Perform search
 			$results = $this->searchService->search(
 				$q,
-				$user->getUID(),
+				$userId,
 				$searchThreads,
 				$searchPosts,
 				$categoryId,

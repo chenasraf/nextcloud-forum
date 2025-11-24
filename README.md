@@ -29,6 +29,7 @@ your data regularly.
 - **File Attachments**: Attach files from Nextcloud to posts with secure permission-based access
 - **Reactions**: React to posts with emoji reactions
 - **User Roles & Permissions**: Fine-grained permission system for moderators and administrators
+- **Guest Access**: Optional public access for unauthenticated users with configurable permissions
 - **Read Markers**: Track unread posts and threads
 - **Search**: Full-text search across threads and posts
 - **Modern UI**: Built with Vue 3 and Nextcloud Vue components

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.11.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.10.1...v0.11.0) (2025-11-24)
+
+
+### Features
+
+* **AdminRoleEdit:** allow checking/unchecking multiple categories ([8b973c3](https://github.com/chenasraf/nextcloud-forum/commit/8b973c3ad5349bb91b4039b86edd4416f136fc7b))
+* **Category Admin:** refresh categories/headers in sidebar afer modifying ([3ed74ee](https://github.com/chenasraf/nextcloud-forum/commit/3ed74eea8f85d062e8a95749d8b487ee42066c2f))
+
+
+### Bug Fixes
+
+* **AdminDashboard:** improve contributors sorting ([248c875](https://github.com/chenasraf/nextcloud-forum/commit/248c8753198b801c71ad94ede35d06b0bbd4aed1))
+* **Categories:** admin should always see all categories ([f4530ae](https://github.com/chenasraf/nextcloud-forum/commit/f4530ae2a3c01ba2d1f36c3c9e32ead2502580d0))
+* **l10n:** translation source string issues ([843f81a](https://github.com/chenasraf/nextcloud-forum/commit/843f81a08725b3109067b6f1f3ad2f538209ee26))
+* **l10n:** unify same messages with different placeholders ([8476b77](https://github.com/chenasraf/nextcloud-forum/commit/8476b772e305c9893b4d796c0dc3e9df1151fe09))
+* **l10n:** unusable pluralization ([3c7236f](https://github.com/chenasraf/nextcloud-forum/commit/3c7236f956736e5e249e72344ed2c973a6e65540))
+* **l10n:** Update translations from Transifex ([c43a0a0](https://github.com/chenasraf/nextcloud-forum/commit/c43a0a0f893378eb430e94209396d51f7c7fd830))
+* **l10n:** Update translations from Transifex ([fcf40da](https://github.com/chenasraf/nextcloud-forum/commit/fcf40da4aaed59d0a6d6ee58f039c73f4c5eba98))
+* **l10n:** Update translations from Transifex ([f0f06ce](https://github.com/chenasraf/nextcloud-forum/commit/f0f06cef258fc658e935d3375bbe92d8000b6d33))
+
 ## [0.10.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.10.0...v0.10.1) (2025-11-23)
 
 

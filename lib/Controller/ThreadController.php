@@ -22,6 +22,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -54,6 +55,7 @@ class ThreadController extends OCSController {
 	 * 200: Threads returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/threads')]
 	public function index(): DataResponse {
 		try {
@@ -86,6 +88,7 @@ class ThreadController extends OCSController {
 	 * 200: Threads returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[RequirePermission('canView', resourceType: 'category', resourceIdParam: 'categoryId')]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{categoryId}/threads')]
 	public function byCategory(int $categoryId, int $limit = 50, int $offset = 0): DataResponse {
@@ -119,6 +122,7 @@ class ThreadController extends OCSController {
 	 * 200: Threads returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/users/{authorId}/threads')]
 	public function byAuthor(string $authorId, int $limit = 50, int $offset = 0): DataResponse {
 		try {
@@ -147,6 +151,7 @@ class ThreadController extends OCSController {
 	 * 200: Thread returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'id')]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{id}')]
 	public function show(int $id, string $incrementView = '1'): DataResponse {
@@ -179,6 +184,7 @@ class ThreadController extends OCSController {
 	 * 200: Thread returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/slug/{slug}')]
 	public function bySlug(string $slug, string $incrementView = '1'): DataResponse {
 		try {

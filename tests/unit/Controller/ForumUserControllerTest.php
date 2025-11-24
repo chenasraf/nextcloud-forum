@@ -105,13 +105,13 @@ class ForumUserControllerTest extends TestCase {
 		$this->assertEquals($nextcloudUserId, $data['userId']);
 	}
 
-	public function testShowWithMeReturnsUnauthorizedWhenUserNotAuthenticated(): void {
+	public function testShowWithMeReturnsNotFoundWhenUserNotAuthenticated(): void {
 		$this->userSession->method('getUser')->willReturn(null);
 
 		$response = $this->controller->show('me');
 
-		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
-		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'User stats not found'], $response->getData());
 	}
 
 	public function testShowWithMeReturnsNotFoundWhenForumUserDoesNotExist(): void {

@@ -8,7 +8,6 @@ declare(strict_types=1);
 namespace OCA\Forum\Db;
 
 use OCA\Forum\AppInfo\Application;
-use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
@@ -77,13 +76,14 @@ class CategoryPermMapper extends QBMapper {
 	public function findByCategoryIdExcludingAdmin(int $categoryId): array {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from($this->getTableName())
+		$qb->select('cp.*')
+			->from($this->getTableName(), 'cp')
+			->innerJoin('cp', Application::tableName('forum_roles'), 'r', 'cp.role_id = r.id')
 			->where(
-				$qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
+				$qb->expr()->eq('cp.category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
 			)
 			->andWhere(
-				$qb->expr()->neq('role_id', $qb->createNamedParameter(UserRoleService::ROLE_ADMIN, IQueryBuilder::PARAM_INT))
+				$qb->expr()->neq('r.role_type', $qb->createNamedParameter(Role::ROLE_TYPE_ADMIN, IQueryBuilder::PARAM_STR))
 			);
 		return $this->findEntities($qb);
 	}

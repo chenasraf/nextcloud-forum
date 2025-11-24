@@ -68,8 +68,8 @@ import PageHeader from '@/components/PageHeader.vue'
 import CategoryCard from '@/components/CategoryCard.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import { useCategories } from '@/composables/useCategories'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 import type { Category } from '@/types'
-import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 
 export default defineComponent({
@@ -86,18 +86,20 @@ export default defineComponent({
   },
   setup() {
     const { categoryHeaders, loading, fetchCategories, refresh } = useCategories()
+    const { settings, loading: settingsLoading, fetchPublicSettings } = usePublicSettings()
+
     return {
       categoryHeaders,
       loading,
       fetchCategories,
       refreshCategories: refresh,
+      publicSettings: settings,
+      settingsLoading,
+      fetchPublicSettings,
     }
   },
   data() {
     return {
-      settingsLoading: true,
-      forumTitle: t('forum', 'Forum'),
-      forumSubtitle: t('forum', 'Welcome to the forum'),
       strings: {
         refresh: t('forum', 'Refresh'),
         loading: t('forum', 'Loading …'),
@@ -107,29 +109,23 @@ export default defineComponent({
       },
     }
   },
+  computed: {
+    forumTitle(): string {
+      return this.publicSettings?.title || t('forum', 'Forum')
+    },
+    forumSubtitle(): string {
+      return this.publicSettings?.subtitle || t('forum', 'Welcome to the forum!')
+    },
+  },
   async created() {
     // Fetch forum settings and categories
     try {
-      await Promise.all([this.fetchForumSettings(), this.fetchCategories()])
+      await Promise.all([this.fetchPublicSettings(), this.fetchCategories()])
     } catch (e) {
       console.error('Failed to fetch initial data', e)
     }
   },
   methods: {
-    async fetchForumSettings() {
-      try {
-        this.settingsLoading = true
-        const response = await ocs.get<{ title: string; subtitle: string }>('/settings')
-        this.forumTitle = response.data.title || t('forum', 'Forum')
-        this.forumSubtitle = response.data.subtitle || t('forum', 'Welcome to the forum!')
-      } catch (e) {
-        // Silently fail and use defaults if settings can't be loaded
-        console.debug('Could not load forum settings, using defaults', e)
-      } finally {
-        this.settingsLoading = false
-      }
-    },
-
     async refresh() {
       try {
         await this.refreshCategories()

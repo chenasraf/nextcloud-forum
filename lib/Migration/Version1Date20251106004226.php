@@ -547,6 +547,6 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 	 * @param IOutput $output
 	 */
 	private function seedInitialData(IOutput $output): void {
-		SeedHelper::seedAll($output);
+		//
 	}
 }

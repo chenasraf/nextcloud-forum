@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { generateUrl } from '@nextcloud/router'
 import { useUserRole } from '@/composables/useUserRole'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 
 const routes: RouteRecordRaw[] = [
   { path: '/', component: () => import('@/views/CategoriesView.vue') },
@@ -51,19 +52,32 @@ const router = createRouter({
   },
 })
 
-// Route guard to protect admin routes
+// Route guard to protect admin routes and enforce guest access settings
 router.beforeEach(async (to, from, next) => {
+  const { fetchCurrentUser } = useCurrentUser()
+  const { fetchPublicSettings, allowGuestAccess } = usePublicSettings()
+
+  // Fetch public settings and current user in parallel for better performance
+  const [, user] = await Promise.all([fetchPublicSettings(), fetchCurrentUser()])
+  const userId = user?.userId ?? null
+
+  // If user is not signed in and guest access is disabled, redirect to login
+  if (!userId && !allowGuestAccess.value) {
+    const redirectUrl = encodeURIComponent(to.fullPath)
+    const loginUrl = generateUrl(`/login?redirect_url=${redirectUrl}`)
+    console.warn('Guest access disabled and user not signed in - redirecting to login')
+    window.location.href = loginUrl
+    next(false) // Explicitly cancel navigation
+    return
+  }
+
   // Check if the route is an admin route
   if (to.path.startsWith('/admin')) {
     const { isAdmin, fetchUserRoles, loaded } = useUserRole()
-    const { fetchCurrentUser } = useCurrentUser()
 
     // Fetch user and roles if not already loaded
-    if (!loaded.value) {
-      const user = await fetchCurrentUser()
-      if (user) {
-        await fetchUserRoles(user.userId)
-      }
+    if (!loaded.value && user) {
+      await fetchUserRoles(user.userId)
     }
 
     // Redirect non-admin users to home

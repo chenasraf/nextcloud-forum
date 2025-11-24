@@ -121,9 +121,15 @@ import MessagePlusIcon from '@icons/MessagePlus.vue'
 import type { Category, Thread } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 
 export default defineComponent({
   name: 'CategoryView',
+  setup() {
+    const { userId } = useCurrentUser()
+    return { userId }
+  },
   components: {
     NcButton,
     NcEmptyContent,
@@ -238,6 +244,11 @@ export default defineComponent({
 
     async fetchReadMarkers() {
       try {
+        // Guests don't have read markers
+        if (this.userId === null) {
+          return
+        }
+
         if (this.threads.length === 0) {
           return
         }
@@ -256,6 +267,11 @@ export default defineComponent({
     },
 
     isThreadUnread(thread: Thread): boolean {
+      // Guests see everything as read
+      if (this.userId === null) {
+        return false
+      }
+
       const marker = this.readMarkers[thread.id]
       if (!marker) {
         // No read marker means thread is unread
@@ -270,6 +286,15 @@ export default defineComponent({
     },
 
     createThread() {
+      // Redirect guests to login
+      if (this.userId === null) {
+        const returnUrl = generateUrl(
+          `/apps/forum/c/${this.category?.slug || this.category?.id}/new`,
+        )
+        window.location.href = generateUrl(`/login?redirect_url=${encodeURIComponent(returnUrl)}`)
+        return
+      }
+
       if (this.category) {
         this.$router.push(`/c/${this.category.slug || this.category.id}/new`)
       }

@@ -75,16 +75,36 @@ class SearchControllerTest extends TestCase {
 		);
 	}
 
-	public function testIndexReturnsErrorWhenUserNotAuthenticated(): void {
+	public function testIndexAllowsGuestUsers(): void {
+		// Guest user (null user session)
 		$this->userSession->method('getUser')
 			->willReturn(null);
 
+		$thread1 = $this->createMockThread(1, 'Test Thread', 'test-thread', 1);
+
+		$searchResults = [
+			'threads' => [$thread1],
+			'posts' => [],
+			'threadCount' => 1,
+			'postCount' => 0,
+		];
+
+		// Should call search service with null userId for guests
+		$this->searchService->expects($this->once())
+			->method('search')
+			->with('test query', null, true, true, null, 50, 0)
+			->willReturn($searchResults);
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn(['user1' => ['userId' => 'user1', 'displayName' => 'User 1']]);
+
 		$response = $this->controller->index('test query');
 
-		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
-		$this->assertArrayHasKey('error', $data);
-		$this->assertEquals('User not authenticated', $data['error']);
+		$this->assertArrayHasKey('threads', $data);
+		$this->assertEquals(1, $data['threadCount']);
 	}
 
 	public function testIndexReturnsErrorWhenQueryIsEmpty(): void {
@@ -362,6 +382,76 @@ class SearchControllerTest extends TestCase {
 		$data = $response->getData();
 		$this->assertArrayHasKey('error', $data);
 		$this->assertEquals('Failed to perform search', $data['error']);
+	}
+
+	public function testIndexGuestUserWithEmptyQuery(): void {
+		// Guest user should still get validation errors
+		$this->userSession->method('getUser')
+			->willReturn(null);
+
+		$response = $this->controller->index('');
+
+		$this->assertEquals(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$data = $response->getData();
+		$this->assertArrayHasKey('error', $data);
+		$this->assertEquals('Search query is required', $data['error']);
+	}
+
+	public function testIndexGuestUserWithCategoryFilter(): void {
+		// Guest user searching within a specific category
+		$this->userSession->method('getUser')
+			->willReturn(null);
+
+		$thread1 = $this->createMockThread(1, 'Test Thread', 'test-thread', 5);
+
+		$searchResults = [
+			'threads' => [$thread1],
+			'posts' => [],
+			'threadCount' => 1,
+			'postCount' => 0,
+		];
+
+		$this->searchService->expects($this->once())
+			->method('search')
+			->with('test query', null, true, true, 5, 50, 0)
+			->willReturn($searchResults);
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn(['user1' => ['userId' => 'user1', 'displayName' => 'User 1']]);
+
+		$response = $this->controller->index('test query', true, true, 5);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(1, $data['threadCount']);
+	}
+
+	public function testIndexGuestUserWithNoResults(): void {
+		// Guest user with no accessible categories or no results
+		$this->userSession->method('getUser')
+			->willReturn(null);
+
+		$searchResults = [
+			'threads' => [],
+			'posts' => [],
+			'threadCount' => 0,
+			'postCount' => 0,
+		];
+
+		$this->searchService->expects($this->once())
+			->method('search')
+			->with('test query', null, true, true, null, 50, 0)
+			->willReturn($searchResults);
+
+		$response = $this->controller->index('test query');
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(0, $data['threadCount']);
+		$this->assertEquals(0, $data['postCount']);
+		$this->assertCount(0, $data['threads']);
+		$this->assertCount(0, $data['posts']);
 	}
 
 	private function createMockThread(int $id, string $title, string $slug, int $categoryId): Thread {

@@ -12,13 +12,14 @@ use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeaderMapper;
+use OCA\Forum\Db\Role;
+use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
-use OCA\Forum\Db\UserRoleMapper;
-use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IGroupManager;
@@ -34,7 +35,7 @@ class CategoryController extends OCSController {
 		private CategoryMapper $categoryMapper,
 		private CategoryPermMapper $categoryPermMapper,
 		private ThreadMapper $threadMapper,
-		private UserRoleMapper $userRoleMapper,
+		private RoleMapper $roleMapper,
 		private IUserSession $userSession,
 		private IGroupManager $groupManager,
 		private LoggerInterface $logger,
@@ -50,6 +51,7 @@ class CategoryController extends OCSController {
 	 * 200: Category headers with nested categories returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/categories')]
 	public function index(): DataResponse {
 		try {
@@ -91,6 +93,7 @@ class CategoryController extends OCSController {
 	 * 200: Categories returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/headers/{headerId}/categories')]
 	public function byHeader(int $headerId): DataResponse {
 		try {
@@ -111,6 +114,7 @@ class CategoryController extends OCSController {
 	 * 200: Category returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -133,6 +137,7 @@ class CategoryController extends OCSController {
 	 * 200: Category returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/slug/{slug}')]
 	public function bySlug(string $slug): DataResponse {
 		try {
@@ -236,6 +241,7 @@ class CategoryController extends OCSController {
 	 * 200: Thread count returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}/thread-count')]
 	public function getThreadCount(int $id): DataResponse {
 		try {
@@ -309,6 +315,7 @@ class CategoryController extends OCSController {
 	 * 200: Permission check result
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}/permissions/{permission}')]
 	public function checkPermission(int $id, string $permission): DataResponse {
 		try {
@@ -325,8 +332,8 @@ class CategoryController extends OCSController {
 			}
 
 			// Get user's roles
-			$userRoles = $this->userRoleMapper->findByUserId($user->getUID());
-			$roleIds = array_map(fn ($ur) => $ur->getRoleId(), $userRoles);
+			$roles = $this->roleMapper->findByUserId($user->getUID());
+			$roleIds = array_map(fn ($role) => $role->getId(), $roles);
 
 			if (empty($roleIds)) {
 				return new DataResponse(['hasPermission' => false]);
@@ -415,9 +422,18 @@ class CategoryController extends OCSController {
 			$this->categoryPermMapper->deleteByCategoryId($id);
 
 			// Filter out Admin role - it has hardcoded full access
-			$filteredPermissions = array_filter($permissions, fn ($perm)
-				=> ($perm['roleId'] ?? null) !== UserRoleService::ROLE_ADMIN
-			);
+			$filteredPermissions = array_filter($permissions, function ($perm) {
+				$roleId = $perm['roleId'] ?? null;
+				if ($roleId === null) {
+					return false;
+				}
+				try {
+					$role = $this->roleMapper->find($roleId);
+					return $role->getRoleType() !== Role::ROLE_TYPE_ADMIN;
+				} catch (DoesNotExistException $e) {
+					return false;
+				}
+			});
 
 			// Insert new permissions
 			foreach ($filteredPermissions as $perm) {
@@ -425,9 +441,20 @@ class CategoryController extends OCSController {
 				$categoryPerm->setCategoryId($id);
 				$categoryPerm->setRoleId($perm['roleId']);
 				$categoryPerm->setCanView($perm['canView'] ?? false);
-				$categoryPerm->setCanPost($perm['canView'] ?? false); // Default: can post if can view
-				$categoryPerm->setCanReply($perm['canView'] ?? false); // Default: can reply if can view
-				$categoryPerm->setCanModerate($perm['canModerate'] ?? false);
+				// canPost and canReply default to canView value
+				// This ensures that if a role can view a category, they can also post/reply unless explicitly restricted
+				$categoryPerm->setCanPost($perm['canView'] ?? false);
+				$categoryPerm->setCanReply($perm['canView'] ?? false);
+
+				// Guest and Default roles never have moderate permission
+				try {
+					$role = $this->roleMapper->find($perm['roleId']);
+					$canModerate = $role->isModeratorRestricted() ? false : ($perm['canModerate'] ?? false);
+					$categoryPerm->setCanModerate($canModerate);
+				} catch (DoesNotExistException $e) {
+					$categoryPerm->setCanModerate(false);
+				}
+
 				$this->categoryPermMapper->insert($categoryPerm);
 			}
 

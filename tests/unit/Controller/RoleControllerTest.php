@@ -39,7 +39,7 @@ class RoleControllerTest extends TestCase {
 
 	public function testUpdateAdminRoleEnforcesAllPermissions(): void {
 		$adminRoleId = 1;
-		$adminRole = $this->createRole($adminRoleId, 'Admin', true, true, true);
+		$adminRole = $this->createRole($adminRoleId, 'Admin', true, true, true, true, Role::ROLE_TYPE_ADMIN);
 
 		$this->roleMapper->expects($this->once())
 			->method('find')
@@ -78,7 +78,7 @@ class RoleControllerTest extends TestCase {
 
 	public function testUpdateNonAdminRoleAllowsPermissionChanges(): void {
 		$roleId = 2;
-		$role = $this->createRole($roleId, 'Moderator', true, false, true);
+		$role = $this->createRole($roleId, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
 
 		$this->roleMapper->expects($this->once())
 			->method('find')
@@ -112,10 +112,12 @@ class RoleControllerTest extends TestCase {
 
 	public function testDeleteAdminRoleReturnsForbidden(): void {
 		$adminRoleId = 1;
+		$adminRole = $this->createRole($adminRoleId, 'Admin', true, true, true, true, Role::ROLE_TYPE_ADMIN);
 
-		// Should not even try to find the role - should reject immediately
-		$this->roleMapper->expects($this->never())
-			->method('find');
+		$this->roleMapper->expects($this->once())
+			->method('find')
+			->with($adminRoleId)
+			->willReturn($adminRole);
 
 		$this->roleMapper->expects($this->never())
 			->method('delete');
@@ -129,9 +131,12 @@ class RoleControllerTest extends TestCase {
 
 	public function testDeleteModeratorRoleReturnsForbidden(): void {
 		$moderatorRoleId = 2;
+		$moderatorRole = $this->createRole($moderatorRoleId, 'Moderator', true, false, false, true, Role::ROLE_TYPE_MODERATOR);
 
-		$this->roleMapper->expects($this->never())
-			->method('find');
+		$this->roleMapper->expects($this->once())
+			->method('find')
+			->with($moderatorRoleId)
+			->willReturn($moderatorRole);
 
 		$this->roleMapper->expects($this->never())
 			->method('delete');
@@ -145,9 +150,12 @@ class RoleControllerTest extends TestCase {
 
 	public function testDeleteUserRoleReturnsForbidden(): void {
 		$userRoleId = 3;
+		$userRole = $this->createRole($userRoleId, 'User', false, false, false, true, Role::ROLE_TYPE_DEFAULT);
 
-		$this->roleMapper->expects($this->never())
-			->method('find');
+		$this->roleMapper->expects($this->once())
+			->method('find')
+			->with($userRoleId)
+			->willReturn($userRole);
 
 		$this->roleMapper->expects($this->never())
 			->method('delete');
@@ -161,7 +169,7 @@ class RoleControllerTest extends TestCase {
 
 	public function testDeleteCustomRoleSuccessfully(): void {
 		$customRoleId = 4;
-		$customRole = $this->createRole($customRoleId, 'Custom Role', false, false, false);
+		$customRole = $this->createRole($customRoleId, 'Custom Role', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
 
 		$this->roleMapper->expects($this->once())
 			->method('find')
@@ -202,9 +210,9 @@ class RoleControllerTest extends TestCase {
 	}
 
 	public function testIndexReturnsAllRoles(): void {
-		$role1 = $this->createRole(1, 'Admin', true, true, true);
-		$role2 = $this->createRole(2, 'Moderator', true, false, true);
-		$role3 = $this->createRole(3, 'User', false, false, false);
+		$role1 = $this->createRole(1, 'Admin', true, true, true, true, Role::ROLE_TYPE_ADMIN);
+		$role2 = $this->createRole(2, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
+		$role3 = $this->createRole(3, 'User', false, false, false, true, Role::ROLE_TYPE_DEFAULT);
 
 		$this->roleMapper->expects($this->once())
 			->method('findAll')
@@ -223,7 +231,7 @@ class RoleControllerTest extends TestCase {
 
 	public function testShowReturnsRoleSuccessfully(): void {
 		$roleId = 2;
-		$role = $this->createRole($roleId, 'Moderator', true, false, true);
+		$role = $this->createRole($roleId, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
 
 		$this->roleMapper->expects($this->once())
 			->method('find')
@@ -359,7 +367,7 @@ class RoleControllerTest extends TestCase {
 			['categoryId' => 2, 'canView' => true, 'canModerate' => true],
 		];
 
-		$role = $this->createRole($roleId, 'Moderator', true, false, true);
+		$role = $this->createRole($roleId, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
 
 		$this->roleMapper->expects($this->once())
 			->method('find')
@@ -420,13 +428,122 @@ class RoleControllerTest extends TestCase {
 		$this->assertEquals(['error' => 'Role not found'], $data);
 	}
 
-	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories): Role {
+	public function testUpdateGuestRoleEnforcesNoAdminPermissions(): void {
+		$guestRoleId = 4;
+		$guestRole = $this->createRole($guestRoleId, 'Guest', false, false, false, true, Role::ROLE_TYPE_GUEST);
+
+		$this->roleMapper->expects($this->once())
+			->method('find')
+			->with($guestRoleId)
+			->willReturn($guestRole);
+
+		$this->roleMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($role) use ($guestRoleId) {
+				// Verify Guest role never has admin permissions
+				$this->assertEquals($guestRoleId, $role->getId());
+				$this->assertFalse($role->getCanAccessAdminTools());
+				$this->assertFalse($role->getCanEditRoles());
+				$this->assertFalse($role->getCanEditCategories());
+				return $role;
+			});
+
+		// Try to update Guest role with permissions set to true - should be forced to false
+		$response = $this->controller->update(
+			$guestRoleId,
+			'Guest',
+			'Guest role',
+			'#cccccc',
+			'#cccccc',
+			true,  // Try to enable - should be forced to false
+			true,  // Try to enable - should be forced to false
+			true   // Try to enable - should be forced to false
+		);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertFalse($data['canAccessAdminTools']);
+		$this->assertFalse($data['canEditRoles']);
+		$this->assertFalse($data['canEditCategories']);
+	}
+
+	public function testUpdateGuestPermissionsEnforcesNoModerate(): void {
+		$guestRoleId = 4;
+		$guestRole = $this->createRole($guestRoleId, 'Guest', false, false, false, true, Role::ROLE_TYPE_GUEST);
+
+		$this->roleMapper->expects($this->once())
+			->method('find')
+			->with($guestRoleId)
+			->willReturn($guestRole);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('deleteByRoleId')
+			->with($guestRoleId);
+
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('insert')
+			->willReturnCallback(function ($perm) use ($guestRoleId) {
+				$this->assertEquals($guestRoleId, $perm->getRoleId());
+				// Verify guest role never has moderate permission, even if requested
+				$this->assertFalse($perm->getCanModerate());
+				return $perm;
+			});
+
+		$permissions = [
+			['categoryId' => 1, 'canView' => true, 'canModerate' => true],  // Try to enable moderate
+			['categoryId' => 2, 'canView' => true, 'canModerate' => true],  // Try to enable moderate
+		];
+
+		$response = $this->controller->updatePermissions($guestRoleId, $permissions);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
+	}
+
+	public function testUpdatePermissionsEnforcesNoModerateForDefault(): void {
+		$defaultRoleId = 3;
+		$defaultRole = $this->createRole($defaultRoleId, 'User', false, false, false, true, Role::ROLE_TYPE_DEFAULT);
+
+		$this->roleMapper->expects($this->once())
+			->method('find')
+			->with($defaultRoleId)
+			->willReturn($defaultRole);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('deleteByRoleId')
+			->with($defaultRoleId);
+
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('insert')
+			->willReturnCallback(function ($perm) use ($defaultRoleId) {
+				$this->assertEquals($defaultRoleId, $perm->getRoleId());
+				// Verify default role never has moderate permission, even if requested
+				$this->assertFalse($perm->getCanModerate());
+				return $perm;
+			});
+
+		$permissions = [
+			['categoryId' => 1, 'canView' => true, 'canModerate' => true], // Try to enable moderate
+			['categoryId' => 2, 'canView' => true, 'canModerate' => true], // Try to enable moderate
+		];
+
+		$response = $this->controller->updatePermissions($defaultRoleId, $permissions);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
+	}
+
+	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM): Role {
 		$role = new Role();
 		$role->setId($id);
 		$role->setName($name);
 		$role->setCanAccessAdminTools($canAccessAdminTools);
 		$role->setCanEditRoles($canEditRoles);
 		$role->setCanEditCategories($canEditCategories);
+		$role->setIsSystemRole($isSystemRole);
+		$role->setRoleType($roleType);
 		$role->setCreatedAt(time());
 		return $role;
 	}

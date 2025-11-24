@@ -104,4 +104,60 @@ class RoleMapper extends QBMapper {
 		$qb->select('*')->from($this->getTableName());
 		return $this->findEntities($qb);
 	}
+
+	/**
+	 * Find all roles assigned to a user using JOIN
+	 * More efficient than fetching user roles and then querying each role
+	 *
+	 * @param string $userId
+	 * @return array<Role>
+	 */
+	public function findByUserId(string $userId): array {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('r.*')
+			->from($this->getTableName(), 'r')
+			->innerJoin('r', Application::tableName('forum_user_roles'), 'ur', 'r.id = ur.role_id')
+			->where(
+				$qb->expr()->eq('ur.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find the default role (for assigning to new users)
+	 *
+	 * @return Role
+	 * @throws DoesNotExistException
+	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
+	 */
+	public function findDefaultRole(): Role {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('role_type', $qb->createNamedParameter(Role::ROLE_TYPE_DEFAULT, IQueryBuilder::PARAM_STR))
+			);
+		return $this->findEntity($qb);
+	}
+
+	/**
+	 * Find a role by its type
+	 *
+	 * @param string $roleType One of: admin, moderator, default, guest, custom
+	 * @return Role
+	 * @throws DoesNotExistException
+	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
+	 */
+	public function findByRoleType(string $roleType): Role {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('role_type', $qb->createNamedParameter($roleType, IQueryBuilder::PARAM_STR))
+			);
+		return $this->findEntity($qb);
+	}
 }

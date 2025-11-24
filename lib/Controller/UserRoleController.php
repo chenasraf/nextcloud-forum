@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
+use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\UserRoleMapper;
 use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -24,6 +25,7 @@ class UserRoleController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private UserRoleMapper $userRoleMapper,
+		private RoleMapper $roleMapper,
 		private UserRoleService $userRoleService,
 		private LoggerInterface $logger,
 	) {
@@ -43,8 +45,9 @@ class UserRoleController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/users/{userId}/roles')]
 	public function byUser(string $userId): DataResponse {
 		try {
-			$userRoles = $this->userRoleMapper->findByUserId($userId);
-			return new DataResponse(array_map(fn ($ur) => $ur->jsonSerialize(), $userRoles));
+			// Return full Role objects with roleType, not just UserRole entities
+			$roles = $this->roleMapper->findByUserId($userId);
+			return new DataResponse(array_map(fn ($role) => $role->jsonSerialize(), $roles));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching user roles: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch user roles'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -77,9 +80,10 @@ class UserRoleController extends OCSController {
 	 *
 	 * @param string $userId Nextcloud user ID
 	 * @param int $roleId Role ID
-	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>|DataResponse<Http::STATUS_CONFLICT, array{error: string}, array{}>
+	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>|DataResponse<Http::STATUS_CONFLICT, array{error: string}, array{}>|DataResponse<Http::STATUS_FORBIDDEN, array{error: string}, array{}>
 	 *
 	 * 201: Role assigned to user
+	 * 403: Cannot assign guest role to users
 	 * 409: User already has this role
 	 */
 	#[NoAdminRequired]
@@ -87,6 +91,12 @@ class UserRoleController extends OCSController {
 	#[ApiRoute(verb: 'POST', url: '/api/user-roles')]
 	public function create(string $userId, int $roleId): DataResponse {
 		try {
+			// Check if the role is the guest role
+			$role = $this->roleMapper->find($roleId);
+			if ($role->getRoleType() === \OCA\Forum\Db\Role::ROLE_TYPE_GUEST) {
+				return new DataResponse(['error' => 'Guest role cannot be assigned to users'], Http::STATUS_FORBIDDEN);
+			}
+
 			// Check if user already has the role
 			if ($this->userRoleService->hasRole($userId, $roleId)) {
 				return new DataResponse(['error' => 'User already has this role'], Http::STATUS_CONFLICT);
@@ -101,6 +111,8 @@ class UserRoleController extends OCSController {
 			}
 
 			return new DataResponse($createdUserRole->jsonSerialize(), Http::STATUS_CREATED);
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Role not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
 			$this->logger->error('Error assigning role to user: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to assign role to user'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -111,9 +123,10 @@ class UserRoleController extends OCSController {
 	 * Remove a role from a user
 	 *
 	 * @param int $id User role ID
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>|DataResponse<Http::STATUS_FORBIDDEN, array{error: string}, array{}>
 	 *
 	 * 200: Role removed from user
+	 * 403: Cannot remove guest role from users
 	 */
 	#[NoAdminRequired]
 	#[RequirePermission('canEditRoles')]
@@ -121,6 +134,13 @@ class UserRoleController extends OCSController {
 	public function destroy(int $id): DataResponse {
 		try {
 			$userRole = $this->userRoleMapper->find($id);
+
+			// Check if the role being removed is the guest role
+			$role = $this->roleMapper->find($userRole->getRoleId());
+			if ($role->getRoleType() === \OCA\Forum\Db\Role::ROLE_TYPE_GUEST) {
+				return new DataResponse(['error' => 'Guest role cannot be removed from users'], Http::STATUS_FORBIDDEN);
+			}
+
 			$this->userRoleMapper->delete($userRole);
 			return new DataResponse(['success' => true]);
 		} catch (DoesNotExistException $e) {

@@ -19,7 +19,7 @@ use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
-use OCP\IConfig;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\IL10N;
 use OCP\IRequest;
 use OCP\IUserManager;
@@ -39,7 +39,7 @@ class AdminController extends OCSController {
 		private UserRoleMapper $userRoleMapper,
 		private IUserManager $userManager,
 		private IUserSession $userSession,
-		private IConfig $config,
+		private IAppConfig $config,
 		private LoggerInterface $logger,
 		private IL10N $l10n,
 	) {
@@ -169,8 +169,9 @@ class AdminController extends OCSController {
 	public function getSettings(): DataResponse {
 		try {
 			$settings = [
-				'title' => $this->config->getSystemValueString('title', $this->l10n->t('Forum')),
-				'subtitle' => $this->config->getSystemValueString('subtitle', $this->l10n->t('Welcome to the forum!')),
+				'title' => $this->config->getAppValueString('title', $this->l10n->t('Forum'), true),
+				'subtitle' => $this->config->getAppValueString('subtitle', $this->l10n->t('Welcome to the forum!'), true),
+				'allow_guest_access' => $this->config->getAppValueBool('allow_guest_access', false, true),
 			];
 
 			return new DataResponse($settings);
@@ -185,6 +186,7 @@ class AdminController extends OCSController {
 	 *
 	 * @param string|null $title Forum title
 	 * @param string|null $subtitle Forum subtitle
+	 * @param bool|null $allow_guest_access Allow unauthenticated users to view forum content
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Settings updated
@@ -192,20 +194,25 @@ class AdminController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'PUT', url: '/api/admin/settings')]
-	public function updateSettings(?string $title = null, ?string $subtitle = null): DataResponse {
+	public function updateSettings(?string $title = null, ?string $subtitle = null, ?bool $allow_guest_access = null): DataResponse {
 		try {
 			if ($title !== null) {
-				$this->config->setSystemValue('title', $title);
+				$this->config->setAppValueString('title', $title, true);
 			}
 
 			if ($subtitle !== null) {
-				$this->config->setSystemValue('subtitle', $subtitle);
+				$this->config->setAppValueString('subtitle', $subtitle, true);
+			}
+
+			if ($allow_guest_access !== null) {
+				$this->config->setAppValueBool('allow_guest_access', $allow_guest_access, true);
 			}
 
 			// Return updated settings
 			$settings = [
-				'title' => $this->config->getSystemValueString('title', $this->l10n->t('Forum')),
-				'subtitle' => $this->config->getSystemValueString('subtitle', $this->l10n->t('Welcome to the forum!')),
+				'title' => $this->config->getAppValueString('title', $this->l10n->t('Forum'), true),
+				'subtitle' => $this->config->getAppValueString('subtitle', $this->l10n->t('Welcome to the forum!'), true),
+				'allow_guest_access' => $this->config->getAppValueBool('allow_guest_access', false, true),
 			];
 
 			return new DataResponse($settings);

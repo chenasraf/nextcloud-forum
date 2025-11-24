@@ -39,6 +39,19 @@
 
       <!-- Form -->
       <div v-else class="role-form">
+        <!-- Guest access disabled warning -->
+        <NcNoteCard v-if="isGuest && !allowGuestAccess" type="error" class="guest-access-warning">
+          <p>
+            <strong>{{ strings.guestAccessDisabledTitle }}</strong>
+          </p>
+          <p>{{ strings.guestAccessDisabledMessage }}</p>
+          <template #action>
+            <NcButton @click="goToForumSettings" type="primary">
+              {{ strings.goToForumSettings }}
+            </NcButton>
+          </template>
+        </NcNoteCard>
+
         <!-- Basic Info Section -->
         <section class="form-section">
           <h3>{{ strings.basicInfo }}</h3>
@@ -111,25 +124,37 @@
         <!-- Role Permissions Section -->
         <section class="form-section">
           <h3>{{ strings.rolePermissions }}</h3>
-          <p class="muted">{{ strings.rolePermissionsDesc }}</p>
+          <NcNoteCard v-if="isAdmin" type="info">
+            {{ strings.adminAllRolePermissions }}
+          </NcNoteCard>
+          <NcNoteCard v-else-if="isGuest" type="warning">
+            {{ strings.guestNoRolePermissions }}
+          </NcNoteCard>
+          <p v-else class="muted">{{ strings.rolePermissionsDesc }}</p>
 
           <div class="permissions-checkboxes">
             <div class="checkbox-group">
-              <NcCheckboxRadioSwitch v-model="formData.canAccessAdminTools" :disabled="isAdmin">
+              <NcCheckboxRadioSwitch
+                v-model="formData.canAccessAdminTools"
+                :disabled="isAdmin || isGuest"
+              >
                 <strong>{{ strings.canAccessAdminTools }}</strong>
                 <span class="checkbox-desc muted">{{ strings.canAccessAdminToolsDesc }}</span>
               </NcCheckboxRadioSwitch>
             </div>
 
             <div class="checkbox-group">
-              <NcCheckboxRadioSwitch v-model="formData.canEditRoles" :disabled="isAdmin">
+              <NcCheckboxRadioSwitch v-model="formData.canEditRoles" :disabled="isAdmin || isGuest">
                 <strong>{{ strings.canEditRoles }}</strong>
                 <span class="checkbox-desc muted">{{ strings.canEditRolesDesc }}</span>
               </NcCheckboxRadioSwitch>
             </div>
 
             <div class="checkbox-group">
-              <NcCheckboxRadioSwitch v-model="formData.canEditCategories" :disabled="isAdmin">
+              <NcCheckboxRadioSwitch
+                v-model="formData.canEditCategories"
+                :disabled="isAdmin || isGuest"
+              >
                 <strong>{{ strings.canEditCategories }}</strong>
                 <span class="checkbox-desc muted">{{ strings.canEditCategoriesDesc }}</span>
               </NcCheckboxRadioSwitch>
@@ -140,10 +165,18 @@
         <!-- Category Permissions Section -->
         <section class="form-section">
           <h3>{{ strings.categoryPermissions }}</h3>
-          <p v-if="isAdmin" class="info-message">
-            <InformationIcon :size="20" />
+          <NcNoteCard v-if="isAdmin" type="info">
             {{ strings.adminFullAccess }}
-          </p>
+          </NcNoteCard>
+          <NcNoteCard v-else-if="isGuest" type="info">
+            <p>{{ strings.guestNoModeratePermission }}</p>
+            <p class="note-subtext">
+              {{ strings.guestCategoryPermissionsEditable }}
+            </p>
+          </NcNoteCard>
+          <NcNoteCard v-else-if="isDefault" type="warning">
+            {{ strings.defaultNoModeratePermission }}
+          </NcNoteCard>
           <p v-else class="muted">{{ strings.categoryPermissionsDesc }}</p>
 
           <div v-if="categoryHeaders.length > 0" class="permissions-table">
@@ -169,7 +202,7 @@
                   <NcCheckboxRadioSwitch
                     :model-value="getHeaderModerateState(header.id).checked"
                     :indeterminate="getHeaderModerateState(header.id).indeterminate"
-                    :disabled="isAdmin"
+                    :disabled="isAdmin || isGuest || isDefault"
                     @update:model-value="toggleHeaderModerate(header.id)"
                   />
                 </div>
@@ -197,7 +230,7 @@
                 <div class="col-permission">
                   <NcCheckboxRadioSwitch
                     :model-value="permissions[category.id]?.canModerate || false"
-                    :disabled="isAdmin"
+                    :disabled="isAdmin || isGuest || isDefault"
                     @update:model-value="updateCategoryModerate(category.id, $event)"
                   >
                     {{ strings.allow }}
@@ -231,17 +264,18 @@ import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwit
 import NcColorPicker from '@nextcloud/vue/components/NcColorPicker'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
-import InformationIcon from '@icons/Information.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import AppToolbar from '@/components/AppToolbar.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { isAdminRole, isGuestRole, isDefaultRole } from '@/constants'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 import type { Role, CategoryHeader } from '@/types'
-import { SystemRole, isSystemRole } from '@/constants'
 
 interface CategoryPermission {
   canView: boolean
@@ -256,13 +290,21 @@ export default defineComponent({
     NcColorPicker,
     NcEmptyContent,
     NcLoadingIcon,
+    NcNoteCard,
     NcTextField,
     NcTextArea,
     PageHeader,
     ArrowLeftIcon,
-    InformationIcon,
     PageWrapper,
     AppToolbar,
+  },
+  setup() {
+    const { allowGuestAccess, fetchPublicSettings } = usePublicSettings()
+
+    return {
+      allowGuestAccess,
+      fetchPublicSettings,
+    }
   },
   data() {
     return {
@@ -270,6 +312,7 @@ export default defineComponent({
       submitting: false,
       error: null as string | null,
       categoryHeaders: [] as CategoryHeader[],
+      role: null as Role | null,
       formData: {
         name: '',
         description: '',
@@ -318,7 +361,21 @@ export default defineComponent({
         canModerate: t('forum', 'Can moderate'),
         allow: t('forum', 'Allow'),
         noCategories: t('forum', 'No categories available'),
+        adminAllRolePermissions: t('forum', 'Admin role must have all permissions enabled'),
         adminFullAccess: t('forum', 'Admin role has full access to all categories'),
+        guestNoRolePermissions: t('forum', 'Guest role cannot have admin permissions'),
+        guestNoModeratePermission: t('forum', 'Guest role cannot moderate categories'),
+        guestCategoryPermissionsEditable: t(
+          'forum',
+          'You can control which categories guests can view, post in, and reply to using the checkboxes below.',
+        ),
+        guestAccessDisabledTitle: t('forum', 'Guest access is currently disabled'),
+        guestAccessDisabledMessage: t(
+          'forum',
+          'Guest users will not be able to access the forum until guest access is enabled in the forum settings.',
+        ),
+        goToForumSettings: t('forum', 'Go to forum settings'),
+        defaultNoModeratePermission: t('forum', 'Default role cannot moderate categories'),
         cancel: t('forum', 'Cancel'),
         create: t('forum', 'Create'),
         update: t('forum', 'Update'),
@@ -334,11 +391,16 @@ export default defineComponent({
     },
     isSystemRole(): boolean {
       // System roles (Admin, Moderator, User) - only name is locked
-      return this.roleId !== null && isSystemRole(this.roleId)
+      return this.role?.isSystemRole ?? false
     },
     isAdmin(): boolean {
-      // Admin role has full access to everything
-      return this.roleId === SystemRole.ADMIN
+      return isAdminRole(this.role)
+    },
+    isGuest(): boolean {
+      return isGuestRole(this.role)
+    },
+    isDefault(): boolean {
+      return isDefaultRole(this.role)
     },
     canSubmit(): boolean {
       return this.formData.name.trim().length > 0
@@ -438,6 +500,9 @@ export default defineComponent({
         this.loading = true
         this.error = null
 
+        // Fetch public settings to check guest access status
+        await this.fetchPublicSettings()
+
         // Load category headers with categories
         const headersResponse = await ocs.get<CategoryHeader[]>('/categories')
         this.categoryHeaders = headersResponse.data || []
@@ -483,15 +548,15 @@ export default defineComponent({
 
       // Load role details
       const roleResponse = await ocs.get<Role>(`/roles/${this.roleId}`)
-      const role = roleResponse.data
+      this.role = roleResponse.data
 
-      this.formData.name = role.name
-      this.formData.description = role.description || ''
-      this.formData.colorLight = role.colorLight || '#000000'
-      this.formData.colorDark = role.colorDark || '#ffffff'
-      this.formData.canAccessAdminTools = role.canAccessAdminTools || false
-      this.formData.canEditRoles = role.canEditRoles || false
-      this.formData.canEditCategories = role.canEditCategories || false
+      this.formData.name = this.role.name
+      this.formData.description = this.role.description || ''
+      this.formData.colorLight = this.role.colorLight || '#000000'
+      this.formData.colorDark = this.role.colorDark || '#ffffff'
+      this.formData.canAccessAdminTools = this.role.canAccessAdminTools || false
+      this.formData.canEditRoles = this.role.canEditRoles || false
+      this.formData.canEditCategories = this.role.canEditCategories || false
 
       // Admin role always has all permissions
       if (this.isAdmin) {
@@ -500,8 +565,26 @@ export default defineComponent({
         this.formData.canEditCategories = true
       }
 
+      // Guest role never has admin permissions
+      if (this.isGuest) {
+        this.formData.canAccessAdminTools = false
+        this.formData.canEditRoles = false
+        this.formData.canEditCategories = false
+      }
+
+      // Default role never has admin permissions (same as guest)
+      if (this.isDefault) {
+        this.formData.canAccessAdminTools = false
+        this.formData.canEditRoles = false
+        this.formData.canEditCategories = false
+      }
+
       // If colors are different, mark dark as modified
-      if (role.colorLight && role.colorDark && role.colorLight !== role.colorDark) {
+      if (
+        this.role.colorLight &&
+        this.role.colorDark &&
+        this.role.colorLight !== this.role.colorDark
+      ) {
         this.darkColorModified = true
       }
 
@@ -540,6 +623,32 @@ export default defineComponent({
           }
         })
       }
+
+      // Guest role never has moderate permission
+      if (this.isGuest) {
+        this.categoryHeaders.forEach((header) => {
+          if (header.categories) {
+            header.categories.forEach((category) => {
+              if (this.permissions[category.id]) {
+                this.permissions[category.id].canModerate = false
+              }
+            })
+          }
+        })
+      }
+
+      // Default role never has moderate permission
+      if (this.isDefault) {
+        this.categoryHeaders.forEach((header) => {
+          if (header.categories) {
+            header.categories.forEach((category) => {
+              if (this.permissions[category.id]) {
+                this.permissions[category.id].canModerate = false
+              }
+            })
+          }
+        })
+      }
     },
 
     async submitForm(): Promise<void> {
@@ -553,9 +662,17 @@ export default defineComponent({
           description: this.formData.description.trim() || null,
           colorLight: this.formData.colorLight || null,
           colorDark: this.formData.colorDark || null,
-          canAccessAdminTools: this.isAdmin ? true : this.formData.canAccessAdminTools,
-          canEditRoles: this.isAdmin ? true : this.formData.canEditRoles,
-          canEditCategories: this.isAdmin ? true : this.formData.canEditCategories,
+          canAccessAdminTools: this.isAdmin
+            ? true
+            : this.isGuest
+            ? false
+            : this.formData.canAccessAdminTools,
+          canEditRoles: this.isAdmin ? true : this.isGuest ? false : this.formData.canEditRoles,
+          canEditCategories: this.isAdmin
+            ? true
+            : this.isGuest
+            ? false
+            : this.formData.canEditCategories,
         }
 
         let roleId: number
@@ -587,7 +704,7 @@ export default defineComponent({
       const permissionsData = Object.entries(this.permissions).map(([categoryId, perms]) => ({
         categoryId: parseInt(categoryId),
         canView: perms.canView,
-        canModerate: perms.canModerate,
+        canModerate: this.isGuest || this.isDefault ? false : perms.canModerate,
       }))
 
       await ocs.post(`/roles/${roleId}/permissions`, {
@@ -597,6 +714,10 @@ export default defineComponent({
 
     goBack(): void {
       this.$router.push('/admin/roles')
+    },
+
+    goToForumSettings(): void {
+      this.$router.push('/admin/settings')
     },
 
     onLightColorChange(): void {
@@ -654,23 +775,22 @@ export default defineComponent({
     flex-direction: column;
     gap: 32px;
 
+    .guest-access-warning {
+      p:first-child {
+        margin-bottom: 8px;
+      }
+
+      p:last-child {
+        margin: 0;
+      }
+    }
+
     .form-section {
       h3 {
         margin: 0 0 16px 0;
         font-size: 1.2rem;
         font-weight: 600;
         color: var(--color-main-text);
-      }
-
-      .info-message {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 16px;
-        background: var(--color-primary-light);
-        border-radius: 8px;
-        color: var(--color-primary-text);
-        margin-bottom: 16px;
       }
     }
 

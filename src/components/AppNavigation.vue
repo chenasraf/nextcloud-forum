@@ -56,8 +56,9 @@
           </template>
         </NcAppNavigationItem>
 
-        <!-- Preferences menu item -->
+        <!-- Preferences menu item (authenticated users only) -->
         <NcAppNavigationItem
+          v-if="userId !== null"
           :name="strings.navPreferences"
           :to="{ path: '/preferences' }"
           :active="isPathActive('/preferences')"

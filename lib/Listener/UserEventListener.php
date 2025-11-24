@@ -7,9 +7,11 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Listener;
 
+use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\StatsService;
 use OCA\Forum\Service\UserRoleService;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\User\Events\UserCreatedEvent;
@@ -24,6 +26,7 @@ class UserEventListener implements IEventListener {
 		private UserStatsMapper $userStatsMapper,
 		private StatsService $statsService,
 		private UserRoleService $userRoleService,
+		private RoleMapper $roleMapper,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -52,8 +55,11 @@ class UserEventListener implements IEventListener {
 
 		try {
 			// Assign default user role to new user
-			$this->userRoleService->assignRole($userId, UserRoleService::ROLE_USER, skipIfExists: true);
+			$defaultRole = $this->roleMapper->findDefaultRole();
+			$this->userRoleService->assignRole($userId, $defaultRole->getId(), skipIfExists: true);
 			$this->logger->info("Assigned default user role to new Nextcloud user: {$userId}");
+		} catch (DoesNotExistException $ex) {
+			$this->logger->error("Default role not found, cannot assign role to new user: {$userId}");
 		} catch (\Exception $ex) {
 			$this->logger->error("Failed to assign default user role to new user: {$userId}", [
 				'exception' => $ex->getMessage(),

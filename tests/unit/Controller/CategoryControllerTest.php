@@ -12,9 +12,9 @@ use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeader;
 use OCA\Forum\Db\CatHeaderMapper;
+use OCA\Forum\Db\Role;
+use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
-use OCA\Forum\Db\UserRole;
-use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IGroup;
@@ -31,7 +31,7 @@ class CategoryControllerTest extends TestCase {
 	private CategoryMapper $categoryMapper;
 	private CategoryPermMapper $categoryPermMapper;
 	private ThreadMapper $threadMapper;
-	private UserRoleMapper $userRoleMapper;
+	private RoleMapper $roleMapper;
 	private IUserSession $userSession;
 	private IGroupManager $groupManager;
 	private LoggerInterface $logger;
@@ -43,7 +43,7 @@ class CategoryControllerTest extends TestCase {
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
 		$this->categoryPermMapper = $this->createMock(CategoryPermMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
-		$this->userRoleMapper = $this->createMock(UserRoleMapper::class);
+		$this->roleMapper = $this->createMock(RoleMapper::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
@@ -55,7 +55,7 @@ class CategoryControllerTest extends TestCase {
 			$this->categoryMapper,
 			$this->categoryPermMapper,
 			$this->threadMapper,
-			$this->userRoleMapper,
+			$this->roleMapper,
 			$this->userSession,
 			$this->groupManager,
 			$this->logger
@@ -411,15 +411,14 @@ class CategoryControllerTest extends TestCase {
 		$this->groupManager->method('get')->with('admin')->willReturn(null);
 
 		// User has a role
-		$userRole = new UserRole();
-		$userRole->setId(1);
-		$userRole->setUserId($userId);
-		$userRole->setRoleId(1);
+		$role = new Role();
+		$role->setId(1);
+		$role->setName('User');
 
-		$this->userRoleMapper->expects($this->once())
+		$this->roleMapper->expects($this->once())
 			->method('findByUserId')
 			->with($userId)
-			->willReturn([$userRole]);
+			->willReturn([$role]);
 
 		// Category permission allows viewing
 		$categoryPerm = new CategoryPerm();
@@ -454,14 +453,13 @@ class CategoryControllerTest extends TestCase {
 
 		$this->groupManager->method('get')->with('admin')->willReturn(null);
 
-		$userRole = new UserRole();
-		$userRole->setId(1);
-		$userRole->setUserId($userId);
-		$userRole->setRoleId(1);
+		$role = new Role();
+		$role->setId(1);
+		$role->setName('User');
 
-		$this->userRoleMapper->expects($this->once())
+		$this->roleMapper->expects($this->once())
 			->method('findByUserId')
-			->willReturn([$userRole]);
+			->willReturn([$role]);
 
 		// Category permission does not allow moderating
 		$categoryPerm = new CategoryPerm();
@@ -590,6 +588,33 @@ class CategoryControllerTest extends TestCase {
 			->with($categoryId)
 			->willReturn($category);
 
+		// Mock role lookups for admin check
+		$adminRole = new Role();
+		$adminRole->setId(1);
+		$adminRole->setName('Admin');
+		$adminRole->setRoleType(Role::ROLE_TYPE_ADMIN);
+
+		$moderatorRole = new Role();
+		$moderatorRole->setId(2);
+		$moderatorRole->setName('Moderator');
+		$moderatorRole->setRoleType(Role::ROLE_TYPE_MODERATOR);
+
+		$userRole = new Role();
+		$userRole->setId(3);
+		$userRole->setName('User');
+		$userRole->setRoleType(Role::ROLE_TYPE_DEFAULT);
+
+		// roleMapper->find() is called:
+		// - 3 times during filtering phase (for roles 1, 2, 3)
+		// - 2 times during insertion phase (for roles 2, 3 only - role 1 is filtered out)
+		$this->roleMapper->expects($this->exactly(5))
+			->method('find')
+			->willReturnMap([
+				[1, $adminRole],
+				[2, $moderatorRole],
+				[3, $userRole],
+			]);
+
 		$this->categoryPermMapper->expects($this->once())
 			->method('deleteByCategoryId')
 			->with($categoryId);
@@ -654,6 +679,156 @@ class CategoryControllerTest extends TestCase {
 			});
 
 		$response = $this->controller->reorder($categories);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
+	}
+
+	public function testUpdatePermissionsEnforcesNoModerateForGuest(): void {
+		$categoryId = 1;
+		$guestRoleId = 4;
+
+		$category = $this->createCategory($categoryId, 1, 'Test Category');
+
+		$guestRole = new Role();
+		$guestRole->setId($guestRoleId);
+		$guestRole->setName('Guest');
+		$guestRole->setRoleType(Role::ROLE_TYPE_GUEST);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($categoryId)
+			->willReturn($category);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('deleteByCategoryId')
+			->with($categoryId);
+
+		// roleMapper->find() is called twice:
+		// - Once during filtering phase
+		// - Once during insertion phase
+		$this->roleMapper->expects($this->exactly(2))
+			->method('find')
+			->with($guestRoleId)
+			->willReturn($guestRole);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function ($perm) use ($guestRoleId, $categoryId) {
+				$this->assertEquals($categoryId, $perm->getCategoryId());
+				$this->assertEquals($guestRoleId, $perm->getRoleId());
+				$this->assertTrue($perm->getCanView());
+				// Verify guest role never has moderate permission, even if requested
+				$this->assertFalse($perm->getCanModerate());
+				return $perm;
+			});
+
+		$permissions = [
+			['roleId' => $guestRoleId, 'canView' => true, 'canModerate' => true], // Try to enable moderate
+		];
+
+		$response = $this->controller->updatePermissions($categoryId, $permissions);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
+	}
+
+	public function testUpdatePermissionsAllowsModerateForNonGuest(): void {
+		$categoryId = 1;
+		$moderatorRoleId = 2;
+
+		$category = $this->createCategory($categoryId, 1, 'Test Category');
+
+		$moderatorRole = new Role();
+		$moderatorRole->setId($moderatorRoleId);
+		$moderatorRole->setName('Moderator');
+		$moderatorRole->setRoleType(Role::ROLE_TYPE_MODERATOR);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($categoryId)
+			->willReturn($category);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('deleteByCategoryId')
+			->with($categoryId);
+
+		// roleMapper->find() is called twice:
+		// - Once during filtering phase
+		// - Once during insertion phase
+		$this->roleMapper->expects($this->exactly(2))
+			->method('find')
+			->with($moderatorRoleId)
+			->willReturn($moderatorRole);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function ($perm) use ($moderatorRoleId, $categoryId) {
+				$this->assertEquals($categoryId, $perm->getCategoryId());
+				$this->assertEquals($moderatorRoleId, $perm->getRoleId());
+				$this->assertTrue($perm->getCanView());
+				// Verify non-guest role CAN have moderate permission
+				$this->assertTrue($perm->getCanModerate());
+				return $perm;
+			});
+
+		$permissions = [
+			['roleId' => $moderatorRoleId, 'canView' => true, 'canModerate' => true],
+		];
+
+		$response = $this->controller->updatePermissions($categoryId, $permissions);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
+	}
+
+	public function testUpdatePermissionsEnforcesNoModerateForDefault(): void {
+		$categoryId = 1;
+		$defaultRoleId = 3;
+
+		$category = $this->createCategory($categoryId, 1, 'Test Category');
+
+		$defaultRole = new Role();
+		$defaultRole->setId($defaultRoleId);
+		$defaultRole->setName('User');
+		$defaultRole->setRoleType(Role::ROLE_TYPE_DEFAULT);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($categoryId)
+			->willReturn($category);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('deleteByCategoryId')
+			->with($categoryId);
+
+		// roleMapper->find() is called twice:
+		// - Once during filtering phase
+		// - Once during insertion phase
+		$this->roleMapper->expects($this->exactly(2))
+			->method('find')
+			->with($defaultRoleId)
+			->willReturn($defaultRole);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function ($perm) use ($defaultRoleId, $categoryId) {
+				$this->assertEquals($categoryId, $perm->getCategoryId());
+				$this->assertEquals($defaultRoleId, $perm->getRoleId());
+				$this->assertTrue($perm->getCanView());
+				// Verify default role never has moderate permission, even if requested
+				$this->assertFalse($perm->getCanModerate());
+				return $perm;
+			});
+
+		$permissions = [
+			['roleId' => $defaultRoleId, 'canView' => true, 'canModerate' => true], // Try to enable moderate
+		];
+
+		$response = $this->controller->updatePermissions($categoryId, $permissions);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();

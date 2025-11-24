@@ -1,24 +1,26 @@
 import { ref, computed } from 'vue'
 import { ocs } from '@/axios'
-import type { UserRole } from '@/types'
-import { SystemRole } from '@/constants'
+import { isAdminRole, isModeratorRole } from '@/constants'
+import type { Role } from '@/types'
 
-const userRoles = ref<UserRole[]>([])
+const userRoles = ref<Role[]>([])
 const loading = ref<boolean>(false)
 const error = ref<string | null>(null)
 const loaded = ref<boolean>(false)
+const currentUserId = ref<string | null>(null)
 
 export function useUserRole() {
-  const fetchUserRoles = async (userId: string, force = false): Promise<UserRole[]> => {
-    if (loaded.value && !force) {
+  const fetchUserRoles = async (userId: string, force = false): Promise<Role[]> => {
+    if (loaded.value && !force && currentUserId.value === userId) {
       return userRoles.value
     }
 
     try {
       loading.value = true
       error.value = null
-      const response = await ocs.get<UserRole[]>(`/users/${userId}/roles`)
+      const response = await ocs.get<Role[]>(`/users/${userId}/roles`)
       userRoles.value = response.data || []
+      currentUserId.value = userId
       loaded.value = true
       return userRoles.value
     } catch (e) {
@@ -31,23 +33,23 @@ export function useUserRole() {
   }
 
   const isAdmin = computed<boolean>(() => {
-    return userRoles.value.some((role) => role.roleId === SystemRole.ADMIN)
+    return userRoles.value.some(isAdminRole)
   })
 
   const isModerator = computed<boolean>(() => {
-    return userRoles.value.some((role) => role.roleId === SystemRole.MODERATOR)
+    return userRoles.value.some(isModeratorRole)
   })
 
   const refresh = () => {
-    loaded.value = false
-    const userId = userRoles.value[0]?.userId
-    if (userId) {
-      return fetchUserRoles(userId, true)
+    if (currentUserId.value) {
+      loaded.value = false
+      return fetchUserRoles(currentUserId.value, true)
     }
   }
 
   const clear = () => {
     userRoles.value = []
+    currentUserId.value = null
     loaded.value = false
     error.value = null
   }

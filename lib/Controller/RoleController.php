@@ -10,8 +10,8 @@ namespace OCA\Forum\Controller;
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
+use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
-use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -166,10 +166,15 @@ class RoleController extends OCSController {
 			}
 
 			// Admin role always has all permissions - cannot be changed
-			if ($id === UserRoleService::ROLE_ADMIN) {
+			if ($role->getRoleType() === Role::ROLE_TYPE_ADMIN) {
 				$role->setCanAccessAdminTools(true);
 				$role->setCanEditRoles(true);
 				$role->setCanEditCategories(true);
+			} elseif ($role->getRoleType() === Role::ROLE_TYPE_GUEST) {
+				// Guest role never has admin permissions - cannot be changed
+				$role->setCanAccessAdminTools(false);
+				$role->setCanEditRoles(false);
+				$role->setCanEditCategories(false);
 			} else {
 				if ($canAccessAdminTools !== null) {
 					$role->setCanAccessAdminTools($canAccessAdminTools);
@@ -207,16 +212,12 @@ class RoleController extends OCSController {
 	#[ApiRoute(verb: 'DELETE', url: '/api/roles/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {
+			$role = $this->roleMapper->find($id);
+
 			// Prevent deleting system roles (Admin, Moderator, User)
-			if (in_array($id, [
-				UserRoleService::ROLE_ADMIN,
-				UserRoleService::ROLE_MODERATOR,
-				UserRoleService::ROLE_USER,
-			], true)) {
+			if ($role->getIsSystemRole()) {
 				return new DataResponse(['error' => 'System roles cannot be deleted'], Http::STATUS_FORBIDDEN);
 			}
-
-			$role = $this->roleMapper->find($id);
 
 			// Delete associated permissions
 			$this->categoryPermMapper->deleteByRoleId($id);
@@ -266,8 +267,8 @@ class RoleController extends OCSController {
 	#[ApiRoute(verb: 'POST', url: '/api/roles/{id}/permissions')]
 	public function updatePermissions(int $id, array $permissions): DataResponse {
 		try {
-			// Verify role exists
-			$this->roleMapper->find($id);
+			// Verify role exists and get role type
+			$role = $this->roleMapper->find($id);
 
 			// Delete existing permissions for this role
 			$this->categoryPermMapper->deleteByRoleId($id);
@@ -278,9 +279,12 @@ class RoleController extends OCSController {
 				$categoryPerm->setCategoryId($perm['categoryId']);
 				$categoryPerm->setRoleId($id);
 				$categoryPerm->setCanView($perm['canView'] ?? false);
-				$categoryPerm->setCanPost($perm['canView'] ?? false); // Default: can post if can view
-				$categoryPerm->setCanReply($perm['canView'] ?? false); // Default: can reply if can view
-				$categoryPerm->setCanModerate($perm['canModerate'] ?? false);
+				// canPost and canReply default to canView value
+				// This ensures that if a role can view a category, they can also post/reply unless explicitly restricted
+				$categoryPerm->setCanPost($perm['canView'] ?? false);
+				$categoryPerm->setCanReply($perm['canView'] ?? false);
+				// Guest and Default roles never have moderate permission
+				$categoryPerm->setCanModerate($role->isModeratorRestricted() ? false : ($perm['canModerate'] ?? false));
 
 				$this->categoryPermMapper->insert($categoryPerm);
 			}

@@ -25,6 +25,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
@@ -64,6 +65,7 @@ class PostController extends OCSController {
 	 * 200: Posts returned
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
 	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts')]
 	public function byThread(int $threadId, int $limit = 50, int $offset = 0): DataResponse {

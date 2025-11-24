@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.11.0...v0.11.1) (2025-11-24)
+
+
+### Bug Fixes
+
+* **CSP:** set CSP to allow all images to load in the forum ([9029882](https://github.com/chenasraf/nextcloud-forum/commit/9029882fdb1c8da2e527acfee2a13a3e38c66244))
+
 ## [0.11.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.10.1...v0.11.0) (2025-11-24)
 
 

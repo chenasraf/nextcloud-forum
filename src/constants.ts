@@ -18,5 +18,5 @@ export const SystemRole = {
  * Check if a role ID is a system role
  */
 export function isSystemRole(roleId: number): boolean {
-  return Object.values(SystemRole).includes(roleId)
+  return Object.values(SystemRole).includes(roleId as (typeof SystemRole)[keyof typeof SystemRole])
 }

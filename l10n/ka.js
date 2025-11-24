@@ -6,6 +6,7 @@ OC.L10N.register(
     "Moderator" : "Moderator",
     "User" : "User",
     "General" : "General",
+    "Deleted user" : "Deleted user",
     "Search" : "ძიება",
     "Home" : "მთავარი",
     "Dashboard" : "Dashboard",

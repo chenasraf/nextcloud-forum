@@ -30,7 +30,6 @@ OC.L10N.register(
     "Update" : "อัปเดต",
     "Create" : "สร้าง",
     "Name" : "ชื่อ",
-    "Sort Order" : "เรียงลำดับรายการ",
     "New" : "ใหม่",
     "Last 7 days" : "ภายใน 7 วัน",
     "Appearance" : "ลักษณะที่ปรากฏ",

@@ -27,7 +27,6 @@ OC.L10N.register(
     "Description" : "Descripción",
     "Update" : "Actualizar",
     "Name" : "Nombre",
-    "Sort Order" : "Cirterio para ordenar",
     "New" : "Nuevo",
     "Permissions" : "Permisos",
     "General settings" : "Configuraciones generales",

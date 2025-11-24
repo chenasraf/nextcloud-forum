@@ -22,7 +22,6 @@ OC.L10N.register(
     "Enabled" : "কার্যকর",
     "Update" : "পরিবর্ধন",
     "Name" : "নাম",
-    "Sort Order" : "গোছাও",
     "New" : "নতুন",
     "Reset" : "পূণঃনির্ধানণ",
     "Actions" : "পদক্ষেপসমূহ",

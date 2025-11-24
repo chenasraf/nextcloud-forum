@@ -16,7 +16,6 @@ OC.L10N.register(
     "Disable" : "Isključi",
     "Description" : "Opis",
     "Name" : "Ime",
-    "Sort Order" : "Sortiranje",
     "New" : "Nov",
     "Appearance" : "Izgled",
     "Category" : "Kategorija",

@@ -32,7 +32,6 @@ OC.L10N.register(
     "Enabled" : "Habilitado",
     "Update" : "Actualizar",
     "Name" : "Nombre",
-    "Sort Order" : "Ordenar por",
     "New" : "Nuevo",
     "Permissions" : "Permisos",
     "All time" : "Tiempo total",

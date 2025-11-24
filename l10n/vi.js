@@ -44,7 +44,6 @@ OC.L10N.register(
     "Update" : "Sửa",
     "Create" : "Tạo",
     "Name" : "Tên",
-    "Sort Order" : "Thứ tự sắp xếp",
     "New" : "Tạo mới",
     "Move up" : "Di chuyển lên",
     "Move down" : "Di chuyển xuống",

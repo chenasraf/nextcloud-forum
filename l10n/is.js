@@ -44,7 +44,6 @@ OC.L10N.register(
     "Update" : "Uppfæra",
     "Create" : "Búa til",
     "Name" : "Heiti",
-    "Sort Order" : "Röðun",
     "New" : "Nýtt",
     "Permissions" : "Heimildir",
     "Move up" : "Færa upp",

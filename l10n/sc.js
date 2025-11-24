@@ -40,7 +40,6 @@ OC.L10N.register(
     "Update" : "Agiorna",
     "Create" : "Crea",
     "Name" : "Nùmene",
-    "Sort Order" : "Ordinamentu",
     "New" : "Nou",
     "Permissions" : "Permissos",
     "Move up" : "Tràmuda fache a susu",

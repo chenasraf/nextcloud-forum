@@ -24,7 +24,6 @@ OC.L10N.register(
     "Enabled" : "İşə salınıb",
     "Update" : "Yenilənmə",
     "Name" : "Ad",
-    "Sort Order" : "Qayda ilə çeşidlə",
     "New" : "Yeni",
     "Settings saved" : "Parametrlər yaddaşa verildi",
     "Reset" : "Sıfırla",

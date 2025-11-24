@@ -41,7 +41,6 @@ OC.L10N.register(
     "Update" : "Atualizar",
     "Create" : "Criar",
     "Name" : "Nome",
-    "Sort Order" : "Ordem da ordenação",
     "New" : "Novo",
     "Move up" : "Mover para cima",
     "Move down" : "Mover para baixo",

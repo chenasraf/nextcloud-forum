@@ -36,7 +36,6 @@ OC.L10N.register(
     "Update" : "Përditëso",
     "Create" : "Krijo",
     "Name" : "Emër",
-    "Sort Order" : "Radhë Renditjeje",
     "0" : "0",
     "New" : "I ri",
     "Permissions" : "Lejet",

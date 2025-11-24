@@ -36,7 +36,6 @@ OC.L10N.register(
     "Enabled" : "מופעל",
     "Update" : "עדכון",
     "Name" : "שם",
-    "Sort Order" : "סדר חיפוש",
     "0" : "0",
     "New" : "חדש",
     "Permissions" : "הרשאות",

@@ -29,7 +29,6 @@ OC.L10N.register(
     "Enabled" : "მოქმედია",
     "Update" : "განახლება",
     "Name" : "სახელი",
-    "Sort Order" : "განლაგების თანმიმდევრობა",
     "New" : "ახალი",
     "Permissions" : "უფლებები",
     "General settings" : "მთავარი პარამეტრები",

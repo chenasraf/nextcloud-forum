@@ -8,6 +8,7 @@ OC.L10N.register(
     "General" : "Агульныя",
     "Bold text" : "Тоўсты тэкст",
     "Underlined text" : "Падкрэслены тэкст",
+    "Deleted user" : "Выдалены карыстальнік",
     "Search" : "Пошук",
     "Home" : "Дадому",
     "Dashboard" : "Панэль кіравання",

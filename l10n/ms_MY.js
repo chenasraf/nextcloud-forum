@@ -1,7 +1,25 @@
 OC.L10N.register(
     "forum",
     {
+    "Admin" : "Admin",
+    "User" : "User",
+    "General" : "Umum",
+    "Search" : "Search",
+    "Home" : "Rumah",
+    "Users" : "Pengguna",
+    "Edit" : "Sunting",
+    "Delete" : "Padam",
+    "Cancel" : "Cancel",
     "Save" : "Simpan",
-    "Delete" : "Padam"
+    "Refresh" : "Refresh",
+    "Error" : "Ralat",
+    "by" : "oleh",
+    "Notifications" : "Pemberitahuan",
+    "Disable" : "Nyahaktif",
+    "Description" : "Keterangan",
+    "Update" : "Kemaskini",
+    "Name" : "Nama",
+    "New" : "Baru",
+    "Deleted" : "Dipadam"
 },
 "nplurals=1; plural=0;");

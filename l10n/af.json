@@ -1,0 +1,28 @@
+{ "translations": {
+    "Forum" : "Forum",
+    "Admin" : "Admin",
+    "User" : "Gebruiker",
+    "Search" : "Soek",
+    "Home" : "Tuis",
+    "Users" : "Gebruikers",
+    "Collapse" : "Vou In",
+    "Page not found" : "Blad nie gevind nie",
+    "Delete" : "Skrap",
+    "Cancel" : "Cancel",
+    "Save" : "Stoor",
+    "Retry" : "Herprobeer",
+    "by" : "deur",
+    "Subscribe" : "Teken in",
+    "Disable" : "Deaktiveer",
+    "Description" : "Beskrywing",
+    "Update" : "Werk by",
+    "New" : "Nuut",
+    "Settings saved" : "Instellings gestoor",
+    "Reset" : "Herstel",
+    "Category" : "Kategorie",
+    "ID" : "ID",
+    "Actions" : "Aksies",
+    "Active" : "Aktief",
+    "Deleted" : "Geskrap"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

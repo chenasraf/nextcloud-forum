@@ -1,5 +1,13 @@
 { "translations": {
+    "Admin" : "ستر کارن",
+    "Home" : "کور",
+    "Users" : "کارنان",
+    "Delete" : "ړنګول",
+    "Cancel" : "Cancel",
     "Save" : "ساتل",
-    "Delete" : "ړنګول"
+    "Error" : "شسیب",
+    "Name" : "نوم",
+    "New" : "نوی",
+    "Actions" : "کړنې"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

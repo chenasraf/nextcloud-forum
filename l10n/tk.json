@@ -1,12 +1,22 @@
 { "translations": {
     "User" : "Ulanyjy",
-    "Light" : "Ýagtylyk",
-    "Dark" : "Garaňky",
-    "Save" : "Saklamak",
-    "Loading…" : "Ýüklenýär…",
+    "General" : "Esasy",
+    "Search" : "Gözlemek",
+    "Home" : "Baş sahypa",
+    "Back" : "Yzyna",
+    "Edit" : "Redaktirläň",
     "Delete" : "Pozmak",
+    "Cancel" : "Cancel",
+    "Save" : "Saklamak",
     "Refresh" : "Täzelemek",
+    "Error" : "ýalňyşlyk",
     "Preferences" : "Saýlamalar",
-    "Create" : "Dörediň"
+    "Notifications" : "Duýduryşlar",
+    "Disable" : "Öçürmek",
+    "Update" : "Täzelemek",
+    "Create" : "Dörediň",
+    "Name" : "Ady",
+    "Allow" : "Rugsat ber",
+    "Deleted" : "Öçürildi"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

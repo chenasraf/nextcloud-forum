@@ -1,9 +1,29 @@
 OC.L10N.register(
     "forum",
     {
-    "Save" : "Späicheren",
-    "Loading…" : "Et gëtt gelueden",
+    "Admin" : "Admin",
+    "User" : "User",
+    "General" : "Allgemeng",
+    "Search" : "Sichen",
+    "Home" : "Doheem",
+    "Users" : "Benotzer",
     "Collapse" : "Zesumme falen",
-    "Delete" : "Läschen"
+    "Edit" : "Änneren",
+    "Delete" : "Läschen",
+    "Cancel" : "Cancel",
+    "Save" : "Späicheren",
+    "Refresh" : "Opfrëschen",
+    "Error" : "Fehler",
+    "by" : "vun",
+    "Subscribe" : "Umellen",
+    "Disable" : "Ofschalten",
+    "Description" : "Beschreiwung",
+    "Enabled" : "Aktivéiert",
+    "Update" : "Update",
+    "Name" : "Numm",
+    "New" : "Nei",
+    "Reset" : "Zeréck setzen",
+    "Actions" : "Aktiounen",
+    "Deleted" : "Geläscht"
 },
 "nplurals=2; plural=(n != 1);");

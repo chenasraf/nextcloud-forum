@@ -1,0 +1,23 @@
+{ "translations": {
+    "Admin" : "පරිපාලක",
+    "User" : "පරිශීලක",
+    "General" : "සමාන්‍යය",
+    "Search" : "සොයන්න",
+    "Home" : "මුල් පිටුව",
+    "Users" : "පරිශීලකයින්",
+    "Back" : "ආපසු",
+    "Edit" : "සංස්කරණය",
+    "Cancel" : "Cancel",
+    "Retry" : "නැවත උත්සාහ කරන්න",
+    "Error" : "දෝෂය",
+    "Disable" : "අබල කරන්න",
+    "Description" : "විස්තරය",
+    "Enabled" : "සබල කර ඇත",
+    "Update" : "යාවත්කාල",
+    "Create" : "සාදන්න",
+    "Name" : "නම",
+    "New" : "නව",
+    "Category" : "ප්‍රවර්ගය",
+    "Actions" : "ක්‍රියාමාර්ග"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

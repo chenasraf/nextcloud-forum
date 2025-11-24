@@ -1,0 +1,19 @@
+{ "translations": {
+    "Forum" : "﻿ವೇದಿಕೆ",
+    "Admin" : "﻿ನಿರ್ವಹಕ",
+    "User" : "User",
+    "Search" : "Search",
+    "Home" : "﻿ಮುಖಪುಟ",
+    "Users" : "﻿ಬಳಕೆದಾರರು",
+    "Edit" : "ಸಂಪಾದಿಸು",
+    "Delete" : "﻿ಅಳಿಸಿ",
+    "Cancel" : "Cancel",
+    "Save" : "﻿ಉಳಿಸಿ",
+    "Error" : "﻿ತಪ್ಪಾಗಿದೆ",
+    "Disable" : "﻿ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ",
+    "Enabled" : "ಸಕ್ರಿಯಗೊಳಿಸಿದೆ",
+    "Name" : "﻿ಹೆಸರು",
+    "New" : "﻿ಹೊಸ",
+    "Reset" : "ಮರುಹೊಂದಿಸಿ"
+},"pluralForm" :"nplurals=2; plural=(n > 1);"
+}

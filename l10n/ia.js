@@ -1,9 +1,30 @@
 OC.L10N.register(
     "forum",
     {
-    "Save" : "Salveguardar",
-    "Loading…" : "Cargante...",
+    "Forum" : "Foro",
+    "User" : "User",
+    "General" : "General",
+    "Search" : "Cercar",
+    "Home" : "Initio",
+    "Users" : "Usatores",
     "Collapse" : "Collaber",
-    "Delete" : "Deler"
+    "Edit" : "Modificar",
+    "Delete" : "Deler",
+    "Cancel" : "Cancel",
+    "Save" : "Salveguardar",
+    "Refresh" : "Refrescar",
+    "Error" : "Error",
+    "by" : "per",
+    "Subscribe" : "Subscribe",
+    "Disable" : "Disactivar",
+    "Description" : "Description",
+    "Enabled" : "Activate",
+    "Update" : "Actualisation",
+    "New" : "Nove",
+    "Settings saved" : "Configurationes salveguardate",
+    "Reset" : "Re-fixar",
+    "Category" : "Categoria",
+    "Actions" : "Actiones",
+    "Deleted" : "Delite"
 },
 "nplurals=2; plural=(n != 1);");

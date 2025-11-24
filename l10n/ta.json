@@ -1,0 +1,25 @@
+{ "translations": {
+    "Admin" : "நிர்வாகம்",
+    "User" : "User",
+    "General" : "பொதுவான",
+    "Search" : "தேடுதல்",
+    "Home" : "அகம்",
+    "Users" : "பயனாளர்",
+    "Back" : "பின்னுக்கு",
+    "Edit" : "தொகுக்க",
+    "Delete" : "நீக்குக",
+    "Cancel" : "Cancel",
+    "Save" : "சேமிக்க ",
+    "Title" : "தலைப்பு",
+    "Refresh" : "மீள் ஏற்றுக",
+    "Error" : "வழு",
+    "by" : "மூலம்",
+    "Enable" : "இயலுமைப்படுத்துக",
+    "Disable" : "இயலுமைப்ப",
+    "Description" : "விவரிப்பு",
+    "Update" : "இற்றைப்படுத்தல்",
+    "Name" : "பெயர்",
+    "New" : "புதிய",
+    "Actions" : "செயல்கள்"
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

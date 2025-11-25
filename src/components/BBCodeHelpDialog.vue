@@ -63,7 +63,7 @@
             </div>
             <div class="bbcode-example">
               <span class="example-label">{{ strings.example }}:</span>
-              <code class="example-code">{{ code.example }}</code>
+              <code class="example-code" :v-html="code.example"></code>
             </div>
           </div>
         </div>
@@ -104,6 +104,9 @@ export default defineComponent({
   },
   emits: ['update:open'],
   data() {
+    const helloWorld = t('forum', 'Hello world!')
+    const helloMoon = t('forum', 'Hello moon!')
+
     return {
       loading: false,
       error: null as string | null,
@@ -114,148 +117,97 @@ export default defineComponent({
         {
           tag: 'b',
           name: t('forum', 'Font style bold'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', { tagStart: '[b]', tagEnd: '[/b]' }),
+          example: '[b]' + helloWorld + '[/b]',
         },
         {
           tag: 'i',
           name: t('forum', 'Font style italic'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', { tagStart: '[i]', tagEnd: '[/i]' }),
+          example: '[i]' + helloWorld + '[/i]',
         },
         {
           tag: 's',
           name: t('forum', 'Font style struck through'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', { tagStart: '[s]', tagEnd: '[/s]' }),
+          example: '[s]' + helloWorld + '[/s]',
         },
         {
           tag: 'u',
           name: t('forum', 'Font style underlined'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', { tagStart: '[u]', tagEnd: '[/u]' }),
+          example: '[u]' + helloWorld + '[/u]',
         },
         {
           tag: 'code',
           name: t('forum', 'Code'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', {
-            tagStart: '[code]',
-            tagEnd: '[/code]',
-          }),
+          example: '[code]' + helloWorld + '[/code]',
         },
         {
           tag: 'email',
           name: t('forum', 'Email (clickable)'),
-          example: t('forum', '{emailStart}test@example.com{emailEnd}', {
-            emailStart: '[email]',
-            emailEnd: '[/email]',
-          }),
+          example: '[email]test@example.com[/email]',
         },
         {
           tag: 'url',
           name: t('forum', 'URL (clickable)'),
-          example: t('forum', '{urlStart}Example.com{urlEnd}', {
-            urlStart: '[url=http://example.com]',
-            urlEnd: '[/url]',
-          }),
+          example: '[url=http://example.com]example.com[/url]',
         },
         {
           tag: 'img',
           name: t('forum', 'Image (not clickable)'),
-          example: t('forum', '{imgStart}http://example.com/example.png{imgEnd}', {
-            imgStart: '[img]',
-            imgEnd: '[/img]',
-          }),
+          example: '[img]http://example.com/example.png[/img]',
         },
         {
           tag: 'quote',
           name: t('forum', 'Quote'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', {
-            tagStart: '[quote]',
-            tagEnd: '[/quote]',
-          }),
+          example: '[quote]' + helloWorld + '[/quote]',
         },
         {
           tag: 'youtube',
           name: t('forum', 'Embedded YouTube video'),
-          example: t('forum', '{youtubeStart}a-video-id-123456{youtubeEnd}', {
-            youtubeStart: '[youtube]',
-            youtubeEnd: '[/youtube]',
-          }),
+          example: '[youtube]a-video-id-123456[/youtube]',
         },
         {
           tag: 'font',
           name: t('forum', 'Font (name)'),
-          example: t('forum', '{tagStart}Hello world!{tagEnd}', {
-            tagStart: '[font=Arial]',
-            tagEnd: '[/font]',
-          }),
+          example: '[font=Arial]' + helloWorld + '[/font]',
         },
         {
           tag: 'size',
           name: t('forum', 'Font size'),
-          example: t('forum', '{tagStart}Hello world!{tagEnd}', {
-            tagStart: '[size=12]',
-            tagEnd: '[/size]',
-          }),
+          example: '[size=12]' + helloWorld + '[/size]',
         },
         {
           tag: 'color',
           name: t('forum', 'Font color'),
-          example: t('forum', '{tagStart}Hello world!{tagEnd}', {
-            tagStart: '[color=red]',
-            tagEnd: '[/color]',
-          }),
+          example: '[color=red]' + helloWorld + '[/color]',
         },
         {
           tag: 'left',
           name: t('forum', 'Align left'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', {
-            tagStart: '[left]',
-            tagEnd: '[/left]',
-          }),
+          example: '[left]' + helloWorld + '[/left]',
         },
         {
           tag: 'center',
           name: t('forum', 'Align center'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', {
-            tagStart: '[center]',
-            tagEnd: '[/center]',
-          }),
+          example: '[center]' + helloWorld + '[/center]',
         },
         {
           tag: 'right',
           name: t('forum', 'Align right'),
-          example: t('forum', '{tagStart}Hello world{tagEnd}', {
-            tagStart: '[right]',
-            tagEnd: '[/right]',
-          }),
+          example: '[right]' + helloWorld + '[/right]',
         },
         {
           tag: 'list',
           name: t('forum', 'List'),
-          example: t(
-            'forum',
-            '{listStart}{item1Start}Hello world!{item2Start}Hello moon!{item2End}{listEnd}',
-            {
-              listStart: '[list]',
-              item1Start: '[*]',
-              item2Start: '[li]',
-              item2End: '[/li]',
-              listEnd: '[/list]',
-            },
-          ),
+          example: '[list]\t\n  [*]' + helloWorld + '\t\n  [li]' + helloMoon + '[/li]\n[/list]',
         },
         {
           tag: '*',
           name: t('forum', 'List item within a list'),
-          example: t('forum', '{itemStart}Hello world!\\r\\n{itemStart}Hello moon!', {
-            itemStart: '[*]',
-          }),
+          example: '[*]' + helloWorld + '\n[*]' + helloMoon,
         },
         {
           tag: 'li',
           name: t('forum', 'List item within a list (alias)'),
-          example: t('forum', '{liStart}Hello world!\\r\\n{liEnd}{liStart}Hello moon!{liEnd}', {
-            liStart: '[li]',
-            liEnd: '[/li]',
-          }),
+          example: '[li]' + helloWorld + '[/li]\n[li]' + helloMoon + '[/li]',
         },
       ] as BuiltInCode[],
 

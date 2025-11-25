@@ -367,7 +367,7 @@ export default defineComponent({
         guestNoModeratePermission: t('forum', 'Guest role cannot moderate categories'),
         guestCategoryPermissionsEditable: t(
           'forum',
-          'You can control which categories guests can view, post in, and reply to using the checkboxes below.',
+          'You can control which categories guests can view using the checkboxes below.',
         ),
         guestAccessDisabledTitle: t('forum', 'Guest access is currently disabled'),
         guestAccessDisabledMessage: t(

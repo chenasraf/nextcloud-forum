@@ -639,8 +639,8 @@ export default defineComponent({
 
         await ocs.post('/headers/reorder', { headers: sortOrders })
 
-        // Refresh sidebar categories
-        await this.refreshCategories()
+        // Refresh sidebar categories silently
+        await this.refreshCategories(true)
       } catch (e) {
         console.error('Failed to update header sort orders', e)
         // Revert the swap on error
@@ -689,8 +689,8 @@ export default defineComponent({
 
         await ocs.post('/categories/reorder', { categories: sortOrders })
 
-        // Refresh sidebar categories
-        await this.refreshCategories()
+        // Refresh sidebar categories silently
+        await this.refreshCategories(true)
       } catch (e) {
         console.error('Failed to update category sort orders', e)
         // Revert the swap on error

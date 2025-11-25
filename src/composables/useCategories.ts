@@ -17,15 +17,19 @@ export function useCategories() {
   /**
    * Fetch categories from the API
    * Uses cached data if already loaded
+   * @param force - Force refresh even if already loaded
+   * @param silent - Don't show loading state during fetch
    */
-  const fetchCategories = async (force = false): Promise<CategoryHeader[]> => {
+  const fetchCategories = async (force = false, silent = false): Promise<CategoryHeader[]> => {
     // Return cached data if already loaded and not forcing refresh
     if (loaded.value && !force) {
       return categoryHeaders.value
     }
 
     try {
-      loading.value = true
+      if (!silent) {
+        loading.value = true
+      }
       error.value = null
 
       const response = await ocs.get<CategoryHeader[]>('/categories')
@@ -38,15 +42,18 @@ export function useCategories() {
       error.value = (e as Error).message || 'Failed to load categories'
       throw e
     } finally {
-      loading.value = false
+      if (!silent) {
+        loading.value = false
+      }
     }
   }
 
   /**
    * Refresh categories from the API
+   * @param silent - Don't show loading state during fetch
    */
-  const refresh = (): Promise<CategoryHeader[]> => {
-    return fetchCategories(true)
+  const refresh = (silent = false): Promise<CategoryHeader[]> => {
+    return fetchCategories(true, silent)
   }
 
   /**

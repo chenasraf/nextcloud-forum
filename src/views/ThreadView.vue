@@ -59,6 +59,16 @@
                 <PinIcon v-else :size="20" />
               </template>
             </NcButton>
+
+            <NcButton
+              @click="showMoveDialog = true"
+              :aria-label="strings.moveThread"
+              :title="strings.moveThread"
+            >
+              <template #icon>
+                <FolderMoveIcon :size="20" />
+              </template>
+            </NcButton>
           </template>
 
           <NcButton
@@ -241,6 +251,16 @@
         @cancel="handleCancelReply"
       />
     </div>
+
+    <!-- Move Category Dialog -->
+    <MoveCategoryDialog
+      v-if="thread"
+      ref="moveDialog"
+      :open="showMoveDialog"
+      :current-category-id="thread.categoryId"
+      @update:open="showMoveDialog = $event"
+      @move="handleMoveThread"
+    />
   </PageWrapper>
 </template>
 
@@ -258,6 +278,7 @@ import PageWrapper from '@/components/PageWrapper.vue'
 import PostCard from '@/components/PostCard.vue'
 import PostReplyForm from '@/components/PostReplyForm.vue'
 import ThreadNotFound from '@/views/ThreadNotFound.vue'
+import MoveCategoryDialog from '@/components/MoveCategoryDialog.vue'
 import PinIcon from '@icons/Pin.vue'
 import PinOffIcon from '@icons/PinOff.vue'
 import LockIcon from '@icons/Lock.vue'
@@ -269,6 +290,7 @@ import RefreshIcon from '@icons/Refresh.vue'
 import ReplyIcon from '@icons/Reply.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import CheckIcon from '@icons/Check.vue'
+import FolderMoveIcon from '@icons/FolderMove.vue'
 import type { Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
@@ -304,6 +326,8 @@ export default defineComponent({
     ReplyIcon,
     PencilIcon,
     CheckIcon,
+    FolderMoveIcon,
+    MoveCategoryDialog,
   },
   setup() {
     const { currentThread: thread, fetchThread } = useCurrentThread()
@@ -330,6 +354,7 @@ export default defineComponent({
       isEditingTitle: false,
       editedTitle: '',
       isSavingTitle: false,
+      showMoveDialog: false,
 
       strings: {
         back: t('forum', 'Back'),
@@ -365,6 +390,8 @@ export default defineComponent({
         editTitle: t('forum', 'Edit title'),
         saveTitle: t('forum', 'Save title'),
         titleUpdated: t('forum', 'Thread title updated'),
+        moveThread: t('forum', 'Move thread'),
+        threadMoved: t('forum', 'Thread moved successfully'),
       },
     }
   },
@@ -882,6 +909,38 @@ export default defineComponent({
         this.isSavingTitle = false
       }
     },
+  },
+  async handleMoveThread(categoryId: number): Promise<void> {
+    if (!this.thread) return
+
+    try {
+      const response = await ocs.put(`/threads/${this.thread.id}/move`, {
+        categoryId,
+      })
+
+      if (response.data) {
+        showSuccess(this.strings.threadMoved)
+        this.showMoveDialog = false
+
+        // Refresh the thread data to update category information and back link
+        await this.refresh()
+
+        // Reset the move dialog
+        const moveDialog = this.$refs.moveDialog as any
+        if (moveDialog && typeof moveDialog.reset === 'function') {
+          moveDialog.reset()
+        }
+      }
+    } catch (e) {
+      console.error('Failed to move thread', e)
+      showError(t('forum', 'Failed to move thread'))
+
+      // Reset moving state in dialog
+      const moveDialog = this.$refs.moveDialog as any
+      if (moveDialog && typeof moveDialog.reset === 'function') {
+        moveDialog.reset()
+      }
+    }
   },
 })
 </script>

@@ -797,6 +797,272 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals(['error' => 'Thread not found'], $response->getData());
 	}
 
+	public function testMoveThreadSuccessfully(): void {
+		$threadId = 1;
+		$oldCategoryId = 1;
+		$newCategoryId = 2;
+		$moderatorId = 'moderator1';
+
+		$thread = $this->createMockThread($threadId, $oldCategoryId, 'user1', 'Test Thread');
+		$thread->setPostCount(5);
+
+		$oldCategory = new Category();
+		$oldCategory->setId($oldCategoryId);
+		$oldCategory->setThreadCount(10);
+		$oldCategory->setPostCount(50);
+
+		$newCategory = new Category();
+		$newCategory->setId($newCategoryId);
+		$newCategory->setThreadCount(3);
+		$newCategory->setPostCount(15);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($moderatorId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->categoryMapper->expects($this->exactly(2))
+			->method('find')
+			->willReturnCallback(function ($id) use ($oldCategory, $newCategory, $oldCategoryId, $newCategoryId) {
+				if ($id === $newCategoryId) {
+					return $newCategory;
+				} elseif ($id === $oldCategoryId) {
+					return $oldCategory;
+				}
+				throw new DoesNotExistException('Category not found');
+			});
+
+		// User has moderation permission on target category
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($moderatorId, $newCategoryId, 'canModerate')
+			->willReturn(true);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) use ($newCategoryId) {
+				$this->assertEquals($newCategoryId, $updatedThread->getCategoryId());
+				return $updatedThread;
+			});
+
+		// Verify category counts are updated
+		$this->categoryMapper->expects($this->exactly(2))
+			->method('update')
+			->willReturnCallback(function ($category) use ($oldCategoryId, $newCategoryId) {
+				if ($category->getId() === $oldCategoryId) {
+					// Old category should have decremented counts
+					$this->assertEquals(9, $category->getThreadCount());
+					$this->assertEquals(45, $category->getPostCount());
+				} elseif ($category->getId() === $newCategoryId) {
+					// New category should have incremented counts
+					$this->assertEquals(4, $category->getThreadCount());
+					$this->assertEquals(20, $category->getPostCount());
+				}
+				return $category;
+			});
+
+		$response = $this->controller->move($threadId, $newCategoryId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($threadId, $data['id']);
+	}
+
+	public function testMoveThreadReturnsUnauthorizedWhenUserNotAuthenticated(): void {
+		$threadId = 1;
+		$newCategoryId = 2;
+
+		$this->userSession->method('getUser')->willReturn(null);
+
+		// Thread should not be queried if user is not authenticated
+		$this->threadMapper->expects($this->never())
+			->method('find');
+
+		$this->threadMapper->expects($this->never())
+			->method('update');
+
+		$response = $this->controller->move($threadId, $newCategoryId);
+
+		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
+	}
+
+	public function testMoveThreadReturnsNotFoundWhenThreadDoesNotExist(): void {
+		$threadId = 999;
+		$newCategoryId = 2;
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('moderator1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willThrowException(new DoesNotExistException('Thread not found'));
+
+		$response = $this->controller->move($threadId, $newCategoryId);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'Thread not found'], $response->getData());
+	}
+
+	public function testMoveThreadReturnsNotFoundWhenTargetCategoryDoesNotExist(): void {
+		$threadId = 1;
+		$oldCategoryId = 1;
+		$newCategoryId = 999;
+
+		$thread = $this->createMockThread($threadId, $oldCategoryId, 'user1', 'Test Thread');
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('moderator1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($newCategoryId)
+			->willThrowException(new DoesNotExistException('Category not found'));
+
+		$this->threadMapper->expects($this->never())
+			->method('update');
+
+		$response = $this->controller->move($threadId, $newCategoryId);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals(['error' => 'Target category not found'], $response->getData());
+	}
+
+	public function testMoveThreadReturnsForbiddenWhenUserLacksPermissionOnTargetCategory(): void {
+		$threadId = 1;
+		$oldCategoryId = 1;
+		$newCategoryId = 2;
+		$userId = 'user1';
+
+		$thread = $this->createMockThread($threadId, $oldCategoryId, $userId, 'Test Thread');
+
+		$newCategory = new Category();
+		$newCategory->setId($newCategoryId);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($newCategoryId)
+			->willReturn($newCategory);
+
+		// User does not have moderation permission on target category
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, $newCategoryId, 'canModerate')
+			->willReturn(false);
+
+		$this->threadMapper->expects($this->never())
+			->method('update');
+
+		$response = $this->controller->move($threadId, $newCategoryId);
+
+		$this->assertEquals(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertEquals(
+			['error' => 'You do not have permission to move threads to this category'],
+			$response->getData()
+		);
+	}
+
+	public function testMoveThreadUpdatesCategoryCounts(): void {
+		$threadId = 1;
+		$oldCategoryId = 1;
+		$newCategoryId = 2;
+		$moderatorId = 'moderator1';
+		$threadPostCount = 7;
+
+		$thread = $this->createMockThread($threadId, $oldCategoryId, 'user1', 'Test Thread');
+		$thread->setPostCount($threadPostCount);
+
+		$oldCategory = new Category();
+		$oldCategory->setId($oldCategoryId);
+		$oldCategory->setThreadCount(15);
+		$oldCategory->setPostCount(100);
+
+		$newCategory = new Category();
+		$newCategory->setId($newCategoryId);
+		$newCategory->setThreadCount(5);
+		$newCategory->setPostCount(30);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($moderatorId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->willReturn($thread);
+
+		$this->categoryMapper->expects($this->exactly(2))
+			->method('find')
+			->willReturnCallback(function ($id) use ($oldCategory, $newCategory, $oldCategoryId, $newCategoryId) {
+				if ($id === $newCategoryId) {
+					return $newCategory;
+				} elseif ($id === $oldCategoryId) {
+					return $oldCategory;
+				}
+				throw new DoesNotExistException('Category not found');
+			});
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->willReturn(true);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturn($thread);
+
+		$oldCategoryUpdated = false;
+		$newCategoryUpdated = false;
+
+		$this->categoryMapper->expects($this->exactly(2))
+			->method('update')
+			->willReturnCallback(function ($category) use (
+				$oldCategoryId,
+				$newCategoryId,
+				$threadPostCount,
+				&$oldCategoryUpdated,
+				&$newCategoryUpdated
+			) {
+				if ($category->getId() === $oldCategoryId) {
+					// Old category: thread count -1, post count -7
+					$this->assertEquals(14, $category->getThreadCount());
+					$this->assertEquals(93, $category->getPostCount());
+					$oldCategoryUpdated = true;
+				} elseif ($category->getId() === $newCategoryId) {
+					// New category: thread count +1, post count +7
+					$this->assertEquals(6, $category->getThreadCount());
+					$this->assertEquals(37, $category->getPostCount());
+					$newCategoryUpdated = true;
+				}
+				return $category;
+			});
+
+		$response = $this->controller->move($threadId, $newCategoryId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertTrue($oldCategoryUpdated, 'Old category should have been updated');
+		$this->assertTrue($newCategoryUpdated, 'New category should have been updated');
+	}
+
 	private function createMockThread(int $id, int $categoryId, string $authorId, string $title): Thread {
 		$thread = new Thread();
 		$thread->setId($id);

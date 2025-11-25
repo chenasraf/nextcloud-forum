@@ -382,6 +382,84 @@ class ThreadController extends OCSController {
 	}
 
 	/**
+	 * Move thread to a different category
+	 *
+	 * @param int $id Thread ID
+	 * @param int $categoryId New category ID
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 *
+	 * 200: Thread moved successfully
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromThreadId: 'id')]
+	#[ApiRoute(verb: 'PUT', url: '/api/threads/{id}/move')]
+	public function move(int $id, int $categoryId): DataResponse {
+		try {
+			$user = $this->userSession->getUser();
+
+			if (!$user) {
+				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+			}
+
+			$thread = $this->threadMapper->find($id);
+
+			// Verify the target category exists and user has permission to post there
+			try {
+				$targetCategory = $this->categoryMapper->find($categoryId);
+			} catch (DoesNotExistException $e) {
+				return new DataResponse(['error' => 'Target category not found'], Http::STATUS_NOT_FOUND);
+			}
+
+			// Check if user has moderation permission on target category
+			$canModerateTarget = $this->permissionService->hasCategoryPermission(
+				$user->getUID(),
+				$categoryId,
+				'canModerate'
+			);
+
+			if (!$canModerateTarget) {
+				return new DataResponse(
+					['error' => 'You do not have permission to move threads to this category'],
+					Http::STATUS_FORBIDDEN
+				);
+			}
+
+			$oldCategoryId = $thread->getCategoryId();
+
+			// Update thread category
+			$thread->setCategoryId($categoryId);
+			$thread->setUpdatedAt(time());
+
+			/** @var \OCA\Forum\Db\Thread */
+			$updatedThread = $this->threadMapper->update($thread);
+
+			// Update category counts for both old and new categories
+			try {
+				// Decrement old category counts
+				$oldCategory = $this->categoryMapper->find($oldCategoryId);
+				$oldCategory->setThreadCount(max(0, $oldCategory->getThreadCount() - 1));
+				$oldCategory->setPostCount(max(0, $oldCategory->getPostCount() - $thread->getPostCount()));
+				$this->categoryMapper->update($oldCategory);
+
+				// Increment new category counts
+				$targetCategory->setThreadCount($targetCategory->getThreadCount() + 1);
+				$targetCategory->setPostCount($targetCategory->getPostCount() + $thread->getPostCount());
+				$this->categoryMapper->update($targetCategory);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to update category counts after thread move: ' . $e->getMessage());
+				// Don't fail the request if category update fails
+			}
+
+			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
+		} catch (\Exception $e) {
+			$this->logger->error('Error moving thread: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to move thread'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Toggle thread lock status
 	 *
 	 * @param int $id Thread ID

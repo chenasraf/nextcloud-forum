@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.12.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.11.1...v0.12.0) (2025-11-25)
+
+
+### Features
+
+* add optional guest access with role-based permissions ([d2baf2a](https://github.com/chenasraf/nextcloud-forum/commit/d2baf2a81338ee8db6316c8bffc9c5b78a312ac6))
+* allow moving thread to a different category (admin/moderator) ([c807929](https://github.com/chenasraf/nextcloud-forum/commit/c807929c94089f9e0c66714a948e0387a08002ed))
+* allow updating thread title (author/admin/moderator) ([a85dbae](https://github.com/chenasraf/nextcloud-forum/commit/a85dbaed91b3589f1fb2f8ef195bf3cf40936e8c))
+
+
+### Bug Fixes
+
+* default sort order for new categories ([c38a929](https://github.com/chenasraf/nextcloud-forum/commit/c38a929a366a78062268a3c7cca2c68ff7e38dda))
+* don't show loader when reordering categories/headers ([b6ce286](https://github.com/chenasraf/nextcloud-forum/commit/b6ce286c412f0146f5530ad29abf6012e1481bf3))
+* **l10n:** Update translations from Transifex ([33e6055](https://github.com/chenasraf/nextcloud-forum/commit/33e6055d47aa56a85414d5ad66cc6a2cf986752d))
+* lock slug input when editing category ([4728875](https://github.com/chenasraf/nextcloud-forum/commit/47288753a2cb9a5e42cc5a6a18d6e050d53964d5))
+* use same header create/edit dialog everywhere ([04d1d1c](https://github.com/chenasraf/nextcloud-forum/commit/04d1d1c65885a7b5d668d69455f5e457ffb4f1a2))
+
 ## [0.11.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.11.0...v0.11.1) (2025-11-24)
 
 

@@ -7,14 +7,13 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Controller;
 
+use OCA\Forum\Service\AdminSettingsService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
-use OCP\AppFramework\Services\IAppConfig;
-use OCP\IL10N;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;
 
@@ -23,9 +22,8 @@ class SettingsController extends OCSController {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private IAppConfig $config,
+		private AdminSettingsService $settingsService,
 		private LoggerInterface $logger,
-		private IL10N $l10n,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -45,12 +43,7 @@ class SettingsController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/settings')]
 	public function getPublicSettings(): DataResponse {
 		try {
-			$settings = [
-				'title' => $this->config->getAppValueString('title', $this->l10n->t('Forum'), true),
-				'subtitle' => $this->config->getAppValueString('subtitle', $this->l10n->t('Welcome to the forum!'), true),
-				'allow_guest_access' => $this->config->getAppValueBool('allow_guest_access', false, true),
-			];
-
+			$settings = $this->settingsService->getAllSettings();
 			return new DataResponse($settings);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching public settings: ' . $e->getMessage());

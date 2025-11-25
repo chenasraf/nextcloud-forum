@@ -649,7 +649,7 @@ class SeedHelper {
 				[
 					'tag' => 'icode',
 					'replacement' => '<code>{content}</code>',
-					'example' => $l->t('[icode]inline code[/icode]'),
+					'example' => '[icode]' . $l->t('Inline code') . '[/icode]',
 					'description' => $l->t('Inline code'),
 					'parse_inner' => false,
 					'is_builtin' => true,
@@ -658,7 +658,7 @@ class SeedHelper {
 				[
 					'tag' => 'spoiler',
 					'replacement' => '<details><summary>{title}</summary>{content}</details>',
-					'example' => $l->t('[spoiler="%1$s"]%2$s[/spoiler]', ['Spoiler Title', 'Hidden content']),
+					'example' => '[spoiler="' . $l->t('Spoiler title') . '"]' . $l->t('Hidden content') . '[/spoiler]',
 					'description' => $l->t('Spoilers'),
 					'parse_inner' => false,
 					'is_builtin' => true,

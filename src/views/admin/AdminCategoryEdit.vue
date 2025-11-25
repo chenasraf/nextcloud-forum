@@ -98,6 +98,16 @@
                 :rows="3"
               />
             </div>
+
+            <div class="form-group">
+              <NcTextField
+                v-model.number="formData.sortOrder"
+                type="number"
+                :label="strings.sortOrder"
+                :placeholder="strings.sortOrderPlaceholder"
+              />
+              <p class="help-text muted">{{ strings.sortOrderHelp }}</p>
+            </div>
           </div>
         </section>
 
@@ -230,8 +240,10 @@ export default defineComponent({
     PencilIcon,
   },
   setup() {
-    const { refresh: refreshCategories } = useCategories()
+    const { categoryHeaders, fetchCategories, refresh: refreshCategories } = useCategories()
     return {
+      categoryHeaders,
+      fetchCategories,
       refreshCategories,
     }
   },
@@ -250,6 +262,7 @@ export default defineComponent({
         name: '',
         slug: '',
         description: '',
+        sortOrder: 0,
       },
       slugManuallyEdited: false,
       headerDialog: {
@@ -357,6 +370,13 @@ export default defineComponent({
   watch: {
     selectedHeader(newVal: { id: number; label: string } | null) {
       this.formData.headerId = newVal?.id || null
+
+      // When creating a new category, auto-set sort order based on category count in the header
+      if (!this.isEditing && newVal) {
+        const header = this.categoryHeaders.find((h) => h.id === newVal.id)
+        const categoryCount = header?.categories?.length || 0
+        this.formData.sortOrder = categoryCount
+      }
     },
     'formData.name'(newVal: string) {
       // Only auto-update slug when creating (not editing) and user hasn't manually edited it
@@ -392,9 +412,17 @@ export default defineComponent({
         this.loading = true
         this.error = null
 
-        // Load category headers
-        const headersResponse = await ocs.get<CatHeader[]>('/headers')
-        this.headers = headersResponse.data || []
+        // Load categories with nested structure (includes headers and categories)
+        await this.fetchCategories()
+
+        // Extract headers from categoryHeaders
+        this.headers = this.categoryHeaders.map((header) => ({
+          id: header.id,
+          name: header.name,
+          description: header.description,
+          sortOrder: header.sortOrder,
+          createdAt: header.createdAt,
+        }))
 
         // Load roles
         const rolesResponse = await ocs.get<Role[]>('/roles')
@@ -441,6 +469,7 @@ export default defineComponent({
       this.formData.name = category.name
       this.formData.slug = category.slug
       this.formData.description = category.description || ''
+      this.formData.sortOrder = category.sortOrder
 
       // When editing, don't track manual slug edits (slug is pre-populated from DB)
       this.slugManuallyEdited = false
@@ -510,6 +539,7 @@ export default defineComponent({
           name: this.formData.name.trim(),
           slug: this.formData.slug.trim(),
           description: this.formData.description.trim() || null,
+          sortOrder: this.formData.sortOrder,
         }
 
         let categoryId: number

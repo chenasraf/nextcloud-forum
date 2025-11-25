@@ -105,15 +105,51 @@
       <!-- Thread Header -->
       <div v-else-if="thread" class="thread-header mt-16">
         <div class="thread-title-section">
-          <h2 class="thread-title">
-            <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
-              <PinIcon :size="20" />
-            </span>
-            <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">
-              <LockIcon :size="20" />
-            </span>
-            {{ thread.title }}
-          </h2>
+          <div class="thread-title-row">
+            <h2 v-if="!isEditingTitle" class="thread-title">
+              <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
+                <PinIcon :size="20" />
+              </span>
+              <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">
+                <LockIcon :size="20" />
+              </span>
+              {{ thread.title }}
+            </h2>
+            <NcTextField
+              v-else
+              v-model="editedTitle"
+              class="thread-title-input"
+              @keydown.enter="handleSaveTitle"
+              @keydown.esc="handleCancelEditTitle"
+              ref="titleInput"
+              :disabled="isSavingTitle"
+            />
+            <NcButton
+              v-if="!isEditingTitle && canEditTitle"
+              @click="handleStartEditTitle"
+              type="tertiary"
+              :aria-label="strings.editTitle"
+              :title="strings.editTitle"
+              class="edit-title-button"
+            >
+              <template #icon>
+                <PencilIcon :size="20" />
+              </template>
+            </NcButton>
+            <NcButton
+              v-if="isEditingTitle"
+              @click="handleSaveTitle"
+              :disabled="isSavingTitle || !editedTitle.trim()"
+              type="primary"
+              :aria-label="strings.saveTitle"
+              :title="strings.saveTitle"
+              class="save-title-button"
+            >
+              <template #icon>
+                <CheckIcon :size="20" />
+              </template>
+            </NcButton>
+          </div>
           <div class="thread-meta">
             <span class="meta-item">
               <span class="meta-label">{{ strings.by }}</span>
@@ -216,6 +252,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
+import NcTextField from '@nextcloud/vue/components/NcTextField'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PostCard from '@/components/PostCard.vue'
@@ -230,6 +267,8 @@ import BellIcon from '@icons/Bell.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import ReplyIcon from '@icons/Reply.vue'
+import PencilIcon from '@icons/Pencil.vue'
+import CheckIcon from '@icons/Check.vue'
 import type { Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
@@ -248,6 +287,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcDateTime,
     NcNoteCard,
+    NcTextField,
     AppToolbar,
     PageWrapper,
     PostCard,
@@ -262,6 +302,8 @@ export default defineComponent({
     ArrowLeftIcon,
     RefreshIcon,
     ReplyIcon,
+    PencilIcon,
+    CheckIcon,
   },
   setup() {
     const { currentThread: thread, fetchThread } = useCurrentThread()
@@ -285,6 +327,9 @@ export default defineComponent({
       offset: 0,
       postCardRefs: new Map<number, any>(),
       canModerate: false,
+      isEditingTitle: false,
+      editedTitle: '',
+      isSavingTitle: false,
 
       strings: {
         back: t('forum', 'Back'),
@@ -317,6 +362,9 @@ export default defineComponent({
         subscribed: t('forum', 'Subscribed'),
         threadSubscribed: t('forum', 'Subscribed to thread'),
         threadUnsubscribed: t('forum', 'Unsubscribed from thread'),
+        editTitle: t('forum', 'Edit title'),
+        saveTitle: t('forum', 'Save title'),
+        titleUpdated: t('forum', 'Thread title updated'),
       },
     }
   },
@@ -326,6 +374,10 @@ export default defineComponent({
     },
     threadSlug(): string | null {
       return (this.$route.params.slug as string) || null
+    },
+    canEditTitle(): boolean {
+      // Allow if user is the author, or has moderation permissions
+      return this.thread?.authorId === this.userId || this.canModerate
     },
   },
   watch: {
@@ -775,6 +827,61 @@ export default defineComponent({
         this.$router.push('/')
       }
     },
+
+    handleStartEditTitle(): void {
+      if (!this.thread) return
+
+      this.editedTitle = this.thread.title
+      this.isEditingTitle = true
+
+      // Focus the input after it's rendered
+      this.$nextTick(() => {
+        const textFieldComponent = this.$refs.titleInput as any
+        if (textFieldComponent && textFieldComponent.$el) {
+          const input = textFieldComponent.$el.querySelector('input')
+          if (input) {
+            input.focus()
+            input.select()
+          }
+        }
+      })
+    },
+
+    handleCancelEditTitle(): void {
+      this.isEditingTitle = false
+      this.editedTitle = ''
+    },
+
+    async handleSaveTitle(): Promise<void> {
+      if (!this.thread || !this.editedTitle.trim() || this.isSavingTitle) return
+
+      // Don't save if title hasn't changed
+      if (this.editedTitle.trim() === this.thread.title) {
+        this.handleCancelEditTitle()
+        return
+      }
+
+      this.isSavingTitle = true
+
+      try {
+        const response = await ocs.put(`/threads/${this.thread.id}/title`, {
+          title: this.editedTitle.trim(),
+        })
+
+        if (response.data) {
+          // Update local thread state
+          this.thread.title = this.editedTitle.trim()
+          showSuccess(this.strings.titleUpdated)
+          this.isEditingTitle = false
+          this.editedTitle = ''
+        }
+      } catch (e) {
+        console.error('Failed to update thread title', e)
+        showError(t('forum', 'Failed to update thread title'))
+      } finally {
+        this.isSavingTitle = false
+      }
+    },
   },
 })
 </script>
@@ -835,6 +942,12 @@ export default defineComponent({
     gap: 8px;
   }
 
+  .thread-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .thread-title {
     margin: 0;
     font-size: 1.75rem;
@@ -844,6 +957,22 @@ export default defineComponent({
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+  }
+
+  .thread-title-input {
+    flex: 1;
+
+    :deep(input) {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--color-main-text);
+      font-family: inherit;
+    }
+  }
+
+  .edit-title-button,
+  .save-title-button {
+    flex-shrink: 0;
   }
 
   .badge {

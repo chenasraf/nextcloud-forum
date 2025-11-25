@@ -15,6 +15,7 @@ use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Db\UserStats;
 use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
@@ -36,6 +37,7 @@ class ThreadControllerTest extends TestCase {
 	private ThreadEnrichmentService $threadEnrichmentService;
 	private UserPreferencesService $userPreferencesService;
 	private UserService $userService;
+	private PermissionService $permissionService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -50,6 +52,7 @@ class ThreadControllerTest extends TestCase {
 		$this->threadEnrichmentService = $this->createMock(ThreadEnrichmentService::class);
 		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
 		$this->userService = $this->createMock(UserService::class);
+		$this->permissionService = $this->createMock(PermissionService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -75,6 +78,7 @@ class ThreadControllerTest extends TestCase {
 			$this->threadEnrichmentService,
 			$this->userPreferencesService,
 			$this->userService,
+			$this->permissionService,
 			$this->userSession,
 			$this->logger
 		);
@@ -348,15 +352,26 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
 	}
 
-	public function testUpdateThreadSuccessfully(): void {
+	public function testUpdateThreadTitleSuccessfullyAsAuthor(): void {
 		$threadId = 1;
+		$categoryId = 1;
+		$authorId = 'user1';
 		$newTitle = 'Updated Title';
-		$thread = $this->createMockThread($threadId, 1, 'user1', 'Original Title');
+		$thread = $this->createMockThread($threadId, $categoryId, $authorId, 'Original Title');
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($authorId);
+		$this->userSession->method('getUser')->willReturn($user);
 
 		$this->threadMapper->expects($this->once())
 			->method('find')
 			->with($threadId)
 			->willReturn($thread);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($authorId, $categoryId, 'canModerate')
+			->willReturn(false);
 
 		$this->threadMapper->expects($this->once())
 			->method('update')
@@ -372,14 +387,92 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals($threadId, $data['id']);
 	}
 
-	public function testUpdateThreadLockedStatus(): void {
+	public function testUpdateThreadTitleSuccessfullyAsModerator(): void {
 		$threadId = 1;
-		$thread = $this->createMockThread($threadId, 1, 'user1', 'Test Thread');
+		$categoryId = 1;
+		$authorId = 'user1';
+		$moderatorId = 'moderator1';
+		$newTitle = 'Updated Title';
+		$thread = $this->createMockThread($threadId, $categoryId, $authorId, 'Original Title');
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($moderatorId);
+		$this->userSession->method('getUser')->willReturn($user);
 
 		$this->threadMapper->expects($this->once())
 			->method('find')
 			->with($threadId)
 			->willReturn($thread);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($moderatorId, $categoryId, 'canModerate')
+			->willReturn(true);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) use ($newTitle) {
+				$this->assertEquals($newTitle, $updatedThread->getTitle());
+				return $updatedThread;
+			});
+
+		$response = $this->controller->update($threadId, $newTitle);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($threadId, $data['id']);
+	}
+
+	public function testUpdateThreadTitleReturnsForbiddenWhenUserIsNeitherAuthorNorModerator(): void {
+		$threadId = 1;
+		$categoryId = 1;
+		$authorId = 'user1';
+		$otherUserId = 'user2';
+		$newTitle = 'Updated Title';
+		$thread = $this->createMockThread($threadId, $categoryId, $authorId, 'Original Title');
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($otherUserId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($otherUserId, $categoryId, 'canModerate')
+			->willReturn(false);
+
+		$this->threadMapper->expects($this->never())
+			->method('update');
+
+		$response = $this->controller->update($threadId, $newTitle);
+
+		$this->assertEquals(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertEquals(['error' => 'You do not have permission to edit this thread title'], $response->getData());
+	}
+
+	public function testUpdateThreadLockedStatus(): void {
+		$threadId = 1;
+		$categoryId = 1;
+		$moderatorId = 'moderator1';
+		$thread = $this->createMockThread($threadId, $categoryId, 'user1', 'Test Thread');
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($moderatorId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($moderatorId, $categoryId, 'canModerate')
+			->willReturn(true);
 
 		$this->threadMapper->expects($this->once())
 			->method('update')
@@ -395,12 +488,23 @@ class ThreadControllerTest extends TestCase {
 
 	public function testUpdateThreadPinnedStatus(): void {
 		$threadId = 1;
-		$thread = $this->createMockThread($threadId, 1, 'user1', 'Test Thread');
+		$categoryId = 1;
+		$moderatorId = 'moderator1';
+		$thread = $this->createMockThread($threadId, $categoryId, 'user1', 'Test Thread');
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($moderatorId);
+		$this->userSession->method('getUser')->willReturn($user);
 
 		$this->threadMapper->expects($this->once())
 			->method('find')
 			->with($threadId)
 			->willReturn($thread);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($moderatorId, $categoryId, 'canModerate')
+			->willReturn(true);
 
 		$this->threadMapper->expects($this->once())
 			->method('update')
@@ -416,12 +520,23 @@ class ThreadControllerTest extends TestCase {
 
 	public function testUpdateThreadHiddenStatus(): void {
 		$threadId = 1;
-		$thread = $this->createMockThread($threadId, 1, 'user1', 'Test Thread');
+		$categoryId = 1;
+		$moderatorId = 'moderator1';
+		$thread = $this->createMockThread($threadId, $categoryId, 'user1', 'Test Thread');
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($moderatorId);
+		$this->userSession->method('getUser')->willReturn($user);
 
 		$this->threadMapper->expects($this->once())
 			->method('find')
 			->with($threadId)
 			->willReturn($thread);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($moderatorId, $categoryId, 'canModerate')
+			->willReturn(true);
 
 		$this->threadMapper->expects($this->once())
 			->method('update')
@@ -435,8 +550,28 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 	}
 
+	public function testUpdateThreadReturnsUnauthorizedWhenUserNotAuthenticated(): void {
+		$threadId = 1;
+		$newTitle = 'New Title';
+
+		$this->userSession->method('getUser')->willReturn(null);
+
+		$this->threadMapper->expects($this->never())
+			->method('find');
+
+		$response = $this->controller->update($threadId, $newTitle);
+
+		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
+		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
+	}
+
 	public function testUpdateThreadReturnsNotFoundWhenThreadDoesNotExist(): void {
 		$threadId = 999;
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
 
 		$this->threadMapper->expects($this->once())
 			->method('find')
@@ -447,6 +582,35 @@ class ThreadControllerTest extends TestCase {
 
 		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
 		$this->assertEquals(['error' => 'Thread not found'], $response->getData());
+	}
+
+	public function testUpdateThreadStatusReturnsForbiddenWhenUserLacksModeratePermission(): void {
+		$threadId = 1;
+		$categoryId = 1;
+		$userId = 'user1';
+		$thread = $this->createMockThread($threadId, $categoryId, $userId, 'Test Thread');
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->with($threadId)
+			->willReturn($thread);
+
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, $categoryId, 'canModerate')
+			->willReturn(false);
+
+		$this->threadMapper->expects($this->never())
+			->method('update');
+
+		$response = $this->controller->update($threadId, null, true);
+
+		$this->assertEquals(Http::STATUS_FORBIDDEN, $response->getStatus());
+		$this->assertEquals(['error' => 'You do not have permission to modify thread status'], $response->getData());
 	}
 
 	public function testDestroyThreadSuccessfully(): void {

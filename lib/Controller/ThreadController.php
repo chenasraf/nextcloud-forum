@@ -15,6 +15,7 @@ use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
@@ -41,6 +42,7 @@ class ThreadController extends OCSController {
 		private ThreadEnrichmentService $threadEnrichmentService,
 		private UserPreferencesService $userPreferencesService,
 		private UserService $userService,
+		private PermissionService $permissionService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -318,15 +320,45 @@ class ThreadController extends OCSController {
 	 * 200: Thread updated
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canModerate', resourceType: 'category', resourceIdFromThreadId: 'id')]
+	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'id')]
 	#[ApiRoute(verb: 'PUT', url: '/api/threads/{id}')]
 	public function update(int $id, ?string $title = null, ?bool $isLocked = null, ?bool $isPinned = null, ?bool $isHidden = null): DataResponse {
 		try {
+			$user = $this->userSession->getUser();
+
+			if (!$user) {
+				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+			}
+
 			$thread = $this->threadMapper->find($id);
 
+			// Check if user is the author or has moderation permission
+			$isAuthor = $thread->getAuthorId() === $user->getUID();
+			$canModerate = $this->permissionService->hasCategoryPermission(
+				$user->getUID(),
+				$thread->getCategoryId(),
+				'canModerate'
+			);
+
+			// Title can be updated by author or moderator
 			if ($title !== null) {
+				if (!$isAuthor && !$canModerate) {
+					return new DataResponse(
+						['error' => 'You do not have permission to edit this thread title'],
+						Http::STATUS_FORBIDDEN
+					);
+				}
 				$thread->setTitle($title);
 			}
+
+			// Lock, pin, and hidden status can only be updated by moderators
+			if (($isLocked !== null || $isPinned !== null || $isHidden !== null) && !$canModerate) {
+				return new DataResponse(
+					['error' => 'You do not have permission to modify thread status'],
+					Http::STATUS_FORBIDDEN
+				);
+			}
+
 			if ($isLocked !== null) {
 				$thread->setIsLocked($isLocked);
 			}
@@ -340,7 +372,7 @@ class ThreadController extends OCSController {
 
 			/** @var \OCA\Forum\Db\Thread */
 			$updatedThread = $this->threadMapper->update($thread);
-			return new DataResponse($updatedThread->jsonSerialize());
+			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

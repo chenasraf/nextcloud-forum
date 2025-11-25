@@ -15,14 +15,19 @@ class UserPreferencesService {
 	/** Preference key for auto-subscribing to created threads */
 	public const PREF_AUTO_SUBSCRIBE_CREATED_THREADS = 'auto_subscribe_created_threads';
 
+	/** Preference key for upload directory path */
+	public const PREF_UPLOAD_DIRECTORY = 'upload_directory';
+
 	/** @var array<string, mixed> Default preference values */
 	private const DEFAULTS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => true,
+		self::PREF_UPLOAD_DIRECTORY => 'Forum',
 	];
 
 	/** @var array<string> List of valid preference keys */
 	private const VALID_KEYS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS,
+		self::PREF_UPLOAD_DIRECTORY,
 	];
 
 	public function __construct(

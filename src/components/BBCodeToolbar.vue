@@ -27,6 +27,24 @@
       </NcButton>
     </LazyEmojiPicker>
 
+    <NcActions :aria-label="strings.attachmentLabel" class="bbcode-trigger-button">
+      <template #icon>
+        <PaperclipIcon :size="20" />
+      </template>
+      <NcActionButton @click="handleAttachment">
+        <template #icon>
+          <PaperclipIcon :size="20" />
+        </template>
+        {{ strings.pickFileLabel }}
+      </NcActionButton>
+      <NcActionButton @click="handleUpload">
+        <template #icon>
+          <UploadIcon :size="20" />
+        </template>
+        {{ strings.uploadFileLabel }}
+      </NcActionButton>
+    </NcActions>
+
     <div class="toolbar-spacer"></div>
 
     <NcButton
@@ -43,14 +61,45 @@
 
     <!-- BBCode Help Dialog -->
     <BBCodeHelpDialog v-model:open="showHelp" />
+
+    <!-- Upload Progress Dialog -->
+    <NcDialog
+      :open="uploadDialog"
+      :name="uploadError ? strings.uploadError : strings.uploadingFile"
+      :can-close="!!uploadError"
+      @update:open="uploadDialog = $event"
+      size="small"
+    >
+      <div class="upload-progress">
+        <p class="upload-filename">{{ uploadFileName }}</p>
+        <template v-if="uploadError">
+          <p class="upload-error-message">{{ uploadError }}</p>
+        </template>
+        <template v-else>
+          <NcProgressBar :value="uploadProgress" size="medium" />
+          <p class="upload-percentage">{{ uploadProgress }}%</p>
+        </template>
+      </div>
+      <template v-if="uploadError" #actions>
+        <NcButton @click="closeUploadDialog">
+          {{ strings.close }}
+        </NcButton>
+      </template>
+    </NcDialog>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
+import NcActions from '@nextcloud/vue/components/NcActions'
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+import NcDialog from '@nextcloud/vue/components/NcDialog'
+import NcProgressBar from '@nextcloud/vue/components/NcProgressBar'
 import LazyEmojiPicker from '@/components/LazyEmojiPicker'
-import { getFilePickerBuilder } from '@nextcloud/dialogs'
+import { getFilePickerBuilder, FilePickerType } from '@nextcloud/dialogs'
+import { generateUrl } from '@nextcloud/router'
+import { getCurrentUser } from '@nextcloud/auth'
 import FormatBoldIcon from '@icons/FormatBold.vue'
 import FormatItalicIcon from '@icons/FormatItalic.vue'
 import FormatStrikethroughIcon from '@icons/FormatStrikethrough.vue'
@@ -70,10 +119,12 @@ import FormatAlignRightIcon from '@icons/FormatAlignRight.vue'
 import EyeOffIcon from '@icons/EyeOff.vue'
 import FormatListBulletedIcon from '@icons/FormatListBulleted.vue'
 import PaperclipIcon from '@icons/Paperclip.vue'
+import UploadIcon from '@icons/Upload.vue'
 import EmoticonIcon from '@icons/Emoticon.vue'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
 import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
 import { t } from '@nextcloud/l10n'
+import { webDav, ocs } from '@/axios'
 
 interface BBCodeButton {
   tag: string
@@ -91,8 +142,14 @@ export default defineComponent({
   name: 'BBCodeToolbar',
   components: {
     NcButton,
+    NcActions,
+    NcActionButton,
+    NcDialog,
+    NcProgressBar,
     LazyEmojiPicker,
     BBCodeHelpDialog,
+    PaperclipIcon,
+    UploadIcon,
     EmoticonIcon,
     HelpCircleIcon,
   },
@@ -106,9 +163,19 @@ export default defineComponent({
   data() {
     return {
       showHelp: false,
+      uploadDialog: false,
+      uploadProgress: 0,
+      uploadFileName: '',
+      uploadError: null as string | null,
       strings: {
         helpLabel: t('forum', 'BBCode help'),
         emojiLabel: t('forum', 'Insert emoji'),
+        attachmentLabel: t('forum', 'Attachment'),
+        pickFileLabel: t('forum', 'Pick file from Nextcloud'),
+        uploadFileLabel: t('forum', 'Upload file to Nextcloud'),
+        uploadingFile: t('forum', 'Uploading file …'),
+        uploadError: t('forum', 'Upload failed'),
+        close: t('forum', 'Close'),
       },
     }
   },
@@ -242,13 +309,6 @@ export default defineComponent({
           placeholder: 'Spoiler title',
           promptForContent: true,
           contentPlaceholder: 'Spoiler content',
-        },
-        {
-          tag: 'attachment',
-          label: 'Attachment',
-          icon: PaperclipIcon,
-          template: '[attachment]{text}[/attachment]',
-          handler: this.handleAttachment,
         },
       ]
     },
@@ -412,6 +472,133 @@ export default defineComponent({
         textarea.setSelectionRange(cursorPos, cursorPos)
       })
     },
+
+    async handleUpload(): Promise<void> {
+      if (!this.textareaRef) {
+        return
+      }
+
+      try {
+        // Create a file input element
+        const fileInput = document.createElement('input')
+        fileInput.type = 'file'
+        fileInput.style.display = 'none'
+
+        // Handle file selection
+        fileInput.addEventListener('change', async (event) => {
+          const target = event.target as HTMLInputElement
+          const file = target.files?.[0]
+
+          if (file) {
+            await this.uploadFile(file)
+          }
+
+          document.body.removeChild(fileInput)
+        })
+
+        // Add to DOM and click
+        document.body.appendChild(fileInput)
+        fileInput.click()
+      } catch (error) {
+        console.error('Error creating file input:', error)
+      }
+    },
+
+    async uploadFile(file: File): Promise<void> {
+      if (!this.textareaRef) {
+        return
+      }
+
+      this.uploadFileName = file.name
+      this.uploadProgress = 0
+      this.uploadError = null
+      this.uploadDialog = true
+
+      try {
+        // Get upload directory from user preferences
+        const prefsResponse = await ocs.get('/user-preferences')
+        const uploadDirectory = prefsResponse.data.upload_directory || 'Forum'
+
+        const user = getCurrentUser()
+        if (!user) {
+          throw new Error('User not authenticated')
+        }
+
+        // Ensure directory exists
+        await this.ensureDirectoryExists(user.uid, uploadDirectory)
+
+        // Upload file
+        const davPath = `/remote.php/dav/files/${user.uid}/${uploadDirectory}/${file.name}`
+        await webDav.put(davPath, file, {
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              this.uploadProgress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            }
+          },
+        })
+
+        // Insert attachment BBCode
+        const textarea = this.textareaRef
+        if (!textarea) {
+          return
+        }
+
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        const beforeText = textarea.value.substring(0, start)
+        const afterText = textarea.value.substring(end)
+
+        const filePath = `${uploadDirectory}/${file.name}`
+        const insertText = `[attachment]${filePath}[/attachment]`
+        const newText = beforeText + insertText + afterText
+        const cursorPos = beforeText.length + insertText.length
+
+        // Emit the insert event
+        this.$emit('insert', {
+          text: newText,
+          cursorPos,
+          selectedText: '',
+        })
+
+        // Focus the textarea after insertion
+        this.$nextTick(() => {
+          textarea.focus()
+          textarea.setSelectionRange(cursorPos, cursorPos)
+        })
+
+        // Close dialog on success
+        this.uploadDialog = false
+      } catch (error) {
+        console.error('Error uploading file:', error)
+        this.uploadError =
+          error instanceof Error ? error.message : t('forum', 'Failed to upload file')
+      }
+    },
+
+    async ensureDirectoryExists(userId: string, path: string): Promise<void> {
+      // Try to create the directory
+      // If it already exists, the request will fail but that's ok
+      const davPath = `/remote.php/dav/files/${userId}/${path}`
+      try {
+        await webDav.request({
+          method: 'MKCOL',
+          url: davPath,
+        })
+      } catch (error) {
+        // Ignore errors - directory might already exist
+        // We'll find out when we try to upload the file
+      }
+    },
+
+    closeUploadDialog(): void {
+      this.uploadDialog = false
+      this.uploadError = null
+      this.uploadProgress = 0
+      this.uploadFileName = ''
+    },
   },
 })
 </script>
@@ -437,7 +624,46 @@ export default defineComponent({
   }
 }
 
+.bbcode-trigger-button {
+  min-width: auto !important;
+
+  :deep(.v-popper) {
+    height: 100%;
+    display: flex;
+  }
+
+  :deep(button:hover:not(:disabled)) {
+    background-color: var(--color-background-dark) !important;
+  }
+}
+
 .bbcode-help-button {
   margin-left: auto;
+}
+
+.upload-progress {
+  padding: 20px;
+  text-align: center;
+
+  .upload-filename {
+    margin: 0 0 16px 0;
+    font-weight: 500;
+    word-break: break-word;
+  }
+
+  .upload-error-message {
+    margin: 0;
+    padding: 16px;
+    background-color: var(--color-error-light);
+    color: var(--color-error-dark);
+    border-radius: 6px;
+    word-break: break-word;
+  }
+
+  .upload-percentage {
+    margin: 12px 0 0 0;
+    font-size: 0.9rem;
+    color: var(--color-text-maxcontrast);
+  }
 }
 </style>

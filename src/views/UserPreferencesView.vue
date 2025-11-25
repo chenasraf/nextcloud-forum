@@ -49,6 +49,30 @@
           </div>
         </div>
 
+        <!-- Files Section -->
+        <div class="form-section">
+          <h3>{{ strings.filesTitle }}</h3>
+          <p class="section-description muted">{{ strings.filesDesc }}</p>
+
+          <div class="preference-item">
+            <label class="preference-label">{{ strings.uploadDirectoryLabel }}</label>
+            <div class="directory-input-group">
+              <NcTextField
+                v-model="formData.upload_directory"
+                :placeholder="strings.uploadDirectoryLabel"
+                class="directory-input"
+              />
+              <NcButton @click="browseDirectory">
+                <template #icon>
+                  <FolderIcon :size="20" />
+                </template>
+                {{ strings.browse }}
+              </NcButton>
+            </div>
+            <p class="preference-hint">{{ strings.uploadDirectoryHint }}</p>
+          </div>
+        </div>
+
         <!-- Actions -->
         <div class="form-actions">
           <NcButton :disabled="saving || !hasChanges" @click="resetForm">
@@ -79,16 +103,20 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
+import NcTextField from '@nextcloud/vue/components/NcTextField'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import CheckIcon from '@icons/Check.vue'
+import FolderIcon from '@icons/Folder.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { getFilePickerBuilder, FilePickerType } from '@nextcloud/dialogs'
 
 interface UserPreferences {
   auto_subscribe_created_threads: boolean
+  upload_directory: string
 }
 
 export default defineComponent({
@@ -98,11 +126,13 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     NcCheckboxRadioSwitch,
+    NcTextField,
     AppToolbar,
     PageWrapper,
     PageHeader,
     ArrowLeftIcon,
     CheckIcon,
+    FolderIcon,
   },
   data() {
     return {
@@ -112,9 +142,11 @@ export default defineComponent({
       error: null as string | null,
       originalData: {
         auto_subscribe_created_threads: true,
+        upload_directory: 'Forum',
       } as UserPreferences,
       formData: {
         auto_subscribe_created_threads: true,
+        upload_directory: 'Forum',
       } as UserPreferences,
 
       strings: {
@@ -131,6 +163,14 @@ export default defineComponent({
           'forum',
           'When enabled, you will automatically receive notifications for replies to threads you create',
         ),
+        filesTitle: t('forum', 'Files'),
+        filesDesc: t('forum', 'Configure file upload settings'),
+        uploadDirectoryLabel: t('forum', 'Upload directory'),
+        uploadDirectoryHint: t(
+          'forum',
+          'Files attached to posts will be uploaded to this directory in your Nextcloud files',
+        ),
+        browse: t('forum', 'Browse'),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
         saveSuccess: t('forum', 'Preferences saved'),
@@ -141,7 +181,8 @@ export default defineComponent({
     hasChanges(): boolean {
       return (
         this.formData.auto_subscribe_created_threads !==
-        this.originalData.auto_subscribe_created_threads
+          this.originalData.auto_subscribe_created_threads ||
+        this.formData.upload_directory !== this.originalData.upload_directory
       )
     },
   },
@@ -194,6 +235,24 @@ export default defineComponent({
 
     goBack(): void {
       this.$router.back()
+    },
+
+    async browseDirectory(): Promise<void> {
+      try {
+        const picker = getFilePickerBuilder(t('forum', 'Select upload directory'))
+          .setMultiSelect(false)
+          .setType(FilePickerType.Choose)
+          .allowDirectories()
+          .build()
+
+        const path = await picker.pick()
+        if (path) {
+          // Remove leading slash if present to make it relative to user's root
+          this.formData.upload_directory = path.startsWith('/') ? path.substring(1) : path
+        }
+      } catch (e) {
+        console.error('Failed to pick directory', e)
+      }
     },
   },
 })
@@ -252,8 +311,24 @@ export default defineComponent({
     .preference-item {
       padding: 12px 0;
 
+      .preference-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .directory-input-group {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
+        .directory-input {
+          flex: 1;
+        }
+      }
+
       .preference-hint {
-        margin: 8px 0 0 32px;
+        margin: 8px 0 0 0;
         font-size: 0.85rem;
         color: var(--color-text-maxcontrast);
         line-height: 1.4;

@@ -4,6 +4,7 @@ import _axios from '@nextcloud/axios'
 const baseURL = generateOcsUrl('/apps/forum/api')
 export const http = _axios.create({ baseURL })
 export const ocs = _axios.create({ baseURL })
+export const webDav = _axios.create({ baseURL: '' })
 ocs.interceptors.response.use(
   (response) => {
     const ocsData = response?.data?.ocs?.data

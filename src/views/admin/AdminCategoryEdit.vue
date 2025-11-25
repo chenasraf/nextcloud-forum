@@ -162,43 +162,15 @@
       </div>
 
       <!-- Header Edit/Create Dialog -->
-      <NcDialog
-        v-if="headerDialog.show"
-        :name="headerDialog.isEditing ? strings.editHeaderTitle : strings.createHeaderTitle"
-        @close="headerDialog.show = false"
-      >
-        <div class="header-dialog-content">
-          <div class="form-group">
-            <NcTextField
-              v-model="headerDialog.name"
-              :label="strings.headerName"
-              :placeholder="strings.headerNamePlaceholder"
-              :required="true"
-            />
-          </div>
-
-          <div class="form-group">
-            <NcTextArea
-              v-model="headerDialog.description"
-              :label="strings.headerDescription"
-              :placeholder="strings.headerDescriptionPlaceholder"
-              :rows="2"
-            />
-          </div>
-        </div>
-
-        <template #actions>
-          <NcButton @click="headerDialog.show = false">
-            {{ strings.cancel }}
-          </NcButton>
-          <NcButton variant="primary" :disabled="!headerDialog.name.trim()" @click="saveHeader">
-            <template v-if="headerDialog.submitting" #icon>
-              <NcLoadingIcon :size="20" />
-            </template>
-            {{ headerDialog.isEditing ? strings.update : strings.create }}
-          </NcButton>
-        </template>
-      </NcDialog>
+      <HeaderEditDialog
+        :open="headerDialog.show"
+        :header-id="headerDialog.id"
+        :name="headerDialog.name"
+        :description="headerDialog.description"
+        :sort-order="headerDialog.sortOrder"
+        @update:open="headerDialog.show = $event"
+        @saved="handleHeaderSaved"
+      />
     </div>
   </PageWrapper>
 </template>
@@ -207,6 +179,7 @@
 import { defineComponent } from 'vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import AppToolbar from '@/components/AppToolbar.vue'
+import HeaderEditDialog from '@/components/HeaderEditDialog.vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
@@ -235,6 +208,7 @@ export default defineComponent({
     NcTextArea,
     PageWrapper,
     AppToolbar,
+    HeaderEditDialog,
     ArrowLeftIcon,
     PlusIcon,
     PencilIcon,
@@ -267,11 +241,10 @@ export default defineComponent({
       slugManuallyEdited: false,
       headerDialog: {
         show: false,
-        isEditing: false,
-        submitting: false,
         id: null as number | null,
         name: '',
         description: '',
+        sortOrder: 0,
       },
 
       strings: {
@@ -303,13 +276,6 @@ export default defineComponent({
         update: t('forum', 'Update'),
         newHeader: t('forum', 'New'),
         editHeader: t('forum', 'Edit'),
-        createHeaderTitle: t('forum', 'Create category header'),
-        editHeaderTitle: t('forum', 'Edit category header'),
-        headerName: t('forum', 'Header name'),
-        headerNamePlaceholder: t('forum', 'Enter header name'),
-        headerDescription: t('forum', 'Header description'),
-        headerDescriptionPlaceholder: t('forum', 'Enter header description (optional)'),
-        headerSortOrder: t('forum', 'Sort order'),
         permissions: t('forum', 'Permissions'),
         permissionsDescription: t(
           'forum',
@@ -609,82 +575,46 @@ export default defineComponent({
 
     createNewHeader(): void {
       this.headerDialog.show = true
-      this.headerDialog.isEditing = false
       this.headerDialog.id = null
       this.headerDialog.name = ''
       this.headerDialog.description = ''
+      // Set sort order to the count of headers (will be last)
+      this.headerDialog.sortOrder = this.categoryHeaders.length
     },
 
     editHeader(): void {
       if (!this.selectedHeader) return
 
-      const header = this.headers.find((h) => h.id === this.selectedHeader?.id)
+      const header = this.categoryHeaders.find((h) => h.id === this.selectedHeader?.id)
       if (!header) return
 
       this.headerDialog.show = true
-      this.headerDialog.isEditing = true
       this.headerDialog.id = header.id
       this.headerDialog.name = header.name
       this.headerDialog.description = header.description || ''
+      this.headerDialog.sortOrder = header.sortOrder || 0
     },
 
-    async saveHeader(): Promise<void> {
-      if (!this.headerDialog.name.trim()) return
-
-      try {
-        this.headerDialog.submitting = true
-
-        const headerData = {
-          name: this.headerDialog.name.trim(),
-          description: this.headerDialog.description.trim() || null,
-        }
-
-        let headerId: number
-
-        if (this.headerDialog.isEditing && this.headerDialog.id !== null) {
-          // Update existing header
-          await ocs.put(`/headers/${this.headerDialog.id}`, headerData)
-          headerId = this.headerDialog.id
-
-          // Update in local headers array
-          const index = this.headers.findIndex((h) => h.id === headerId)
-          if (index !== -1 && this.headers[index]) {
-            this.headers[index] = {
-              id: this.headers[index].id,
-              sortOrder: this.headers[index].sortOrder,
-              createdAt: this.headers[index].createdAt,
-              name: headerData.name,
-              description: headerData.description,
-            }
-          }
-        } else {
-          // Create new header
-          const response = await ocs.post<CatHeader>('/headers', headerData)
-          headerId = response.data.id
-
-          // Add to local headers array
-          this.headers.push(response.data)
-        }
-
-        // Auto-select the new/updated header
-        const header = this.headers.find((h) => h.id === headerId)
-        if (header) {
-          this.selectedHeader = {
-            id: header.id,
-            label: header.name,
-          }
-        }
-
-        // Refresh sidebar categories
-        await this.refreshCategories()
-
-        this.headerDialog.show = false
-      } catch (e) {
-        console.error('Failed to save header', e)
-        // TODO: Show error notification
-      } finally {
-        this.headerDialog.submitting = false
+    async handleHeaderSaved(savedHeader: CatHeader): Promise<void> {
+      // Update in local headers array
+      const index = this.headers.findIndex((h) => h.id === savedHeader.id)
+      if (index !== -1) {
+        this.headers[index] = savedHeader
+      } else {
+        // Add to local headers array if new
+        this.headers.push(savedHeader)
       }
+
+      // Auto-select the new/updated header
+      this.selectedHeader = {
+        id: savedHeader.id,
+        label: savedHeader.name,
+      }
+
+      // Refresh sidebar categories
+      await this.refreshCategories()
+
+      this.headerDialog.show = false
     },
   },
 })
@@ -773,25 +703,6 @@ export default defineComponent({
       gap: 12px;
       padding-top: 16px;
       border-top: 1px solid var(--color-border);
-    }
-  }
-}
-
-.header-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 8px 0;
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    .help-text {
-      font-size: 0.85rem;
-      margin-top: 4px;
-      color: var(--color-text-maxcontrast);
     }
   }
 }

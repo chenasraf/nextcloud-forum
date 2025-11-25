@@ -235,53 +235,15 @@
       </NcDialog>
 
       <!-- Header Edit/Create Dialog -->
-      <NcDialog
-        v-if="headerDialog.show"
-        :name="headerDialog.isEditing ? strings.editHeaderTitle : strings.createHeaderTitle"
-        @close="headerDialog.show = false"
-      >
-        <div class="header-dialog-content">
-          <div class="form-group">
-            <NcTextField
-              v-model="headerDialog.name"
-              :label="strings.headerName"
-              :placeholder="strings.headerNamePlaceholder"
-              :required="true"
-            />
-          </div>
-
-          <div class="form-group">
-            <NcTextArea
-              v-model="headerDialog.description"
-              :label="strings.headerDescription"
-              :placeholder="strings.headerDescriptionPlaceholder"
-              :rows="2"
-            />
-          </div>
-
-          <div class="form-group">
-            <NcTextField
-              v-model.number="headerDialog.sortOrder"
-              :label="strings.headerSortOrder"
-              :placeholder="strings.sortOrderPlaceholder"
-              type="number"
-            />
-            <p class="help-text muted">{{ strings.sortOrderHelp }}</p>
-          </div>
-        </div>
-
-        <template #actions>
-          <NcButton @click="headerDialog.show = false">
-            {{ strings.cancel }}
-          </NcButton>
-          <NcButton variant="primary" :disabled="!headerDialog.name.trim()" @click="saveHeader">
-            <template v-if="headerDialog.submitting" #icon>
-              <NcLoadingIcon :size="20" />
-            </template>
-            {{ headerDialog.isEditing ? strings.update : strings.create }}
-          </NcButton>
-        </template>
-      </NcDialog>
+      <HeaderEditDialog
+        :open="headerDialog.show"
+        :header-id="headerDialog.id"
+        :name="headerDialog.name"
+        :description="headerDialog.description"
+        :sort-order="headerDialog.sortOrder"
+        @update:open="headerDialog.show = $event"
+        @saved="handleHeaderSaved"
+      />
 
       <!-- Header Delete Confirmation Dialog -->
       <NcDialog
@@ -362,6 +324,7 @@ import { defineComponent } from 'vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import AppToolbar from '@/components/AppToolbar.vue'
+import HeaderEditDialog from '@/components/HeaderEditDialog.vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
@@ -387,6 +350,7 @@ export default defineComponent({
     PageWrapper,
     PageHeader,
     AppToolbar,
+    HeaderEditDialog,
     NcButton,
     NcCheckboxRadioSwitch,
     NcDialog,
@@ -423,8 +387,6 @@ export default defineComponent({
       },
       headerDialog: {
         show: false,
-        isEditing: false,
-        submitting: false,
         id: null as number | null,
         name: '',
         description: '',
@@ -471,17 +433,6 @@ export default defineComponent({
         categoriesCount: (count: number) => n('forum', '%n category', '%n categories', count),
         threadsCount: (count: number) => n('forum', '%n thread', '%n threads', count),
         postsCount: (count: number) => n('forum', '%n post', '%n posts', count),
-        createHeaderTitle: t('forum', 'Create category header'),
-        editHeaderTitle: t('forum', 'Edit category header'),
-        headerName: t('forum', 'Header name'),
-        headerNamePlaceholder: t('forum', 'Enter header name'),
-        headerDescription: t('forum', 'Header description'),
-        headerDescriptionPlaceholder: t('forum', 'Enter header description (optional)'),
-        headerSortOrder: t('forum', 'Sort order'),
-        sortOrderPlaceholder: t('forum', '0'),
-        sortOrderHelp: t('forum', 'Lower numbers appear first'),
-        update: t('forum', 'Update'),
-        create: t('forum', 'Create'),
         deleteHeaderTitle: t('forum', 'Delete header'),
         deleteHeaderMessage: (name: string) =>
           t('forum', `Are you sure you want to delete the header "{name}"?`, { name }),
@@ -598,11 +549,11 @@ export default defineComponent({
 
     createHeader(): void {
       this.headerDialog.show = true
-      this.headerDialog.isEditing = false
       this.headerDialog.id = null
       this.headerDialog.name = ''
       this.headerDialog.description = ''
-      this.headerDialog.sortOrder = 0
+      // Set sort order to the count of headers (will be last)
+      this.headerDialog.sortOrder = this.categoryHeaders.length
     },
 
     editHeaderById(headerId: number): void {
@@ -610,41 +561,15 @@ export default defineComponent({
       if (!header) return
 
       this.headerDialog.show = true
-      this.headerDialog.isEditing = true
       this.headerDialog.id = header.id
       this.headerDialog.name = header.name
       this.headerDialog.description = header.description || ''
       this.headerDialog.sortOrder = header.sortOrder || 0
     },
 
-    async saveHeader(): Promise<void> {
-      if (!this.headerDialog.name.trim()) return
-
-      try {
-        this.headerDialog.submitting = true
-
-        const headerData = {
-          name: this.headerDialog.name.trim(),
-          description: this.headerDialog.description.trim() || null,
-          sortOrder: this.headerDialog.sortOrder,
-        }
-
-        if (this.headerDialog.isEditing && this.headerDialog.id !== null) {
-          // Update existing header
-          await ocs.put(`/headers/${this.headerDialog.id}`, headerData)
-        } else {
-          // Create new header
-          await ocs.post('/headers', headerData)
-        }
-
-        this.headerDialog.show = false
-        this.refresh()
-      } catch (e) {
-        console.error('Failed to save header', e)
-        // TODO: Show error notification
-      } finally {
-        this.headerDialog.submitting = false
-      }
+    async handleHeaderSaved(): Promise<void> {
+      this.headerDialog.show = false
+      await this.refresh()
     },
 
     confirmDeleteHeader(header: CatHeader): void {
@@ -972,25 +897,6 @@ export default defineComponent({
         margin-left: 32px;
         font-size: 0.85rem;
       }
-    }
-  }
-}
-
-.header-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 8px 0;
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    .help-text {
-      font-size: 0.85rem;
-      margin-top: 4px;
-      color: var(--color-text-maxcontrast);
     }
   }
 }

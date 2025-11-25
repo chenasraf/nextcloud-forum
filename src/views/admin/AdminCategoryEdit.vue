@@ -83,8 +83,11 @@
                 :label="strings.slug"
                 :placeholder="strings.slugPlaceholder"
                 :required="true"
+                :disabled="isEditing"
               />
-              <p class="help-text muted">{{ strings.slugHelp }}</p>
+              <p class="help-text muted">
+                {{ isEditing ? strings.slugHelpLocked : strings.slugHelp }}
+              </p>
             </div>
 
             <div class="form-group">
@@ -276,6 +279,7 @@ export default defineComponent({
         slugHelp: t('forum', 'URL-friendly identifier (e.g., "{slug}")', {
           slug: 'general-discussion',
         }),
+        slugHelpLocked: t('forum', 'Slug cannot be changed after category creation'),
         description: t('forum', 'Description'),
         descriptionPlaceholder: t('forum', 'Enter category description (optional)'),
         sortOrder: t('forum', 'Sort order'),

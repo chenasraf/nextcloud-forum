@@ -63,6 +63,9 @@ php occ app:enable forum
 
 ## Administration
 
+For detailed administration guides, usage instructions, and more, visit the
+[Administration Wiki](https://github.com/chenasraf/nextcloud-forum/wiki/Administration).
+
 ### OCC Commands
 
 The Forum app provides several OCC commands for administration and maintenance, including commands
@@ -88,90 +91,8 @@ don't hesitate to open an appropriate issue and I will do my best to reply promp
 
 ## Development
 
-### Automation
-
-Most development processes are automated:
-
-- **GitHub Actions** run tests, builds, and validations on each push or pull request.
-- **Pre-commit formatting** is handled by [lint-staged](https://github.com/okonet/lint-staged),
-  which automatically formats code before committing.
-
-> 🛠️ The NPM package [husky](https://www.npmjs.com/package/husky) takes care of installing the
-> pre-commit hook automatically after `pnpm install`.
-
----
-
-### Manual Commands
-
-While automation handles most workflows, the following commands are available for local development
-and debugging:
-
-| Command          | Description                                                | Notes                                                                               |
-| ---------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `make`           | Installs dependencies and compiles frontend/backend assets |                                                                                     |
-| `make test`      | Runs unit and integration tests                            |                                                                                     |
-| `make format`    | Auto-fix code style                                        |                                                                                     |
-| `make lint`      | Check code quality                                         |                                                                                     |
-| `make openapi`   | Generate OpenAPI documentation                             | Output saved to `openapi.json`                                                      |
-| `make appstore`  | Production build for Nextcloud app store                   |                                                                                     |
-| `make source`    | Create full source package                                 |                                                                                     |
-| `make distclean` | Clean build artifacts and dependencies                     |                                                                                     |
-| `make sign`      | Sign release archive with SHA-512 signature                | Run after uploading `.tar.gz` to GitHub. Uses `~/.nextcloud/certificates/forum.key` |
-
----
-
-### Scaffolding
-
-Generate boilerplate for common app pieces with:
-
-```bash
-pnpm gen <type> [name]
-```
-
-> **`name` is required** for every type **except** `migration`.
-
-#### Available generators
-
-| Type          | Purpose                                   | Output directory | Name required? | Template folder   | Notes                                             |
-| ------------- | ----------------------------------------- | ---------------- | -------------- | ----------------- | ------------------------------------------------- |
-| `component`   | Vue single-file component for reusable UI | `src/components` | ✅             | `gen/component`   | For user-facing building blocks.                  |
-| `view`        | Vue view / route view                     | `src/views`      | ✅             | `gen/view`        | Pair with your router.                            |
-| `api`         | PHP controller (API endpoint)             | `lib/Controller` | ✅             | `gen/api`         | PSR-4 namespace: `OCA\<App>\Controller`.          |
-| `service`     | PHP service class                         | `lib/Service`    | ✅             | `gen/service`     | Business logic; DI-friendly.                      |
-| `util`        | PHP utility/helper                        | `lib/Util`       | ✅             | `gen/util`        | Pure helpers / small utilities.                   |
-| `model`       | PHP DB model / entity                     | `lib/Db`         | ✅             | `gen/model`       | Pair with migrations.                             |
-| `command`     | Nextcloud OCC console command             | `lib/Command`    | ✅             | `gen/command`     | Shows up in `occ`.                                |
-| `task-queued` | Queued background job                     | `lib/Cron`       | ✅             | `gen/task-queued` | Extend queued job base.                           |
-| `task-timed`  | Timed background job (cron)               | `lib/Cron`       | ✅             | `gen/task-timed`  | Scheduled execution.                              |
-| `migration`   | Database migration                        | `lib/Migration`  | ❌             | `gen/migration`   | Auto-numbers version; injects `version` and `dt`. |
-
-##### How migrations are numbered
-
-The scaffolder looks at `lib/Migration`, finds the latest `VersionNNNN...` file, and **increments**
-it for you. It also injects:
-
-- `version` — the next numeric version
-- `dt` — a timestamp like `YYYYMMDDHHmmss` (via `date-fns`)
-
-You don’t pass a name for migrations.
-
-## Resources
-
-### Nextcloud Development
-
-- [Nextcloud App Development Guide](https://nextcloud.com/developer/)
-- [Nextcloud Developer Manual](https://docs.nextcloud.com/server/latest/developer_manual/)
-- [Nextcloud Vue Components](https://github.com/nextcloud/nextcloud-vue)
-- [Publishing to the App Store](https://nextcloudappstore.readthedocs.io/en/latest/developer.html)
-
-### Technologies Used
-
-- **Frontend**: [Vue 3](https://vuejs.org/), [Vite](https://vitejs.dev/),
-  [TypeScript](https://www.typescriptlang.org/)
-- **Backend**: PHP 8.1+,
-  [Nextcloud OCP API](https://docs.nextcloud.com/server/latest/developer_manual/)
-- **Database**: SQLite, MySQL, or PostgreSQL (via Nextcloud)
-- **BBCode Parsing**: [ChrisKonnertz/BBCode](https://github.com/chriskonnertz/bbcode)
+For detailed development guides and documentation, visit the
+[Development Wiki](https://github.com/chenasraf/nextcloud-forum/wiki/Development).
 
 ## License
 

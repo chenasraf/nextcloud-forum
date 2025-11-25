@@ -1,0 +1,24 @@
+{ "translations": {
+    "Forum" : "វេទិកាពិភាក្សា",
+    "Admin" : "អ្នក​គ្រប់​គ្រង",
+    "User" : "User",
+    "General" : "ទូទៅ",
+    "Search" : "ស្វែងរក",
+    "Home" : "ទំព័រដើម",
+    "Users" : "អ្នកប្រើ",
+    "Collapse" : "បត់បង្រួម",
+    "Edit" : "កែប្រែ",
+    "Delete" : "លុប",
+    "Cancel" : "Cancel",
+    "Save" : "រក្សាទុក",
+    "Error" : "កំហុស",
+    "by" : "ដោយ",
+    "Disable" : "បិទ",
+    "Description" : "ការ​អធិប្បាយ",
+    "Enabled" : "បាន​បើក",
+    "Update" : "ធ្វើ​បច្ចុប្បន្នភាព",
+    "Name" : "ឈ្មោះ",
+    "New" : "ថ្មី",
+    "Deleted" : "បាន​លុប"
+},"pluralForm" :"nplurals=1; plural=0;"
+}

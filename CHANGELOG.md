@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.13.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.12.0...v0.13.0) (2025-11-26)
+
+
+### Features
+
+* allow attachment uploads ([43885f9](https://github.com/chenasraf/nextcloud-forum/commit/43885f9ffa23dccfce6fb86f29a8a763f8d67ecf))
+
+
+### Bug Fixes
+
+* **l10n:** simplify translation text ([549d7e1](https://github.com/chenasraf/nextcloud-forum/commit/549d7e17d271013bd3176c7d4217361d93ba87f3))
+* **l10n:** translation source strings ([4832a95](https://github.com/chenasraf/nextcloud-forum/commit/4832a95d436c8764f28d633fca5a6a03561d995c))
+* **l10n:** Update translations from Transifex ([ecf49a3](https://github.com/chenasraf/nextcloud-forum/commit/ecf49a3df0084b7c7aebd0eb7a3867f7919b99be))
+* **l10n:** update wrong translation string ([f936f1d](https://github.com/chenasraf/nextcloud-forum/commit/f936f1dc2594b13334aa7adb1fab30d9244410f6))
+
 ## [0.12.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.11.1...v0.12.0) (2025-11-25)
 
 

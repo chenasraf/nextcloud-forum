@@ -2,9 +2,17 @@ name: Lint OpenAPI
 
 on:
   pull_request:
+    paths:
+      - 'lib/**/*.php'
+      - 'openapi.json'
+      - '.github/workflows/lint-openapi.yml'
   push:
     branches:
       - master
+    paths:
+      - 'lib/**/*.php'
+      - 'openapi.json'
+      - '.github/workflows/lint-openapi.yml'
 
 permissions:
   contents: read

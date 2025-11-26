@@ -7,9 +7,15 @@ name: Lint php
 
 on:
   pull_request:
+    paths:
+      - '**.php'
+      - '.github/workflows/lint-php.yml'
   push:
     branches:
       - master
+    paths:
+      - '**.php'
+      - '.github/workflows/lint-php.yml'
 
 permissions:
   contents: read

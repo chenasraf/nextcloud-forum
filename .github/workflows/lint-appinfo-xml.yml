@@ -7,9 +7,15 @@ name: Lint appinfo.xml
 
 on:
   pull_request:
+    paths:
+      - 'appinfo/info.xml'
+      - '.github/workflows/lint-appinfo-xml.yml'
   push:
     branches:
       - master
+    paths:
+      - 'appinfo/info.xml'
+      - '.github/workflows/lint-appinfo-xml.yml'
 
 permissions:
   contents: read

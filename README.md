@@ -89,6 +89,17 @@ just a small amount to help sustain this project, I would be very very thankful!
 I welcome any issues or pull requests on GitHub. If you find a bug, or would like a new feature,
 don't hesitate to open an appropriate issue and I will do my best to reply promptly.
 
+### Translations
+
+If you're interested in translating this app, please visit the
+[Forum app resource on Transifex](https://app.transifex.com/nextcloud/nextcloud/forum/).
+
+For more information about translations, including how to join the Nextcloud project, see
+[Translate Nextcloud](https://nextcloud.com/translation/).
+
+Translation resources are synced daily and updates are available on the next release of the app
+after they are synced.
+
 ## Development
 
 For detailed development guides and documentation, visit the

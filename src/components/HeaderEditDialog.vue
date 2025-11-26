@@ -108,7 +108,7 @@ export default defineComponent({
         description: t('forum', 'Header description'),
         descriptionPlaceholder: t('forum', 'Enter header description (optional)'),
         sortOrder: t('forum', 'Sort order'),
-        sortOrderPlaceholder: t('forum', '0'),
+        sortOrderPlaceholder: '0',
         sortOrderHelp: t('forum', 'Lower numbers appear first'),
         cancel: t('forum', 'Cancel'),
         create: t('forum', 'Create'),

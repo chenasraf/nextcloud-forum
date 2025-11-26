@@ -269,7 +269,7 @@ export default defineComponent({
         description: t('forum', 'Description'),
         descriptionPlaceholder: t('forum', 'Enter category description (optional)'),
         sortOrder: t('forum', 'Sort order'),
-        sortOrderPlaceholder: t('forum', '0'),
+        sortOrderPlaceholder: '0',
         sortOrderHelp: t('forum', 'Lower numbers appear first'),
         cancel: t('forum', 'Cancel'),
         create: t('forum', 'Create'),

@@ -192,6 +192,7 @@
             :post="post"
             :is-first-post="index === 0"
             :is-unread="isPostUnread(post)"
+            :can-moderate-category="canModerate"
             @reply="handleReply"
             @update="handleUpdate"
             @delete="handleDelete"

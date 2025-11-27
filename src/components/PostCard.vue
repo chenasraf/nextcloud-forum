@@ -112,6 +112,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    canModerateCategory: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['reply', 'edit', 'delete', 'update'],
   setup() {
@@ -144,19 +148,31 @@ export default defineComponent({
     },
     canEdit(): boolean {
       // Authors can edit their own posts
-      // Admins and moderators can edit any post
+      // Admins and global moderators can edit any post
+      // Category moderators can edit posts in their moderated categories
       if (!this.currentUser) {
         return false
       }
-      return this.currentUser.uid === this.post.authorId || this.isAdmin || this.isModerator
+      return (
+        this.currentUser.uid === this.post.authorId ||
+        this.isAdmin ||
+        this.isModerator ||
+        this.canModerateCategory
+      )
     },
     canDelete(): boolean {
       // Authors can delete their own posts
-      // Admins and moderators can delete any post
+      // Admins and global moderators can delete any post
+      // Category moderators can delete posts in their moderated categories
       if (!this.currentUser) {
         return false
       }
-      return this.currentUser.uid === this.post.authorId || this.isAdmin || this.isModerator
+      return (
+        this.currentUser.uid === this.post.authorId ||
+        this.isAdmin ||
+        this.isModerator ||
+        this.canModerateCategory
+      )
     },
     formattedContent(): string {
       // Content is already parsed by BBCodeService on the backend

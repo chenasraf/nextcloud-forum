@@ -12,6 +12,8 @@ OC.L10N.register(
     "Users" : "Usuarios",
     "Categories" : "Categorías",
     "Collapse" : "Colapsar",
+    "Hello world!" : "¡Hola mundo!",
+    "Upload failed" : "Falla en la carga",
     "Close" : "Cerrar",
     "Cancel" : "Cancel",
     "Update" : "Actualizar",

@@ -24,7 +24,6 @@ OC.L10N.register(
     "Close" : "Chiudi",
     "Failed to upload file" : "Invio del file non riuscito",
     "Sort order" : "Ordinamento",
-    "0" : "0",
     "Cancel" : "Cancel",
     "Create" : "Crea",
     "Update" : "Aggiorna",

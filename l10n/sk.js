@@ -25,7 +25,6 @@ OC.L10N.register(
     "Close" : "Zatvoriť",
     "Failed to upload file" : "Chyba pri nahrávaní súboru",
     "Sort order" : "Poradie triedenia",
-    "0" : "0",
     "Cancel" : "Cancel",
     "Create" : "Vytvoriť",
     "Update" : "Aktualizovať",

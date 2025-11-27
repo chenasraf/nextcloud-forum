@@ -13,6 +13,7 @@ OC.L10N.register(
     "Categories" : "Categorías",
     "Collapse" : "Colapsar",
     "Hello world!" : "¡Hola mundo!",
+    "Upload failed" : "Falla en la carga",
     "Cancel" : "Cancel",
     "Update" : "Actualizar",
     "Move" : "Mover",

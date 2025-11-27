@@ -26,7 +26,6 @@ OC.L10N.register(
     "Upload failed" : "Opplasting mislyktes",
     "Close" : "Lukk",
     "Sort order" : "Sorteringsrekkefølge",
-    "0" : "0",
     "Cancel" : "Cancel",
     "Create" : "Opprett",
     "Update" : "Oppdater",

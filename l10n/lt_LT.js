@@ -23,7 +23,6 @@ OC.L10N.register(
     "Upload failed" : "Nusiuntimas nepavyko",
     "Close" : "Užverti",
     "Sort order" : "Rikiavimo tvarka",
-    "0" : "0",
     "Cancel" : "Atsisakyti",
     "Create" : "Sukurti",
     "Update" : "Atnaujinti",

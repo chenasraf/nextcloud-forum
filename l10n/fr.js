@@ -27,7 +27,6 @@ OC.L10N.register(
     "Close" : "Fermer",
     "Failed to upload file" : "Impossible de téléverser le fichier",
     "Sort order" : "Ordre de tri",
-    "0" : "0",
     "Cancel" : "Annuler",
     "Create" : "Créer",
     "Update" : "Mettre à jour",

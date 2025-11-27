@@ -17,7 +17,6 @@ OC.L10N.register(
     "Quote" : "Citat",
     "Upload failed" : "Ngarkimi dështoi",
     "Close" : "Mbylleni",
-    "0" : "0",
     "Cancel" : "Cancel",
     "Create" : "Krijo",
     "Update" : "Përditëso",

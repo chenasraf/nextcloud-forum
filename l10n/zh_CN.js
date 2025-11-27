@@ -26,7 +26,6 @@ OC.L10N.register(
     "Close" : "关闭",
     "Failed to upload file" : "无法上传文件",
     "Sort order" : "排序",
-    "0" : "0",
     "Cancel" : "取消",
     "Create" : "创建",
     "Update" : "更新",

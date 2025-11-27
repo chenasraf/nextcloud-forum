@@ -23,6 +23,7 @@ OC.L10N.register(
     "Font size" : "اندازهٔ قلم",
     "List" : "فهرست",
     "Insert emoji" : "Insert emoji",
+    "Upload failed" : "آپلود ناموفق",
     "Close" : "بستن",
     "Sort order" : "Sort order",
     "Cancel" : "انصراف",

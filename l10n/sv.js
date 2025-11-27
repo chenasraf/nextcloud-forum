@@ -25,7 +25,6 @@ OC.L10N.register(
     "Close" : "Stäng",
     "Failed to upload file" : "Kunde inte ladda upp filen",
     "Sort order" : "Sorteringsordning",
-    "0" : "0",
     "Cancel" : "Avbryt",
     "Create" : "Skapa",
     "Update" : "Uppdatera",

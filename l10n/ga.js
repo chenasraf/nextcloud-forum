@@ -97,7 +97,6 @@ OC.L10N.register(
     "Header description" : "Cur síos ar an gceannteideal",
     "Enter header description (optional)" : "Cuir isteach cur síos ar an gceannteideal (roghnach)",
     "Sort order" : "Ordú sórtála",
-    "0" : "0",
     "Lower numbers appear first" : "Feictear uimhreacha níos ísle ar dtús",
     "Cancel" : "Cealaigh",
     "Create" : "Cruthaigh",

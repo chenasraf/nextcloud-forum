@@ -22,6 +22,7 @@ OC.L10N.register(
     "Font size" : "Letra-tamaina",
     "List" : "Zerrenda",
     "Insert emoji" : "Txertatu emojia",
+    "Upload failed" : "igotzeak huts egin du",
     "Close" : "Itxi",
     "Failed to upload file" : "Fitxategia kargatzeak huts egin du",
     "Sort order" : "Ordenatzeko irizpidea",

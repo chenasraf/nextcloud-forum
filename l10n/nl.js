@@ -27,7 +27,6 @@ OC.L10N.register(
     "Close" : "Sluiten",
     "Failed to upload file" : "Kon bestand niet uploaden",
     "Sort order" : "Sortering",
-    "0" : "0",
     "Cancel" : "Annuleren",
     "Create" : "Creëer",
     "Update" : "Bijwerken",

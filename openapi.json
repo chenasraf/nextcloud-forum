@@ -8289,7 +8289,8 @@
         "/ocs/v2.php/apps/forum/api/users/{userId}/roles": {
             "get": {
                 "operationId": "user_role-by-user",
-                "summary": "Get roles for a user",
+                "summary": "Get user role assignments for a user",
+                "description": "Returns Role objects enriched with userRoleId for managing role assignments.",
                 "tags": [
                     "user_role"
                 ],
@@ -8324,7 +8325,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User roles returned",
+                        "description": "User role assignments returned",
                         "content": {
                             "application/json": {
                                 "schema": {

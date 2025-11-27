@@ -33,21 +33,38 @@ class UserRoleController extends OCSController {
 	}
 
 	/**
-	 * Get roles for a user
+	 * Get user role assignments for a user
+	 *
+	 * Returns Role objects enriched with userRoleId for managing role assignments.
 	 *
 	 * @param string $userId Nextcloud user ID
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
-	 * 200: User roles returned
+	 * 200: User role assignments returned
 	 */
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/users/{userId}/roles')]
 	public function byUser(string $userId): DataResponse {
 		try {
-			// Return full Role objects with roleType, not just UserRole entities
-			$roles = $this->roleMapper->findByUserId($userId);
-			return new DataResponse(array_map(fn ($role) => $role->jsonSerialize(), $roles));
+			// Get UserRole entities to get the userRoleId for delete operations
+			$userRoles = $this->userRoleMapper->findByUserId($userId);
+
+			// Build response with full Role info + userRoleId
+			$result = [];
+			foreach ($userRoles as $userRole) {
+				try {
+					$role = $this->roleMapper->find($userRole->getRoleId());
+					$roleData = $role->jsonSerialize();
+					$roleData['userRoleId'] = $userRole->getId();
+					$result[] = $roleData;
+				} catch (DoesNotExistException $e) {
+					// Role was deleted, skip this user role
+					continue;
+				}
+			}
+
+			return new DataResponse($result);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching user roles: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch user roles'], Http::STATUS_INTERNAL_SERVER_ERROR);

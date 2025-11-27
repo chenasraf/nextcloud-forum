@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.13.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.13.0...v0.13.1) (2025-11-27)
+
+
+### Bug Fixes
+
+* **10n:** remove number-only translated string ([d6a5d9d](https://github.com/chenasraf/nextcloud-forum/commit/d6a5d9de71c7cf24055ae52a7b05ad2a64e9eaab))
+* edit/delete permissions for category mods ([df29d3a](https://github.com/chenasraf/nextcloud-forum/commit/df29d3ad2ba4a0eda004f3221bbdea28cd3131f1))
+* **l10n:** Update translations from Transifex ([ab3ea5c](https://github.com/chenasraf/nextcloud-forum/commit/ab3ea5cbb77462fa78486102fcf7cfed7dfea3a8))
+* role assignments ([b849c47](https://github.com/chenasraf/nextcloud-forum/commit/b849c4781a27d5351194da441d394945b77823e0))
+* **UserInfo:** hide User role from display ([9f8b4c3](https://github.com/chenasraf/nextcloud-forum/commit/9f8b4c3463db8fa74ab6ed086c476a96d89f49c2))
+
 ## [0.13.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.12.0...v0.13.0) (2025-11-26)
 
 

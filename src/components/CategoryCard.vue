@@ -10,7 +10,7 @@
         <span class="stat-divider">·</span>
         <span class="stat">
           <span class="stat-value">{{ category.postCount || 0 }}</span>
-          <span class="stat-label">{{ strings.posts(category.postCount || 0) }}</span>
+          <span class="stat-label">{{ strings.replies(category.postCount || 0) }}</span>
         </span>
       </div>
     </div>
@@ -35,8 +35,8 @@ export default defineComponent({
   data() {
     return {
       strings: {
-        threads: (count: number) => n('forum', 'Thread', 'Threads', count),
-        posts: (count: number) => n('forum', 'Post', 'Posts', count),
+        threads: (count: number) => t('forum', 'Threads'),
+        replies: (count: number) => t('forum', 'Replies'),
         noDescription: t('forum', 'No description available'),
       },
     }

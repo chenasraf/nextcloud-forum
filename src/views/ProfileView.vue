@@ -73,7 +73,9 @@
               </span>
               <span class="meta-divider">·</span>
               <span class="meta-item">
-                <span class="meta-label">{{ strings.postsLabel(userStats?.postCount || 0) }}</span>
+                <span class="meta-label">{{
+                  strings.repliesLabel(userStats?.postCount || 0)
+                }}</span>
                 <span class="meta-value">{{ userStats?.postCount || 0 }}</span>
               </span>
             </div>
@@ -206,8 +208,8 @@ export default defineComponent({
         errorTitle: t('forum', 'Error'),
         retry: t('forum', 'Retry'),
         firstPost: t('forum', 'First post'),
-        postsLabel: (count: number) => n('forum', 'Post', 'Posts', count),
-        threadsLabel: (count: number) => n('forum', 'Thread', 'Threads', count),
+        repliesLabel: (count: number) => t('forum', 'Replies'),
+        threadsLabel: (count: number) => t('forum', 'Threads'),
         threadsTab: (count: number) => t('forum', 'Threads ({count})', { count }),
         repliesTab: (count: number) => t('forum', 'Replies ({count})', { count }),
         noThreads: t('forum', 'No threads'),

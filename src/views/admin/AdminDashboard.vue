@@ -53,7 +53,7 @@
               </div>
               <div class="stat-info">
                 <div class="stat-value">{{ stats.totals.posts }}</div>
-                <div class="stat-label">{{ strings.totalPosts }}</div>
+                <div class="stat-label">{{ strings.totalReplies }}</div>
               </div>
             </div>
 
@@ -237,10 +237,10 @@ export default defineComponent({
         errorTitle: t('forum', 'Error loading dashboard'),
         retry: t('forum', 'Retry'),
         totals: t('forum', 'Total statistics'),
-        totalUsers: t('forum', 'Total users'),
-        totalThreads: t('forum', 'Total threads'),
-        totalPosts: t('forum', 'Total posts'),
-        totalCategories: t('forum', 'Total categories'),
+        totalUsers: t('forum', 'Users'),
+        totalThreads: t('forum', 'Threads'),
+        totalReplies: t('forum', 'Replies'),
+        totalCategories: t('forum', 'Categories'),
         recentActivity: t('forum', 'Recent activity (last 7 days)'),
         newUsers: t('forum', 'New users'),
         newThreads: t('forum', 'New threads'),

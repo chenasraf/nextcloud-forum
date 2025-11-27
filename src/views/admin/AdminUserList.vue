@@ -205,7 +205,7 @@ export default defineComponent({
         emptyTitle: t('forum', 'No users found'),
         emptyDesc: t('forum', 'There are no forum users yet'),
         user: t('forum', 'User'),
-        posts: t('forum', 'Posts'),
+        posts: t('forum', 'Replies'),
         roles: t('forum', 'Roles'),
         joined: t('forum', 'Joined'),
         status: t('forum', 'Status'),

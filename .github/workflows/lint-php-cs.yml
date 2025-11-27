@@ -7,10 +7,6 @@ name: Lint php-cs
 
 on:
   pull_request:
-    paths:
-      - '**.php'
-      - '.php-cs-fixer.dist.php'
-      - '.github/workflows/lint-php-cs.yml'
   push:
     branches:
       - master

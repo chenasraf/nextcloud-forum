@@ -40,6 +40,7 @@ import { defineComponent, type PropType } from 'vue'
 import UserAvatar from './UserAvatar.vue'
 import RoleBadge from './RoleBadge.vue'
 import type { Role } from '@/types'
+import { isAdminRole, isModeratorRole, isCustomRole } from '@/constants'
 
 export default defineComponent({
   name: 'UserInfo',
@@ -92,36 +93,17 @@ export default defineComponent({
         return []
       }
 
-      // Define default role IDs and their precedence
-      const defaultRoleIds = [1, 2, 3] // Admin (1), Moderator (2), User (3)
-      const rolePrecedence: Record<number, number> = {
-        1: 1, // Admin - highest priority
-        2: 2, // Moderator - medium priority
-        3: 3, // User - lowest priority
-      }
+      // Find the highest priority system role (admin > moderator, mutually exclusive)
+      const adminRole = this.roles.find((role) => isAdminRole(role))
+      const moderatorRole = this.roles.find((role) => isModeratorRole(role))
+      const primaryRole = adminRole ?? moderatorRole
 
-      // Separate default and custom roles
-      const defaultRoles = this.roles.filter((role) => defaultRoleIds.includes(role.id))
-      const customRoles = this.roles.filter((role) => !defaultRoleIds.includes(role.id))
+      // Get custom roles (shown after the primary role)
+      const customRoles = this.roles.filter((role) => isCustomRole(role))
 
-      // Find the most prominent default role
-      let primaryDefaultRole: Role | null = null
-      if (defaultRoles.length > 0) {
-        primaryDefaultRole = defaultRoles.reduce((mostProminent, currentRole) => {
-          const currentPrecedence = rolePrecedence[currentRole.id] || 999
-          const prominentPrecedence = rolePrecedence[mostProminent.id] || 999
-          return currentPrecedence < prominentPrecedence ? currentRole : mostProminent
-        })
-      }
-
-      // Build the display list: primary default role + all custom roles
-      const result: Role[] = []
-      if (primaryDefaultRole) {
-        result.push(primaryDefaultRole)
-      }
-      result.push(...customRoles)
-
-      return result
+      // Build the display list: primary system role (if any) + custom roles
+      // Note: "default" (user) and "guest" roles are intentionally excluded
+      return primaryRole ? [primaryRole, ...customRoles] : customRoles
     },
   },
   methods: {

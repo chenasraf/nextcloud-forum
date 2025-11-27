@@ -87,26 +87,20 @@ class PermissionService {
 	 * @return bool True if user has the permission
 	 */
 	public function hasGlobalPermission(?string $userId, string $permission): bool {
-		$userLabel = $userId ?? 'guest';
-
 		try {
 			// Handle guest users (null userId) - use guest role
 			if ($userId === null) {
 				try {
 					$guestRole = $this->roleMapper->findByRoleType(Role::ROLE_TYPE_GUEST);
 					$roles = [$guestRole];
-					$this->logger->info("Checking global permission '$permission' for guest user using guest role");
 				} catch (DoesNotExistException $e) {
-					$this->logger->warning('Guest role not found - denying guest access');
 					return false;
 				}
 			} else {
 				$roles = $this->roleMapper->findByUserId($userId);
-				$this->logger->info("Checking global permission '$permission' for user $userLabel. Found " . count($roles) . ' roles.');
 			}
 
 			if (empty($roles)) {
-				$this->logger->warning("User $userLabel has no role assignments");
 				return false;
 			}
 
@@ -114,14 +108,9 @@ class PermissionService {
 				// Check permission using getter method
 				// Note: Nextcloud Entity uses magic methods, so we call directly without method_exists check
 				$getter = 'get' . ucfirst($permission);
-				$this->logger->debug("Checking role '{$role->getName()}' (ID: {$role->getId()}) with getter method: $getter");
 
 				try {
-					$hasPermission = $role->$getter();
-					$this->logger->debug("Role '{$role->getName()}' permission value: " . ($hasPermission ? 'true' : 'false'));
-
-					if ($hasPermission) {
-						$this->logger->info("User $userLabel has global permission '$permission' via role {$role->getName()}");
+					if ($role->$getter()) {
 						return true;
 					}
 				} catch (\BadMethodCallException $e) {
@@ -130,13 +119,9 @@ class PermissionService {
 				}
 			}
 
-			$this->logger->warning("User $userLabel lacks global permission '$permission' - checked all roles, none had permission");
 			return false;
 		} catch (\Exception $e) {
-			$this->logger->error("Error checking global permission '$permission' for user $userLabel: " . $e->getMessage(), [
-				'exception' => $e,
-				'trace' => $e->getTraceAsString(),
-			]);
+			$this->logger->error("Error checking global permission '$permission': " . $e->getMessage());
 			return false;
 		}
 	}
@@ -153,11 +138,8 @@ class PermissionService {
 	 * @return bool True if user has the permission
 	 */
 	public function hasCategoryPermission(?string $userId, int $categoryId, string $permission): bool {
-		$userLabel = $userId ?? 'guest';
-
 		// Admin role has hardcoded full access to all categories (guests can never be admin)
 		if ($userId !== null && $this->hasAdminRole($userId)) {
-			$this->logger->debug("User $userLabel has Admin role - granting category permission '$permission' on category $categoryId");
 			return true;
 		}
 
@@ -167,9 +149,7 @@ class PermissionService {
 				try {
 					$guestRole = $this->roleMapper->findByRoleType(Role::ROLE_TYPE_GUEST);
 					$roles = [$guestRole];
-					$this->logger->info("Checking category permission '$permission' for guest user on category $categoryId");
 				} catch (DoesNotExistException $e) {
-					$this->logger->warning('Guest role not found - denying guest access');
 					return false;
 				}
 			} else {
@@ -188,7 +168,6 @@ class PermissionService {
 					$getter = 'get' . ucfirst($permission);
 					try {
 						if ($perm->$getter()) {
-							$this->logger->debug("User $userLabel has category permission '$permission' on category $categoryId");
 							return true;
 						}
 					} catch (\BadMethodCallException $e) {
@@ -201,10 +180,9 @@ class PermissionService {
 				}
 			}
 
-			$this->logger->debug("User $userLabel lacks category permission '$permission' on category $categoryId");
 			return false;
 		} catch (\Exception $e) {
-			$this->logger->error("Error checking category permission '$permission' for user $userLabel on category $categoryId: " . $e->getMessage());
+			$this->logger->error("Error checking category permission '$permission' on category $categoryId: " . $e->getMessage());
 			return false;
 		}
 	}
@@ -281,9 +259,7 @@ class PermissionService {
 				try {
 					$guestRole = $this->roleMapper->findByRoleType(Role::ROLE_TYPE_GUEST);
 					$roles = [$guestRole];
-					$this->logger->info('Checking accessible categories for guest user using guest role');
 				} catch (DoesNotExistException $e) {
-					$this->logger->warning('Guest role not found - denying guest access');
 					return [];
 				}
 			} else {
@@ -291,7 +267,6 @@ class PermissionService {
 				$roles = $this->roleMapper->findByUserId($userId);
 
 				if (empty($roles)) {
-					$this->logger->warning("User $userId has no role assignments");
 					return [];
 				}
 			}
@@ -306,12 +281,9 @@ class PermissionService {
 				}
 			}
 
-			$userLabel = $userId ?? 'guest';
-			$this->logger->debug("User $userLabel has access to " . count($accessibleCategoryIds) . ' categories');
 			return $accessibleCategoryIds;
 		} catch (\Exception $e) {
-			$userLabel = $userId ?? 'guest';
-			$this->logger->error("Error getting accessible categories for user $userLabel: " . $e->getMessage());
+			$this->logger->error('Error getting accessible categories: ' . $e->getMessage());
 			return [];
 		}
 	}

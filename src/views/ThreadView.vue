@@ -182,16 +182,48 @@
         </div>
       </div>
 
-      <!-- Posts list -->
-      <section v-if="!loading && !error && posts.length > 0" class="mt-16">
-        <div class="posts-list">
+      <!-- First post (always shown) -->
+      <section v-if="!loading && !error && firstPost" class="mt-16 first-post-section">
+        <PostCard
+          :ref="(el) => setPostCardRef(el, firstPost.id)"
+          :post="firstPost"
+          :is-first-post="true"
+          :is-unread="isPostUnread(firstPost)"
+          :can-moderate-category="canModerate"
+          @reply="handleReply"
+          @update="handleUpdate"
+          @delete="handleDelete"
+        />
+      </section>
+
+      <!-- Replies section with pagination -->
+      <section
+        v-if="!loading && !error && (replies.length > 0 || totalPages > 1 || loadingReplies)"
+        class="mt-16 replies-section"
+      >
+        <!-- Pagination at top -->
+        <Pagination
+          v-if="totalPages > 1"
+          :current-page="currentPage"
+          :max-pages="totalPages"
+          class="pagination-top"
+          @update:current-page="handlePageChange"
+        />
+
+        <!-- Loading state for replies -->
+        <div v-if="loadingReplies" class="replies-loading mt-16">
+          <NcLoadingIcon :size="32" />
+          <span class="muted ml-8">{{ strings.loading }}</span>
+        </div>
+
+        <div v-else class="posts-list mt-16">
           <PostCard
-            v-for="(post, index) in posts"
-            :key="post.id"
-            :ref="(el) => setPostCardRef(el, post.id)"
-            :post="post"
-            :is-first-post="index === 0"
-            :is-unread="isPostUnread(post)"
+            v-for="reply in replies"
+            :key="reply.id"
+            :ref="(el) => setPostCardRef(el, reply.id)"
+            :post="reply"
+            :is-first-post="false"
+            :is-unread="isPostUnread(reply)"
             :can-moderate-category="canModerate"
             @reply="handleReply"
             @update="handleUpdate"
@@ -199,15 +231,19 @@
           />
         </div>
 
-        <!-- Pagination info -->
-        <div v-if="posts.length >= limit" class="pagination-info mt-16">
-          <p class="muted">{{ strings.showingPosts(posts.length) }}</p>
-        </div>
+        <!-- Pagination at bottom -->
+        <Pagination
+          v-if="totalPages > 1"
+          :current-page="currentPage"
+          :max-pages="totalPages"
+          class="pagination-bottom mt-16"
+          @update:current-page="handlePageChange"
+        />
       </section>
 
       <!-- Empty posts state (thread exists but no posts) -->
       <NcEmptyContent
-        v-else-if="!loading && !error && thread && posts.length === 0"
+        v-else-if="!loading && !error && thread && !firstPost"
         :title="strings.emptyPostsTitle"
         :description="strings.emptyPostsDesc"
         class="mt-16"
@@ -278,6 +314,7 @@ import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PostCard from '@/components/PostCard.vue'
 import PostReplyForm from '@/components/PostReplyForm.vue'
+import Pagination from '@/components/Pagination.vue'
 import ThreadNotFound from '@/views/ThreadNotFound.vue'
 import MoveCategoryDialog from '@/components/MoveCategoryDialog.vue'
 import PinIcon from '@icons/Pin.vue'
@@ -315,6 +352,7 @@ export default defineComponent({
     PageWrapper,
     PostCard,
     PostReplyForm,
+    Pagination,
     ThreadNotFound,
     PinIcon,
     PinOffIcon,
@@ -345,11 +383,14 @@ export default defineComponent({
   data() {
     return {
       loading: false,
-      posts: [] as Post[],
+      loadingReplies: false,
+      firstPost: null as Post | null,
+      replies: [] as Post[],
       lastReadPostId: null as number | null,
       error: null as string | null,
-      limit: 50,
-      offset: 0,
+      currentPage: 1,
+      totalPages: 1,
+      perPage: 20,
       postCardRefs: new Map<number, any>(),
       canModerate: false,
       isEditingTitle: false,
@@ -375,7 +416,6 @@ export default defineComponent({
         lockedMessage: t('forum', 'This thread is locked. Only moderators can post replies.'),
         guestMessage: t('forum', 'You must be signed in to reply to this thread.'),
         signInToReply: t('forum', 'Sign in to reply'),
-        showingPosts: (count: number) => n('forum', 'Showing %n post', 'Showing %n posts', count),
         lockThread: t('forum', 'Lock thread'),
         unlockThread: t('forum', 'Unlock thread'),
         pinThread: t('forum', 'Pin thread'),
@@ -462,53 +502,85 @@ export default defineComponent({
       }
     },
 
-    async fetchPosts(): Promise<void> {
+    async fetchPosts(page: number = 0): Promise<void> {
       try {
-        // Fetch existing read marker before loading posts
-        await this.fetchReadMarker()
+        interface PaginatedResponse {
+          firstPost: Post | null
+          replies: Post[]
+          pagination: {
+            page: number
+            perPage: number
+            total: number
+            totalPages: number
+            startPage: number
+            lastReadPostId: number | null
+          }
+        }
 
-        const resp = await ocs.get<Post[]>(`/threads/${this.thread!.id}/posts`, {
-          params: {
-            limit: this.limit,
-            offset: this.offset,
+        const resp = await ocs.get<PaginatedResponse>(
+          `/threads/${this.thread!.id}/posts/paginated`,
+          {
+            params: {
+              page,
+              perPage: this.perPage,
+            },
           },
-        })
-        this.posts = resp.data || []
+        )
+
+        const data = resp.data
+        if (data) {
+          this.firstPost = data.firstPost
+          this.replies = data.replies || []
+          this.currentPage = data.pagination.page
+          this.totalPages = data.pagination.totalPages
+          this.lastReadPostId = data.pagination.lastReadPostId
+        }
 
         // Mark thread as read up to the last post in the current view
-        if (this.posts.length > 0) {
+        const allPosts = this.getAllPosts()
+        if (allPosts.length > 0) {
           await this.markAsRead()
         }
 
-        // Scroll to post if hash is present in URL
+        // Scroll to post if hash is present in URL, otherwise scroll to top of replies
         await this.$nextTick()
-        this.scrollToPostFromHash()
+        if (window.location.hash || this.$route.hash) {
+          this.scrollToPostFromHash()
+        }
       } catch (e) {
         console.error('Failed to fetch posts', e)
         throw new Error(t('forum', 'Failed to load posts'))
       }
     },
 
-    async fetchReadMarker(): Promise<void> {
+    async handlePageChange(newPage: number): Promise<void> {
+      if (newPage === this.currentPage) return
+
       try {
-        // Guests don't have read markers
-        if (this.userId === null) {
-          return
-        }
+        this.loadingReplies = true
+        this.currentPage = newPage
+        await this.fetchPosts(newPage)
 
-        if (!this.thread) {
-          return
+        // Scroll to the top of the replies section
+        await this.$nextTick()
+        const repliesSection = this.$el.querySelector('.replies-section')
+        if (repliesSection) {
+          repliesSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
-
-        const resp = await ocs.get<{ threadId: number; lastReadPostId: number; readAt: number }>(
-          `/threads/${this.thread.id}/read-marker`,
-        )
-        this.lastReadPostId = resp.data?.lastReadPostId || null
       } catch (e) {
-        // Not found or error - treat as no read marker
-        this.lastReadPostId = null
-        console.debug('No read marker found', e)
+        console.error('Failed to load page', e)
+      } finally {
+        this.loadingReplies = false
       }
+    },
+
+    getAllPosts(): Post[] {
+      const posts: Post[] = []
+      if (this.firstPost) {
+        posts.push(this.firstPost)
+      }
+      posts.push(...this.replies)
+      return posts
     },
 
     isPostUnread(post: Post): boolean {
@@ -533,8 +605,14 @@ export default defineComponent({
         }
 
         // Get the last post ID from the current view
-        const lastPost = this.posts[this.posts.length - 1]
+        const allPosts = this.getAllPosts()
+        const lastPost = allPosts[allPosts.length - 1]
         if (!lastPost || !this.thread) {
+          return
+        }
+
+        // Only update if the new post is newer than what we've already read
+        if (this.lastReadPostId !== null && lastPost.id <= this.lastReadPostId) {
           return
         }
 
@@ -543,6 +621,9 @@ export default defineComponent({
           threadId: this.thread.id,
           lastReadPostId: lastPost.id,
         })
+
+        // Update local state so posts appear as read immediately
+        this.lastReadPostId = lastPost.id
       } catch (e) {
         // Silently fail - marking as read is not critical
         console.debug('Failed to mark thread as read', e)
@@ -595,11 +676,18 @@ export default defineComponent({
         })
 
         if (response.data) {
-          // Update the post in the local posts array
-          const index = this.posts.findIndex((p) => p.id === data.post.id)
-          if (index !== -1) {
-            // Preserve reactions when updating
-            this.posts[index] = { ...response.data, reactions: this.posts[index]?.reactions || [] }
+          // Update the post in the correct array (firstPost or replies)
+          if (this.firstPost && this.firstPost.id === data.post.id) {
+            this.firstPost = { ...response.data, reactions: this.firstPost.reactions || [] }
+          } else {
+            const index = this.replies.findIndex((p) => p.id === data.post.id)
+            if (index !== -1) {
+              // Preserve reactions when updating
+              this.replies[index] = {
+                ...response.data,
+                reactions: this.replies[index]?.reactions || [],
+              }
+            }
           }
 
           // Exit edit mode
@@ -623,7 +711,7 @@ export default defineComponent({
     async handleDelete(post: Post): Promise<void> {
       try {
         // If this is the first post, we're deleting the entire thread
-        const isFirstPost = this.posts.length > 0 && this.posts[0]?.id === post.id
+        const isFirstPost = this.firstPost && this.firstPost.id === post.id
 
         if (isFirstPost) {
           // Delete thread
@@ -644,10 +732,10 @@ export default defineComponent({
           // Delete post optimistically
           await ocs.delete(`/posts/${post.id}`)
 
-          // Remove the post from the local array without refreshing
-          const index = this.posts.findIndex((p) => p.id === post.id)
+          // Remove the post from the local replies array without refreshing
+          const index = this.replies.findIndex((p) => p.id === post.id)
           if (index !== -1) {
-            this.posts.splice(index, 1)
+            this.replies.splice(index, 1)
           }
 
           showSuccess(t('forum', 'Post deleted'))
@@ -702,16 +790,16 @@ export default defineComponent({
           content,
         })
 
-        // Append the new post to the existing posts array
+        // After submitting a reply, go to the last page and refresh
         if (response.data) {
-          // Add empty reactions array to the new post
-          const newPost = { ...response.data, reactions: [] }
-          this.posts.push(newPost)
-
           // Clear the form only on success
           if (replyForm && typeof replyForm.clear === 'function') {
             replyForm.clear()
           }
+
+          // Reload the last page to show the new reply
+          // Set page to a high number so it gets clamped to the last page
+          await this.fetchPosts(999999)
         }
       } catch (e) {
         console.error('Failed to submit reply', e)
@@ -1101,9 +1189,24 @@ export default defineComponent({
     gap: 12px;
   }
 
-  .pagination-info {
-    text-align: center;
-    padding: 12px;
+  .first-post-section {
+    // First post section styling
+  }
+
+  .replies-section {
+    // Replies section with pagination
+  }
+
+  .replies-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+
+  .pagination-top,
+  .pagination-bottom {
+    padding: 8px 0;
   }
 }
 

@@ -14,6 +14,7 @@ use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Reaction;
 use OCA\Forum\Db\ReactionMapper;
+use OCA\Forum\Db\ReadMarker;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
@@ -751,5 +752,389 @@ class PostControllerTest extends TestCase {
 		$response = $this->controller->destroy($postId);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testByThreadPaginatedReturnsPostsSuccessfully(): void {
+		$threadId = 1;
+		$page = 1;
+		$perPage = 20;
+
+		// Create mock first post
+		$firstPost = $this->createMockPost(1, $threadId, 'user1', 'First post content');
+		$firstPost->setIsFirstPost(true);
+
+		// Create mock replies
+		$reply1 = $this->createMockPost(2, $threadId, 'user1', 'Reply 1');
+		$reply2 = $this->createMockPost(3, $threadId, 'user2', 'Reply 2');
+		$replies = [$reply1, $reply2];
+
+		// Create mock BBCode
+		$bbcode = new BBCode();
+		$bbcode->setId(1);
+		$bbcode->setTag('b');
+		$bbcode->setReplacement('<strong>{content}</strong>');
+		$bbcode->setEnabled(true);
+
+		// Mock user session (authenticated user)
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock read marker (no existing marker = unread thread)
+		$this->readMarkerMapper->expects($this->once())
+			->method('findByUserAndThread')
+			->with('user1', $threadId)
+			->willThrowException(new DoesNotExistException('No read marker'));
+
+		// Set up PostMapper expectations
+		$this->postMapper->expects($this->once())
+			->method('countRepliesByThreadId')
+			->with($threadId)
+			->willReturn(2);
+
+		$this->postMapper->expects($this->once())
+			->method('findFirstPostByThreadId')
+			->with($threadId)
+			->willReturn($firstPost);
+
+		$this->postMapper->expects($this->once())
+			->method('findRepliesByThreadId')
+			->with($threadId, $perPage, 0)
+			->willReturn($replies);
+
+		$this->bbCodeMapper->expects($this->once())
+			->method('findAllEnabled')
+			->willReturn([$bbcode]);
+
+		$this->reactionMapper->expects($this->once())
+			->method('findByPostIds')
+			->with([1, 2, 3])
+			->willReturn([]);
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn([
+				'user1' => ['userId' => 'user1', 'displayName' => 'User 1', 'roles' => []],
+				'user2' => ['userId' => 'user2', 'displayName' => 'User 2', 'roles' => []],
+			]);
+
+		// Execute
+		$response = $this->controller->byThreadPaginated($threadId, $page, $perPage);
+
+		// Assert
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertArrayHasKey('firstPost', $data);
+		$this->assertArrayHasKey('replies', $data);
+		$this->assertArrayHasKey('pagination', $data);
+		$this->assertEquals(1, $data['firstPost']['id']);
+		$this->assertCount(2, $data['replies']);
+		$this->assertEquals(1, $data['pagination']['page']);
+		$this->assertEquals(20, $data['pagination']['perPage']);
+		$this->assertEquals(2, $data['pagination']['total']);
+		$this->assertEquals(1, $data['pagination']['totalPages']);
+	}
+
+	public function testByThreadPaginatedStartsAtLastPageForUnreadThread(): void {
+		$threadId = 1;
+		$perPage = 20;
+
+		// Create mock first post
+		$firstPost = $this->createMockPost(1, $threadId, 'user1', 'First post content');
+		$firstPost->setIsFirstPost(true);
+
+		// Create 25 mock replies (2 pages)
+		$replies = [];
+		for ($i = 2; $i <= 26; $i++) {
+			$reply = $this->createMockPost($i, $threadId, 'user1', "Reply $i");
+			$replies[] = $reply;
+		}
+
+		// Mock user session
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock read marker - no existing marker (never read)
+		$this->readMarkerMapper->expects($this->once())
+			->method('findByUserAndThread')
+			->with('user1', $threadId)
+			->willThrowException(new DoesNotExistException('No read marker'));
+
+		// 25 replies = 2 pages (20 per page)
+		$this->postMapper->expects($this->once())
+			->method('countRepliesByThreadId')
+			->with($threadId)
+			->willReturn(25);
+
+		$this->postMapper->expects($this->once())
+			->method('findFirstPostByThreadId')
+			->with($threadId)
+			->willReturn($firstPost);
+
+		// When page=0, it should calculate startPage=2 (last page) and fetch from offset 20
+		$this->postMapper->expects($this->once())
+			->method('findRepliesByThreadId')
+			->with($threadId, $perPage, 20) // offset = (2-1) * 20 = 20
+			->willReturn(array_slice($replies, 20)); // Last 5 replies
+
+		$this->bbCodeMapper->method('findAllEnabled')->willReturn([]);
+		$this->reactionMapper->method('findByPostIds')->willReturn([]);
+		$this->userService->method('enrichMultipleUsers')->willReturn([
+			'user1' => ['userId' => 'user1', 'displayName' => 'User 1', 'roles' => []],
+		]);
+
+		// Execute with page=0 (auto-calculate start page)
+		$response = $this->controller->byThreadPaginated($threadId, 0, $perPage);
+
+		// Assert
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(2, $data['pagination']['page']); // Should be on last page
+		$this->assertEquals(2, $data['pagination']['totalPages']);
+		$this->assertEquals(2, $data['pagination']['startPage']); // Unread = last page
+		$this->assertNull($data['pagination']['lastReadPostId']);
+	}
+
+	public function testByThreadPaginatedStartsAtOldestUnreadPage(): void {
+		$threadId = 1;
+		$perPage = 20;
+
+		// Create mock first post
+		$firstPost = $this->createMockPost(1, $threadId, 'user1', 'First post content');
+		$firstPost->setIsFirstPost(true);
+
+		// Create mock oldest unread reply (ID 32, which would be on page 2)
+		$oldestUnreadReply = $this->createMockPost(32, $threadId, 'user2', 'Oldest unread');
+
+		// Mock user session
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock read marker - last read post ID is 31
+		$readMarker = new ReadMarker();
+		$readMarker->setUserId('user1');
+		$readMarker->setThreadId($threadId);
+		$readMarker->setLastReadPostId(31);
+		$readMarker->setReadAt(time());
+
+		$this->readMarkerMapper->expects($this->once())
+			->method('findByUserAndThread')
+			->with('user1', $threadId)
+			->willReturn($readMarker);
+
+		// 50 replies = 3 pages
+		$this->postMapper->expects($this->once())
+			->method('countRepliesByThreadId')
+			->with($threadId)
+			->willReturn(50);
+
+		// Find oldest unread reply
+		$this->postMapper->expects($this->once())
+			->method('findOldestUnreadReply')
+			->with($threadId, 31)
+			->willReturn($oldestUnreadReply);
+
+		// Get position of oldest unread reply (30 replies before it = page 2)
+		$this->postMapper->expects($this->once())
+			->method('getReplyPosition')
+			->with($threadId, 32)
+			->willReturn(30); // 0-indexed position 30 = page 2 (floor(30/20)+1)
+
+		$this->postMapper->expects($this->once())
+			->method('findFirstPostByThreadId')
+			->with($threadId)
+			->willReturn($firstPost);
+
+		// Should fetch page 2 (offset 20)
+		$this->postMapper->expects($this->once())
+			->method('findRepliesByThreadId')
+			->with($threadId, $perPage, 20)
+			->willReturn([]);
+
+		$this->bbCodeMapper->method('findAllEnabled')->willReturn([]);
+		$this->reactionMapper->method('findByPostIds')->willReturn([]);
+		$this->userService->method('enrichMultipleUsers')->willReturn([
+			'user1' => ['userId' => 'user1', 'displayName' => 'User 1', 'roles' => []],
+		]);
+
+		// Execute with page=0 (auto-calculate start page)
+		$response = $this->controller->byThreadPaginated($threadId, 0, $perPage);
+
+		// Assert
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(2, $data['pagination']['page']); // Page with oldest unread
+		$this->assertEquals(3, $data['pagination']['totalPages']);
+		$this->assertEquals(2, $data['pagination']['startPage']);
+		$this->assertEquals(31, $data['pagination']['lastReadPostId']);
+	}
+
+	public function testByThreadPaginatedGoesToLastPageWhenAllRead(): void {
+		$threadId = 1;
+		$perPage = 20;
+
+		// Create mock first post
+		$firstPost = $this->createMockPost(1, $threadId, 'user1', 'First post content');
+		$firstPost->setIsFirstPost(true);
+
+		// Mock user session
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock read marker - all posts read (last read = 50)
+		$readMarker = new ReadMarker();
+		$readMarker->setUserId('user1');
+		$readMarker->setThreadId($threadId);
+		$readMarker->setLastReadPostId(50);
+		$readMarker->setReadAt(time());
+
+		$this->readMarkerMapper->expects($this->once())
+			->method('findByUserAndThread')
+			->with('user1', $threadId)
+			->willReturn($readMarker);
+
+		// 40 replies = 2 pages
+		$this->postMapper->expects($this->once())
+			->method('countRepliesByThreadId')
+			->with($threadId)
+			->willReturn(40);
+
+		// No unread replies (all read)
+		$this->postMapper->expects($this->once())
+			->method('findOldestUnreadReply')
+			->with($threadId, 50)
+			->willReturn(null);
+
+		$this->postMapper->expects($this->once())
+			->method('findFirstPostByThreadId')
+			->with($threadId)
+			->willReturn($firstPost);
+
+		// Should fetch last page (page 2, offset 20)
+		$this->postMapper->expects($this->once())
+			->method('findRepliesByThreadId')
+			->with($threadId, $perPage, 20)
+			->willReturn([]);
+
+		$this->bbCodeMapper->method('findAllEnabled')->willReturn([]);
+		$this->reactionMapper->method('findByPostIds')->willReturn([]);
+		$this->userService->method('enrichMultipleUsers')->willReturn([
+			'user1' => ['userId' => 'user1', 'displayName' => 'User 1', 'roles' => []],
+		]);
+
+		// Execute with page=0 (auto-calculate start page)
+		$response = $this->controller->byThreadPaginated($threadId, 0, $perPage);
+
+		// Assert
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(2, $data['pagination']['page']); // Last page
+		$this->assertEquals(2, $data['pagination']['totalPages']);
+		$this->assertEquals(2, $data['pagination']['startPage']); // All read = last page
+		$this->assertEquals(50, $data['pagination']['lastReadPostId']);
+	}
+
+	public function testByThreadPaginatedWorksForGuestUser(): void {
+		$threadId = 1;
+		$page = 1;
+		$perPage = 20;
+
+		// Create mock first post
+		$firstPost = $this->createMockPost(1, $threadId, 'user1', 'First post content');
+		$firstPost->setIsFirstPost(true);
+
+		// Mock user session - guest (no user)
+		$this->userSession->method('getUser')->willReturn(null);
+
+		// 10 replies = 1 page
+		$this->postMapper->expects($this->once())
+			->method('countRepliesByThreadId')
+			->with($threadId)
+			->willReturn(10);
+
+		// Read marker should not be called for guests
+		$this->readMarkerMapper->expects($this->never())
+			->method('findByUserAndThread');
+
+		$this->postMapper->expects($this->once())
+			->method('findFirstPostByThreadId')
+			->with($threadId)
+			->willReturn($firstPost);
+
+		$this->postMapper->expects($this->once())
+			->method('findRepliesByThreadId')
+			->with($threadId, $perPage, 0)
+			->willReturn([]);
+
+		$this->bbCodeMapper->method('findAllEnabled')->willReturn([]);
+		$this->reactionMapper->method('findByPostIds')->willReturn([]);
+		$this->userService->method('enrichMultipleUsers')->willReturn([
+			'user1' => ['userId' => 'user1', 'displayName' => 'User 1', 'roles' => []],
+		]);
+
+		// Execute
+		$response = $this->controller->byThreadPaginated($threadId, $page, $perPage);
+
+		// Assert
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(1, $data['pagination']['page']);
+		$this->assertEquals(1, $data['pagination']['startPage']); // Guests start at last page
+		$this->assertNull($data['pagination']['lastReadPostId']);
+	}
+
+	public function testByThreadPaginatedRespectsExplicitPageParameter(): void {
+		$threadId = 1;
+		$perPage = 20;
+
+		// Create mock first post
+		$firstPost = $this->createMockPost(1, $threadId, 'user1', 'First post content');
+		$firstPost->setIsFirstPost(true);
+
+		// Mock user session
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Mock read marker - no existing marker
+		$this->readMarkerMapper->expects($this->once())
+			->method('findByUserAndThread')
+			->willThrowException(new DoesNotExistException('No read marker'));
+
+		// 60 replies = 3 pages
+		$this->postMapper->expects($this->once())
+			->method('countRepliesByThreadId')
+			->with($threadId)
+			->willReturn(60);
+
+		$this->postMapper->expects($this->once())
+			->method('findFirstPostByThreadId')
+			->with($threadId)
+			->willReturn($firstPost);
+
+		// Request page 2 explicitly (even though startPage would be 3)
+		$this->postMapper->expects($this->once())
+			->method('findRepliesByThreadId')
+			->with($threadId, $perPage, 20) // Page 2 = offset 20
+			->willReturn([]);
+
+		$this->bbCodeMapper->method('findAllEnabled')->willReturn([]);
+		$this->reactionMapper->method('findByPostIds')->willReturn([]);
+		$this->userService->method('enrichMultipleUsers')->willReturn([
+			'user1' => ['userId' => 'user1', 'displayName' => 'User 1', 'roles' => []],
+		]);
+
+		// Execute with explicit page=2
+		$response = $this->controller->byThreadPaginated($threadId, 2, $perPage);
+
+		// Assert
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(2, $data['pagination']['page']); // Requested page 2
+		$this->assertEquals(3, $data['pagination']['totalPages']);
+		$this->assertEquals(3, $data['pagination']['startPage']); // StartPage is still 3 (last page for unread)
 	}
 }

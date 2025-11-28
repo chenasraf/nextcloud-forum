@@ -110,6 +110,132 @@ class PostController extends OCSController {
 	}
 
 	/**
+	 * Get paginated posts by thread with first post separated
+	 *
+	 * @param int $threadId Thread ID
+	 * @param int $page Page number (1-indexed)
+	 * @param int $perPage Number of replies per page
+	 * @return DataResponse<Http::STATUS_OK, array{firstPost: array<string, mixed>|null, replies: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int, startPage: int, lastReadPostId: int|null}}, array{}>
+	 *
+	 * 200: Posts returned with pagination metadata
+	 */
+	#[NoAdminRequired]
+	#[PublicPage]
+	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
+	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts/paginated')]
+	public function byThreadPaginated(int $threadId, int $page = 0, int $perPage = 20): DataResponse {
+		try {
+			// Get current user ID
+			$currentUserId = $this->userSession->getUser()?->getUID();
+
+			// Count total replies (excluding first post)
+			$totalReplies = $this->postMapper->countRepliesByThreadId($threadId);
+			$totalPages = max(1, (int)ceil($totalReplies / $perPage));
+
+			// Determine the start page based on read status
+			$startPage = $totalPages; // Default: last page (newest) for unread threads
+			$lastReadPostId = null;
+
+			if ($currentUserId !== null) {
+				try {
+					$readMarker = $this->readMarkerMapper->findByUserAndThread($currentUserId, $threadId);
+					$lastReadPostId = $readMarker->getLastReadPostId();
+
+					// Find the oldest unread reply
+					$oldestUnreadReply = $this->postMapper->findOldestUnreadReply($threadId, $lastReadPostId);
+					if ($oldestUnreadReply !== null) {
+						// Calculate which page this reply is on
+						$position = $this->postMapper->getReplyPosition($threadId, $oldestUnreadReply->getId());
+						$startPage = (int)floor($position / $perPage) + 1;
+					} else {
+						// All replies are read, go to last page
+						$startPage = $totalPages;
+					}
+				} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
+					// No read marker = never read = go to last page (newest)
+					$startPage = $totalPages;
+				}
+			}
+
+			// If page=0, use the calculated start page
+			if ($page === 0) {
+				$page = $startPage;
+			}
+
+			// Ensure page is within valid range
+			$page = max(1, min($page, $totalPages));
+			$offset = ($page - 1) * $perPage;
+
+			// Fetch first post
+			$firstPost = $this->postMapper->findFirstPostByThreadId($threadId);
+
+			// Fetch replies for the current page
+			$replies = $this->postMapper->findRepliesByThreadId($threadId, $perPage, $offset);
+
+			// Prefetch BBCodes once for all posts to avoid repeated queries
+			$bbcodes = $this->bbCodeMapper->findAllEnabled();
+
+			// Collect all posts for reaction fetching
+			$allPosts = $firstPost !== null ? array_merge([$firstPost], $replies) : $replies;
+			$postIds = array_map(fn ($p) => $p->getId(), $allPosts);
+
+			// Fetch reactions for all posts at once (performance optimization)
+			$reactions = $this->reactionMapper->findByPostIds($postIds);
+
+			// Group reactions by post ID
+			$reactionsByPostId = [];
+			foreach ($reactions as $reaction) {
+				$postId = $reaction->getPostId();
+				if (!isset($reactionsByPostId[$postId])) {
+					$reactionsByPostId[$postId] = [];
+				}
+				$reactionsByPostId[$postId][] = $reaction;
+			}
+
+			// Extract unique author IDs
+			$authorIds = array_unique(array_map(fn ($p) => $p->getAuthorId(), $allPosts));
+
+			// Batch fetch author data (includes roles)
+			$authors = $this->userService->enrichMultipleUsers($authorIds);
+
+			// Enrich first post
+			$enrichedFirstPost = null;
+			if ($firstPost !== null) {
+				$firstPostReactions = $reactionsByPostId[$firstPost->getId()] ?? [];
+				$enrichedFirstPost = $this->postEnrichmentService->enrichPost(
+					$firstPost,
+					$bbcodes,
+					$firstPostReactions,
+					$currentUserId,
+					$authors[$firstPost->getAuthorId()] ?? null
+				);
+			}
+
+			// Enrich replies
+			$enrichedReplies = array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors) {
+				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
+				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()] ?? null);
+			}, $replies);
+
+			return new DataResponse([
+				'firstPost' => $enrichedFirstPost,
+				'replies' => $enrichedReplies,
+				'pagination' => [
+					'page' => $page,
+					'perPage' => $perPage,
+					'total' => $totalReplies,
+					'totalPages' => $totalPages,
+					'startPage' => $startPage,
+					'lastReadPostId' => $lastReadPostId,
+				],
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching paginated posts by thread: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch posts'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Get posts by author
 	 *
 	 * @param string $authorId Author user ID

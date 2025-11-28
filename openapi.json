@@ -3500,6 +3500,159 @@
                 }
             }
         },
+        "/ocs/v2.php/apps/forum/api/threads/{threadId}/posts/paginated": {
+            "get": {
+                "operationId": "post-by-thread-paginated",
+                "summary": "Get paginated posts by thread with first post separated",
+                "tags": [
+                    "post"
+                ],
+                "security": [
+                    {},
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "threadId",
+                        "in": "path",
+                        "description": "Thread ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (1-indexed)",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Number of replies per page",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "default": 20
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Posts returned with pagination metadata",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "firstPost",
+                                                        "replies",
+                                                        "pagination"
+                                                    ],
+                                                    "properties": {
+                                                        "firstPost": {
+                                                            "type": "object",
+                                                            "nullable": true,
+                                                            "additionalProperties": {
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "replies": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "pagination": {
+                                                            "type": "object",
+                                                            "required": [
+                                                                "page",
+                                                                "perPage",
+                                                                "total",
+                                                                "totalPages",
+                                                                "startPage",
+                                                                "lastReadPostId"
+                                                            ],
+                                                            "properties": {
+                                                                "page": {
+                                                                    "type": "integer",
+                                                                    "format": "int64"
+                                                                },
+                                                                "perPage": {
+                                                                    "type": "integer",
+                                                                    "format": "int64"
+                                                                },
+                                                                "total": {
+                                                                    "type": "integer",
+                                                                    "format": "int64"
+                                                                },
+                                                                "totalPages": {
+                                                                    "type": "integer",
+                                                                    "format": "int64"
+                                                                },
+                                                                "startPage": {
+                                                                    "type": "integer",
+                                                                    "format": "int64"
+                                                                },
+                                                                "lastReadPostId": {
+                                                                    "type": "integer",
+                                                                    "format": "int64",
+                                                                    "nullable": true
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ocs/v2.php/apps/forum/api/users/{authorId}/posts": {
             "get": {
                 "operationId": "post-by-author",

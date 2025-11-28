@@ -231,6 +231,131 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
+	 * Find the first post in a thread
+	 *
+	 * @param int $threadId Thread ID
+	 * @return Post|null First post or null if not found
+	 */
+	public function findFirstPostByThreadId(int $threadId): ?Post {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(true, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('deleted_at'))
+			->setMaxResults(1);
+
+		try {
+			return $this->findEntity($qb);
+		} catch (DoesNotExistException $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Find replies (non-first posts) in a thread with pagination
+	 *
+	 * @param int $threadId Thread ID
+	 * @param int $limit Maximum results
+	 * @param int $offset Results offset
+	 * @return array<Post>
+	 */
+	public function findRepliesByThreadId(int $threadId, int $limit = 50, int $offset = 0): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('deleted_at'))
+			->orderBy('created_at', 'ASC')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Count replies (non-first posts) in a thread
+	 *
+	 * @param int $threadId Thread ID
+	 * @return int Number of replies
+	 */
+	public function countRepliesByThreadId(int $threadId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('deleted_at'));
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['count'] ?? 0);
+	}
+
+	/**
+	 * Find the oldest unread reply in a thread
+	 *
+	 * @param int $threadId Thread ID
+	 * @param int $afterPostId Post ID to look after (last read post ID)
+	 * @return Post|null The oldest unread reply or null if all are read
+	 */
+	public function findOldestUnreadReply(int $threadId, int $afterPostId): ?Post {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->gt('id', $qb->createNamedParameter($afterPostId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('deleted_at'))
+			->orderBy('created_at', 'ASC')
+			->setMaxResults(1);
+
+		try {
+			return $this->findEntity($qb);
+		} catch (DoesNotExistException $e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get the position (0-indexed) of a reply in the replies list ordered by created_at ASC
+	 *
+	 * @param int $threadId Thread ID
+	 * @param int $postId Post ID to find position of
+	 * @return int Position (0-indexed)
+	 */
+	public function getReplyPosition(int $threadId, int $postId): int {
+		// First get the created_at of the target post
+		$targetQb = $this->db->getQueryBuilder();
+		$targetQb->select('created_at')
+			->from($this->getTableName())
+			->where($targetQb->expr()->eq('id', $targetQb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)));
+		$targetResult = $targetQb->executeQuery();
+		$targetRow = $targetResult->fetch();
+		$targetResult->closeCursor();
+
+		if (!$targetRow) {
+			return 0;
+		}
+
+		$targetCreatedAt = (int)$targetRow['created_at'];
+
+		// Count replies created before the target post
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'position'))
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('deleted_at'))
+			->andWhere($qb->expr()->lt('created_at', $qb->createNamedParameter($targetCreatedAt, IQueryBuilder::PARAM_INT)));
+
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+		return (int)($row['position'] ?? 0);
+	}
+
+	/**
 	 * Search posts by content (replies only, excluding first posts)
 	 *
 	 * @param IQueryBuilder $qb QueryBuilder instance (with parameters already bound)

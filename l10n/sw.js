@@ -25,6 +25,7 @@ OC.L10N.register(
     "Upload failed" : "Imeshindwa kupakia",
     "Close" : "Funga",
     "Failed to upload file" : "Imeshindwa kupakia faili",
+    "Threads" : "Mijadala",
     "Sort order" : "Panga mpangilio",
     "Cancel" : "Ghairi",
     "Create" : "Tengeneza",

@@ -64,7 +64,6 @@ OC.L10N.register(
     "Permissions" : "Dovoljenja",
     "Move up" : "Premakni navzgor",
     "Move down" : "Premakni navzdol",
-    "Total users" : "Število uporabnikov",
     "Last 7 days" : "Zadnjih 7 dni",
     "General settings" : "Splošne nastavitve",
     "Appearance" : "Videz",

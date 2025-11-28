@@ -81,8 +81,7 @@ OC.L10N.register(
     "Close" : "סגירה",
     "Pick a file to attach" : "בחירת קובץ לצירוף",
     "Failed to upload file" : "כשלון בהעלאת קובץ",
-    "_Thread_::_Threads_" : ["שרשור","שרשורים","שרשורים"],
-    "_Post_::_Posts_" : ["תגובה","תגובות","תגובות"],
+    "Threads" : "שרשורים",
     "No description available" : "תיאור לא זמין",
     "Create category header" : "יצירת כותרת קטגוריות",
     "Edit category header" : "עריכת כותרת קטגוריות",
@@ -151,7 +150,6 @@ OC.L10N.register(
     "Created" : "יצירה",
     "Actions" : "פעולות",
     "No users found" : "לא נמצאו משתמשים",
-    "Posts" : "תגובות",
     "Active" : "פעיל",
     "Deleted" : "נמחק"
 },

@@ -66,7 +66,6 @@ OC.L10N.register(
     "Permissions" : "Baimenak",
     "Move up" : "Eraman gora",
     "Move down" : "Eraman behera",
-    "Total users" : "Erabiltzaileak guztira",
     "Last 7 days" : "Azken 7 egunetan",
     "General settings" : "Ezarpen orokorrak",
     "Appearance" : "Itxura",

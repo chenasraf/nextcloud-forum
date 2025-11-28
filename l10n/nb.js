@@ -64,7 +64,6 @@ OC.L10N.register(
     "Permissions" : "Rettigheter",
     "Move up" : "Flytt opp",
     "Move down" : "Flytt ned",
-    "Total users" : "Totalt antall brukere",
     "Last 7 days" : "Siste 7 dager",
     "All time" : "Begynnelsen",
     "General settings" : "Generelle innstillinger",

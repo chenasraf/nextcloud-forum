@@ -63,7 +63,6 @@ OC.L10N.register(
     "Permissions" : "Права",
     "Move up" : "Преместване нагоре",
     "Move down" : "Преместване  надолу",
-    "Total users" : "Общо потребители",
     "Last 7 days" : "Последните 7 дни",
     "General settings" : "Общи настройки",
     "Appearance" : "Изглед",

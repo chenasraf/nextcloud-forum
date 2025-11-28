@@ -64,7 +64,6 @@ OC.L10N.register(
     "Permissions" : "Oikeudet",
     "Move up" : "Siirrä ylös",
     "Move down" : "Siirrä alas",
-    "Total users" : "Käyttäjiä yhteensä",
     "Last 7 days" : "Edelliset 7 päivää",
     "General settings" : "Yleiset asetukset",
     "Appearance" : "Ulkoasu",

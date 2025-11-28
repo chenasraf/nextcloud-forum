@@ -62,7 +62,6 @@ OC.L10N.register(
     "Permissions" : "Leidimai",
     "Move up" : "Pakelti",
     "Move down" : "Nuleisti",
-    "Total users" : "Iš viso naudotojų",
     "Last 7 days" : "Paskutinės 7 dienos",
     "General settings" : "Bendri nustatymai",
     "Appearance" : "Išvaizda",

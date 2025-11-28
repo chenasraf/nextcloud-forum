@@ -27,6 +27,7 @@ OC.L10N.register(
     "Upload failed" : "يۈكلەش مەغلۇپ بولدى",
     "Close" : "تاقاش",
     "Failed to upload file" : "ھۆججەت يوللاش مەغلۇب بولدى",
+    "Threads" : "يىپلار",
     "Sort order" : "تەرتىپلەش",
     "Cancel" : "Cancel",
     "Create" : "قۇر",

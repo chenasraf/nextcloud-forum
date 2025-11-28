@@ -25,6 +25,7 @@ OC.L10N.register(
     "Upload failed" : "Upload fejlede",
     "Close" : "Luk",
     "Failed to upload file" : "Kunne ikke uploade fil",
+    "Threads" : "Tråde",
     "Sort order" : "Sorteringsrækkefølge",
     "Cancel" : "Annullér",
     "Create" : "Opret",

@@ -28,6 +28,7 @@ OC.L10N.register(
     "Upload failed" : "ອັບໂຫຼດບໍ່ສຳເລັດ",
     "Close" : "ປິດ",
     "Failed to upload file" : "Failed to upload file",
+    "Threads" : "Threads",
     "Sort order" : "ລຳດັບການຈັດລຽງ",
     "Cancel" : "ຍົກເລີກ",
     "Create" : "ສ້າງ",

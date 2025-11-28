@@ -29,6 +29,7 @@ OC.L10N.register(
     "Insert emoji" : "Εισαγωγή emoji",
     "Close" : "Κλείσιμο",
     "Failed to upload file" : "Αποτυχία μεταφόρτωσης αρχείου",
+    "Threads" : "Συζητήσεις",
     "Sort order" : "Σειρά ταξινόμησης",
     "Cancel" : "Ακύρωση",
     "Create" : "Δημιουργία",

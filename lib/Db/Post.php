@@ -20,8 +20,6 @@ use OCP\AppFramework\Db\Entity;
  * @method void setAuthorId(string $value)
  * @method string getContent()
  * @method void setContent(string $value)
- * @method string getSlug()
- * @method void setSlug(string $value)
  * @method bool getIsEdited()
  * @method void setIsEdited(bool $value)
  * @method bool getIsFirstPost()
@@ -39,7 +37,6 @@ class Post extends Entity implements JsonSerializable {
 	protected $threadId;
 	protected $authorId;
 	protected $content;
-	protected $slug;
 	protected $isEdited;
 	protected $isFirstPost;
 	protected $editedAt;
@@ -52,7 +49,6 @@ class Post extends Entity implements JsonSerializable {
 		$this->addType('threadId', 'integer');
 		$this->addType('authorId', 'string');
 		$this->addType('content', 'string');
-		$this->addType('slug', 'string');
 		$this->addType('isEdited', 'boolean');
 		$this->addType('isFirstPost', 'boolean');
 		$this->addType('editedAt', 'integer');
@@ -68,7 +64,6 @@ class Post extends Entity implements JsonSerializable {
 			'authorId' => $this->getAuthorId(),
 			'content' => $this->getContent(),
 			'contentRaw' => $this->getContent(),
-			'slug' => $this->getSlug(),
 			'isEdited' => $this->getIsEdited(),
 			'isFirstPost' => $this->getIsFirstPost(),
 			'editedAt' => $this->getEditedAt(),

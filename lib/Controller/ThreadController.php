@@ -308,7 +308,6 @@ class ThreadController extends OCSController {
 			$post->setThreadId($createdThread->getId());
 			$post->setAuthorId($user->getUID());
 			$post->setContent($content);
-			$post->setSlug('post-' . uniqid());
 			$post->setIsEdited(false);
 			$post->setIsFirstPost(true);
 			$post->setCreatedAt(time());

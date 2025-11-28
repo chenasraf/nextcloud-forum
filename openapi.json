@@ -4111,107 +4111,6 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/forum/api/posts/slug/{slug}": {
-            "get": {
-                "operationId": "post-by-slug",
-                "summary": "Get a post by slug",
-                "tags": [
-                    "post"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "slug",
-                        "in": "path",
-                        "description": "Post slug",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Post returned",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "type": "object",
-                                                    "additionalProperties": {
-                                                        "type": "object"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Current user is not logged in",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/ocs/v2.php/apps/forum/api/posts": {
             "post": {
                 "operationId": "post-create",
@@ -4246,12 +4145,6 @@
                                     "content": {
                                         "type": "string",
                                         "description": "Post content"
-                                    },
-                                    "slug": {
-                                        "type": "string",
-                                        "nullable": true,
-                                        "default": null,
-                                        "description": "Post slug (auto-generated if not provided)"
                                     }
                                 }
                             }

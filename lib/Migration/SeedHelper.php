@@ -953,19 +953,29 @@ class SeedHelper {
 				. "[/list]\n"
 				. $l->t('Feel free to start a new discussion or reply to existing threads. Happy posting!');
 
+			// Build post values - slug is optional (removed in Version8)
+			$postValues = [
+				'thread_id' => $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'author_id' => $qb->createNamedParameter($adminUserId),
+				'content' => $qb->createNamedParameter($welcomeContent),
+				'is_edited' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'is_first_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+				'edited_at' => $qb->createNamedParameter(null, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+				'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+			];
+
+			// Check if slug column still exists (for backwards compatibility with old migrations)
+			$schemaManager = $db->createSchemaManager();
+			$tablePrefix = \OC::$server->get(\OCP\IConfig::class)->getSystemValueString('dbtableprefix', 'oc_');
+			$postsTable = $schemaManager->introspectTable($tablePrefix . 'forum_posts');
+			if ($postsTable->hasColumn('slug')) {
+				$postValues['slug'] = $qb->createNamedParameter('welcome-to-nextcloud-forums-1');
+			}
+
 			$qb = $db->getQueryBuilder();
 			$qb->insert('forum_posts')
-				->values([
-					'thread_id' => $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'author_id' => $qb->createNamedParameter($adminUserId),
-					'content' => $qb->createNamedParameter($welcomeContent),
-					'slug' => $qb->createNamedParameter('welcome-to-nextcloud-forums-1'),
-					'is_edited' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'is_first_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-					'edited_at' => $qb->createNamedParameter(null, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-				])
+				->values($postValues)
 				->executeStatement();
 			$postId = $qb->getLastInsertId();
 

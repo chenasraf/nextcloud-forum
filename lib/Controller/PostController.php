@@ -310,33 +310,10 @@ class PostController extends OCSController {
 	}
 
 	/**
-	 * Get a post by slug
-	 *
-	 * @param string $slug Post slug
-	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
-	 *
-	 * 200: Post returned
-	 */
-	#[NoAdminRequired]
-	#[ApiRoute(verb: 'GET', url: '/api/posts/slug/{slug}')]
-	public function bySlug(string $slug): DataResponse {
-		try {
-			$post = $this->postMapper->findBySlug($slug);
-			return new DataResponse($this->postEnrichmentService->enrichPost($post));
-		} catch (DoesNotExistException $e) {
-			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
-		} catch (\Exception $e) {
-			$this->logger->error('Error fetching post by slug: ' . $e->getMessage());
-			return new DataResponse(['error' => 'Failed to fetch post'], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
 	 * Create a new post
 	 *
 	 * @param int $threadId Thread ID
 	 * @param string $content Post content
-	 * @param string|null $slug Post slug (auto-generated if not provided)
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Post created
@@ -344,23 +321,17 @@ class PostController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canReply', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
 	#[ApiRoute(verb: 'POST', url: '/api/posts')]
-	public function create(int $threadId, string $content, ?string $slug = null): DataResponse {
+	public function create(int $threadId, string $content): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
-			// Auto-generate slug if not provided
-			if ($slug === null || $slug === '') {
-				$slug = 'post-' . uniqid();
-			}
-
 			$post = new \OCA\Forum\Db\Post();
 			$post->setThreadId($threadId);
 			$post->setAuthorId($user->getUID());
 			$post->setContent($content);
-			$post->setSlug($slug);
 			$post->setIsEdited(false);
 			$post->setIsFirstPost(false);
 			$post->setCreatedAt(time());

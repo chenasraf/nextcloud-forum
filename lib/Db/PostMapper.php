@@ -43,25 +43,6 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
-	 * @throws DoesNotExistException
-	 */
-	public function findBySlug(string $slug): Post {
-		/* @var $qb IQueryBuilder */
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from($this->getTableName())
-			->where(
-				$qb->expr()
-					->eq('slug', $qb->createNamedParameter($slug, IQueryBuilder::PARAM_STR))
-			)
-			->andWhere(
-				$qb->expr()->isNull('deleted_at')
-			);
-		return $this->findEntity($qb);
-	}
-
-	/**
 	 * @return array<Post>
 	 */
 	public function findByThreadId(int $threadId, int $limit = 50, int $offset = 0): array {

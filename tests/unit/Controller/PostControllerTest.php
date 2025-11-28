@@ -529,7 +529,6 @@ class PostControllerTest extends TestCase {
 		$post->setThreadId($threadId);
 		$post->setAuthorId($authorId);
 		$post->setContent($content);
-		$post->setSlug("post-$id");
 		$post->setIsEdited(false);
 		$post->setIsFirstPost(false);
 		$post->setCreatedAt(time());

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.14.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.13.1...v0.14.0) (2025-11-28)
+
+
+### Features
+
+* **Category:** add threads pagination ([a907e4b](https://github.com/chenasraf/nextcloud-forum/commit/a907e4bebaa7c05503481445a8650019dba28e9e))
+* **Thread:** add replies pagination ([53159e6](https://github.com/chenasraf/nextcloud-forum/commit/53159e66b788fb99c4da03062a64fadd1ba7eb28))
+
+
+### Bug Fixes
+
+* **l10n:** posts -&gt; replies ([fadb227](https://github.com/chenasraf/nextcloud-forum/commit/fadb22766b3c75d51090aaa020999023741374e1))
+* **l10n:** Update translations from Transifex ([3899e15](https://github.com/chenasraf/nextcloud-forum/commit/3899e15bcad0faab000ffca878bb379574078596))
+* posts-&gt;replies incl. counts ([d231f2a](https://github.com/chenasraf/nextcloud-forum/commit/d231f2a2fb6a0c3338ef80e518fb4f142caa397f))
+
 ## [0.13.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.13.0...v0.13.1) (2025-11-27)
 
 

@@ -1063,6 +1063,149 @@ class ThreadControllerTest extends TestCase {
 		$this->assertTrue($newCategoryUpdated, 'New category should have been updated');
 	}
 
+	public function testByCategoryPaginatedReturnsThreadsWithPaginationMetadata(): void {
+		$categoryId = 1;
+		$page = 1;
+		$perPage = 20;
+
+		$thread1 = $this->createMockThread(1, $categoryId, 'user1', 'Test Thread 1');
+		$thread2 = $this->createMockThread(2, $categoryId, 'user2', 'Test Thread 2');
+		$threads = [$thread1, $thread2];
+
+		$this->threadMapper->expects($this->once())
+			->method('countByCategoryId')
+			->with($categoryId)
+			->willReturn(2);
+
+		$this->threadMapper->expects($this->once())
+			->method('findByCategoryId')
+			->with($categoryId, $perPage, 0)
+			->willReturn($threads);
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn([
+				'user1' => ['userId' => 'user1', 'displayName' => 'User 1'],
+				'user2' => ['userId' => 'user2', 'displayName' => 'User 2'],
+			]);
+
+		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertArrayHasKey('threads', $data);
+		$this->assertArrayHasKey('pagination', $data);
+		$this->assertCount(2, $data['threads']);
+		$this->assertEquals(1, $data['pagination']['page']);
+		$this->assertEquals(20, $data['pagination']['perPage']);
+		$this->assertEquals(2, $data['pagination']['total']);
+		$this->assertEquals(1, $data['pagination']['totalPages']);
+	}
+
+	public function testByCategoryPaginatedCalculatesTotalPagesCorrectly(): void {
+		$categoryId = 1;
+		$page = 1;
+		$perPage = 20;
+
+		// 45 threads = 3 pages (20 + 20 + 5)
+		$this->threadMapper->expects($this->once())
+			->method('countByCategoryId')
+			->with($categoryId)
+			->willReturn(45);
+
+		$this->threadMapper->expects($this->once())
+			->method('findByCategoryId')
+			->with($categoryId, $perPage, 0)
+			->willReturn([]);
+
+		$this->userService->method('enrichMultipleUsers')->willReturn([]);
+
+		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(3, $data['pagination']['totalPages']);
+		$this->assertEquals(45, $data['pagination']['total']);
+	}
+
+	public function testByCategoryPaginatedFetchesCorrectOffset(): void {
+		$categoryId = 1;
+		$page = 3;
+		$perPage = 20;
+
+		$this->threadMapper->expects($this->once())
+			->method('countByCategoryId')
+			->with($categoryId)
+			->willReturn(60);
+
+		// Page 3 should have offset 40 (2 * 20)
+		$this->threadMapper->expects($this->once())
+			->method('findByCategoryId')
+			->with($categoryId, $perPage, 40)
+			->willReturn([]);
+
+		$this->userService->method('enrichMultipleUsers')->willReturn([]);
+
+		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(3, $data['pagination']['page']);
+	}
+
+	public function testByCategoryPaginatedClampsPageToValidRange(): void {
+		$categoryId = 1;
+		$perPage = 20;
+
+		// Only 30 threads = 2 pages
+		$this->threadMapper->expects($this->once())
+			->method('countByCategoryId')
+			->with($categoryId)
+			->willReturn(30);
+
+		// Request page 5 but should be clamped to page 2 (offset 20)
+		$this->threadMapper->expects($this->once())
+			->method('findByCategoryId')
+			->with($categoryId, $perPage, 20)
+			->willReturn([]);
+
+		$this->userService->method('enrichMultipleUsers')->willReturn([]);
+
+		$response = $this->controller->byCategoryPaginated($categoryId, 5, $perPage);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(2, $data['pagination']['page']); // Clamped to max page
+		$this->assertEquals(2, $data['pagination']['totalPages']);
+	}
+
+	public function testByCategoryPaginatedHandlesEmptyCategory(): void {
+		$categoryId = 1;
+		$page = 1;
+		$perPage = 20;
+
+		$this->threadMapper->expects($this->once())
+			->method('countByCategoryId')
+			->with($categoryId)
+			->willReturn(0);
+
+		$this->threadMapper->expects($this->once())
+			->method('findByCategoryId')
+			->with($categoryId, $perPage, 0)
+			->willReturn([]);
+
+		$this->userService->method('enrichMultipleUsers')->willReturn([]);
+
+		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertCount(0, $data['threads']);
+		$this->assertEquals(1, $data['pagination']['page']);
+		$this->assertEquals(1, $data['pagination']['totalPages']);
+		$this->assertEquals(0, $data['pagination']['total']);
+	}
+
 	private function createMockThread(int $id, int $categoryId, string $authorId, string $title): Thread {
 		$thread = new Thread();
 		$thread->setId($id);

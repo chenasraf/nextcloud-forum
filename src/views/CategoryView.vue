@@ -85,8 +85,23 @@
       </NcEmptyContent>
 
       <!-- Threads list -->
-      <section v-else class="mt-16">
-        <div class="threads-list">
+      <section v-else class="mt-16 threads-section">
+        <!-- Pagination at top -->
+        <Pagination
+          v-if="totalPages > 1"
+          :current-page="currentPage"
+          :max-pages="totalPages"
+          class="pagination-top"
+          @update:current-page="handlePageChange"
+        />
+
+        <!-- Loading state for threads -->
+        <div v-if="loadingThreads" class="threads-loading mt-16">
+          <NcLoadingIcon :size="32" />
+          <span class="muted ml-8">{{ strings.loading }}</span>
+        </div>
+
+        <div v-else class="threads-list mt-16">
           <ThreadCard
             v-for="thread in sortedThreads"
             :key="thread.id"
@@ -96,10 +111,14 @@
           />
         </div>
 
-        <!-- Pagination info -->
-        <div v-if="threads.length >= limit" class="pagination-info mt-16">
-          <p class="muted">{{ strings.showingThreads(threads.length) }}</p>
-        </div>
+        <!-- Pagination at bottom -->
+        <Pagination
+          v-if="totalPages > 1"
+          :current-page="currentPage"
+          :max-pages="totalPages"
+          class="pagination-bottom mt-16"
+          @update:current-page="handlePageChange"
+        />
       </section>
     </div>
   </PageWrapper>
@@ -114,6 +133,7 @@ import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ThreadCard from '@/components/ThreadCard.vue'
+import Pagination from '@/components/Pagination.vue'
 import CategoryNotFound from '@/views/CategoryNotFound.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
@@ -138,6 +158,7 @@ export default defineComponent({
     PageWrapper,
     PageHeader,
     ThreadCard,
+    Pagination,
     CategoryNotFound,
     ArrowLeftIcon,
     RefreshIcon,
@@ -146,12 +167,14 @@ export default defineComponent({
   data() {
     return {
       loading: false,
+      loadingThreads: false,
       category: null as Category | null,
       threads: [] as Thread[],
       readMarkers: {} as Record<number, { lastReadPostId: number; readAt: number }>,
       error: null as string | null,
-      limit: 50,
-      offset: 0,
+      currentPage: 1,
+      totalPages: 1,
+      perPage: 20,
 
       strings: {
         back: t('forum', 'Back to categories'),
@@ -162,8 +185,6 @@ export default defineComponent({
         emptyTitle: t('forum', 'No threads yet'),
         emptyDesc: t('forum', 'Be the first to start a discussion in this category.'),
         retry: t('forum', 'Retry'),
-        showingThreads: (count: number) =>
-          n('forum', 'Showing %n thread', 'Showing %n threads', count),
       },
     }
   },
@@ -227,18 +248,59 @@ export default defineComponent({
       }
     },
 
-    async fetchThreads() {
+    async fetchThreads(page: number = 1) {
       try {
-        const resp = await ocs.get<Thread[]>(`/categories/${this.category!.id}/threads`, {
-          params: {
-            limit: this.limit,
-            offset: this.offset,
+        interface PaginatedResponse {
+          threads: Thread[]
+          pagination: {
+            page: number
+            perPage: number
+            total: number
+            totalPages: number
+          }
+        }
+
+        const resp = await ocs.get<PaginatedResponse>(
+          `/categories/${this.category!.id}/threads/paginated`,
+          {
+            params: {
+              page,
+              perPage: this.perPage,
+            },
           },
-        })
-        this.threads = resp.data || []
+        )
+
+        const data = resp.data
+        if (data) {
+          this.threads = data.threads || []
+          this.currentPage = data.pagination.page
+          this.totalPages = data.pagination.totalPages
+        }
       } catch (e) {
         console.error('Failed to fetch threads', e)
         throw new Error(t('forum', 'Failed to load threads'))
+      }
+    },
+
+    async handlePageChange(newPage: number) {
+      if (newPage === this.currentPage) return
+
+      try {
+        this.loadingThreads = true
+        await this.fetchThreads(newPage)
+        // Fetch read markers for the new page's threads
+        await this.fetchReadMarkers()
+
+        // Scroll to top of threads list
+        await this.$nextTick()
+        const threadsList = this.$el.querySelector('.threads-list')
+        if (threadsList) {
+          threadsList.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      } catch (e) {
+        console.error('Failed to load page', e)
+      } finally {
+        this.loadingThreads = false
       }
     },
 
@@ -344,9 +406,16 @@ export default defineComponent({
     gap: 12px;
   }
 
-  .pagination-info {
-    text-align: center;
-    padding: 12px;
+  .threads-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+
+  .pagination-top,
+  .pagination-bottom {
+    padding: 8px 0;
   }
 }
 </style>

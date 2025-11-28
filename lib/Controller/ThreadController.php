@@ -114,6 +114,59 @@ class ThreadController extends OCSController {
 	}
 
 	/**
+	 * Get paginated threads by category
+	 *
+	 * @param int $categoryId Category ID
+	 * @param int $page Page number (1-indexed)
+	 * @param int $perPage Number of threads per page
+	 * @return DataResponse<Http::STATUS_OK, array{threads: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int}}, array{}>
+	 *
+	 * 200: Threads returned with pagination metadata
+	 */
+	#[NoAdminRequired]
+	#[PublicPage]
+	#[RequirePermission('canView', resourceType: 'category', resourceIdParam: 'categoryId')]
+	#[ApiRoute(verb: 'GET', url: '/api/categories/{categoryId}/threads/paginated')]
+	public function byCategoryPaginated(int $categoryId, int $page = 1, int $perPage = 20): DataResponse {
+		try {
+			// Count total threads in category
+			$totalThreads = $this->threadMapper->countByCategoryId($categoryId);
+			$totalPages = max(1, (int)ceil($totalThreads / $perPage));
+
+			// Ensure page is within valid range
+			$page = max(1, min($page, $totalPages));
+			$offset = ($page - 1) * $perPage;
+
+			// Fetch threads for the current page
+			$threads = $this->threadMapper->findByCategoryId($categoryId, $perPage, $offset);
+
+			// Extract unique author IDs
+			$authorIds = array_unique(array_map(fn ($t) => $t->getAuthorId(), $threads));
+
+			// Batch fetch author data (includes roles)
+			$authors = $this->userService->enrichMultipleUsers($authorIds);
+
+			// Enrich threads with pre-fetched author data
+			$enrichedThreads = array_map(function ($t) use ($authors) {
+				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null);
+			}, $threads);
+
+			return new DataResponse([
+				'threads' => $enrichedThreads,
+				'pagination' => [
+					'page' => $page,
+					'perPage' => $perPage,
+					'total' => $totalThreads,
+					'totalPages' => $totalPages,
+				],
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching paginated threads by category: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Get threads by author
 	 *
 	 * @param string $authorId Author user ID

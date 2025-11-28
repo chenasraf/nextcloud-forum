@@ -99,7 +99,7 @@
               </div>
               <div class="stat-info">
                 <div class="stat-value">{{ stats.recent.posts }}</div>
-                <div class="stat-label">{{ strings.newPosts }}</div>
+                <div class="stat-label">{{ strings.newReplies }}</div>
               </div>
             </div>
           </div>
@@ -244,7 +244,7 @@ export default defineComponent({
         recentActivity: t('forum', 'Recent activity (last 7 days)'),
         newUsers: t('forum', 'New users'),
         newThreads: t('forum', 'New threads'),
-        newPosts: t('forum', 'New posts'),
+        newReplies: t('forum', 'New replies'),
         topContributors: t('forum', 'Top contributors'),
         noContributors: t('forum', 'No contributors yet'),
         last7Days: t('forum', 'Last 7 days'),

@@ -953,7 +953,19 @@ class SeedHelper {
 				. "[/list]\n"
 				. $l->t('Feel free to start a new discussion or reply to existing threads. Happy posting!');
 
+			// Check if slug column still exists (for backwards compatibility with old migrations)
+			// Use a query to check column existence since schema introspection APIs vary
+			$hasSlugColumn = true;
+			try {
+				$checkQb = $db->getQueryBuilder();
+				$checkQb->select('slug')->from('forum_posts')->setMaxResults(1);
+				$checkQb->executeQuery()->closeCursor();
+			} catch (\Exception $e) {
+				$hasSlugColumn = false;
+			}
+
 			// Build post values - slug is optional (removed in Version8)
+			$qb = $db->getQueryBuilder();
 			$postValues = [
 				'thread_id' => $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'author_id' => $qb->createNamedParameter($adminUserId),
@@ -964,16 +976,10 @@ class SeedHelper {
 				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 			];
-
-			// Check if slug column still exists (for backwards compatibility with old migrations)
-			$schemaManager = $db->createSchemaManager();
-			$tablePrefix = \OC::$server->get(\OCP\IConfig::class)->getSystemValueString('dbtableprefix', 'oc_');
-			$postsTable = $schemaManager->introspectTable($tablePrefix . 'forum_posts');
-			if ($postsTable->hasColumn('slug')) {
+			if ($hasSlugColumn) {
 				$postValues['slug'] = $qb->createNamedParameter('welcome-to-nextcloud-forums-1');
 			}
 
-			$qb = $db->getQueryBuilder();
 			$qb->insert('forum_posts')
 				->values($postValues)
 				->executeStatement();

@@ -427,10 +427,7 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addColumn('content', 'text', [
 			'notnull' => true,
 		]);
-		$table->addColumn('slug', 'string', [
-			'notnull' => true,
-			'length' => 255,
-		]);
+		// Note: slug column was removed in Version8 - not needed for posts
 		$table->addColumn('is_edited', 'boolean', [
 			'notnull' => false,
 			'default' => false,
@@ -457,7 +454,6 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'default' => null,
 		]);
 		$table->setPrimaryKey(['id']);
-		$table->addUniqueIndex(['slug'], 'forum_posts_slug_idx');
 		$table->addIndex(['thread_id'], 'forum_posts_thread_id_idx');
 		$table->addIndex(['author_id'], 'forum_posts_author_id_idx');
 		$table->addIndex(['created_at'], 'forum_posts_created_at_idx');

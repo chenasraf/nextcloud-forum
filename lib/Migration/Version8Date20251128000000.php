@@ -33,8 +33,9 @@ class Version8Date20251128000000 extends SimpleMigrationStep {
 			$table = $schema->getTable('forum_posts');
 
 			// Drop the unique index on slug first (if exists)
-			if ($table->hasIndex('forum_posts_slug')) {
-				$table->dropIndex('forum_posts_slug');
+			// Index was named 'forum_posts_slug_idx' in Version1
+			if ($table->hasIndex('forum_posts_slug_idx')) {
+				$table->dropIndex('forum_posts_slug_idx');
 			}
 
 			// Drop the slug column

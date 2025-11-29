@@ -36,6 +36,7 @@ OC.L10N.register(
     "Insert emoji" : "Уставіць эмодзі",
     "Uploading file …" : "Запампоўванне файла …",
     "Close" : "Закрыць",
+    "Threads" : "Гутаркі",
     "Replies" : "Адказы",
     "No description available" : "Апісанне недаступна",
     "Cancel" : "Скасаваць",

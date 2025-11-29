@@ -304,6 +304,28 @@ openapi:
 	$(composer_bin) run openapi
 	@echo "\x1b[32mOpenAPI documentation generated at build/openapi/openapi.json\x1b[0m"
 
+update-pnpm-deps:
+	@echo "\x1b[33mUpdating pnpm dependencies and lockfile...\x1b[0m"
+	$(pnpm_cmd) update
+	@echo "\x1b[32mDependencies updated and lockfile refreshed.\x1b[0m"
+
+update-composer-deps:
+	@echo "\x1b[33mUpdating Composer dependencies and lockfile...\x1b[0m"
+	$(composer_bin) update
+	@echo "\x1b[32mDependencies updated and lockfile refreshed.\x1b[0m"
+
+update-deps: update-pnpm-deps update-composer-deps
+	@echo "\x1b[36mAll dependencies updated.\x1b[0m"
+	@echo "\x1b[36mPush changes? [Y/n]\x1b[0m"
+	@read ans; \
+		if [ "$$ans" != "n" ] && [ "$$ans" != "N" ]; then \
+			git add package.json pnpm-lock.yaml composer.lock vendor-bin/*/composer.lock; \
+			git commit -m "chore(deps): update dependencies"; \
+			git push; \
+		else \
+			echo "Changes not pushed."; \
+		fi
+
 # csr:
 #	- Generate a new private key and self-signed certificate for signing releases
 #	  and place them in ~/.nextcloud/certificates/$(app_name).{key,csr}

@@ -8,13 +8,13 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\ThreadController;
 use OCA\Forum\Db\Category;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\ForumUser;
+use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
-use OCA\Forum\Db\UserStats;
-use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
@@ -32,7 +32,7 @@ class ThreadControllerTest extends TestCase {
 	private ThreadMapper $threadMapper;
 	private CategoryMapper $categoryMapper;
 	private PostMapper $postMapper;
-	private UserStatsMapper $userStatsMapper;
+	private ForumUserMapper $forumUserMapper;
 	private ThreadSubscriptionMapper $threadSubscriptionMapper;
 	private ThreadEnrichmentService $threadEnrichmentService;
 	private UserPreferencesService $userPreferencesService;
@@ -47,7 +47,7 @@ class ThreadControllerTest extends TestCase {
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
 		$this->postMapper = $this->createMock(PostMapper::class);
-		$this->userStatsMapper = $this->createMock(UserStatsMapper::class);
+		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
 		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
 		$this->threadEnrichmentService = $this->createMock(ThreadEnrichmentService::class);
 		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
@@ -73,7 +73,7 @@ class ThreadControllerTest extends TestCase {
 			$this->threadMapper,
 			$this->categoryMapper,
 			$this->postMapper,
-			$this->userStatsMapper,
+			$this->forumUserMapper,
 			$this->threadSubscriptionMapper,
 			$this->threadEnrichmentService,
 			$this->userPreferencesService,
@@ -222,14 +222,14 @@ class ThreadControllerTest extends TestCase {
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
 
-		$forumUser = new UserStats();
+		$forumUser = new ForumUser();
 		$forumUser->setUserId($userId);
 		$forumUser->setPostCount(10);
 
-		// Mock user stats increment methods (first post doesn't count, only thread count increments)
-		$this->userStatsMapper->expects($this->never())
+		// Mock forum user increment methods (first post doesn't count, only thread count increments)
+		$this->forumUserMapper->expects($this->never())
 			->method('incrementPostCount');
-		$this->userStatsMapper->expects($this->once())
+		$this->forumUserMapper->expects($this->once())
 			->method('incrementThreadCount');
 
 		// Mock thread subscription
@@ -311,7 +311,7 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
 	}
 
-	public function testCreateThreadReturnsForbiddenWhenUserStatsNotRegistered(): void {
+	public function testCreateThreadSucceedsEvenWhenForumUserUpdateFails(): void {
 		$categoryId = 1;
 		$title = 'New Thread';
 		$content = 'Initial post content';
@@ -321,11 +321,11 @@ class ThreadControllerTest extends TestCase {
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
 
-		// Mock user stats methods to throw exceptions (simulating user stats failure)
+		// Mock forum user methods to throw exceptions (simulating forum user update failure)
 		// The controller catches these and just logs warnings, so thread creation should still succeed
-		$this->userStatsMapper->method('incrementPostCount')
+		$this->forumUserMapper->method('incrementPostCount')
 			->willThrowException(new \Exception('Failed to increment post count'));
-		$this->userStatsMapper->method('incrementThreadCount')
+		$this->forumUserMapper->method('incrementThreadCount')
 			->willThrowException(new \Exception('Failed to increment thread count'));
 
 		// Mock thread subscription
@@ -348,7 +348,7 @@ class ThreadControllerTest extends TestCase {
 
 		$response = $this->controller->create($categoryId, $title, $content);
 
-		// Thread creation should succeed even if user stats fail (they're in a try-catch)
+		// Thread creation should succeed even if forum user update fails (they're in a try-catch)
 		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
 	}
 

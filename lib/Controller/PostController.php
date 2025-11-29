@@ -10,12 +10,12 @@ namespace OCA\Forum\Controller;
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
-use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
@@ -39,7 +39,7 @@ class PostController extends OCSController {
 		private PostMapper $postMapper,
 		private ThreadMapper $threadMapper,
 		private CategoryMapper $categoryMapper,
-		private UserStatsMapper $userStatsMapper,
+		private ForumUserMapper $forumUserMapper,
 		private ReactionMapper $reactionMapper,
 		private BBCodeService $bbCodeService,
 		private BBCodeMapper $bbCodeMapper,
@@ -364,12 +364,12 @@ class PostController extends OCSController {
 				// Don't fail the request if thread update fails
 			}
 
-			// Update user stats post count (auto-creates stats if needed)
+			// Update forum user post count (auto-creates forum user if needed)
 			try {
-				$this->userStatsMapper->incrementPostCount($user->getUID());
+				$this->forumUserMapper->incrementPostCount($user->getUID());
 			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update user stats post count: ' . $e->getMessage());
-				// Don't fail the request if stats update fails
+				$this->logger->warning('Failed to update forum user post count: ' . $e->getMessage());
+				// Don't fail the request if forum user update fails
 			}
 
 			// Update the category's post count
@@ -506,18 +506,18 @@ class PostController extends OCSController {
 				// Don't fail the request if thread update fails
 			}
 
-			// Update user stats - decrement post count, and thread count if it's the first post
+			// Update forum user - decrement post count, and thread count if it's the first post
 			try {
 				if ($post->getIsFirstPost()) {
 					// First post: decrement thread count only
-					$this->userStatsMapper->decrementThreadCount($post->getAuthorId());
+					$this->forumUserMapper->decrementThreadCount($post->getAuthorId());
 				} else {
 					// Reply post: decrement post count only
-					$this->userStatsMapper->decrementPostCount($post->getAuthorId());
+					$this->forumUserMapper->decrementPostCount($post->getAuthorId());
 				}
 			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update user stats after post deletion: ' . $e->getMessage());
-				// Don't fail the request if stats update fails
+				$this->logger->warning('Failed to update forum user after post deletion: ' . $e->getMessage());
+				// Don't fail the request if forum user update fails
 			}
 
 			// Update category post count (only for reply posts, not first posts)

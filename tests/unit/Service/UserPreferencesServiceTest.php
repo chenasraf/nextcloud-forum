@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Tests\Service;
 
 use OCA\Forum\AppInfo\Application;
-use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Service\UserPreferencesService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
@@ -15,21 +15,21 @@ use Psr\Log\LoggerInterface;
 class UserPreferencesServiceTest extends TestCase {
 	private UserPreferencesService $service;
 	private IConfig $config;
-	private UserStatsMapper $userStatsMapper;
+	private ForumUserMapper $forumUserMapper;
 	private LoggerInterface $logger;
 
 	protected function setUp(): void {
 		$this->config = $this->createMock(IConfig::class);
-		$this->userStatsMapper = $this->createMock(UserStatsMapper::class);
+		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
-		// By default, mock no user stats (no signature)
-		$this->userStatsMapper->method('find')
+		// By default, mock no forum user (no signature)
+		$this->forumUserMapper->method('find')
 			->willThrowException(new DoesNotExistException(''));
 
 		$this->service = new UserPreferencesService(
 			$this->config,
-			$this->userStatsMapper,
+			$this->forumUserMapper,
 			$this->logger
 		);
 	}
@@ -37,7 +37,7 @@ class UserPreferencesServiceTest extends TestCase {
 	public function testGetAllPreferencesReturnsAllPreferences(): void {
 		$userId = 'user1';
 
-		// Only config-based preferences (signature is from user_stats)
+		// Only config-based preferences (signature is from forum_users)
 		$this->config->expects($this->exactly(2))
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $appId, $key, $default) use ($userId) {

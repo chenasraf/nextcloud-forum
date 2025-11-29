@@ -10,6 +10,8 @@ use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\Category;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\ForumUser;
+use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Reaction;
@@ -18,8 +20,6 @@ use OCA\Forum\Db\ReadMarker;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
-use OCA\Forum\Db\UserStats;
-use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
@@ -38,7 +38,7 @@ class PostControllerTest extends TestCase {
 	private PostMapper $postMapper;
 	private ThreadMapper $threadMapper;
 	private CategoryMapper $categoryMapper;
-	private UserStatsMapper $userStatsMapper;
+	private ForumUserMapper $forumUserMapper;
 	private ReactionMapper $reactionMapper;
 	private BBCodeService $bbCodeService;
 	private BBCodeMapper $bbCodeMapper;
@@ -56,7 +56,7 @@ class PostControllerTest extends TestCase {
 		$this->postMapper = $this->createMock(PostMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
-		$this->userStatsMapper = $this->createMock(UserStatsMapper::class);
+		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
 		$this->reactionMapper = $this->createMock(ReactionMapper::class);
 		$this->bbCodeService = $this->createMock(BBCodeService::class);
 		$this->bbCodeMapper = $this->createMock(BBCodeMapper::class);
@@ -83,7 +83,7 @@ class PostControllerTest extends TestCase {
 			$this->postMapper,
 			$this->threadMapper,
 			$this->categoryMapper,
-			$this->userStatsMapper,
+			$this->forumUserMapper,
 			$this->reactionMapper,
 			$this->bbCodeService,
 			$this->bbCodeMapper,
@@ -226,7 +226,7 @@ class PostControllerTest extends TestCase {
 		$this->userSession->method('getUser')->willReturn($user);
 
 		// Mock forum user
-		$forumUser = new UserStats();
+		$forumUser = new ForumUser();
 		$forumUser->setId(1);
 		$forumUser->setUserId($userId);
 		$forumUser->setPostCount(0);
@@ -279,8 +279,8 @@ class PostControllerTest extends TestCase {
 			->method('update')
 			->willReturn($category);
 
-		// Mock user stats increment (void methods, no return value expectations)
-		$this->userStatsMapper->expects($this->once())
+		// Mock forum user increment (void methods, no return value expectations)
+		$this->forumUserMapper->expects($this->once())
 			->method('incrementPostCount')
 			->with($userId);
 
@@ -596,7 +596,7 @@ class PostControllerTest extends TestCase {
 				return $updatedCategory;
 			});
 
-		$this->userStatsMapper->expects($this->once())
+		$this->forumUserMapper->expects($this->once())
 			->method('incrementPostCount')
 			->with($userId);
 
@@ -672,7 +672,7 @@ class PostControllerTest extends TestCase {
 				return $updatedCategory;
 			});
 
-		$this->userStatsMapper->expects($this->once())
+		$this->forumUserMapper->expects($this->once())
 			->method('decrementPostCount')
 			->with($userId);
 
@@ -741,11 +741,11 @@ class PostControllerTest extends TestCase {
 			->method('update');
 
 		// First post deletion should decrement thread count, not post count
-		$this->userStatsMapper->expects($this->once())
+		$this->forumUserMapper->expects($this->once())
 			->method('decrementThreadCount')
 			->with($userId);
 
-		$this->userStatsMapper->expects($this->never())
+		$this->forumUserMapper->expects($this->never())
 			->method('decrementPostCount');
 
 		$response = $this->controller->destroy($postId);

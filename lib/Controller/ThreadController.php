@@ -9,12 +9,12 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
-use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
@@ -37,7 +37,7 @@ class ThreadController extends OCSController {
 		private ThreadMapper $threadMapper,
 		private CategoryMapper $categoryMapper,
 		private PostMapper $postMapper,
-		private UserStatsMapper $userStatsMapper,
+		private ForumUserMapper $forumUserMapper,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
 		private ThreadEnrichmentService $threadEnrichmentService,
 		private UserPreferencesService $userPreferencesService,
@@ -331,11 +331,11 @@ class ThreadController extends OCSController {
 				$this->logger->warning('Failed to update category counts: ' . $e->getMessage());
 			}
 
-			// Update user stats (thread count only, first post doesn't count)
+			// Update forum user (thread count only, first post doesn't count)
 			try {
-				$this->userStatsMapper->incrementThreadCount($user->getUID());
+				$this->forumUserMapper->incrementThreadCount($user->getUID());
 			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update user stats: ' . $e->getMessage());
+				$this->logger->warning('Failed to update forum user: ' . $e->getMessage());
 			}
 
 			// Auto-subscribe the thread creator to receive notifications (if preference is enabled)
@@ -603,16 +603,16 @@ class ThreadController extends OCSController {
 				// Don't fail the request if category update fails
 			}
 
-			// Update author's user stats (decrement thread count and all posts in this thread)
+			// Update author's forum user (decrement thread count and all posts in this thread)
 			try {
-				$this->userStatsMapper->decrementThreadCount($thread->getAuthorId());
+				$this->forumUserMapper->decrementThreadCount($thread->getAuthorId());
 				// Decrement post count by the number of posts in this thread
 				if ($thread->getPostCount() > 0) {
-					$this->userStatsMapper->decrementPostCount($thread->getAuthorId(), $thread->getPostCount());
+					$this->forumUserMapper->decrementPostCount($thread->getAuthorId(), $thread->getPostCount());
 				}
 			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update user stats after thread deletion: ' . $e->getMessage());
-				// Don't fail the request if stats update fails
+				$this->logger->warning('Failed to update forum user after thread deletion: ' . $e->getMessage());
+				// Don't fail the request if forum user update fails
 			}
 
 			return new DataResponse([

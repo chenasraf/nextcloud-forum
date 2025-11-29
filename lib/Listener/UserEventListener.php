@@ -7,8 +7,8 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Listener;
 
+use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\RoleMapper;
-use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\StatsService;
 use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -23,7 +23,7 @@ use Psr\Log\LoggerInterface;
  */
 class UserEventListener implements IEventListener {
 	public function __construct(
-		private UserStatsMapper $userStatsMapper,
+		private ForumUserMapper $forumUserMapper,
 		private StatsService $statsService,
 		private UserRoleService $userRoleService,
 		private RoleMapper $roleMapper,
@@ -44,11 +44,11 @@ class UserEventListener implements IEventListener {
 		$userId = $user->getUID();
 
 		try {
-			// Create user stats with zero counts for new user
+			// Create forum user record with zero counts for new user
 			$this->statsService->rebuildUserStats($userId);
-			$this->logger->info("Created user stats for new Nextcloud user: {$userId}");
+			$this->logger->info("Created forum user record for new Nextcloud user: {$userId}");
 		} catch (\Exception $ex) {
-			$this->logger->error("Failed to create user stats for new user: {$userId}", [
+			$this->logger->error("Failed to create forum user record for new user: {$userId}", [
 				'exception' => $ex->getMessage(),
 			]);
 		}
@@ -72,13 +72,13 @@ class UserEventListener implements IEventListener {
 		$userId = $user->getUID();
 
 		try {
-			// Soft delete: mark stats as deleted if they exist
-			// Stats only exist if user has posted, so this may not find anything
-			$this->userStatsMapper->markDeleted($userId);
-			$this->logger->info("Soft-deleted user stats for Nextcloud user: {$userId}");
+			// Soft delete: mark forum user as deleted if record exists
+			// Record only exists if user has posted, so this may not find anything
+			$this->forumUserMapper->markDeleted($userId);
+			$this->logger->info("Soft-deleted forum user record for Nextcloud user: {$userId}");
 		} catch (\Exception $ex) {
-			// If stats don't exist, that's fine - user never posted
-			$this->logger->debug("No user stats found to delete for Nextcloud user: {$userId}");
+			// If record doesn't exist, that's fine - user never posted
+			$this->logger->debug("No forum user record found to delete for Nextcloud user: {$userId}");
 		}
 	}
 }

@@ -1025,10 +1025,10 @@ class SeedHelper {
 				}
 			}
 
-			// Create user stats for the admin user if it does not exist
+			// Create forum user for the admin user if it does not exist
 			$qb = $db->getQueryBuilder();
 			$qb->select('user_id')
-				->from('forum_user_stats')
+				->from('forum_users')
 				->where($qb->expr()->eq('user_id', $qb->createNamedParameter($adminUserId)));
 			$result = $qb->executeQuery();
 			$statsExists = $result->fetch();
@@ -1036,7 +1036,7 @@ class SeedHelper {
 
 			if (!$statsExists) {
 				$qb = $db->getQueryBuilder();
-				$qb->insert('forum_user_stats')
+				$qb->insert('forum_users')
 					->values([
 						'user_id' => $qb->createNamedParameter($adminUserId),
 						'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
@@ -1049,7 +1049,7 @@ class SeedHelper {
 			} else {
 				// Update existing stats to increment thread count
 				$qb = $db->getQueryBuilder();
-				$qb->update('forum_user_stats')
+				$qb->update('forum_users')
 					->set('thread_count', $qb->func()->add('thread_count', $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
 					->set('last_post_at', $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 					->set('updated_at', $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))

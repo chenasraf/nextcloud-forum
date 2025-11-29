@@ -9,10 +9,10 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\UserRoleMapper;
-use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\AdminSettingsService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
@@ -30,7 +30,7 @@ class AdminController extends OCSController {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private UserStatsMapper $userStatsMapper,
+		private ForumUserMapper $forumUserMapper,
 		private UserService $userService,
 		private ThreadMapper $threadMapper,
 		private PostMapper $postMapper,
@@ -62,20 +62,20 @@ class AdminController extends OCSController {
 			}
 
 			// Get total counts
-			$totalUsers = $this->userStatsMapper->countAll();
+			$totalUsers = $this->forumUserMapper->countAll();
 			$totalThreads = $this->threadMapper->countAll();
 			$totalPosts = $this->postMapper->countAll();
 			$totalCategories = $this->categoryMapper->countAll();
 
 			// Get recent activity (last 7 days)
 			$weekAgo = time() - (7 * 24 * 60 * 60);
-			$recentUsers = $this->userStatsMapper->countSince($weekAgo);
+			$recentUsers = $this->forumUserMapper->countSince($weekAgo);
 			$recentThreads = $this->threadMapper->countSince($weekAgo);
 			$recentPosts = $this->postMapper->countSince($weekAgo);
 
 			// Get top contributors (users with most posts)
-			$topContributorsAllTime = $this->userStatsMapper->getTopContributors(5);
-			$topContributorsRecent = $this->userStatsMapper->getTopContributorsSince($weekAgo, 5);
+			$topContributorsAllTime = $this->forumUserMapper->getTopContributors(5);
+			$topContributorsRecent = $this->forumUserMapper->getTopContributorsSince($weekAgo, 5);
 
 			return new DataResponse([
 				'totals' => [
@@ -110,11 +110,11 @@ class AdminController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/admin/users')]
 	public function users(): DataResponse {
 		try {
-			// Get all user stats indexed by userId for quick lookup
-			$allStats = $this->userStatsMapper->findAll();
-			$statsByUserId = [];
-			foreach ($allStats as $stats) {
-				$statsByUserId[$stats->getUserId()] = $stats;
+			// Get all forum users indexed by userId for quick lookup
+			$allForumUsers = $this->forumUserMapper->findAll();
+			$forumUsersByUserId = [];
+			foreach ($allForumUsers as $forumUser) {
+				$forumUsersByUserId[$forumUser->getUserId()] = $forumUser;
 			}
 
 			// Collect all user IDs first
@@ -126,20 +126,20 @@ class AdminController extends OCSController {
 			// Enrich all users at once for performance (includes roles)
 			$enrichedUserData = $this->userService->enrichMultipleUsers($userIds);
 
-			// Build final user list with forum stats
+			// Build final user list with forum user data
 			$enrichedUsers = [];
 			foreach ($userIds as $userId) {
 				$userInfo = $enrichedUserData[$userId];
-				$stats = $statsByUserId[$userId] ?? null;
+				$forumUser = $forumUsersByUserId[$userId] ?? null;
 
 				$userData = [
 					'userId' => $userId,
 					'displayName' => $userInfo['displayName'],
-					'postCount' => $stats ? $stats->getPostCount() : 0,
-					'threadCount' => $stats ? $stats->getThreadCount() : 0,
-					'createdAt' => $stats ? $stats->getCreatedAt() : 0,
-					'updatedAt' => $stats ? $stats->getUpdatedAt() : 0,
-					'deletedAt' => $stats ? $stats->getDeletedAt() : null,
+					'postCount' => $forumUser ? $forumUser->getPostCount() : 0,
+					'threadCount' => $forumUser ? $forumUser->getThreadCount() : 0,
+					'createdAt' => $forumUser ? $forumUser->getCreatedAt() : 0,
+					'updatedAt' => $forumUser ? $forumUser->getUpdatedAt() : 0,
+					'deletedAt' => $forumUser ? $forumUser->getDeletedAt() : null,
 					'isDeleted' => $userInfo['isDeleted'],
 					'roles' => $userInfo['roles'],
 				];

@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Service;
 
 use OCA\Forum\AppInfo\Application;
-use OCA\Forum\Db\UserStatsMapper;
+use OCA\Forum\Db\ForumUserMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use Psr\Log\LoggerInterface;
@@ -20,7 +20,7 @@ class UserPreferencesService {
 	/** Preference key for upload directory path */
 	public const PREF_UPLOAD_DIRECTORY = 'upload_directory';
 
-	/** Preference key for user signature (stored in user_stats table) */
+	/** Preference key for user signature (stored in forum_users table) */
 	public const PREF_SIGNATURE = 'signature';
 
 	/** @var array<string, mixed> Default preference values */
@@ -37,14 +37,14 @@ class UserPreferencesService {
 		self::PREF_SIGNATURE,
 	];
 
-	/** @var array<string> Keys stored in user_stats table instead of config */
-	private const USER_STATS_KEYS = [
+	/** @var array<string> Keys stored in forum_users table instead of config */
+	private const FORUM_USER_KEYS = [
 		self::PREF_SIGNATURE,
 	];
 
 	public function __construct(
 		private IConfig $config,
-		private UserStatsMapper $userStatsMapper,
+		private ForumUserMapper $forumUserMapper,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -78,9 +78,9 @@ class UserPreferencesService {
 			throw new \InvalidArgumentException("Invalid preference key: $key");
 		}
 
-		// Handle keys stored in user_stats table
-		if (in_array($key, self::USER_STATS_KEYS, true)) {
-			return $this->getUserStatsValue($userId, $key);
+		// Handle keys stored in forum_users table
+		if (in_array($key, self::FORUM_USER_KEYS, true)) {
+			return $this->getForumUserValue($userId, $key);
 		}
 
 		$default = self::DEFAULTS[$key] ?? null;
@@ -127,9 +127,9 @@ class UserPreferencesService {
 			throw new \InvalidArgumentException("Invalid preference key: $key");
 		}
 
-		// Handle keys stored in user_stats table
-		if (in_array($key, self::USER_STATS_KEYS, true)) {
-			$this->setUserStatsValue($userId, $key, $value);
+		// Handle keys stored in forum_users table
+		if (in_array($key, self::FORUM_USER_KEYS, true)) {
+			$this->setForumUserValue($userId, $key, $value);
 			return;
 		}
 
@@ -170,17 +170,17 @@ class UserPreferencesService {
 	}
 
 	/**
-	 * Get a value from user_stats table
+	 * Get a value from forum_users table
 	 *
 	 * @param string $userId The user ID
 	 * @param string $key The preference key
 	 * @return mixed The value
 	 */
-	private function getUserStatsValue(string $userId, string $key): mixed {
+	private function getForumUserValue(string $userId, string $key): mixed {
 		try {
-			$stats = $this->userStatsMapper->find($userId);
+			$forumUser = $this->forumUserMapper->find($userId);
 			return match ($key) {
-				self::PREF_SIGNATURE => $stats->getSignature() ?? '',
+				self::PREF_SIGNATURE => $forumUser->getSignature() ?? '',
 				default => self::DEFAULTS[$key] ?? null,
 			};
 		} catch (DoesNotExistException $e) {
@@ -189,21 +189,21 @@ class UserPreferencesService {
 	}
 
 	/**
-	 * Set a value in user_stats table
+	 * Set a value in forum_users table
 	 *
 	 * @param string $userId The user ID
 	 * @param string $key The preference key
 	 * @param mixed $value The value to set
 	 */
-	private function setUserStatsValue(string $userId, string $key, mixed $value): void {
-		$stats = $this->userStatsMapper->createOrUpdate($userId);
+	private function setForumUserValue(string $userId, string $key, mixed $value): void {
+		$forumUser = $this->forumUserMapper->createOrUpdate($userId);
 
 		match ($key) {
-			self::PREF_SIGNATURE => $stats->setSignature((string)$value),
+			self::PREF_SIGNATURE => $forumUser->setSignature((string)$value),
 			default => null,
 		};
 
-		$stats->setUpdatedAt(time());
-		$this->userStatsMapper->update($stats);
+		$forumUser->setUpdatedAt(time());
+		$this->forumUserMapper->update($forumUser);
 	}
 }

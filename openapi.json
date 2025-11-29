@@ -3116,7 +3116,7 @@
         "/ocs/v2.php/apps/forum/api/users": {
             "get": {
                 "operationId": "forum_user-index",
-                "summary": "Get all user statistics",
+                "summary": "Get all forum users",
                 "tags": [
                     "forum_user"
                 ],
@@ -3143,7 +3143,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User statistics returned",
+                        "description": "Forum users returned",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3182,7 +3182,7 @@
             },
             "post": {
                 "operationId": "forum_user-create",
-                "summary": "Create user stats Note: This is typically not needed as stats are auto-created on first post",
+                "summary": "Create forum user Note: This is typically not needed as forum users are auto-created on first post",
                 "tags": [
                     "forum_user"
                 ],
@@ -3227,7 +3227,7 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "User stats created",
+                        "description": "Forum user created",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3293,7 +3293,7 @@
         "/ocs/v2.php/apps/forum/api/users/{userId}": {
             "get": {
                 "operationId": "forum_user-show",
-                "summary": "Get user statistics by Nextcloud user ID Special case: use \"me\" to get current user stats",
+                "summary": "Get forum user by Nextcloud user ID Special case: use \"me\" to get current forum user",
                 "tags": [
                     "forum_user"
                 ],
@@ -3329,7 +3329,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User stats returned",
+                        "description": "Forum user returned",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3362,7 +3362,7 @@
                         }
                     },
                     "404": {
-                        "description": "User has no stats (hasn't posted yet) or guest user accessing \"me\"",
+                        "description": "Forum user not found (user has not posted yet) or guest user accessing \"me\"",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -8997,7 +8997,7 @@
     "tags": [
         {
             "name": "forum_user",
-            "description": "Controller for user statistics Note: User stats are automatically created on first post/thread"
+            "description": "Controller for forum users Note: Forum users are automatically created on first post/thread"
         }
     ]
 }

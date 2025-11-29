@@ -60,23 +60,23 @@
           <div class="user-info">
             <h2 class="user-name">{{ displayName }}</h2>
             <div class="user-meta">
-              <span v-if="userStats && userStats.createdAt" class="meta-item">
+              <span v-if="forumUser && forumUser.createdAt" class="meta-item">
                 <span class="meta-label">{{ strings.firstPost }}</span>
-                <NcDateTime :timestamp="userStats.createdAt * 1000" />
+                <NcDateTime :timestamp="forumUser.createdAt * 1000" />
               </span>
-              <span v-if="userStats && userStats.createdAt" class="meta-divider">·</span>
+              <span v-if="forumUser && forumUser.createdAt" class="meta-divider">·</span>
               <span class="meta-item">
                 <span class="meta-label">{{
-                  strings.threadsLabel(userStats?.threadCount || 0)
+                  strings.threadsLabel(forumUser?.threadCount || 0)
                 }}</span>
-                <span class="meta-value">{{ userStats?.threadCount || 0 }}</span>
+                <span class="meta-value">{{ forumUser?.threadCount || 0 }}</span>
               </span>
               <span class="meta-divider">·</span>
               <span class="meta-item">
                 <span class="meta-label">{{
-                  strings.repliesLabel(userStats?.postCount || 0)
+                  strings.repliesLabel(forumUser?.postCount || 0)
                 }}</span>
-                <span class="meta-value">{{ userStats?.postCount || 0 }}</span>
+                <span class="meta-value">{{ forumUser?.postCount || 0 }}</span>
               </span>
             </div>
           </div>
@@ -170,7 +170,7 @@ import PageWrapper from '@/components/PageWrapper.vue'
 import ThreadCard from '@/components/ThreadCard.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
-import type { UserStats, Thread, Post } from '@/types'
+import type { ForumUser, Thread, Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
@@ -195,7 +195,7 @@ export default defineComponent({
       loading: false,
       loadingThreads: false,
       loadingPosts: false,
-      userStats: null as UserStats | null,
+      forumUser: null as ForumUser | null,
       displayName: '',
       threads: [] as Thread[],
       posts: [] as Post[],
@@ -252,13 +252,13 @@ export default defineComponent({
         // Load user stats (may not exist if user hasn't posted)
         try {
           const userResponse = await ocs.get(`/users/${this.userId}`)
-          this.userStats = userResponse.data
+          this.forumUser = userResponse.data
         } catch (err: any) {
           // 404 is OK - user hasn't posted yet
           if (err.response?.status !== 404) {
             throw err
           }
-          this.userStats = null
+          this.forumUser = null
         }
 
         // Load both tabs on initial load for accurate counts

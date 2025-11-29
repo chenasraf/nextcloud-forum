@@ -8,9 +8,9 @@ declare(strict_types=1);
 namespace OCA\Forum\Service;
 
 use OCA\Forum\Db\BBCodeMapper;
+use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\UserRoleMapper;
-use OCA\Forum\Db\UserStatsMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IL10N;
 use OCP\IUserManager;
@@ -22,7 +22,7 @@ use OCP\IUserManager;
 class UserService {
 	public function __construct(
 		private IUserManager $userManager,
-		private UserStatsMapper $userStatsMapper,
+		private ForumUserMapper $forumUserMapper,
 		private RoleMapper $roleMapper,
 		private UserRoleMapper $userRoleMapper,
 		private BBCodeMapper $bbCodeMapper,
@@ -47,7 +47,7 @@ class UserService {
 
 	/**
 	 * Check if a user has been deleted
-	 * Checks both Nextcloud user existence and user_stats deleted_at flag
+	 * Checks both Nextcloud user existence and forum_users deleted_at flag
 	 */
 	public function isUserDeleted(string $userId): bool {
 		// First check if user exists in Nextcloud
@@ -56,12 +56,12 @@ class UserService {
 			return true;
 		}
 
-		// Check if marked as deleted in user_stats
+		// Check if marked as deleted in forum_users
 		try {
-			$stats = $this->userStatsMapper->find($userId);
-			return $stats->getDeletedAt() !== null;
+			$forumUser = $this->forumUserMapper->find($userId);
+			return $forumUser->getDeletedAt() !== null;
 		} catch (DoesNotExistException $e) {
-			// No stats record, user is not deleted (just hasn't posted yet)
+			// No forum user record, user is not deleted (just hasn't posted yet)
 			return false;
 		}
 	}
@@ -92,12 +92,12 @@ class UserService {
 			}
 		}
 
-		// Get signature from user stats
+		// Get signature from forum user
 		$signatureRaw = null;
 		$signature = null;
 		try {
-			$stats = $this->userStatsMapper->find($userId);
-			$signatureRaw = $stats->getSignature();
+			$forumUser = $this->forumUserMapper->find($userId);
+			$signatureRaw = $forumUser->getSignature();
 			if ($signatureRaw !== null && $signatureRaw !== '') {
 				// Parse BBCode in signature
 				if ($bbcodes === null) {
@@ -106,7 +106,7 @@ class UserService {
 				$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
 			}
 		} catch (DoesNotExistException $e) {
-			// No stats record, no signature
+			// No forum user record, no signature
 		}
 
 		return [
@@ -135,7 +135,7 @@ class UserService {
 			$rolesMap = $this->fetchRolesForUsers($userIds);
 		}
 
-		// Fetch all user stats at once for signatures
+		// Fetch all forum users at once for signatures
 		$signaturesMap = $this->fetchSignaturesForUsers($userIds);
 
 		// Fetch BBCodes once for parsing all signatures (if not provided)
@@ -237,12 +237,12 @@ class UserService {
 			$signaturesMap[$userId] = null;
 		}
 
-		// Fetch all user stats for these users
-		$userStats = $this->userStatsMapper->findByUserIds($userIds);
+		// Fetch all forum users for these users
+		$forumUsers = $this->forumUserMapper->findByUserIds($userIds);
 
 		// Extract signatures
-		foreach ($userStats as $stats) {
-			$signaturesMap[$stats->getUserId()] = $stats->getSignature();
+		foreach ($forumUsers as $forumUser) {
+			$signaturesMap[$forumUser->getUserId()] = $forumUser->getSignature();
 		}
 
 		return $signaturesMap;

@@ -14,22 +14,22 @@ use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 /**
- * @template-extends QBMapper<UserStats>
+ * @template-extends QBMapper<ForumUser>
  */
-class UserStatsMapper extends QBMapper {
+class ForumUserMapper extends QBMapper {
 	public function __construct(
 		IDBConnection $db,
 	) {
-		parent::__construct($db, Application::tableName('forum_user_stats'), UserStats::class);
+		parent::__construct($db, Application::tableName('forum_users'), ForumUser::class);
 	}
 
 	/**
-	 * Find user stats by user ID
+	 * Find forum user by user ID
 	 *
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
 	 * @throws DoesNotExistException
 	 */
-	public function find(string $userId): UserStats {
+	public function find(string $userId): ForumUser {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from($this->getTableName())
@@ -40,9 +40,9 @@ class UserStatsMapper extends QBMapper {
 	}
 
 	/**
-	 * Find all user stats
+	 * Find all forum users
 	 *
-	 * @return array<UserStats>
+	 * @return array<ForumUser>
 	 */
 	public function findAll(): array {
 		$qb = $this->db->getQueryBuilder();
@@ -53,10 +53,10 @@ class UserStatsMapper extends QBMapper {
 	}
 
 	/**
-	 * Find user stats by multiple user IDs
+	 * Find forum users by multiple user IDs
 	 *
 	 * @param array<string> $userIds
-	 * @return array<UserStats>
+	 * @return array<ForumUser>
 	 */
 	public function findByUserIds(array $userIds): array {
 		if (empty($userIds)) {
@@ -71,45 +71,45 @@ class UserStatsMapper extends QBMapper {
 	}
 
 	/**
-	 * Create or update user stats (upsert pattern)
-	 * This is used when we need to ensure stats exist for a user
+	 * Create or update forum user (upsert pattern)
+	 * This is used when we need to ensure a forum user record exists
 	 */
-	public function createOrUpdate(string $userId): UserStats {
+	public function createOrUpdate(string $userId): ForumUser {
 		try {
 			return $this->find($userId);
 		} catch (DoesNotExistException $e) {
-			$stats = new UserStats();
-			$stats->setUserId($userId);
-			$stats->setPostCount(0);
-			$stats->setThreadCount(0);
-			$stats->setCreatedAt(time());
-			$stats->setUpdatedAt(time());
-			/** @var UserStats */
-			return $this->insert($stats);
+			$user = new ForumUser();
+			$user->setUserId($userId);
+			$user->setPostCount(0);
+			$user->setThreadCount(0);
+			$user->setCreatedAt(time());
+			$user->setUpdatedAt(time());
+			/** @var ForumUser */
+			return $this->insert($user);
 		}
 	}
 
 	/**
 	 * Increment post count for a user
-	 * Auto-creates stats if user doesn't exist
+	 * Auto-creates record if user doesn't exist
 	 */
 	public function incrementPostCount(string $userId, int $amount = 1): void {
-		$stats = $this->createOrUpdate($userId);
-		$stats->setPostCount($stats->getPostCount() + $amount);
-		$stats->setLastPostAt(time());
-		$stats->setUpdatedAt(time());
-		$this->update($stats);
+		$user = $this->createOrUpdate($userId);
+		$user->setPostCount($user->getPostCount() + $amount);
+		$user->setLastPostAt(time());
+		$user->setUpdatedAt(time());
+		$this->update($user);
 	}
 
 	/**
 	 * Increment thread count for a user
-	 * Auto-creates stats if user doesn't exist
+	 * Auto-creates record if user doesn't exist
 	 */
 	public function incrementThreadCount(string $userId, int $amount = 1): void {
-		$stats = $this->createOrUpdate($userId);
-		$stats->setThreadCount($stats->getThreadCount() + $amount);
-		$stats->setUpdatedAt(time());
-		$this->update($stats);
+		$user = $this->createOrUpdate($userId);
+		$user->setThreadCount($user->getThreadCount() + $amount);
+		$user->setUpdatedAt(time());
+		$this->update($user);
 	}
 
 	/**
@@ -117,12 +117,12 @@ class UserStatsMapper extends QBMapper {
 	 */
 	public function decrementPostCount(string $userId, int $amount = 1): void {
 		try {
-			$stats = $this->find($userId);
-			$stats->setPostCount(max(0, $stats->getPostCount() - $amount));
-			$stats->setUpdatedAt(time());
-			$this->update($stats);
+			$user = $this->find($userId);
+			$user->setPostCount(max(0, $user->getPostCount() - $amount));
+			$user->setUpdatedAt(time());
+			$this->update($user);
 		} catch (DoesNotExistException $e) {
-			// User stats don't exist, nothing to decrement
+			// User record doesn't exist, nothing to decrement
 		}
 	}
 
@@ -131,12 +131,12 @@ class UserStatsMapper extends QBMapper {
 	 */
 	public function decrementThreadCount(string $userId, int $amount = 1): void {
 		try {
-			$stats = $this->find($userId);
-			$stats->setThreadCount(max(0, $stats->getThreadCount() - $amount));
-			$stats->setUpdatedAt(time());
-			$this->update($stats);
+			$user = $this->find($userId);
+			$user->setThreadCount(max(0, $user->getThreadCount() - $amount));
+			$user->setUpdatedAt(time());
+			$this->update($user);
 		} catch (DoesNotExistException $e) {
-			// User stats don't exist, nothing to decrement
+			// User record doesn't exist, nothing to decrement
 		}
 	}
 
@@ -291,20 +291,20 @@ class UserStatsMapper extends QBMapper {
 	 */
 	public function markDeleted(string $userId): void {
 		try {
-			$stats = $this->find($userId);
-			$stats->setDeletedAt(time());
-			$stats->setUpdatedAt(time());
-			$this->update($stats);
+			$user = $this->find($userId);
+			$user->setDeletedAt(time());
+			$user->setUpdatedAt(time());
+			$this->update($user);
 		} catch (DoesNotExistException $e) {
-			// User has no stats, create a record marking them as deleted
-			$stats = new UserStats();
-			$stats->setUserId($userId);
-			$stats->setPostCount(0);
-			$stats->setThreadCount(0);
-			$stats->setDeletedAt(time());
-			$stats->setCreatedAt(time());
-			$stats->setUpdatedAt(time());
-			$this->insert($stats);
+			// User has no record, create one marking them as deleted
+			$user = new ForumUser();
+			$user->setUserId($userId);
+			$user->setPostCount(0);
+			$user->setThreadCount(0);
+			$user->setDeletedAt(time());
+			$user->setCreatedAt(time());
+			$user->setUpdatedAt(time());
+			$this->insert($user);
 		}
 	}
 }

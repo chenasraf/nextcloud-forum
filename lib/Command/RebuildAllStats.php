@@ -40,8 +40,8 @@ class RebuildAllStats extends Command {
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$output->writeln('<info>Starting full stats rebuild...</info>');
 
-		// Rebuild user stats
-		$output->writeln('Rebuilding user stats...');
+		// Rebuild forum users
+		$output->writeln('Rebuilding forum users...');
 		$userResult = $this->statsService->rebuildAllUserStats();
 		$output->writeln(sprintf(
 			'  <comment>Users processed: %d, created: %d, updated: %d</comment>',

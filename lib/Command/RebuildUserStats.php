@@ -31,8 +31,8 @@ class RebuildUserStats extends Command {
 		$result = $this->statsService->rebuildAllUserStats();
 
 		$output->writeln(sprintf('Processed %d users', $result['users']));
-		$output->writeln(sprintf('Created %d new user stats', $result['created']));
-		$output->writeln(sprintf('Updated %d existing user stats', $result['updated']));
+		$output->writeln(sprintf('Created %d new forum users', $result['created']));
+		$output->writeln(sprintf('Updated %d existing forum users', $result['updated']));
 		$output->writeln('<info>User statistics rebuilt successfully!</info>');
 
 		return 0;

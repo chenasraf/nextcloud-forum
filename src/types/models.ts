@@ -80,7 +80,7 @@ export interface Post {
   }>
 }
 
-export interface UserStats {
+export interface ForumUser {
   userId: string
   postCount: number
   threadCount: number

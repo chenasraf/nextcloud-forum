@@ -95,10 +95,10 @@ class StatsService {
 		$lastPostAt = $lastPostResult->fetchOne();
 		$lastPostResult->closeCursor();
 
-		// Check if user stats already exist
+		// Check if forum user record already exists
 		$checkQb = $this->db->getQueryBuilder();
-		$checkQb->select('id')
-			->from('forum_user_stats')
+		$checkQb->select('user_id')
+			->from('forum_users')
 			->where($checkQb->expr()->eq('user_id', $checkQb->createNamedParameter($userId)));
 		$checkResult = $checkQb->executeQuery();
 		$exists = $checkResult->fetch();
@@ -107,9 +107,9 @@ class StatsService {
 		$timestamp = time();
 
 		if ($exists) {
-			// Update existing stats
+			// Update existing record
 			$updateQb = $this->db->getQueryBuilder();
-			$updateQb->update('forum_user_stats')
+			$updateQb->update('forum_users')
 				->set('thread_count', $updateQb->createNamedParameter($threadCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 				->set('post_count', $updateQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 				->set('updated_at', $updateQb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
@@ -122,9 +122,9 @@ class StatsService {
 			$updateQb->executeStatement();
 			return false;
 		} else {
-			// Create new stats
+			// Create new record
 			$insertQb = $this->db->getQueryBuilder();
-			$insertQb->insert('forum_user_stats')
+			$insertQb->insert('forum_users')
 				->values([
 					'user_id' => $insertQb->createNamedParameter($userId),
 					'thread_count' => $insertQb->createNamedParameter($threadCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
@@ -139,13 +139,13 @@ class StatsService {
 				return true;
 			} catch (\Exception $e) {
 				// If insert fails (race condition), try updating instead
-				$this->logger->warning('Failed to create user stats, attempting update', [
+				$this->logger->warning('Failed to create forum user record, attempting update', [
 					'userId' => $userId,
 					'exception' => $e->getMessage(),
 				]);
 
 				$updateQb = $this->db->getQueryBuilder();
-				$updateQb->update('forum_user_stats')
+				$updateQb->update('forum_users')
 					->set('thread_count', $updateQb->createNamedParameter($threadCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 					->set('post_count', $updateQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 					->set('updated_at', $updateQb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))

@@ -158,6 +158,19 @@ jobs:
           ./occ maintenance:install --verbose --database=pgsql --database-name=nextcloud --database-host=127.0.0.1 --database-port=$DB_PORT --database-user=root --database-pass=rootpassword --admin-user admin --admin-pass admin
           ./occ app:enable --force ${{ env.APP_NAME }}
 
+      - name: Verify migrations completed
+        run: |
+          echo "Checking migration status for ${{ env.APP_NAME }}..."
+          # Get migration status and check for any pending migrations
+          PENDING=$(./occ migrations:status ${{ env.APP_NAME }} | grep -E "^\s+>>" | grep -v "migrated" || true)
+          if [ -n "$PENDING" ]; then
+            echo "::error::Found pending migrations:"
+            echo "$PENDING"
+            exit 1
+          fi
+          echo "All migrations completed successfully"
+          ./occ migrations:status ${{ env.APP_NAME }}
+
       - name: Check PHPUnit script is defined
         id: check_phpunit
         continue-on-error: true

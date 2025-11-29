@@ -314,7 +314,13 @@ update-composer-deps:
 	$(composer_bin) update
 	@echo "\x1b[32mDependencies updated and lockfile refreshed.\x1b[0m"
 
-update-deps: update-pnpm-deps update-composer-deps
+update-deps:
+	@if [ -n "$$(git status --porcelain)" ]; then \
+		echo "\x1b[31mError: Working directory is not clean. Please commit or stash changes first.\x1b[0m"; \
+		git status --short; \
+		exit 1; \
+	fi
+	@$(MAKE) update-pnpm-deps update-composer-deps
 	@echo "\x1b[36mAll dependencies updated.\x1b[0m"
 	@echo "\x1b[36mPush changes? [Y/n]\x1b[0m"
 	@read ans; \

@@ -23,6 +23,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setLastPostAt(?int $lastPostAt)
  * @method int|null getDeletedAt()
  * @method void setDeletedAt(?int $deletedAt)
+ * @method string|null getSignature()
+ * @method void setSignature(?string $signature)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $createdAt)
  * @method int getUpdatedAt()
@@ -35,6 +37,7 @@ class UserStats extends Entity implements JsonSerializable {
 	protected int $threadCount = 0;
 	protected ?int $lastPostAt = null;
 	protected ?int $deletedAt = null;
+	protected ?string $signature = null;
 	protected int $createdAt = 0;
 	protected int $updatedAt = 0;
 
@@ -45,6 +48,7 @@ class UserStats extends Entity implements JsonSerializable {
 		$this->addType('threadCount', 'integer');
 		$this->addType('lastPostAt', 'integer');
 		$this->addType('deletedAt', 'integer');
+		$this->addType('signature', 'string');
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
 	}
@@ -57,6 +61,7 @@ class UserStats extends Entity implements JsonSerializable {
 			'lastPostAt' => $this->lastPostAt,
 			'deletedAt' => $this->deletedAt,
 			'isDeleted' => $this->deletedAt !== null,
+			'signature' => $this->signature,
 			'createdAt' => $this->createdAt,
 			'updatedAt' => $this->updatedAt,
 		];

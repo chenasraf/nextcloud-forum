@@ -13,10 +13,9 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Remove slug column from forum_posts table
- *
- * Post slugs were never used and are unnecessary - posts are always
- * accessed by ID within the context of a thread.
+ * Version 8 Migration:
+ * - Remove slug column from forum_posts table (never used)
+ * - Add signature column to forum_user_stats table
  */
 class Version8Date20251128000000 extends SimpleMigrationStep {
 	/**
@@ -41,6 +40,18 @@ class Version8Date20251128000000 extends SimpleMigrationStep {
 			// Drop the slug column
 			if ($table->hasColumn('slug')) {
 				$table->dropColumn('slug');
+			}
+		}
+
+		// Add signature column to user stats
+		if ($schema->hasTable('forum_user_stats')) {
+			$table = $schema->getTable('forum_user_stats');
+
+			if (!$table->hasColumn('signature')) {
+				$table->addColumn('signature', 'text', [
+					'notnull' => false,
+					'default' => null,
+				]);
 			}
 		}
 

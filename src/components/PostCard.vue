@@ -59,6 +59,11 @@
       <div v-else class="content-text" v-html="formattedContent"></div>
     </div>
 
+    <!-- Signature -->
+    <div v-if="hasSignature && !isEditing" class="post-signature">
+      <div class="signature-content" v-html="post.author?.signature"></div>
+    </div>
+
     <!-- Reactions (hidden when editing) -->
     <PostReactions
       v-if="!isEditing"
@@ -178,6 +183,9 @@ export default defineComponent({
       // Content is already parsed by BBCodeService on the backend
       // BBCodeService handles HTML escaping before parsing BBCodes
       return this.post.content
+    },
+    hasSignature(): boolean {
+      return !!this.post.author?.signature
     },
   },
   methods: {
@@ -339,7 +347,14 @@ export default defineComponent({
     margin-top: 12px;
   }
 
-  .content-text {
+  .post-signature {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--color-border-dark);
+  }
+
+  .content-text,
+  .signature-content {
     color: var(--color-main-text);
     line-height: 1.6;
     font-size: 0.95rem;

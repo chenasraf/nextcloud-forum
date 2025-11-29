@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\UserRoleMapper;
 use OCA\Forum\Db\UserStatsMapper;
@@ -24,6 +25,8 @@ class UserService {
 		private UserStatsMapper $userStatsMapper,
 		private RoleMapper $roleMapper,
 		private UserRoleMapper $userRoleMapper,
+		private BBCodeMapper $bbCodeMapper,
+		private BBCodeService $bbCodeService,
 		private IL10N $l10n,
 	) {
 	}
@@ -64,13 +67,14 @@ class UserService {
 	}
 
 	/**
-	 * Enrich user data with display name, deleted status, and roles
+	 * Enrich user data with display name, deleted status, roles, and signature
 	 *
 	 * @param string $userId
 	 * @param array|null $roles Optional pre-fetched roles array
-	 * @return array{userId: string, displayName: string, isDeleted: bool, roles: array}
+	 * @param array|null $bbcodes Optional pre-fetched BBCode definitions for parsing signatures
+	 * @return array{userId: string, displayName: string, isDeleted: bool, roles: array, signature: ?string, signatureRaw: ?string}
 	 */
-	public function enrichUserData(string $userId, ?array $roles = null): array {
+	public function enrichUserData(string $userId, ?array $roles = null, ?array $bbcodes = null): array {
 		$isDeleted = $this->isUserDeleted($userId);
 		$displayName = $this->getUserDisplayName($userId);
 
@@ -88,11 +92,30 @@ class UserService {
 			}
 		}
 
+		// Get signature from user stats
+		$signatureRaw = null;
+		$signature = null;
+		try {
+			$stats = $this->userStatsMapper->find($userId);
+			$signatureRaw = $stats->getSignature();
+			if ($signatureRaw !== null && $signatureRaw !== '') {
+				// Parse BBCode in signature
+				if ($bbcodes === null) {
+					$bbcodes = $this->bbCodeMapper->findAllEnabled();
+				}
+				$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
+			}
+		} catch (DoesNotExistException $e) {
+			// No stats record, no signature
+		}
+
 		return [
 			'userId' => $userId,
 			'displayName' => $displayName,
 			'isDeleted' => $isDeleted,
 			'roles' => $roles,
+			'signature' => $signature,
+			'signatureRaw' => $signatureRaw,
 		];
 	}
 
@@ -101,9 +124,10 @@ class UserService {
 	 *
 	 * @param array<string> $userIds
 	 * @param array<string, array> $rolesMap Optional pre-fetched roles map (userId => roles[])
-	 * @return array<string, array{userId: string, displayName: string, isDeleted: bool, roles: array}>
+	 * @param array|null $bbcodes Optional pre-fetched BBCode definitions for parsing signatures
+	 * @return array<string, array{userId: string, displayName: string, isDeleted: bool, roles: array, signature: ?string, signatureRaw: ?string}>
 	 */
-	public function enrichMultipleUsers(array $userIds, ?array $rolesMap = null): array {
+	public function enrichMultipleUsers(array $userIds, ?array $rolesMap = null, ?array $bbcodes = null): array {
 		$result = [];
 
 		// If roles not provided, fetch them all at once
@@ -111,15 +135,31 @@ class UserService {
 			$rolesMap = $this->fetchRolesForUsers($userIds);
 		}
 
+		// Fetch all user stats at once for signatures
+		$signaturesMap = $this->fetchSignaturesForUsers($userIds);
+
+		// Fetch BBCodes once for parsing all signatures (if not provided)
+		if ($bbcodes === null) {
+			$bbcodes = $this->bbCodeMapper->findAllEnabled();
+		}
+
 		foreach ($userIds as $userId) {
 			$isDeleted = $this->isUserDeleted($userId);
 			$displayName = $this->getUserDisplayName($userId);
+
+			$signatureRaw = $signaturesMap[$userId] ?? null;
+			$signature = null;
+			if ($signatureRaw !== null && $signatureRaw !== '') {
+				$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
+			}
 
 			$result[$userId] = [
 				'userId' => $userId,
 				'displayName' => $displayName,
 				'isDeleted' => $isDeleted,
 				'roles' => $rolesMap[$userId] ?? [],
+				'signature' => $signature,
+				'signatureRaw' => $signatureRaw,
 			];
 		}
 		return $result;
@@ -177,5 +217,34 @@ class UserService {
 		}
 
 		return $rolesMap;
+	}
+
+	/**
+	 * Fetch signatures for multiple users efficiently
+	 *
+	 * @param array<string> $userIds
+	 * @return array<string, ?string> Map of userId => signature (raw)
+	 */
+	private function fetchSignaturesForUsers(array $userIds): array {
+		if (empty($userIds)) {
+			return [];
+		}
+
+		$signaturesMap = [];
+
+		// Initialize all user IDs with null
+		foreach ($userIds as $userId) {
+			$signaturesMap[$userId] = null;
+		}
+
+		// Fetch all user stats for these users
+		$userStats = $this->userStatsMapper->findByUserIds($userIds);
+
+		// Extract signatures
+		foreach ($userStats as $stats) {
+			$signaturesMap[$stats->getUserId()] = $stats->getSignature();
+		}
+
+		return $signaturesMap;
 	}
 }

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace OCA\Forum\Tests\Service;
 
 use OCA\Forum\AppInfo\Application;
+use OCA\Forum\Db\UserStatsMapper;
 use OCA\Forum\Service\UserPreferencesService;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -13,14 +15,21 @@ use Psr\Log\LoggerInterface;
 class UserPreferencesServiceTest extends TestCase {
 	private UserPreferencesService $service;
 	private IConfig $config;
+	private UserStatsMapper $userStatsMapper;
 	private LoggerInterface $logger;
 
 	protected function setUp(): void {
 		$this->config = $this->createMock(IConfig::class);
+		$this->userStatsMapper = $this->createMock(UserStatsMapper::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+
+		// By default, mock no user stats (no signature)
+		$this->userStatsMapper->method('find')
+			->willThrowException(new DoesNotExistException(''));
 
 		$this->service = new UserPreferencesService(
 			$this->config,
+			$this->userStatsMapper,
 			$this->logger
 		);
 	}
@@ -28,6 +37,7 @@ class UserPreferencesServiceTest extends TestCase {
 	public function testGetAllPreferencesReturnsAllPreferences(): void {
 		$userId = 'user1';
 
+		// Only config-based preferences (signature is from user_stats)
 		$this->config->expects($this->exactly(2))
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $appId, $key, $default) use ($userId) {
@@ -44,9 +54,10 @@ class UserPreferencesServiceTest extends TestCase {
 		$result = $this->service->getAllPreferences($userId);
 
 		$this->assertIsArray($result);
-		$this->assertCount(2, $result);
+		$this->assertCount(3, $result);
 		$this->assertTrue($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS]);
 		$this->assertEquals('Forum', $result[UserPreferencesService::PREF_UPLOAD_DIRECTORY]);
+		$this->assertEquals('', $result[UserPreferencesService::PREF_SIGNATURE]);
 	}
 
 	public function testGetPreferenceReturnsCorrectValue(): void {
@@ -145,8 +156,10 @@ class UserPreferencesServiceTest extends TestCase {
 		$result = $this->service->updatePreferences($userId, $preferences);
 
 		$this->assertIsArray($result);
+		$this->assertCount(3, $result);
 		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS]);
 		$this->assertEquals('Documents', $result[UserPreferencesService::PREF_UPLOAD_DIRECTORY]);
+		$this->assertEquals('', $result[UserPreferencesService::PREF_SIGNATURE]);
 	}
 
 	public function testUpdatePreferencesThrowsExceptionForInvalidKey(): void {

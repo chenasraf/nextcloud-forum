@@ -8283,6 +8283,7 @@
             "put": {
                 "operationId": "user_preferences-update",
                 "summary": "Update user preferences",
+                "description": "Request body should contain key-value pairs of preferences to update",
                 "tags": [
                     "user_preferences"
                 ],
@@ -8294,28 +8295,6 @@
                         "basic_auth": []
                     }
                 ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "required": [
-                                    "preferences"
-                                ],
-                                "properties": {
-                                    "preferences": {
-                                        "type": "object",
-                                        "description": "Key-value pairs of preferences to update",
-                                        "additionalProperties": {
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
                 "parameters": [
                     {
                         "name": "OCS-APIRequest",

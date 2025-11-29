@@ -53,6 +53,24 @@ class UserStatsMapper extends QBMapper {
 	}
 
 	/**
+	 * Find user stats by multiple user IDs
+	 *
+	 * @param array<string> $userIds
+	 * @return array<UserStats>
+	 */
+	public function findByUserIds(array $userIds): array {
+		if (empty($userIds)) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->in('user_id', $qb->createNamedParameter($userIds, IQueryBuilder::PARAM_STR_ARRAY)));
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * Create or update user stats (upsert pattern)
 	 * This is used when we need to ensure stats exist for a user
 	 */

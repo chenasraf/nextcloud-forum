@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace OCA\Forum\Service;
 
 use OCA\Forum\AppInfo\Application;
+use OCA\Forum\Db\UserStatsMapper;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 
@@ -18,20 +20,31 @@ class UserPreferencesService {
 	/** Preference key for upload directory path */
 	public const PREF_UPLOAD_DIRECTORY = 'upload_directory';
 
+	/** Preference key for user signature (stored in user_stats table) */
+	public const PREF_SIGNATURE = 'signature';
+
 	/** @var array<string, mixed> Default preference values */
 	private const DEFAULTS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => true,
 		self::PREF_UPLOAD_DIRECTORY => 'Forum',
+		self::PREF_SIGNATURE => '',
 	];
 
 	/** @var array<string> List of valid preference keys */
 	private const VALID_KEYS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS,
 		self::PREF_UPLOAD_DIRECTORY,
+		self::PREF_SIGNATURE,
+	];
+
+	/** @var array<string> Keys stored in user_stats table instead of config */
+	private const USER_STATS_KEYS = [
+		self::PREF_SIGNATURE,
 	];
 
 	public function __construct(
 		private IConfig $config,
+		private UserStatsMapper $userStatsMapper,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -63,6 +76,11 @@ class UserPreferencesService {
 	public function getPreference(string $userId, string $key): mixed {
 		if (!in_array($key, self::VALID_KEYS, true)) {
 			throw new \InvalidArgumentException("Invalid preference key: $key");
+		}
+
+		// Handle keys stored in user_stats table
+		if (in_array($key, self::USER_STATS_KEYS, true)) {
+			return $this->getUserStatsValue($userId, $key);
 		}
 
 		$default = self::DEFAULTS[$key] ?? null;
@@ -109,6 +127,12 @@ class UserPreferencesService {
 			throw new \InvalidArgumentException("Invalid preference key: $key");
 		}
 
+		// Handle keys stored in user_stats table
+		if (in_array($key, self::USER_STATS_KEYS, true)) {
+			$this->setUserStatsValue($userId, $key, $value);
+			return;
+		}
+
 		$stringValue = $this->stringifyValue($value);
 		$this->config->setUserValue($userId, Application::APP_ID, $key, $stringValue);
 	}
@@ -143,5 +167,43 @@ class UserPreferencesService {
 			return $value ? 'true' : 'false';
 		}
 		return (string)$value;
+	}
+
+	/**
+	 * Get a value from user_stats table
+	 *
+	 * @param string $userId The user ID
+	 * @param string $key The preference key
+	 * @return mixed The value
+	 */
+	private function getUserStatsValue(string $userId, string $key): mixed {
+		try {
+			$stats = $this->userStatsMapper->find($userId);
+			return match ($key) {
+				self::PREF_SIGNATURE => $stats->getSignature() ?? '',
+				default => self::DEFAULTS[$key] ?? null,
+			};
+		} catch (DoesNotExistException $e) {
+			return self::DEFAULTS[$key] ?? null;
+		}
+	}
+
+	/**
+	 * Set a value in user_stats table
+	 *
+	 * @param string $userId The user ID
+	 * @param string $key The preference key
+	 * @param mixed $value The value to set
+	 */
+	private function setUserStatsValue(string $userId, string $key, mixed $value): void {
+		$stats = $this->userStatsMapper->createOrUpdate($userId);
+
+		match ($key) {
+			self::PREF_SIGNATURE => $stats->setSignature((string)$value),
+			default => null,
+		};
+
+		$stats->setUpdatedAt(time());
+		$this->userStatsMapper->update($stats);
 	}
 }

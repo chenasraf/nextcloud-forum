@@ -73,6 +73,23 @@
           </div>
         </div>
 
+        <!-- Signature Section -->
+        <div class="form-section">
+          <h3>{{ strings.signatureTitle }}</h3>
+          <p class="section-description muted">{{ strings.signatureDesc }}</p>
+
+          <div class="preference-item">
+            <label class="preference-label">{{ strings.signatureLabel }}</label>
+            <BBCodeEditor
+              v-model="formData.signature"
+              :placeholder="strings.signaturePlaceholder"
+              :rows="3"
+              min-height="5rem"
+            />
+            <p class="preference-hint">{{ strings.signatureHint }}</p>
+          </div>
+        </div>
+
         <!-- Actions -->
         <div class="form-actions">
           <NcButton :disabled="saving || !hasChanges" @click="resetForm">
@@ -107,6 +124,7 @@ import NcTextField from '@nextcloud/vue/components/NcTextField'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
+import BBCodeEditor from '@/components/BBCodeEditor.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import CheckIcon from '@icons/Check.vue'
 import FolderIcon from '@icons/Folder.vue'
@@ -117,6 +135,7 @@ import { getFilePickerBuilder, FilePickerType } from '@nextcloud/dialogs'
 interface UserPreferences {
   auto_subscribe_created_threads: boolean
   upload_directory: string
+  signature: string
 }
 
 export default defineComponent({
@@ -130,6 +149,7 @@ export default defineComponent({
     AppToolbar,
     PageWrapper,
     PageHeader,
+    BBCodeEditor,
     ArrowLeftIcon,
     CheckIcon,
     FolderIcon,
@@ -143,10 +163,12 @@ export default defineComponent({
       originalData: {
         auto_subscribe_created_threads: true,
         upload_directory: 'Forum',
+        signature: '',
       } as UserPreferences,
       formData: {
         auto_subscribe_created_threads: true,
         upload_directory: 'Forum',
+        signature: '',
       } as UserPreferences,
 
       strings: {
@@ -174,6 +196,11 @@ export default defineComponent({
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
         saveSuccess: t('forum', 'Preferences saved'),
+        signatureTitle: t('forum', 'Signature'),
+        signatureDesc: t('forum', 'Your signature appears at the bottom of your posts'),
+        signatureLabel: t('forum', 'Signature'),
+        signatureHint: t('forum', 'You can use BBCode formatting in your signature'),
+        signaturePlaceholder: t('forum', 'Enter your signature …'),
       },
     }
   },
@@ -182,7 +209,8 @@ export default defineComponent({
       return (
         this.formData.auto_subscribe_created_threads !==
           this.originalData.auto_subscribe_created_threads ||
-        this.formData.upload_directory !== this.originalData.upload_directory
+        this.formData.upload_directory !== this.originalData.upload_directory ||
+        this.formData.signature !== this.originalData.signature
       )
     },
   },

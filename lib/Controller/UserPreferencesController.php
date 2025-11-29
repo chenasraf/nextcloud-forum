@@ -56,7 +56,8 @@ class UserPreferencesController extends OCSController {
 	/**
 	 * Update user preferences
 	 *
-	 * @param array<string, mixed> $preferences Key-value pairs of preferences to update
+	 * Request body should contain key-value pairs of preferences to update
+	 *
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>|DataResponse<Http::STATUS_UNAUTHORIZED, array{error: string}, array{}>|DataResponse<Http::STATUS_BAD_REQUEST, array{error: string}, array{}>
 	 *
 	 * 200: Preferences updated
@@ -65,12 +66,17 @@ class UserPreferencesController extends OCSController {
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'PUT', url: '/api/user-preferences')]
-	public function update(array $preferences): DataResponse {
+	public function update(): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
+
+			// Get preferences directly from request body
+			$preferences = $this->request->getParams();
+			// Remove route-specific params that Nextcloud adds
+			unset($preferences['_route']);
 
 			$allPreferences = $this->preferencesService->updatePreferences($user->getUID(), $preferences);
 			return new DataResponse($allPreferences);

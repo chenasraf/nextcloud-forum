@@ -30,6 +30,8 @@ export interface User {
   displayName: string
   isDeleted: boolean
   roles: Role[]
+  signature: string | null
+  signatureRaw: string | null
 }
 
 export interface Thread {

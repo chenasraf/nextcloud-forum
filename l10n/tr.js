@@ -67,6 +67,7 @@ OC.L10N.register(
     "Notifications" : "Bildirimler",
     "Files" : "Dosyalar",
     "Browse" : "Göz at",
+    "Signature" : "İmza",
     "Enable" : "Kullanıma al",
     "Disable" : "Kullanımdan kaldır",
     "This action cannot be undone." : "Bu işlem geri alınamaz.",

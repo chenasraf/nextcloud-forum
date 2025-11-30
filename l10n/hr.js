@@ -45,6 +45,7 @@ OC.L10N.register(
     "Preferences" : "Preferencije",
     "Notifications" : "Obavijesti",
     "Files" : "Datoteke",
+    "Signature" : "Potpis",
     "Enable" : "Omogućite",
     "Disable" : "Onemogući",
     "Tag" : "Oznaka",

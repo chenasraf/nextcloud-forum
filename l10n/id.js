@@ -40,6 +40,7 @@ OC.L10N.register(
     "Edit title" : "Edit judul",
     "Preferences" : "Preferensi",
     "Notifications" : "Notifikasi",
+    "Signature" : "Tanda tangan",
     "Enable" : "Aktifkan",
     "Disable" : "Nonaktifkan",
     "Description" : "Deskrisi",

@@ -49,6 +49,7 @@ OC.L10N.register(
     "Move thread" : "Move thread",
     "Preferences" : "Preferences",
     "Notifications" : "შეტყობინებები",
+    "Signature" : "Signature",
     "Enable" : "Enable",
     "Disable" : "Disable",
     "Description" : "Description",

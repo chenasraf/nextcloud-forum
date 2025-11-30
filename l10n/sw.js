@@ -58,6 +58,7 @@ OC.L10N.register(
     "Notifications" : "Arifa",
     "Files" : "Faili",
     "Browse" : "Vinjari",
+    "Signature" : "Saini",
     "Enable" : "Wezesha",
     "Disable" : "Zima",
     "This action cannot be undone." : "Kitendo hiki hakiwezi kutenduliwa.",

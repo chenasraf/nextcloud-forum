@@ -46,6 +46,7 @@ OC.L10N.register(
     "Move thread" : "Mută conversația",
     "Preferences" : "Preferințe",
     "Notifications" : "Notificări",
+    "Signature" : "Semnătură",
     "Enable" : "Activare",
     "Disable" : "Dezactivează",
     "Description" : "Descriere",

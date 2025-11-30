@@ -59,6 +59,7 @@ OC.L10N.register(
     "Preferences" : "Innstillinger",
     "Notifications" : "Varsel",
     "Files" : "Filer",
+    "Signature" : "Signatur",
     "Enable" : "Aktiver",
     "Disable" : "Deaktiver",
     "Description" : "Beskrivelse",

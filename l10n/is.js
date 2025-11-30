@@ -49,6 +49,7 @@ OC.L10N.register(
     "Move thread" : "Færa spjallþráð",
     "Preferences" : "Kjörstillingar",
     "Files" : "Skráaforrit",
+    "Signature" : "Undirskrift",
     "Disable" : "Gera óvirkt",
     "Tag" : "Merki",
     "Description" : "Lýsing",

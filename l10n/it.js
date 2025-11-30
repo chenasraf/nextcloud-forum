@@ -61,6 +61,7 @@ OC.L10N.register(
     "Notifications" : "Notifiche",
     "Files" : "File",
     "Browse" : "Sfoglia",
+    "Signature" : "Firma",
     "Enable" : "Abilita",
     "Disable" : "Disabilita",
     "Tag" : "Etichetta",

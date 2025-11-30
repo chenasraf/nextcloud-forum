@@ -256,6 +256,7 @@ OC.L10N.register(
     "Files attached to posts will be uploaded to this directory in your Nextcloud files" : "Uaslódálfar comhaid atá ceangailte le poist chuig an eolaire seo i do chomhaid Nextcloud",
     "Browse" : "Brabhsáil",
     "Preferences saved" : "Roghanna sábháilte",
+    "Signature" : "Sínithe",
     "Failed to save preferences" : "Theip ar na roghanna a shábháil",
     "Select upload directory" : "Roghnaigh eolaire uaslódála",
     "BBCode management" : "Bainistíocht BBCode",

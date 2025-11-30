@@ -17,6 +17,7 @@ OC.L10N.register(
     "Error" : "දෝෂය",
     "Reply" : "පිළිතුර",
     "Files" : "ගොනු",
+    "Signature" : "අත්සන",
     "Disable" : "අබල කරන්න",
     "Description" : "විස්තරය",
     "Enabled" : "සබල කර ඇත",

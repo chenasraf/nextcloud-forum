@@ -18,6 +18,7 @@ OC.L10N.register(
     "Error" : "Greška",
     "Preferences" : "Postavke",
     "Files" : "Fajlovi",
+    "Signature" : "Potpis",
     "Disable" : "Isključi",
     "Description" : "Opis",
     "Name" : "Ime",

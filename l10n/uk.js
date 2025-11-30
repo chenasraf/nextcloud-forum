@@ -63,6 +63,7 @@ OC.L10N.register(
     "Notifications" : "Сповіщення",
     "Files" : "Файли",
     "Browse" : "Переглянути",
+    "Signature" : "Підпис",
     "Enable" : "Увімкнути",
     "Disable" : "Вимкнути",
     "This action cannot be undone." : "Цю дію не можна скасувати.",

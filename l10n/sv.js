@@ -62,6 +62,7 @@ OC.L10N.register(
     "Notifications" : "Notiser",
     "Files" : "Filer",
     "Browse" : "Bläddra",
+    "Signature" : "Signatur",
     "Enable" : "Aktivera",
     "Disable" : "Inaktivera",
     "Tag" : "Tagg",

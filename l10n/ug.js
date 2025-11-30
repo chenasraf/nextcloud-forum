@@ -61,6 +61,7 @@ OC.L10N.register(
     "Notifications" : "ئۇقتۇرۇش",
     "Files" : "ھۆججەتلەر",
     "Browse" : "زىيارەت قىل",
+    "Signature" : "ئىمزا",
     "Enable" : "قوزغىتىش",
     "Disable" : "چەكلە",
     "Tag" : "خەتكۈچ",

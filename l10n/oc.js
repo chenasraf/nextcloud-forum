@@ -41,6 +41,7 @@ OC.L10N.register(
     "Subscribe" : "S'abonar",
     "Edit title" : "Modificar lo títol",
     "Notifications" : "Notificacions",
+    "Signature" : "Signatura",
     "Disable" : "Desactivar",
     "Description" : "Descripcion",
     "Enabled" : "Activada",

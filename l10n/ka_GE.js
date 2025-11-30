@@ -29,6 +29,7 @@ OC.L10N.register(
     "Error" : "შეცდომა",
     "by" : "სუბიექტი:",
     "Subscribe" : "გამოწერა",
+    "Signature" : "ხელმოწერა",
     "Disable" : "გამორთვა",
     "Description" : "აღწერილობა",
     "Enabled" : "მოქმედია",

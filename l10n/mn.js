@@ -24,6 +24,7 @@ OC.L10N.register(
     "Error" : "Алдаа",
     "Subscribe" : "Захиалга",
     "Files" : "Файлууд",
+    "Signature" : "Гарын үсэг",
     "Description" : "Тодорхойлолт",
     "Enabled" : "Идэвхижүүлэх",
     "Name" : "Нэр",

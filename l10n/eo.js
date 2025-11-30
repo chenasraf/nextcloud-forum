@@ -32,6 +32,7 @@ OC.L10N.register(
     "by" : "de",
     "Subscribe" : "Aboni",
     "Notifications" : "Atentigoj",
+    "Signature" : "Subskribo",
     "Enable" : "Ŝalti",
     "Disable" : "Malŝalti",
     "Description" : "Priskribo",

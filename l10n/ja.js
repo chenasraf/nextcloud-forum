@@ -55,6 +55,7 @@ OC.L10N.register(
     "Preferences" : "環境設定",
     "Notifications" : "通知",
     "Files" : "ファイル",
+    "Signature" : "署名",
     "Enable" : "有効にする",
     "Disable" : "無効",
     "This action cannot be undone." : "これは取り消すことができません",

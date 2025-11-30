@@ -60,6 +60,7 @@ OC.L10N.register(
     "Preferences" : "Voorkeuren",
     "Notifications" : "Meldingen",
     "Files" : "Bestanden",
+    "Signature" : "Handtekening",
     "Enable" : "Inschakelen",
     "Disable" : "Uitschakelen",
     "Tag" : "Label",

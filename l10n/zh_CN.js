@@ -58,6 +58,7 @@ OC.L10N.register(
     "Notifications" : "通知",
     "Files" : "文件",
     "Browse" : "浏览",
+    "Signature" : "签名",
     "Enable" : "开启",
     "Disable" : "禁用",
     "This action cannot be undone." : "此操作无法撤消。",

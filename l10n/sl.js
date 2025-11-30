@@ -58,6 +58,7 @@ OC.L10N.register(
     "Notifications" : "Obvestila",
     "Files" : "Datoteke",
     "Browse" : "Prebrskaj",
+    "Signature" : "Podpis",
     "Enable" : "Omogoči",
     "Disable" : "Onemogoči",
     "Tag" : "Oznaka",

@@ -60,6 +60,7 @@ OC.L10N.register(
     "Notifications" : "Jakinarazpenak",
     "Files" : "Fitxategiak",
     "Browse" : "Arakatu",
+    "Signature" : "Sinadura",
     "Enable" : "Aktibatu",
     "Disable" : "Desaktibatu",
     "Tag" : "Etiketa",

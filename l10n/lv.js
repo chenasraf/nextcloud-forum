@@ -48,6 +48,7 @@ OC.L10N.register(
     "Subscribe" : "Abonēt",
     "Subscribed" : "Abonēts",
     "Files" : "Datnes",
+    "Signature" : "Paraksts",
     "Enable" : "Iespējot",
     "Disable" : "Deaktivēt",
     "Tag" : "Birkas",

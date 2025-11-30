@@ -63,6 +63,7 @@ OC.L10N.register(
     "Notifications" : "Értesítések",
     "Files" : "Fájlok",
     "Browse" : "Tallózás",
+    "Signature" : "Aláírás",
     "Enable" : "Engedélyezés",
     "Disable" : "Letiltás",
     "Tag" : "Címke",

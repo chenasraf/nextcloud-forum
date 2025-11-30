@@ -54,6 +54,7 @@ OC.L10N.register(
     "Preferences" : "اولویت ها",
     "Notifications" : "هشدارها",
     "Files" : "پرونده‌ها",
+    "Signature" : "امضا",
     "Enable" : "فعالسازی",
     "Disable" : "غیرفعال کردن",
     "Description" : "شرح",

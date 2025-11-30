@@ -232,6 +232,7 @@ OC.L10N.register(
     "When enabled, you will automatically receive notifications for replies to threads you create" : "Al habilitarlo, recibirás automáticamente notificaciones de respuestas a los hilos que crees",
     "Files" : "Archivo",
     "Preferences saved" : "Preferencias guardadas",
+    "Signature" : "Firma",
     "Failed to save preferences" : "Error al guardar preferencias",
     "BBCode management" : "Gestión de BBCode",
     "Manage custom BBCode tags for post formatting" : "Gestiona etiquetas BBCode personalizadas para el formato de publicaciones",

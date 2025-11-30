@@ -260,6 +260,7 @@ OC.L10N.register(
     "Files attached to posts will be uploaded to this directory in your Nextcloud files" : "Os arquivos anexados às postagens serão carregados para este diretório em seus arquivos do Nextcloud.",
     "Browse" : "Navegar",
     "Preferences saved" : "Preferências salvas",
+    "Signature" : "Assinatura",
     "Failed to save preferences" : "Falha ao salvar preferências",
     "Select upload directory" : "Selecione o diretório de upload",
     "BBCode management" : "Gerenciamento do BBCode",

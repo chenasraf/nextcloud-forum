@@ -63,6 +63,7 @@ OC.L10N.register(
     "Notifications" : "Powiadomienia",
     "Files" : "Pliki",
     "Browse" : "Przeglądaj",
+    "Signature" : "Podpis",
     "Enable" : "Włącz",
     "Disable" : "Wyłącz",
     "Tag" : "Etykieta",

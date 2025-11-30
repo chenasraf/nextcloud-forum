@@ -259,6 +259,7 @@ OC.L10N.register(
     "Files attached to posts will be uploaded to this directory in your Nextcloud files" : "Soubory připojené k tomuto příspěvku budou nahrány do této složky v Nextcloud Soubory",
     "Browse" : "Procházet",
     "Preferences saved" : "Předvolby uloženy",
+    "Signature" : "Podpis",
     "Failed to save preferences" : "Nepodařilo se uložit vaše předvolby",
     "Select upload directory" : "Vyberte složku pro nahrávání",
     "BBCode management" : "Správa BBCode",

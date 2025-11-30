@@ -27,6 +27,7 @@ OC.L10N.register(
     "Reply" : "Svare",
     "by" : "av",
     "Notifications" : "Varsel",
+    "Signature" : "Signatur",
     "Enable" : "SLå på",
     "Disable" : "Slå av",
     "Description" : "Skildring",

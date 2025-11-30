@@ -46,6 +46,7 @@ OC.L10N.register(
     "Edit title" : "Удери наслов",
     "Preferences" : "Перформанси",
     "Files" : "Датотеки",
+    "Signature" : "Потпис",
     "Enable" : "Овозможи",
     "Disable" : "Оневозможи",
     "Description" : "Опис",

@@ -61,6 +61,7 @@ OC.L10N.register(
     "Subscribed" : "Subscrito",
     "Preferences" : "Preferências",
     "Files" : "Ficheiros",
+    "Signature" : "Assinatura",
     "Manage custom BBCode tags for post formatting" : "Gerir etiquetas BBCode personalizadas para formatação de publicações.",
     "Enable" : "Ativar",
     "Disable" : "Desativar",

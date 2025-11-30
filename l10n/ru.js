@@ -91,6 +91,7 @@ OC.L10N.register(
     "Notifications" : "Уведомления",
     "Files" : "Файлы",
     "Browse" : "Выбрать",
+    "Signature" : "Подпись",
     "Enable" : "Включить",
     "Disable" : "Отключить",
     "Tag" : "Метка",

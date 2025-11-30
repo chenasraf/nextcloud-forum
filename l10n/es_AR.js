@@ -33,6 +33,7 @@ OC.L10N.register(
     "Subscribe" : "Suscribirse",
     "Preferences" : "Preferencias",
     "Files" : "Archivo",
+    "Signature" : "Firma",
     "Enable" : "Activar",
     "Disable" : "Deshabilitar",
     "Description" : "Descripción",

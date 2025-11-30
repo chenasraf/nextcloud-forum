@@ -64,6 +64,7 @@ OC.L10N.register(
     "Notifications" : "Notificaciones",
     "Files" : "Archivos",
     "Browse" : "Explorar",
+    "Signature" : "Firma",
     "Enable" : "Activar",
     "Disable" : "Deshabilitar",
     "This action cannot be undone." : "Esta acción no se puede deshacer.",

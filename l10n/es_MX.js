@@ -44,6 +44,7 @@ OC.L10N.register(
     "Move thread" : "Mover hilo",
     "Preferences" : "Preferencias",
     "Files" : "Archivo",
+    "Signature" : "Firma",
     "Enable" : "Activar",
     "Disable" : "Deshabilitar",
     "Description" : "Descripción",

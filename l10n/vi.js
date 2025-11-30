@@ -48,6 +48,7 @@ OC.L10N.register(
     "Preferences" : "Cài đặt",
     "Notifications" : "Thông báo",
     "Files" : "Tệp Tin",
+    "Signature" : "Chữ ký",
     "Enable" : "Bật",
     "Disable" : "Tắt",
     "Description" : "Mô tả",

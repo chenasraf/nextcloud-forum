@@ -66,6 +66,7 @@ OC.L10N.register(
     "Notifications" : "Ειδοποιήσεις",
     "Files" : "Αρχεία",
     "Browse" : "Περιήγηση",
+    "Signature" : "Υπογραφή",
     "Enable" : "Ενεργοποίηση",
     "Disable" : "Απενεργοποίηση",
     "This action cannot be undone." : "Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",

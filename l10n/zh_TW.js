@@ -249,6 +249,7 @@ OC.L10N.register(
     "Notifications" : "通知",
     "Files" : "檔案",
     "Browse" : "瀏覽",
+    "Signature" : "簽名",
     "Enable" : "啟用",
     "Disable" : "停用",
     "Tag" : "標籤",

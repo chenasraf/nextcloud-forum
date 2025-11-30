@@ -28,6 +28,7 @@ OC.L10N.register(
     "Error" : "Gwall",
     "by" : "gan",
     "Subscribe" : "Tanysgrifio",
+    "Signature" : "Llofnod",
     "Disable" : "Analluogi",
     "Description" : "Disgrifiad",
     "Name" : "Enw",

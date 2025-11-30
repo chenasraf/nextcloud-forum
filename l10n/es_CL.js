@@ -28,6 +28,7 @@ OC.L10N.register(
     "by" : "por",
     "Subscribe" : "Suscribir",
     "Files" : "Archivo",
+    "Signature" : "Firma",
     "Disable" : "Deshabilitar",
     "Description" : "Descripción",
     "Enabled" : "Habilitado",

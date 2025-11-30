@@ -52,6 +52,7 @@ OC.L10N.register(
     "Preferences" : "Nuostatos",
     "Files" : "Failai",
     "Browse" : "Naršyti",
+    "Signature" : "Parašas",
     "Enable" : "Įjungti",
     "Disable" : "Išjungti",
     "Tag" : "Žymė",

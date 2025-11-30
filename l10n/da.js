@@ -56,6 +56,7 @@ OC.L10N.register(
     "Preferences" : "Indstillinger",
     "Notifications" : "Påmindelser",
     "Files" : "Filer",
+    "Signature" : "Underskrift",
     "Enable" : "Aktiver",
     "Disable" : "Deaktiver",
     "This action cannot be undone." : "Denne handling kan ikke fortrydes.",

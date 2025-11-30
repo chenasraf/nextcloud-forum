@@ -130,6 +130,7 @@ OC.L10N.register(
     "Preferences" : "העדפות",
     "Notifications" : "התראות",
     "Files" : "קבצים",
+    "Signature" : "חתימה",
     "Disable" : "השבתה",
     "Tag" : "תגית",
     "Description" : "תיאור",

@@ -222,7 +222,7 @@ OC.L10N.register(
     "Lock thread" : "Thema sperren",
     "Unlock thread" : "Thema entsperren",
     "Pin thread" : "Thema anheften",
-    "Unpin thread" : "Thema lösen",
+    "Unpin thread" : "Thema ablösen",
     "Thread locked" : "Thema gesperrt",
     "Thread unlocked" : "Thema entsperrt",
     "Thread pinned" : "Thema angeheftet",

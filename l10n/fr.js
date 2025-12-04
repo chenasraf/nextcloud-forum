@@ -95,7 +95,7 @@ OC.L10N.register(
     "Loading users …" : "Chargement des utilisateurs...",
     "No users found" : "Aucun utilisateur trouvé",
     "Joined" : "A rejoint",
-    "Status" : "État",
+    "Status" : "Statut",
     "Active" : "Actif",
     "Deleted" : "Effacé"
 },

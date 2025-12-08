@@ -17,6 +17,18 @@
           </template>
         </NcAppNavigationItem>
 
+        <!-- Bookmarks menu item (authenticated users only) -->
+        <NcAppNavigationItem
+          v-if="userId !== null"
+          :name="strings.navBookmarks"
+          :to="{ path: '/bookmarks' }"
+          :active="isPathActive('/bookmarks')"
+        >
+          <template #icon>
+            <BookmarkIcon :size="20" />
+          </template>
+        </NcAppNavigationItem>
+
         <!-- Category headers as collapsible submenus -->
         <NcAppNavigationItem
           v-for="header in categoryHeaders"
@@ -172,6 +184,7 @@ import HomeIcon from '@icons/Home.vue'
 import ForumIcon from '@icons/Forum.vue'
 import FolderIcon from '@icons/Folder.vue'
 import MagnifyIcon from '@icons/Magnify.vue'
+import BookmarkIcon from '@icons/Bookmark.vue'
 import ChevronDownIcon from '@icons/ChevronDown.vue'
 import ChevronRightIcon from '@icons/ChevronRight.vue'
 import ShieldCheckIcon from '@icons/ShieldCheck.vue'
@@ -199,6 +212,7 @@ export default defineComponent({
     ForumIcon,
     FolderIcon,
     MagnifyIcon,
+    BookmarkIcon,
     ChevronDownIcon,
     ChevronRightIcon,
     ShieldCheckIcon,
@@ -243,6 +257,7 @@ export default defineComponent({
         searchLabel: t('forum', 'Search'),
         navHome: t('forum', 'Home'),
         navSearch: t('forum', 'Search'),
+        navBookmarks: t('forum', 'Bookmarks'),
         navPreferences: t('forum', 'User preferences'),
         navAdmin: t('forum', 'Admin'),
         navAdminDashboard: t('forum', 'Dashboard'),

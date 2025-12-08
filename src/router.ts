@@ -15,6 +15,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/u/:userId', component: () => import('@/views/ProfileView.vue') },
   { path: '/preferences', component: () => import('@/views/UserPreferencesView.vue') },
   { path: '/search', component: () => import('@/views/SearchView.vue') },
+  { path: '/bookmarks', component: () => import('@/views/BookmarksView.vue') },
   { path: '/admin', component: () => import('@/views/admin/AdminDashboard.vue') },
   { path: '/admin/settings', component: () => import('@/views/admin/AdminGeneralSettings.vue') },
   { path: '/admin/users', component: () => import('@/views/admin/AdminUserList.vue') },

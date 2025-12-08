@@ -7,13 +7,14 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use OCA\Forum\Db\BookmarkMapper;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserSession;
 
 /**
- * Service for enriching thread data with author info, category details, and subscription status
+ * Service for enriching thread data with author info, category details, subscription and bookmark status
  */
 class ThreadEnrichmentService {
 	public function __construct(
@@ -21,6 +22,7 @@ class ThreadEnrichmentService {
 		private CategoryMapper $categoryMapper,
 		private IUserSession $userSession,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
+		private BookmarkMapper $bookmarkMapper,
 	) {
 	}
 
@@ -54,17 +56,20 @@ class ThreadEnrichmentService {
 			$thread['categoryName'] = null;
 		}
 
-		// Add subscription status for the current user
+		// Add subscription and bookmark status for the current user
 		try {
 			$user = $this->userSession->getUser();
 			if ($user) {
 				$thread['isSubscribed'] = $this->threadSubscriptionMapper->isUserSubscribed($user->getUID(), $thread['id']);
+				$thread['isBookmarked'] = $this->bookmarkMapper->isThreadBookmarked($user->getUID(), $thread['id']);
 			} else {
 				$thread['isSubscribed'] = false;
+				$thread['isBookmarked'] = false;
 			}
 		} catch (\Exception $e) {
-			// If there's an error checking subscription, default to false
+			// If there's an error checking subscription/bookmark, default to false
 			$thread['isSubscribed'] = false;
+			$thread['isBookmarked'] = false;
 		}
 
 		return $thread;

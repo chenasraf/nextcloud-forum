@@ -36,6 +36,19 @@
             </template>
           </NcButton>
 
+          <!-- Bookmark toggle button (authenticated users only) -->
+          <NcButton
+            v-if="!loading && thread && userId !== null"
+            @click="handleToggleBookmark"
+            :aria-label="thread.isBookmarked ? strings.removeBookmark : strings.addBookmark"
+            :title="thread.isBookmarked ? strings.removeBookmark : strings.addBookmark"
+          >
+            <template #icon>
+              <BookmarkIcon v-if="thread.isBookmarked" :size="20" />
+              <BookmarkOutlineIcon v-else :size="20" />
+            </template>
+          </NcButton>
+
           <!-- Moderation buttons (only visible to moderators) -->
           <template v-if="canModerate && !loading">
             <NcButton
@@ -323,6 +336,8 @@ import LockIcon from '@icons/Lock.vue'
 import LockOpenIcon from '@icons/LockOpen.vue'
 import EyeIcon from '@icons/Eye.vue'
 import BellIcon from '@icons/Bell.vue'
+import BookmarkIcon from '@icons/Bookmark.vue'
+import BookmarkOutlineIcon from '@icons/BookmarkOutline.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import ReplyIcon from '@icons/Reply.vue'
@@ -360,6 +375,8 @@ export default defineComponent({
     LockOpenIcon,
     EyeIcon,
     BellIcon,
+    BookmarkIcon,
+    BookmarkOutlineIcon,
     ArrowLeftIcon,
     RefreshIcon,
     ReplyIcon,
@@ -428,6 +445,10 @@ export default defineComponent({
         subscribed: t('forum', 'Subscribed'),
         threadSubscribed: t('forum', 'Subscribed to thread'),
         threadUnsubscribed: t('forum', 'Unsubscribed from thread'),
+        addBookmark: t('forum', 'Bookmark'),
+        removeBookmark: t('forum', 'Remove bookmark'),
+        threadBookmarked: t('forum', 'Thread bookmarked'),
+        threadUnbookmarked: t('forum', 'Bookmark removed'),
         editTitle: t('forum', 'Edit title'),
         saveTitle: t('forum', 'Save title'),
         titleUpdated: t('forum', 'Thread title updated'),
@@ -872,6 +893,31 @@ export default defineComponent({
         showError(t('forum', 'Failed to update subscription'))
         // Revert the state on error
         this.thread.isSubscribed = !newValue
+      }
+    },
+
+    async handleToggleBookmark(): Promise<void> {
+      if (!this.thread) return
+
+      const currentState = this.thread.isBookmarked
+
+      try {
+        if (currentState) {
+          // Remove bookmark
+          await ocs.delete(`/threads/${this.thread.id}/bookmark`)
+          this.thread.isBookmarked = false
+          showSuccess(this.strings.threadUnbookmarked)
+        } else {
+          // Add bookmark
+          await ocs.post(`/threads/${this.thread.id}/bookmark`)
+          this.thread.isBookmarked = true
+          showSuccess(this.strings.threadBookmarked)
+        }
+      } catch (e) {
+        console.error('Failed to toggle thread bookmark', e)
+        showError(t('forum', 'Failed to update bookmark'))
+        // Revert the state on error
+        this.thread.isBookmarked = currentState
       }
     },
 

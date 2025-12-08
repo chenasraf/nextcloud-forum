@@ -177,6 +177,30 @@ class ThreadMapper extends QBMapper {
 	}
 
 	/**
+	 * Find threads by multiple IDs
+	 *
+	 * @param array<int> $ids Array of thread IDs
+	 * @return array<Thread>
+	 */
+	public function findByIds(array $ids): array {
+		if (empty($ids)) {
+			return [];
+		}
+
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->in('id', $qb->createNamedParameter($ids, IQueryBuilder::PARAM_INT_ARRAY))
+			)
+			->andWhere(
+				$qb->expr()->isNull('deleted_at')
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * @return array<Thread>
 	 */
 	public function findByAuthorId(string $authorId, int $limit = 50, int $offset = 0): array {

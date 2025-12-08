@@ -432,7 +432,7 @@ export default defineComponent({
         createHeader: t('forum', 'Create header'),
         categoriesCount: (count: number) => n('forum', '%n category', '%n categories', count),
         threadsCount: (count: number) => n('forum', '%n thread', '%n threads', count),
-        postsCount: (count: number) => n('forum', '%n post', '%n posts', count),
+        postsCount: (count: number) => n('forum', '%n reply', '%n replies', count),
         deleteHeaderTitle: t('forum', 'Delete header'),
         deleteHeaderMessage: (name: string) =>
           t('forum', `Are you sure you want to delete the header "{name}"?`, { name }),

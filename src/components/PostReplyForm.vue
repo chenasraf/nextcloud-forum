@@ -72,7 +72,7 @@ export default defineComponent({
       strings: {
         placeholder: t('forum', 'Write your reply …'),
         cancel: t('forum', 'Cancel'),
-        submit: t('forum', 'Post reply'),
+        submit: t('forum', 'Submit reply'),
         confirmCancel: t('forum', 'Are you sure you want to discard your reply?'),
       },
     }

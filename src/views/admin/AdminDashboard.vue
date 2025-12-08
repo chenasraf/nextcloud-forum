@@ -250,7 +250,7 @@ export default defineComponent({
         last7Days: t('forum', 'Last 7 days'),
         allTime: t('forum', 'All time'),
         threadsCount: (count: number) => n('forum', '%n thread', '%n threads', count),
-        postsCount: (count: number) => n('forum', '%n post', '%n posts', count),
+        postsCount: (count: number) => n('forum', '%n reply', '%n replies', count),
       },
     }
   },

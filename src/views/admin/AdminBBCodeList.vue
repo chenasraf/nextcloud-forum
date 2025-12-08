@@ -333,7 +333,7 @@ export default defineComponent({
 
       strings: {
         title: t('forum', 'BBCode management'),
-        subtitle: t('forum', 'Manage custom BBCode tags for post formatting'),
+        subtitle: t('forum', 'Manage custom BBCode tags for formatting'),
         help: t('forum', 'BBCode help'),
         loading: t('forum', 'Loading …'),
         errorTitle: t('forum', 'Error loading BBCodes'),

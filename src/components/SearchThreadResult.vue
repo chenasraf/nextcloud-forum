@@ -23,7 +23,7 @@
       </span>
       <span class="meta-item">
         <MessageIcon :size="16" />
-        {{ n('forum', '%n post', '%n posts', thread.postCount) }}
+        {{ n('forum', '%n reply', '%n replies', thread.postCount) }}
       </span>
       <span class="meta-item">
         <EyeIcon :size="16" />

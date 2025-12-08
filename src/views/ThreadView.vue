@@ -406,14 +406,14 @@ export default defineComponent({
         reply: t('forum', 'Reply'),
         loading: t('forum', 'Loading …'),
         errorTitle: t('forum', 'Error loading thread'),
-        emptyPostsTitle: t('forum', 'No posts yet'),
-        emptyPostsDesc: t('forum', 'Be the first to post in this thread.'),
+        emptyPostsTitle: t('forum', 'No replies yet'),
+        emptyPostsDesc: t('forum', 'Be the first to reply in this thread.'),
         retry: t('forum', 'Retry'),
         by: t('forum', 'by'),
         views: (count: number) => n('forum', '%n view', '%n views', count),
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
-        lockedMessage: t('forum', 'This thread is locked. Only moderators can post replies.'),
+        lockedMessage: t('forum', 'This thread is locked. Only moderators can add replies.'),
         guestMessage: t('forum', 'You must be signed in to reply to this thread.'),
         signInToReply: t('forum', 'Sign in to reply'),
         lockThread: t('forum', 'Lock thread'),
@@ -549,7 +549,7 @@ export default defineComponent({
         }
       } catch (e) {
         console.error('Failed to fetch posts', e)
-        throw new Error(t('forum', 'Failed to load posts'))
+        throw new Error(t('forum', 'Failed to load replies'))
       }
     },
 
@@ -695,11 +695,11 @@ export default defineComponent({
             postCard.finishEdit()
           }
 
-          showSuccess(t('forum', 'Post updated'))
+          showSuccess(t('forum', 'Reply updated'))
         }
       } catch (e) {
         console.error('Failed to update post', e)
-        showError(t('forum', 'Failed to update post'))
+        showError(t('forum', 'Failed to update reply'))
 
         // Reset submitting state on error
         if (postCard && typeof postCard.setEditSubmitting === 'function') {
@@ -738,11 +738,11 @@ export default defineComponent({
             this.replies.splice(index, 1)
           }
 
-          showSuccess(t('forum', 'Post deleted'))
+          showSuccess(t('forum', 'Reply deleted'))
         }
       } catch (e) {
         console.error('Failed to delete post', e)
-        showError(t('forum', 'Failed to delete post'))
+        showError(t('forum', 'Failed to delete reply'))
       }
     },
 

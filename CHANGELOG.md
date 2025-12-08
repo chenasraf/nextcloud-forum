@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.16.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.15.0...v0.16.0) (2025-12-08)
+
+
+### Features
+
+* bookmark threads ([973580e](https://github.com/chenasraf/nextcloud-forum/commit/973580ef2b493720cd4e059fe40e0dd38acbd9b4))
+
+
+### Bug Fixes
+
+* **l10n:** replace post(s)-&gt;reply(ies) in more places ([164c188](https://github.com/chenasraf/nextcloud-forum/commit/164c18861713a67dd548e11b320d91dd642ccfba))
+* **l10n:** Update translations from Transifex ([b2d7af7](https://github.com/chenasraf/nextcloud-forum/commit/b2d7af73e02dde9a0a6dceeabec6e9b8166d702b))
+* **l10n:** Update translations from Transifex ([e2ef684](https://github.com/chenasraf/nextcloud-forum/commit/e2ef684ff0430877d7bd086c48cdbda557b5b85a))
+* **l10n:** Update translations from Transifex ([04a9a89](https://github.com/chenasraf/nextcloud-forum/commit/04a9a895e610a2944263e27ff57bf13896420869))
+* **l10n:** Update translations from Transifex ([a1b2b9d](https://github.com/chenasraf/nextcloud-forum/commit/a1b2b9dc00bb03fefaf1be4e4e8bdf9b8e72a74c))
+
 ## [0.15.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.14.0...v0.15.0) (2025-12-03)
 
 

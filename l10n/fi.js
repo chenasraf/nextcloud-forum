@@ -52,6 +52,7 @@ OC.L10N.register(
     "by" : "Kirjoittaja:",
     "Subscribe" : "Tilaa",
     "Subscribed" : "Tilattu",
+    "Bookmark" : "Kirjanmerkki",
     "Edit title" : "Muokkaa otsikkoa",
     "Move thread" : "Siirrä ketju",
     "Preferences" : "Asetukset",

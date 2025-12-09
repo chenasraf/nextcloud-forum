@@ -57,6 +57,7 @@ OC.L10N.register(
     "Notifications" : "الإشعارات",
     "Files" : "الملفّات",
     "Browse" : "تصفُّح",
+    "Signature" : "التوقيع",
     "Enable" : "تمكين",
     "Disable" : "تعطيل",
     "Description" : "الوصف",

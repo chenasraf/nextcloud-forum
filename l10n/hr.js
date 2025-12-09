@@ -40,6 +40,7 @@ OC.L10N.register(
     "by" : "od",
     "Subscribe" : "Preplata",
     "Subscribed" : "Pretplaćen",
+    "Bookmark" : "Dodaj knjižnu oznaku",
     "Edit title" : "Uredi naslov",
     "Move thread" : "Premjesti dretvu",
     "Preferences" : "Preferencije",

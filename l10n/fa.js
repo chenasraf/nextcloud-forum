@@ -49,6 +49,7 @@ OC.L10N.register(
     "by" : "با",
     "Subscribe" : "اشتراک گذاری",
     "Subscribed" : "Subscribed",
+    "Bookmark" : "نشانک",
     "Edit title" : "ویرایش عنوان",
     "Move thread" : "Move thread",
     "Preferences" : "اولویت ها",

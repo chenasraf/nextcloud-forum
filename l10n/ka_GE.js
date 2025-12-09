@@ -8,6 +8,7 @@ OC.L10N.register(
     "Forum" : "ფორუმი",
     "Search" : "ძიება",
     "Home" : "სახლი",
+    "Bookmarks" : "სანიშნეები",
     "Dashboard" : "მთავარი დაფა",
     "Users" : "მომხმარებლები",
     "Categories" : "კატეგორიები",

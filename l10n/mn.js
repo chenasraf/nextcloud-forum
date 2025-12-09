@@ -7,6 +7,7 @@ OC.L10N.register(
     "Forum" : "Хэлэлцүүлэг",
     "Search" : "Хайх",
     "Home" : "Нүүр",
+    "Bookmarks" : "Тэмдэглэж авах",
     "Users" : "хэрэглэгч",
     "Categories" : "төрөл",
     "Hello world!" : "Сайн байна уу, ертөнцөө!",

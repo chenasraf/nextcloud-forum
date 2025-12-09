@@ -20,6 +20,7 @@ OC.L10N.register(
     "by" : "deur",
     "Subscribe" : "Teken in",
     "Files" : "Lêer ",
+    "Signature" : "Handtekening",
     "Disable" : "Deaktiveer",
     "Description" : "Beskrywing",
     "New" : "Nuut",

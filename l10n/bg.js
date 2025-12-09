@@ -57,6 +57,7 @@ OC.L10N.register(
     "Preferences" : "Предпочитания",
     "Notifications" : "Известия",
     "Files" : "Файлове",
+    "Signature" : "Подпис",
     "Enable" : "Включена",
     "Disable" : "Изключване",
     "Tag" : "Етикет",

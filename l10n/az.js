@@ -23,6 +23,7 @@ OC.L10N.register(
     "Error" : "Səhv",
     "by" : "onunla",
     "Subscribe" : "Abunə",
+    "Signature" : "İmza",
     "Disable" : "Dayandır",
     "Description" : "Açıqlanma",
     "Enabled" : "İşə salınıb",

@@ -51,6 +51,7 @@ OC.L10N.register(
     "Preferences" : "Preferencies",
     "Notifications" : "Avisos",
     "Files" : "Ficheros",
+    "Signature" : "Firma",
     "Enable" : "Activar",
     "Disable" : "Desactivar",
     "Description" : "Descripción",

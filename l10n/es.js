@@ -58,6 +58,7 @@ OC.L10N.register(
     "by" : "por",
     "Subscribe" : "Suscribirse",
     "Subscribed" : "Suscrito",
+    "Bookmark" : "Marcador",
     "Edit title" : "Editar título",
     "Move thread" : "Mover hilo",
     "Preferences" : "Preferencias",

@@ -34,7 +34,7 @@
           v-for="header in categoryHeaders"
           :key="`header-${header.id}`"
           :name="header.name"
-          @click="toggleHeader(header.id)"
+          @click="navigateToFirstCategory(header)"
         >
           <template #icon>
             <FolderIcon :size="20" />
@@ -44,6 +44,7 @@
             <NcActionButton
               :aria-label="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
               :title="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
+              @click.stop="toggleHeader(header.id)"
             >
               <template #icon>
                 <ChevronDownIcon v-if="isHeaderOpen(header.id)" :size="20" />
@@ -82,7 +83,7 @@
       </NcAppNavigationItem>
 
       <!-- Admin menu item - only visible to admins -->
-      <NcAppNavigationItem v-if="isAdmin" :name="strings.navAdmin" @click="toggleAdmin">
+      <NcAppNavigationItem v-if="isAdmin" :name="strings.navAdmin" @click="navigateToAdmin">
         <template #icon>
           <ShieldCheckIcon :size="20" />
         </template>
@@ -91,6 +92,7 @@
           <NcActionButton
             :aria-label="isAdminOpen ? strings.collapse : strings.expand"
             :title="isAdminOpen ? strings.collapse : strings.expand"
+            @click.stop="toggleAdmin"
           >
             <template #icon>
               <ChevronDownIcon v-if="isAdminOpen" :size="20" />
@@ -354,6 +356,34 @@ export default defineComponent({
     toggleAdmin(): void {
       this.isAdminOpen = !this.isAdminOpen
       this.saveNavigationState()
+    },
+
+    navigateToFirstCategory(header: { id: number; categories?: Category[] }): void {
+      // If closed, open it first
+      if (!this.isHeaderOpen(header.id)) {
+        this.openHeaders = {
+          ...this.openHeaders,
+          [header.id]: true,
+        }
+        this.saveNavigationState()
+      }
+
+      // Navigate to first category if available
+      if (header.categories && header.categories.length > 0) {
+        const firstCategory = header.categories[0]
+        this.$router.push({ path: `/c/${firstCategory.slug}` })
+      }
+    },
+
+    navigateToAdmin(): void {
+      // If closed, open it first
+      if (!this.isAdminOpen) {
+        this.isAdminOpen = true
+        this.saveNavigationState()
+      }
+
+      // Navigate to admin dashboard (first admin item)
+      this.$router.push({ path: '/admin' })
     },
 
     isCategoryActive(category: Category): boolean {

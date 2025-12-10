@@ -40,6 +40,7 @@ OC.L10N.register(
     "A community-driven forum built right into your Nextcloud instance" : "פורום מונחה-קהילה מובנה ישירות להתקנת ה Nextcloud שלכם.",
     "Search" : "חיפוש",
     "Home" : "בית",
+    "Bookmarks" : "סימניות",
     "User preferences" : "העדפות משתמש",
     "Dashboard" : "לוח בקרה",
     "Forum settings" : "הגדרות פורום",

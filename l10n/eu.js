@@ -11,6 +11,7 @@ OC.L10N.register(
     "Deleted user" : "Ezabatutako erabiltzaileak",
     "Search" : "Bilatu",
     "Home" : "Etxea",
+    "Bookmarks" : "Laster-markak",
     "Dashboard" : "Panela",
     "Users" : "Erabiltzaileak",
     "Categories" : "Kategoriak",

@@ -12,6 +12,7 @@ OC.L10N.register(
     "Deleted user" : "Poistettu käyttäjä",
     "Search" : "Etsi",
     "Home" : "Koti",
+    "Bookmarks" : "Kirjanmerkit",
     "Dashboard" : "Kojelauta",
     "Categories" : "Luokat",
     "Expand" : "Laajenna",

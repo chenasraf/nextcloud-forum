@@ -11,6 +11,7 @@ OC.L10N.register(
     "Deleted user" : "ユーザーを削除",
     "Search" : "検索",
     "Home" : "ホーム",
+    "Bookmarks" : "ブックマーク",
     "Dashboard" : "ダッシュボード",
     "Users" : "ユーザ",
     "Categories" : "カテゴリ",

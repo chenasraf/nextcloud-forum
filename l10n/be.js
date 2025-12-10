@@ -57,6 +57,7 @@ OC.L10N.register(
     "Save" : "Захаваць",
     "Add reaction" : "Дадаць рэакцыю",
     "React with {emoji}" : "Адрэагаваць з {emoji}",
+    "_%n reply_::_%n replies_" : ["%n адказ","%n адказы","%n адказаў","%n адказаў"],
     "Title" : "Загаловак",
     "Refresh" : "Абнавіць",
     "Loading …" : "Загрузка …",

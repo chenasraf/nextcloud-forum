@@ -43,6 +43,7 @@ OC.L10N.register(
     "A community-driven forum built right into your Nextcloud instance" : "Kogukonnapõhine foorum, mis toimib otse sinu Nextcloudi serveris.",
     "Search" : "Otsi",
     "Home" : "Avaleht",
+    "Bookmarks" : "Järjehoidjad",
     "User preferences" : "Kasutaja eelistused",
     "Dashboard" : "Töölaud/Juhtpaneel",
     "Forum settings" : "Foorumi seadistused",

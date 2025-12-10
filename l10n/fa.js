@@ -12,6 +12,7 @@ OC.L10N.register(
     "Deleted user" : "Deleted user",
     "Search" : "جستجو",
     "Home" : "خانه",
+    "Bookmarks" : "نشانک‌ها",
     "Dashboard" : "پیشخوان",
     "Users" : "کاربران",
     "Categories" : "دسته‌ها",

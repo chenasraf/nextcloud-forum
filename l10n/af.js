@@ -6,6 +6,7 @@ OC.L10N.register(
     "Forum" : "Forum",
     "Search" : "Soek",
     "Home" : "Tuis",
+    "Bookmarks" : "Boekmerke",
     "Users" : "Gebruikers",
     "Collapse" : "Vou In",
     "Hello world!" : "Hallo wêreld!",

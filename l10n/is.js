@@ -11,6 +11,7 @@ OC.L10N.register(
     "Forum" : "Vefspjall",
     "Search" : "Search",
     "Home" : "Heim",
+    "Bookmarks" : "Bókamerki",
     "Dashboard" : "Stjórnborð",
     "Users" : "Notendur",
     "Categories" : "Flokkar",

@@ -8,6 +8,7 @@ OC.L10N.register(
     "Forum" : "Foro",
     "Search" : "Buscar",
     "Home" : "Inicio",
+    "Bookmarks" : "Marcadores",
     "Dashboard" : "Tablero",
     "Users" : "Ususarios",
     "Categories" : "Categorías",

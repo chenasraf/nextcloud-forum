@@ -12,6 +12,7 @@ OC.L10N.register(
     "Deleted user" : "Utilisateur supprimé",
     "Search" : "Rechercher",
     "Home" : "Accueil",
+    "Bookmarks" : "Favoris",
     "Dashboard" : "Tableau de bord",
     "Users" : "Utilisateurs",
     "Categories" : "Catégories",

@@ -11,6 +11,7 @@ OC.L10N.register(
     "Deleted user" : "Törölt felhasználó",
     "Search" : "Keresés",
     "Home" : "Kezdőlap",
+    "Bookmarks" : "Könyvjelzők",
     "Dashboard" : "Irányítópult",
     "Users" : "Felhasználók",
     "Categories" : "Kategóriák",

@@ -8,6 +8,7 @@ OC.L10N.register(
     "Forum" : "Forumo",
     "Search" : "Serĉi",
     "Home" : "Hejmo",
+    "Bookmarks" : "Legosignaro",
     "Dashboard" : "Regpanelo",
     "Users" : "Uzantoj",
     "Categories" : "Kategorioj",

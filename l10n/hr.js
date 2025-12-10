@@ -9,6 +9,7 @@ OC.L10N.register(
     "Deleted user" : "Izbrisan korisnik",
     "Search" : "Traži",
     "Home" : "Doma",
+    "Bookmarks" : "Knjižne oznake",
     "Dashboard" : "Nadzorna ploča",
     "Users" : "Korisnici",
     "Categories" : "Kategorije",

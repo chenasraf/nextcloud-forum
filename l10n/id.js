@@ -8,6 +8,7 @@ OC.L10N.register(
     "Forum" : "Forum",
     "Search" : "Cari",
     "Home" : "Beranda",
+    "Bookmarks" : "Markah",
     "Dashboard" : "Dasbor",
     "Users" : "Pengguna",
     "Categories" : "Kategori",

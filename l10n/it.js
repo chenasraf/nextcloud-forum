@@ -11,6 +11,7 @@ OC.L10N.register(
     "Deleted user" : "Utente eliminato",
     "Search" : "Cerca",
     "Home" : "Home",
+    "Bookmarks" : "Segnalibri",
     "Dashboard" : "Cruscotto",
     "Categories" : "Categorie",
     "Expand" : "Espandi",

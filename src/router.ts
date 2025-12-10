@@ -55,15 +55,14 @@ const router = createRouter({
 
 // Route guard to protect admin routes and enforce guest access settings
 router.beforeEach(async (to, from, next) => {
-  const { fetchCurrentUser } = useCurrentUser()
+  const { userId, fetchCurrentUser } = useCurrentUser()
   const { fetchPublicSettings, allowGuestAccess } = usePublicSettings()
 
   // Fetch public settings and current user in parallel for better performance
-  const [, user] = await Promise.all([fetchPublicSettings(), fetchCurrentUser()])
-  const userId = user?.userId ?? null
+  await Promise.all([fetchPublicSettings(), fetchCurrentUser()])
 
   // If user is not signed in and guest access is disabled, redirect to login
-  if (!userId && !allowGuestAccess.value) {
+  if (!userId.value && !allowGuestAccess.value) {
     const redirectUrl = encodeURIComponent(to.fullPath)
     const loginUrl = generateUrl(`/login?redirect_url=${redirectUrl}`)
     console.warn('Guest access disabled and user not signed in - redirecting to login')
@@ -77,8 +76,8 @@ router.beforeEach(async (to, from, next) => {
     const { isAdmin, fetchUserRoles, loaded } = useUserRole()
 
     // Fetch user and roles if not already loaded
-    if (!loaded.value && user) {
-      await fetchUserRoles(user.userId)
+    if (!loaded.value && userId.value) {
+      await fetchUserRoles(userId.value)
     }
 
     // Redirect non-admin users to home

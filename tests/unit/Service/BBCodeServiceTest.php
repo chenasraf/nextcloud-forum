@@ -9,6 +9,7 @@ use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
+use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -18,18 +19,21 @@ class BBCodeServiceTest extends TestCase {
 	private LoggerInterface $logger;
 	private IRootFolder $rootFolder;
 	private IURLGenerator $urlGenerator;
+	private IUserManager $userManager;
 
 	protected function setUp(): void {
 		$this->bbCodeMapper = $this->createMock(BBCodeMapper::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->rootFolder = $this->createMock(IRootFolder::class);
 		$this->urlGenerator = $this->createMock(IURLGenerator::class);
+		$this->userManager = $this->createMock(IUserManager::class);
 
 		$this->service = new BBCodeService(
 			$this->bbCodeMapper,
 			$this->logger,
 			$this->rootFolder,
-			$this->urlGenerator
+			$this->urlGenerator,
+			$this->userManager
 		);
 	}
 

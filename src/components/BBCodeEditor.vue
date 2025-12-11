@@ -6,16 +6,23 @@
     @dragleave="handleDragLeave"
     @drop="handleDrop"
   >
-    <BBCodeToolbar ref="toolbar" :textarea-ref="textareaElement" @insert="handleBBCodeInsert" />
-    <NcTextArea
-      :model-value="modelValue"
+    <BBCodeToolbar
+      ref="toolbar"
+      :textarea-ref="contenteditableElement"
+      @insert="handleBBCodeInsert"
+    />
+    <NcRichContenteditable
+      v-if="isReady"
+      :model-value="internalContent"
       :placeholder="placeholder"
-      :rows="rows"
       :disabled="disabled"
-      @update:model-value="$emit('update:modelValue', $event)"
+      :auto-complete="autoComplete"
+      :user-data="userData"
+      :multiline="true"
+      @update:model-value="handleInput"
       @keydown="$emit('keydown', $event)"
-      class="bbcode-editor-textarea"
-      ref="textarea"
+      class="bbcode-editor-contenteditable"
+      ref="contenteditable"
     />
     <NcNoteCard v-if="hasAttachmentBBCode" type="warning" class="attachment-disclaimer">
       <span v-html="strings.attachmentDisclaimer"></span>
@@ -33,16 +40,33 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
-import NcTextArea from '@nextcloud/vue/components/NcTextArea'
+import NcRichContenteditable from '@nextcloud/vue/components/NcRichContenteditable'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import BBCodeToolbar from './BBCodeToolbar.vue'
 import UploadIcon from '@icons/Upload.vue'
 import { t } from '@nextcloud/l10n'
+import { ocs } from '@/axios'
+
+interface AutocompleteUser {
+  id: string
+  label: string
+  icon: string
+  source: string
+}
+
+interface UserData {
+  [key: string]: {
+    id: string
+    label: string
+    icon: string
+    source: string
+  }
+}
 
 export default defineComponent({
   name: 'BBCodeEditor',
   components: {
-    NcTextArea,
+    NcRichContenteditable,
     NcNoteCard,
     BBCodeToolbar,
     UploadIcon,
@@ -72,9 +96,13 @@ export default defineComponent({
   emits: ['update:modelValue', 'keydown'],
   data() {
     return {
-      textareaElement: null as HTMLTextAreaElement | null,
+      contenteditableElement: null as HTMLElement | null,
       isDragging: false,
       dragCounter: 0,
+      userData: {} as UserData,
+      isReady: false,
+      // Internal content state - only set once on mount, then managed by contenteditable
+      internalContent: '',
       strings: {
         attachmentDisclaimer: t(
           'forum',
@@ -91,18 +119,64 @@ export default defineComponent({
       return /\[attachment[^\]]*\]/i.test(this.modelValue)
     },
   },
+  watch: {
+    // Sync internalContent when modelValue changes externally (e.g., BBCode toolbar insert, clear)
+    // But skip if the change came from our own handleInput (to avoid cursor jumping)
+    modelValue(newValue: string) {
+      if (newValue !== this.internalContent) {
+        this.internalContent = newValue
+      }
+    },
+  },
+  async created() {
+    // Parse mentions from initial content before rendering
+    await this.parseMentionsFromContent(this.modelValue)
+    // Set initial content with cursor helper for mentions at end
+    this.internalContent = this.addCursorHelperAfterMentions(this.modelValue)
+    this.isReady = true
+  },
   mounted() {
-    this.updateTextareaRef()
+    this.updateContenteditableRef()
   },
   updated() {
-    this.updateTextareaRef()
+    this.updateContenteditableRef()
   },
   methods: {
-    updateTextareaRef(): void {
-      const textarea = this.$refs.textarea as any
-      if (textarea?.$el?.querySelector('textarea')) {
-        this.textareaElement = textarea.$el.querySelector('textarea')
+    updateContenteditableRef(): void {
+      const contenteditable = this.$refs.contenteditable as any
+      if (contenteditable?.$el) {
+        // NcRichContenteditable uses a div with contenteditable
+        const editableEl = contenteditable.$el.querySelector('[contenteditable]')
+        if (editableEl) {
+          this.contenteditableElement = editableEl as HTMLElement
+        }
       }
+    },
+
+    /**
+     * Add a zero-width space after mentions at the end of content
+     * This allows the cursor to be placed after a mention for appending text
+     * Only used when initially loading content, not during active editing
+     */
+    addCursorHelperAfterMentions(content: string): string {
+      if (!content) return content
+
+      // Add zero-width space after mentions at end of string
+      // This ensures the cursor can be placed after mentions for appending
+      const mentionAtEndPattern = /(@(?:"[^"]+"|[a-zA-Z0-9_.-]+))$/
+      if (mentionAtEndPattern.test(content)) {
+        return content + '\u200B'
+      }
+
+      return content
+    },
+
+    handleInput(value: string): void {
+      // Update internal state
+      this.internalContent = value
+      // Remove zero-width spaces before emitting to parent (clean storage)
+      const cleanValue = value.replace(/\u200B/g, '')
+      this.$emit('update:modelValue', cleanValue)
     },
 
     handleBBCodeInsert(data: { text: string; cursorPos: number }): void {
@@ -112,10 +186,95 @@ export default defineComponent({
     },
 
     focus(): void {
-      // Focus the textarea
-      const textarea = this.$refs.textarea as any
-      if (textarea?.$el?.querySelector('textarea')) {
-        textarea.$el.querySelector('textarea').focus()
+      // Focus the contenteditable
+      const contenteditable = this.$refs.contenteditable as any
+      if (contenteditable?.$el) {
+        const editableEl = contenteditable.$el.querySelector('[contenteditable]')
+        if (editableEl) {
+          editableEl.focus()
+        }
+      }
+    },
+
+    /**
+     * Parse mentions from content and fetch user data for them
+     * This ensures mentions display correctly when editing existing content
+     */
+    async parseMentionsFromContent(content: string): Promise<void> {
+      if (!content) return
+
+      // Pattern to match @"username with spaces" or @username
+      const mentionPattern = /@(?:"([^"]+)"|([a-zA-Z0-9_.-]+))/g
+      const userIds = new Set<string>()
+
+      let match
+      while ((match = mentionPattern.exec(content)) !== null) {
+        // Get the username - either from quoted format or simple format
+        const userId = match[1] || match[2]
+        if (userId && !this.userData[userId]) {
+          userIds.add(userId)
+        }
+      }
+
+      if (userIds.size === 0) return
+
+      // Fetch user data for each mentioned user and build new userData object
+      const newUserData: UserData = { ...this.userData }
+
+      for (const userId of userIds) {
+        try {
+          const response = await ocs.get<AutocompleteUser[]>('/users/autocomplete', {
+            params: { search: userId, limit: 1 },
+          })
+
+          const users = response.data || []
+          // Find exact match
+          const user = users.find((u) => u.id === userId)
+          if (user) {
+            // Store with both formats to cover all cases
+            newUserData[user.id] = {
+              id: user.id,
+              label: user.label,
+              icon: user.icon,
+              source: user.source,
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching user data for ${userId}:`, error)
+        }
+      }
+
+      // Replace entire userData object to ensure reactivity
+      this.userData = newUserData
+    },
+
+    async autoComplete(
+      search: string,
+      callback: (users: AutocompleteUser[]) => void,
+    ): Promise<void> {
+      try {
+        const response = await ocs.get<AutocompleteUser[]>('/users/autocomplete', {
+          params: { search, limit: 10 },
+        })
+
+        const users = response.data || []
+
+        // Update userData with the fetched users for display
+        const newUserData: UserData = { ...this.userData }
+        users.forEach((user) => {
+          newUserData[user.id] = {
+            id: user.id,
+            label: user.label,
+            icon: user.icon,
+            source: user.source,
+          }
+        })
+        this.userData = newUserData
+
+        callback(users)
+      } catch (error) {
+        console.error('Error fetching autocomplete users:', error)
+        callback([])
       }
     },
 
@@ -184,16 +343,18 @@ export default defineComponent({
   padding: 4px;
 }
 
-.bbcode-editor-textarea {
+.bbcode-editor-contenteditable {
   margin-top: 0;
 
-  :deep(.textarea__main-wrapper) {
+  :deep(.rich-contenteditable__input) {
     min-height: v-bind(minHeight) !important;
-    height: unset !important;
+    padding: 8px 12px;
+    background: var(--color-main-background);
+    border: none;
+    border-radius: 4px;
   }
 
-  :deep(textarea) {
-    resize: vertical !important;
+  :deep([contenteditable]) {
     min-height: v-bind(minHeight) !important;
   }
 }

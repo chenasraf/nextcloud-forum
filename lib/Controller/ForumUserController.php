@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\Db\ForumUserMapper;
+use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -28,6 +29,7 @@ class ForumUserController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private ForumUserMapper $forumUserMapper,
+		private UserService $userService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -51,6 +53,28 @@ class ForumUserController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching forum users: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch forum users'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Search Nextcloud users for autocomplete
+	 * Returns users matching the search query in the format expected by NcRichContenteditable
+	 *
+	 * @param string $search Search query (matches against user ID and display name)
+	 * @param int $limit Maximum number of results to return
+	 * @return DataResponse<Http::STATUS_OK, list<array{id: string, label: string, icon: string, source: string}>, array{}>
+	 *
+	 * 200: Users returned
+	 */
+	#[NoAdminRequired]
+	#[ApiRoute(verb: 'GET', url: '/api/users/autocomplete')]
+	public function autocomplete(string $search = '', int $limit = 10): DataResponse {
+		try {
+			$users = $this->userService->searchUsersForAutocomplete($search, $limit);
+			return new DataResponse($users);
+		} catch (\Exception $e) {
+			$this->logger->error('Error searching users for autocomplete: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to search users'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 

@@ -220,6 +220,34 @@ class UserService {
 	}
 
 	/**
+	 * Search users for autocomplete
+	 * Returns users matching the search query in the format expected by NcRichContenteditable
+	 *
+	 * @param string $search Search query (matches against user ID and display name)
+	 * @param int $limit Maximum number of results to return
+	 * @return array<array{id: string, label: string, icon: string, source: string}> List of matching users
+	 */
+	public function searchUsersForAutocomplete(string $search = '', int $limit = 10): array {
+		$results = [];
+		$search = strtolower(trim($search));
+
+		// Use IUserManager to search users
+		// The search method searches both user ID and display name
+		$users = $this->userManager->search($search, $limit);
+
+		foreach ($users as $user) {
+			$results[] = [
+				'id' => $user->getUID(),
+				'label' => $user->getDisplayName(),
+				'icon' => 'icon-user',
+				'source' => 'users',
+			];
+		}
+
+		return $results;
+	}
+
+	/**
 	 * Fetch signatures for multiple users efficiently
 	 *
 	 * @param array<string> $userIds

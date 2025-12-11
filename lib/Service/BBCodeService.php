@@ -13,6 +13,7 @@ use OCA\Forum\Db\BBCodeMapper;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
 use OCP\IURLGenerator;
+use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 class BBCodeService {
@@ -23,6 +24,7 @@ class BBCodeService {
 		private LoggerInterface $logger,
 		private IRootFolder $rootFolder,
 		private IURLGenerator $urlGenerator,
+		private IUserManager $userManager,
 	) {
 	}
 
@@ -188,6 +190,9 @@ class BBCodeService {
 			foreach ($disabledPlaceholders as $placeholder => $original) {
 				$html = str_replace($placeholder, htmlspecialchars($original, ENT_QUOTES | ENT_HTML5, 'UTF-8'), $html);
 			}
+
+			// Parse @mentions and convert them to user profile links
+			$html = $this->parseMentions($html);
 
 			return $html;
 		} catch (\Exception $e) {
@@ -495,5 +500,63 @@ class BBCodeService {
 			str_contains($mimeType, 'zip') || str_contains($mimeType, 'compressed') => 'icon-archive',
 			default => 'icon-file',
 		};
+	}
+
+	/**
+	 * Parse @mentions in HTML content and convert them to user profile links
+	 *
+	 * Supports two formats:
+	 * - @username (for usernames without spaces)
+	 * - @"username with spaces" (for usernames with spaces)
+	 *
+	 * @param string $html The HTML content to parse
+	 * @return string The HTML with mentions converted to links
+	 */
+	private function parseMentions(string $html): string {
+		// Pattern to match @"username with spaces" or @username
+		// Must not be preceded by a word character (to avoid matching email addresses)
+		$pattern = '/(?<![a-zA-Z0-9_])@(?:"([^"]+)"|([a-zA-Z0-9_.-]+))/';
+
+		return preg_replace_callback($pattern, function ($matches) {
+			// Get the username - either from quoted format or simple format
+			$userId = $matches[1] !== '' ? $matches[1] : $matches[2];
+
+			// Check if the user exists
+			$user = $this->userManager->get($userId);
+			if ($user === null) {
+				// User doesn't exist, return original text
+				return $matches[0];
+			}
+
+			$displayName = $user->getDisplayName();
+			$escapedUserId = htmlspecialchars($userId, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$escapedDisplayName = htmlspecialchars($displayName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+			// Generate link to user profile in the forum app
+			$profileUrl = $this->urlGenerator->linkToRouteAbsolute('forum.page.index') . 'u/' . urlencode($userId);
+			$escapedUrl = htmlspecialchars($profileUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+			// Generate avatar URLs for both light and dark themes
+			$avatarUrlLight = $this->urlGenerator->linkToRouteAbsolute('core.avatar.getAvatar', ['userId' => $userId, 'size' => 64]);
+			$avatarUrlDark = $avatarUrlLight . '/dark';
+			$escapedAvatarUrlLight = htmlspecialchars($avatarUrlLight, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$escapedAvatarUrlDark = htmlspecialchars($avatarUrlDark, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+			return sprintf(
+				'<a href="%s" class="mention-bubble" data-user-id="%s">'
+				. '<span class="mention-bubble__wrapper">'
+				. '<span class="mention-bubble__content">'
+				. '<span class="mention-bubble__icon" style="--avatar-light: url(\'%s\'); --avatar-dark: url(\'%s\');"></span>'
+				. '<span class="mention-bubble__name">%s</span>'
+				. '</span>'
+				. '</span>'
+				. '</a>',
+				$escapedUrl,
+				$escapedUserId,
+				$escapedAvatarUrlLight,
+				$escapedAvatarUrlDark,
+				$escapedDisplayName
+			);
+		}, $html) ?? $html;
 	}
 }

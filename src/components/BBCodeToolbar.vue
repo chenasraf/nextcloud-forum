@@ -155,7 +155,7 @@ export default defineComponent({
   },
   props: {
     textareaRef: {
-      type: Object as PropType<HTMLTextAreaElement | null>,
+      type: Object as PropType<HTMLTextAreaElement | HTMLElement | null>,
       default: null,
     },
   },
@@ -314,6 +314,110 @@ export default defineComponent({
     },
   },
   methods: {
+    /**
+     * Check if the element is a textarea
+     */
+    isTextarea(el: HTMLElement | HTMLTextAreaElement): el is HTMLTextAreaElement {
+      return el.tagName === 'TEXTAREA'
+    },
+
+    /**
+     * Get text content and selection info from the editor element
+     */
+    getEditorState(): { value: string; start: number; end: number; selectedText: string } | null {
+      if (!this.textareaRef) {
+        return null
+      }
+
+      if (this.isTextarea(this.textareaRef)) {
+        const textarea = this.textareaRef
+        const start = textarea.selectionStart
+        const end = textarea.selectionEnd
+        return {
+          value: textarea.value,
+          start,
+          end,
+          selectedText: textarea.value.substring(start, end),
+        }
+      } else {
+        // Contenteditable element
+        const el = this.textareaRef
+        const text = el.innerText || ''
+        const selection = window.getSelection()
+
+        if (!selection || selection.rangeCount === 0) {
+          return { value: text, start: text.length, end: text.length, selectedText: '' }
+        }
+
+        const range = selection.getRangeAt(0)
+
+        // Check if selection is within this element
+        if (!el.contains(range.commonAncestorContainer)) {
+          return { value: text, start: text.length, end: text.length, selectedText: '' }
+        }
+
+        // Calculate start and end positions in the text
+        const preCaretRange = range.cloneRange()
+        preCaretRange.selectNodeContents(el)
+        preCaretRange.setEnd(range.startContainer, range.startOffset)
+        const start = preCaretRange.toString().length
+
+        preCaretRange.setEnd(range.endContainer, range.endOffset)
+        const end = preCaretRange.toString().length
+
+        return {
+          value: text,
+          start,
+          end,
+          selectedText: range.toString(),
+        }
+      }
+    },
+
+    /**
+     * Set cursor position in the editor element
+     */
+    setCursorPosition(position: number): void {
+      if (!this.textareaRef) {
+        return
+      }
+
+      if (this.isTextarea(this.textareaRef)) {
+        this.textareaRef.setSelectionRange(position, position)
+      } else {
+        // For contenteditable, we need to find the text node and set cursor
+        const el = this.textareaRef
+        const selection = window.getSelection()
+        if (!selection) return
+
+        // Find the text node at the position
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null)
+        let currentPos = 0
+        let node: Node | null = walker.nextNode()
+
+        while (node) {
+          const nodeLength = (node.textContent || '').length
+          if (currentPos + nodeLength >= position) {
+            const range = document.createRange()
+            range.setStart(node, position - currentPos)
+            range.collapse(true)
+            selection.removeAllRanges()
+            selection.addRange(range)
+            return
+          }
+          currentPos += nodeLength
+          node = walker.nextNode()
+        }
+
+        // If we couldn't find the position, put cursor at end
+        const range = document.createRange()
+        range.selectNodeContents(el)
+        range.collapse(false)
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
+    },
+
     async insertBBCode(button: BBCodeButton): Promise<void> {
       // If button has a custom handler, use it instead
       if (button.handler) {
@@ -321,26 +425,24 @@ export default defineComponent({
         return
       }
 
-      if (!this.textareaRef) {
+      const state = this.getEditorState()
+      if (!state || !this.textareaRef) {
         return
       }
 
-      const textarea = this.textareaRef
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const selectedText = textarea.value.substring(start, end)
-      const beforeText = textarea.value.substring(0, start)
-      const afterText = textarea.value.substring(end)
+      const { value, start, end, selectedText } = state
+      const beforeText = value.substring(0, start)
+      const afterText = value.substring(end)
 
       let insertText = ''
-      let value = ''
+      let promptValue = ''
       let contentText = selectedText
 
       // If the button requires a value (like url, color, size, font), prompt the user
       if (button.hasValue) {
         // eslint-disable-next-line no-alert
-        value = prompt(`Enter ${button.label} value:`, button.placeholder || '') || ''
-        if (!value) {
+        promptValue = prompt(`Enter ${button.label} value:`, button.placeholder || '') || ''
+        if (!promptValue) {
           return
         }
       }
@@ -357,7 +459,7 @@ export default defineComponent({
 
       // Generate the BBCode text
       insertText = button.template
-        .replace('{value}', value)
+        .replace('{value}', promptValue)
         .replace('{text}', contentText || button.placeholder || '')
 
       // Calculate new cursor position
@@ -371,10 +473,12 @@ export default defineComponent({
         selectedText,
       })
 
-      // Focus the textarea after insertion
+      // Focus and set cursor position after insertion
       this.$nextTick(() => {
-        textarea.focus()
-        textarea.setSelectionRange(cursorPos, cursorPos)
+        if (this.textareaRef) {
+          this.textareaRef.focus()
+          this.setCursorPosition(cursorPos)
+        }
       })
     },
 
@@ -409,11 +513,14 @@ export default defineComponent({
 
         const fileId = relativePath
 
-        const textarea = this.textareaRef
-        const start = textarea.selectionStart
-        const end = textarea.selectionEnd
-        const beforeText = textarea.value.substring(0, start)
-        const afterText = textarea.value.substring(end)
+        const state = this.getEditorState()
+        if (!state) {
+          return
+        }
+
+        const { value, start, end } = state
+        const beforeText = value.substring(0, start)
+        const afterText = value.substring(end)
 
         const insertText = `[attachment]${fileId}[/attachment]`
         const newText = beforeText + insertText + afterText
@@ -426,10 +533,12 @@ export default defineComponent({
           selectedText: '',
         })
 
-        // Focus the textarea after insertion
+        // Focus the editor after insertion
         this.$nextTick(() => {
-          textarea.focus()
-          textarea.setSelectionRange(cursorPos, cursorPos)
+          if (this.textareaRef) {
+            this.textareaRef.focus()
+            this.setCursorPosition(cursorPos)
+          }
         })
       } catch (error) {
         // Silently ignore if user canceled the dialog
@@ -446,15 +555,14 @@ export default defineComponent({
     },
 
     handleEmojiSelect(emoji: string): void {
-      if (!this.textareaRef) {
+      const state = this.getEditorState()
+      if (!state || !this.textareaRef) {
         return
       }
 
-      const textarea = this.textareaRef
-      const start = textarea.selectionStart
-      const end = textarea.selectionEnd
-      const beforeText = textarea.value.substring(0, start)
-      const afterText = textarea.value.substring(end)
+      const { value, start, end } = state
+      const beforeText = value.substring(0, start)
+      const afterText = value.substring(end)
 
       const newText = beforeText + emoji + afterText
       const cursorPos = beforeText.length + emoji.length
@@ -466,10 +574,12 @@ export default defineComponent({
         selectedText: '',
       })
 
-      // Focus the textarea after insertion
+      // Focus the editor after insertion
       this.$nextTick(() => {
-        textarea.focus()
-        textarea.setSelectionRange(cursorPos, cursorPos)
+        if (this.textareaRef) {
+          this.textareaRef.focus()
+          this.setCursorPosition(cursorPos)
+        }
       })
     },
 
@@ -541,15 +651,14 @@ export default defineComponent({
         })
 
         // Insert attachment BBCode
-        const textarea = this.textareaRef
-        if (!textarea) {
+        const state = this.getEditorState()
+        if (!state) {
           return
         }
 
-        const start = textarea.selectionStart
-        const end = textarea.selectionEnd
-        const beforeText = textarea.value.substring(0, start)
-        const afterText = textarea.value.substring(end)
+        const { value, start, end } = state
+        const beforeText = value.substring(0, start)
+        const afterText = value.substring(end)
 
         const filePath = `${uploadDirectory}/${file.name}`
         const insertText = `[attachment]${filePath}[/attachment]`
@@ -563,10 +672,12 @@ export default defineComponent({
           selectedText: '',
         })
 
-        // Focus the textarea after insertion
+        // Focus the editor after insertion
         this.$nextTick(() => {
-          textarea.focus()
-          textarea.setSelectionRange(cursorPos, cursorPos)
+          if (this.textareaRef) {
+            this.textareaRef.focus()
+            this.setCursorPosition(cursorPos)
+          }
         })
 
         // Close dialog on success

@@ -8,6 +8,7 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\ForumUserController;
 use OCA\Forum\Db\ForumUser;
 use OCA\Forum\Db\ForumUserMapper;
+use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -19,6 +20,7 @@ use Psr\Log\LoggerInterface;
 class ForumUserControllerTest extends TestCase {
 	private ForumUserController $controller;
 	private ForumUserMapper $forumUserMapper;
+	private UserService $userService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -26,6 +28,7 @@ class ForumUserControllerTest extends TestCase {
 	protected function setUp(): void {
 		$this->request = $this->createMock(IRequest::class);
 		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
+		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -33,6 +36,7 @@ class ForumUserControllerTest extends TestCase {
 			Application::APP_ID,
 			$this->request,
 			$this->forumUserMapper,
+			$this->userService,
 			$this->userSession,
 			$this->logger
 		);

@@ -468,13 +468,41 @@ export default defineComponent({
       // Allow if user is the author, or has moderation permissions
       return this.thread?.authorId === this.userId || this.canModerate
     },
+    // Get page from query param
+    pageFromQuery(): number | null {
+      const page = this.$route.query.page
+      if (page) {
+        const parsed = parseInt(page as string)
+        return isNaN(parsed) ? null : parsed
+      }
+      return null
+    },
+    // Get post ID from query param
+    postFromQuery(): number | null {
+      const post = this.$route.query.post
+      if (post) {
+        const parsed = parseInt(post as string)
+        return isNaN(parsed) ? null : parsed
+      }
+      return null
+    },
   },
   watch: {
-    '$route.hash'(newHash: string) {
-      // When hash changes within the same thread, scroll to the post
-      if (newHash && newHash.startsWith('#post-') && this.posts.length > 0) {
+    // Watch for query param changes to handle deep linking
+    '$route.query'(newQuery, oldQuery) {
+      const newPage = newQuery.page ? parseInt(newQuery.page as string) : null
+      const oldPage = oldQuery.page ? parseInt(oldQuery.page as string) : null
+      const newPost = newQuery.post ? parseInt(newQuery.post as string) : null
+
+      // If page changed, fetch that page
+      if (newPage && newPage !== oldPage && newPage !== this.currentPage) {
+        this.handlePageChange(newPage)
+      }
+
+      // If post param exists, scroll to it after posts are loaded
+      if (newPost) {
         this.$nextTick(() => {
-          this.scrollToPostFromHash()
+          this.scrollToPostFromQuery()
         })
       }
     },
@@ -505,8 +533,9 @@ export default defineComponent({
           throw new Error(t('forum', 'Thread not found'))
         }
 
-        // Fetch posts
-        await this.fetchPosts()
+        // Fetch posts - use page from query param if present
+        const initialPage = this.pageFromQuery || 0
+        await this.fetchPosts(initialPage)
         // Check moderation permission
         await this.checkModerationPermission()
       } catch (e) {
@@ -563,10 +592,10 @@ export default defineComponent({
           await this.markAsRead()
         }
 
-        // Scroll to post if hash is present in URL, otherwise scroll to top of replies
+        // Scroll to post if post query param is present
         await this.$nextTick()
-        if (window.location.hash || this.$route.hash) {
-          this.scrollToPostFromHash()
+        if (this.postFromQuery) {
+          this.scrollToPostFromQuery()
         }
       } catch (e) {
         console.error('Failed to fetch posts', e)
@@ -921,27 +950,23 @@ export default defineComponent({
       }
     },
 
-    scrollToPostFromHash(): void {
-      // Check if there's a hash in the URL like #post-123
-      const hash = window.location.hash || this.$route.hash
+    scrollToPostFromQuery(): void {
+      // Check if there's a post query param like ?post=123
+      const postId = this.postFromQuery
 
-      if (hash && hash.startsWith('#post-')) {
-        const postId = parseInt(hash.replace('#post-', ''))
+      if (postId) {
+        // Try immediately first
+        this.scrollToPost(postId)
 
-        if (!isNaN(postId)) {
-          // Try immediately first
+        // If that didn't work (refs not ready), try again after a short delay
+        setTimeout(() => {
           this.scrollToPost(postId)
+        }, 100)
 
-          // If that didn't work (refs not ready), try again after a short delay
-          setTimeout(() => {
-            this.scrollToPost(postId)
-          }, 100)
-
-          // Final attempt after a longer delay
-          setTimeout(() => {
-            this.scrollToPost(postId)
-          }, 500)
-        }
+        // Final attempt after a longer delay
+        setTimeout(() => {
+          this.scrollToPost(postId)
+        }, 500)
       }
     },
 

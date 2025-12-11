@@ -40,8 +40,8 @@ const router = createRouter({
   history: createWebHistory(generateUrl('/apps/forum')),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    // If there's a hash, don't auto-scroll - let the component handle it
-    if (to.hash) {
+    // If there's a post query param, don't auto-scroll - let the component handle it
+    if (to.query.post) {
       return false
     }
     // If there's a saved position (browser back/forward), use it

@@ -98,16 +98,23 @@ class ReadMarkerMapper extends QBMapper {
 
 	/**
 	 * Create or update a read marker
+	 * Only updates if the new lastReadPostId is greater than the current one
+	 * (prevents regressing the read marker when navigating to earlier pages)
 	 */
 	public function createOrUpdate(string $userId, int $threadId, int $lastReadPostId): ReadMarker {
 		try {
 			// Try to find existing marker
 			$marker = $this->findByUserAndThread($userId, $threadId);
 
-			// Update existing marker
-			$marker->setLastReadPostId($lastReadPostId);
-			$marker->setReadAt(time());
-			return $this->update($marker);
+			// Only update if the new post ID is greater than the current one
+			if ($lastReadPostId > $marker->getLastReadPostId()) {
+				$marker->setLastReadPostId($lastReadPostId);
+				$marker->setReadAt(time());
+				return $this->update($marker);
+			}
+
+			// Return existing marker without changes
+			return $marker;
 		} catch (DoesNotExistException $e) {
 			// Create new marker
 			$marker = new ReadMarker();

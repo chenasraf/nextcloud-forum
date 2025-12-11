@@ -153,13 +153,46 @@ class NotificationService {
 			$thread = $this->threadMapper->find($threadId);
 			$lastPostId = $thread->getLastPostId();
 
-			// If user has read up to or past the last post, dismiss notifications
+			// If user has read up to or past the last post, dismiss thread notifications
 			if ($lastPostId && $lastReadPostId >= $lastPostId) {
 				$this->dismissThreadNotifications($userId, $threadId);
 			}
 		} catch (\Exception $e) {
 			// Thread not found or error, just dismiss anyway
 			$this->dismissThreadNotifications($userId, $threadId);
+		}
+
+		// Also dismiss mention notifications for posts up to lastReadPostId
+		$this->dismissMentionNotificationsUpToPost($userId, $threadId, $lastReadPostId);
+	}
+
+	/**
+	 * Dismiss all mention notifications for a user in a thread up to a specific post ID
+	 * Called when the user views posts (read marker is updated)
+	 *
+	 * @param string $userId The user who was mentioned (notification recipient)
+	 * @param int $threadId The thread ID
+	 * @param int $lastReadPostId Dismiss notifications for posts up to and including this ID
+	 */
+	public function dismissMentionNotificationsUpToPost(string $userId, int $threadId, int $lastReadPostId): void {
+		try {
+			// Get all posts in the thread up to lastReadPostId
+			$posts = $this->postMapper->findByThreadId($threadId);
+
+			foreach ($posts as $post) {
+				// Only dismiss for posts the user has read
+				if ($post->getId() <= $lastReadPostId) {
+					// Dismiss mention notification for this post (scoped by author)
+					$this->dismissMentionNotification($userId, $post->getId(), $post->getAuthorId());
+				}
+			}
+		} catch (\Exception $e) {
+			$this->logger->warning('Failed to dismiss mention notifications up to post', [
+				'userId' => $userId,
+				'threadId' => $threadId,
+				'lastReadPostId' => $lastReadPostId,
+				'error' => $e->getMessage(),
+			]);
 		}
 	}
 
@@ -298,8 +331,8 @@ class NotificationService {
 		// Create new notification
 		$notification = $this->notificationManager->createNotification();
 
-		// Generate the thread link (to the specific post)
-		$threadLink = $this->urlGenerator->linkToRouteAbsolute('forum.page.index') . 't/' . $threadSlug . '#post-' . $postId;
+		// Generate the thread link with correct page and post query params
+		$threadLink = $this->generatePostLink($threadSlug, $threadId, $postId);
 		$iconPath = $this->urlGenerator->imagePath('forum', 'app-dark.svg');
 		$iconUrl = $this->urlGenerator->getAbsoluteURL($iconPath);
 
@@ -319,6 +352,42 @@ class NotificationService {
 			->setIcon($iconUrl);
 
 		$this->notificationManager->notify($notification);
+	}
+
+	/**
+	 * Generate a deep link to a specific post with correct page number
+	 *
+	 * @param string $threadSlug Thread slug
+	 * @param int $threadId Thread ID
+	 * @param int $postId Post ID
+	 * @param int $perPage Posts per page (default 20)
+	 * @return string Full URL to the post
+	 */
+	private function generatePostLink(string $threadSlug, int $threadId, int $postId, int $perPage = 20): string {
+		$baseUrl = $this->urlGenerator->linkToRouteAbsolute('forum.page.index') . 't/' . $threadSlug;
+
+		try {
+			// Check if this is the first post
+			$post = $this->postMapper->find($postId);
+			if ($post->getIsFirstPost()) {
+				// First post is always on page 1, no page param needed
+				return $baseUrl . '?post=' . $postId;
+			}
+
+			// Calculate the page number for this reply
+			$position = $this->postMapper->getReplyPosition($threadId, $postId);
+			$page = (int)floor($position / $perPage) + 1;
+
+			return $baseUrl . '?page=' . $page . '&post=' . $postId;
+		} catch (\Exception $e) {
+			// Fallback to just the post param if we can't calculate the page
+			$this->logger->warning('Failed to calculate page for post link', [
+				'postId' => $postId,
+				'threadId' => $threadId,
+				'error' => $e->getMessage(),
+			]);
+			return $baseUrl . '?post=' . $postId;
+		}
 	}
 
 	/**

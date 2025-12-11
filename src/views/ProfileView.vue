@@ -137,6 +137,7 @@
                   v-for="post in posts"
                   :key="post.id"
                   class="post-item"
+                  :data-theme-dark="isDarkTheme"
                   @click="navigateToPost(post)"
                 >
                   <div class="post-meta">
@@ -174,6 +175,7 @@ import type { ForumUser, Thread, Post } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
+import { isDarkTheme } from '@nextcloud/vue/functions/isDarkTheme'
 import { generateUrl } from '@nextcloud/router'
 
 export default defineComponent({
@@ -224,6 +226,7 @@ export default defineComponent({
     userId(): string {
       return this.$route.params.userId as string
     },
+    isDarkTheme,
   },
   mounted() {
     this.loadProfile()

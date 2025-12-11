@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="post-card"
-    :class="{ 'first-post': isFirstPost, unread: isUnread }"
-    :data-theme-dark="isDarkTheme"
-  >
+  <div class="post-card" :class="{ 'first-post': isFirstPost, unread: isUnread }">
     <div class="post-header">
       <div class="author-info">
         <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
@@ -91,7 +87,6 @@ import PostReactions from './PostReactions.vue'
 import PostEditForm from './PostEditForm.vue'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
-import { isDarkTheme } from '@nextcloud/vue/functions/isDarkTheme'
 import { useUserRole } from '@/composables/useUserRole'
 import type { Post } from '@/types'
 import type { ReactionGroup } from '@/composables/useReactions'
@@ -134,7 +129,6 @@ export default defineComponent({
     return {
       isAdmin,
       isModerator,
-      isDarkTheme,
     }
   },
   data() {

@@ -1,5 +1,5 @@
 <template>
-  <NcContent app-name="forum">
+  <NcContent app-name="forum" :data-theme-dark="isDarkTheme">
     <!-- Left sidebar -->
     <AppNavigation />
 
@@ -24,6 +24,7 @@ import NcContent from '@nextcloud/vue/components/NcContent'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppNavigation from '@/components/AppNavigation.vue'
+import { isDarkTheme } from '@nextcloud/vue/functions/isDarkTheme'
 
 export default defineComponent({
   name: 'AppUserWrapper',
@@ -39,6 +40,7 @@ export default defineComponent({
   },
   data() {
     return {
+      isDarkTheme,
       isRouterLoading: false,
       _removeBeforeEach: null as (() => void) | null,
       _removeAfterEach: null as (() => void) | null,

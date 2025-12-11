@@ -15,6 +15,7 @@ use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
+use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
@@ -43,6 +44,7 @@ class ThreadController extends OCSController {
 		private UserPreferencesService $userPreferencesService,
 		private UserService $userService,
 		private PermissionService $permissionService,
+		private NotificationService $notificationService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -352,6 +354,19 @@ class ThreadController extends OCSController {
 				$this->logger->warning('Failed to subscribe thread creator: ' . $e->getMessage());
 			}
 
+			// Notify mentioned users in the initial post
+			try {
+				$mentionedUsers = $this->notificationService->extractMentions($content);
+				$this->notificationService->notifyMentionedUsers(
+					$createdPost->getId(),
+					$createdThread->getId(),
+					$user->getUID(),
+					$mentionedUsers
+				);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
+			}
+
 			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating thread: ' . $e->getMessage());
@@ -613,6 +628,14 @@ class ThreadController extends OCSController {
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update forum user after thread deletion: ' . $e->getMessage());
 				// Don't fail the request if forum user update fails
+			}
+
+			// Dismiss all mention notifications for posts in this thread
+			try {
+				$this->notificationService->dismissAllThreadMentionNotifications($id);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to dismiss mention notifications after thread deletion: ' . $e->getMessage());
+				// Don't fail the request if notification dismissal fails
 			}
 
 			return new DataResponse([

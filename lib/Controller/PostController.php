@@ -390,6 +390,15 @@ class PostController extends OCSController {
 				// Don't fail the request if notification sending fails
 			}
 
+			// Notify mentioned users
+			try {
+				$mentionedUsers = $this->notificationService->extractMentions($content);
+				$this->notificationService->notifyMentionedUsers($createdPost->getId(), $threadId, $user->getUID(), $mentionedUsers);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
+				// Don't fail the request if mention notification sending fails
+			}
+
 			return new DataResponse($this->postEnrichmentService->enrichPost($createdPost), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating post: ' . $e->getMessage());
@@ -416,6 +425,7 @@ class PostController extends OCSController {
 			}
 
 			$post = $this->postMapper->find($id);
+			$oldContent = $post->getContent();
 
 			// Check if user is the author OR has moderator permission OR is admin/moderator
 			$isAuthor = $post->getAuthorId() === $user->getUID();
@@ -436,6 +446,23 @@ class PostController extends OCSController {
 
 			/** @var \OCA\Forum\Db\Post */
 			$updatedPost = $this->postMapper->update($post);
+
+			// Handle mention notification changes (notify new mentions, remove old ones)
+			if ($content !== null && $oldContent !== $content) {
+				try {
+					$this->notificationService->handleMentionChanges(
+						$id,
+						$post->getThreadId(),
+						$post->getAuthorId(),
+						$oldContent,
+						$content
+					);
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to update mention notifications: ' . $e->getMessage());
+					// Don't fail the request if mention notification update fails
+				}
+			}
+
 			return new DataResponse($this->postEnrichmentService->enrichPost($updatedPost));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
@@ -530,6 +557,14 @@ class PostController extends OCSController {
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update category post count after post deletion: ' . $e->getMessage());
 				// Don't fail the request if category update fails
+			}
+
+			// Dismiss all mention notifications for this post
+			try {
+				$this->notificationService->dismissAllMentionNotifications($id, $post->getContent(), $post->getAuthorId());
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to dismiss mention notifications after post deletion: ' . $e->getMessage());
+				// Don't fail the request if notification dismissal fails
 			}
 
 			return new DataResponse(['success' => true]);

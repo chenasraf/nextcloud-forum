@@ -15,6 +15,7 @@ use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
+use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
@@ -38,6 +39,7 @@ class ThreadControllerTest extends TestCase {
 	private UserPreferencesService $userPreferencesService;
 	private UserService $userService;
 	private PermissionService $permissionService;
+	private NotificationService $notificationService;
 	private IUserSession $userSession;
 	private LoggerInterface $logger;
 	private IRequest $request;
@@ -53,6 +55,7 @@ class ThreadControllerTest extends TestCase {
 		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
 		$this->userService = $this->createMock(UserService::class);
 		$this->permissionService = $this->createMock(PermissionService::class);
+		$this->notificationService = $this->createMock(NotificationService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -79,6 +82,7 @@ class ThreadControllerTest extends TestCase {
 			$this->userPreferencesService,
 			$this->userService,
 			$this->permissionService,
+			$this->notificationService,
 			$this->userSession,
 			$this->logger
 		);

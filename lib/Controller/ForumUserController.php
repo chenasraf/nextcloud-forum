@@ -59,6 +59,7 @@ class ForumUserController extends OCSController {
 	/**
 	 * Search Nextcloud users for autocomplete
 	 * Returns users matching the search query in the format expected by NcRichContenteditable
+	 * Excludes the current user from results (users cannot mention themselves)
 	 *
 	 * @param string $search Search query (matches against user ID and display name)
 	 * @param int $limit Maximum number of results to return
@@ -70,7 +71,9 @@ class ForumUserController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/users/autocomplete')]
 	public function autocomplete(string $search = '', int $limit = 10): DataResponse {
 		try {
-			$users = $this->userService->searchUsersForAutocomplete($search, $limit);
+			// Exclude current user from autocomplete results
+			$currentUserId = $this->userSession->getUser()?->getUID();
+			$users = $this->userService->searchUsersForAutocomplete($search, $limit, $currentUserId);
 			return new DataResponse($users);
 		} catch (\Exception $e) {
 			$this->logger->error('Error searching users for autocomplete: ' . $e->getMessage());

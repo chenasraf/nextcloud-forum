@@ -3772,7 +3772,7 @@
         "/ocs/v2.php/apps/forum/api/users/autocomplete": {
             "get": {
                 "operationId": "forum_user-autocomplete",
-                "summary": "Search Nextcloud users for autocomplete Returns users matching the search query in the format expected by NcRichContenteditable",
+                "summary": "Search Nextcloud users for autocomplete Returns users matching the search query in the format expected by NcRichContenteditable Excludes the current user from results (users cannot mention themselves)",
                 "tags": [
                     "forum_user"
                 ],

@@ -225,23 +225,35 @@ class UserService {
 	 *
 	 * @param string $search Search query (matches against user ID and display name)
 	 * @param int $limit Maximum number of results to return
+	 * @param string|null $excludeUserId User ID to exclude from results (e.g., current user)
 	 * @return array<array{id: string, label: string, icon: string, source: string}> List of matching users
 	 */
-	public function searchUsersForAutocomplete(string $search = '', int $limit = 10): array {
+	public function searchUsersForAutocomplete(string $search = '', int $limit = 10, ?string $excludeUserId = null): array {
 		$results = [];
 		$search = strtolower(trim($search));
 
 		// Use IUserManager to search users
 		// The search method searches both user ID and display name
-		$users = $this->userManager->search($search, $limit);
+		// Request one extra result in case we need to exclude the current user
+		$users = $this->userManager->search($search, $excludeUserId !== null ? $limit + 1 : $limit);
 
 		foreach ($users as $user) {
+			// Skip excluded user (e.g., current user)
+			if ($excludeUserId !== null && $user->getUID() === $excludeUserId) {
+				continue;
+			}
+
 			$results[] = [
 				'id' => $user->getUID(),
 				'label' => $user->getDisplayName(),
 				'icon' => 'icon-user',
 				'source' => 'users',
 			];
+
+			// Stop if we have enough results
+			if (count($results) >= $limit) {
+				break;
+			}
 		}
 
 		return $results;

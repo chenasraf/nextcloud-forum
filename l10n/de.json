@@ -36,6 +36,7 @@
     "Feel free to start a new discussion or reply to existing threads. Happy posting!" : "Gerne eine neue Diskussion starten oder auf bestehende Beiträge antworten. Viel Spaß beim Posten!",
     "Forum" : "Forum",
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} neue Antwort in {thread}","{count} neue Antworten in {thread}"],
+    "{user} mentioned you in {thread}" : "{user} hat dich in {thread} erwähnt",
     "Welcome to the forum!" : "Willkommen in den Nextcloud Foren!",
     "Deleted user" : "Gelöschter Benutzer",
     "A community-driven forum built right into your Nextcloud instance" : "Ein Community-basiertes Forum, das direkt in deine Nextcloud-Instanz integriert ist.",

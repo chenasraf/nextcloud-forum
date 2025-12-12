@@ -38,6 +38,7 @@ OC.L10N.register(
     "Feel free to start a new discussion or reply to existing threads. Happy posting!" : "Feel free to start a new discussion or reply to existing threads. Happy posting!",
     "Forum" : "Forum",
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} new reply in {thread}","{count} new replies in {thread}"],
+    "{user} mentioned you in {thread}" : "{user} mentioned you in {thread}",
     "Welcome to the forum!" : "Welcome to the forum!",
     "Deleted user" : "Deleted user",
     "A community-driven forum built right into your Nextcloud instance" : "A community-driven forum built right into your Nextcloud instance",

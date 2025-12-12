@@ -38,6 +38,7 @@ OC.L10N.register(
     "Feel free to start a new discussion or reply to existing threads. Happy posting!" : "歡迎隨時開啟新討論或回覆現有主題，玩得開心！",
     "Forum" : "論壇",
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{thread} 中有 {count} 個新回覆"],
+    "{user} mentioned you in {thread}" : "{user} 在 {thread} 中提及您",
     "Welcome to the forum!" : "歡迎來到論壇！",
     "Deleted user" : "已刪除的用戶",
     "A community-driven forum built right into your Nextcloud instance" : "直接建置在你 Nextcloud 實例中的社群主導論壇",

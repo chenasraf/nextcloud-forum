@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.17.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.16.0...v0.17.0) (2025-12-12)
+
+
+### Features
+
+* deep-link into specific post/page on thread ([2d64358](https://github.com/chenasraf/nextcloud-forum/commit/2d643583afd5d1fce31d93e36c3204b6014235a6))
+* notify users on mention ([c84a4b3](https://github.com/chenasraf/nextcloud-forum/commit/c84a4b356ba7d1fa06055ce25c9ce0694bc232bf))
+* update navigation sidebar items behavior ([9762443](https://github.com/chenasraf/nextcloud-forum/commit/9762443685529abe2506f70b18ef271c79439c45))
+* user mentions ([80c85a2](https://github.com/chenasraf/nextcloud-forum/commit/80c85a2cabe0ee9bcdf933561acb1fa9224a5546))
+
+
+### Bug Fixes
+
+* dark avatars in mentions in profile view ([af507dd](https://github.com/chenasraf/nextcloud-forum/commit/af507dda88c08a8ebc33d6df90499e33dade4176))
+* exclude own user from autocomplete ([59c5f91](https://github.com/chenasraf/nextcloud-forum/commit/59c5f91fb09f070fd798e562f7ec32af372e61c3))
+* globally add theme data to app ([9e00c93](https://github.com/chenasraf/nextcloud-forum/commit/9e00c931d19e3660c54f179a908050f6c59358d5))
+* improve user id fetching ([db5374d](https://github.com/chenasraf/nextcloud-forum/commit/db5374de2e9624df4547ea632e9d36f70166acca))
+* **l10n:** Update translations from Transifex ([c65d9a5](https://github.com/chenasraf/nextcloud-forum/commit/c65d9a592a51212a671dafe7b46840bfbf6b8347))
+* **l10n:** Update translations from Transifex ([d1d1c2e](https://github.com/chenasraf/nextcloud-forum/commit/d1d1c2ec51e1b5c496e560aab4b25bdf1b937df9))
+* **l10n:** Update translations from Transifex ([4fd4e50](https://github.com/chenasraf/nextcloud-forum/commit/4fd4e5046b16571e228ea04ea38e1e8a07b8a563))
+* **l10n:** Update translations from Transifex ([5976596](https://github.com/chenasraf/nextcloud-forum/commit/59765960e6b72ca4463a1986d32eb5fce0b8c534))
+
 ## [0.16.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.15.0...v0.16.0) (2025-12-08)
 
 

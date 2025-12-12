@@ -37,7 +37,7 @@ This app is in early stages of development. While functional, you may encounter 
 
 The forum integrates seamlessly with your Nextcloud instance, using your existing users and groups for authentication and access control.
 ]]></description>
-	<version>0.16.0</version>
+	<version>0.17.0</version>
 	<licence>agpl</licence>
 	<author mail="contact@casraf.dev" homepage="https://casraf.dev">Chen Asraf</author>
 	<namespace>Forum</namespace>

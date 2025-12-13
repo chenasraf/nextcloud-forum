@@ -26,6 +26,9 @@ class SeedHelper {
 			$output->info('Forum: Starting data seed/repair...');
 		}
 
+		// Ensure forum_users table exists (handle rename from forum_user_stats if needed)
+		self::ensureForumUsersTable($output);
+
 		// Each function checks its own state and returns early if already seeded
 		// They run independently so one failure doesn't block others
 		self::seedDefaultRoles($output);
@@ -41,6 +44,86 @@ class SeedHelper {
 
 		if ($output) {
 			$output->info('Forum: Data seed/repair completed');
+		}
+	}
+
+	/**
+	 * Ensure forum_users table exists, renaming from forum_user_stats if needed
+	 * This handles cases where migrations partially failed
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
+	 */
+	private static function ensureForumUsersTable($output = null): void {
+		$db = \OC::$server->get(\OCP\IDBConnection::class);
+		$config = \OC::$server->get(\OCP\IConfig::class);
+		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
+
+		$prefix = $config->getSystemValueString('dbtableprefix', 'oc_');
+		$oldTable = $prefix . 'forum_user_stats';
+		$newTable = $prefix . 'forum_users';
+
+		$oldTableExists = self::tableExists($db, $oldTable);
+		$newTableExists = self::tableExists($db, $newTable);
+
+		if ($oldTableExists && !$newTableExists) {
+			$logger->info('Forum seeding: Renaming forum_user_stats to forum_users...');
+			if ($output) {
+				$output->info('  → Renaming forum_user_stats to forum_users...');
+			}
+
+			try {
+				$platform = $db->getDatabasePlatform();
+				$platformName = $platform->getName();
+
+				if ($platformName === 'mysql' || $platformName === 'mariadb') {
+					$db->executeStatement("RENAME TABLE `{$oldTable}` TO `{$newTable}`");
+				} else {
+					// PostgreSQL, SQLite and others
+					$db->executeStatement("ALTER TABLE \"{$oldTable}\" RENAME TO \"{$newTable}\"");
+				}
+
+				$logger->info('Forum seeding: Table renamed successfully');
+				if ($output) {
+					$output->info('  ✓ Table renamed successfully');
+				}
+			} catch (\Exception $e) {
+				$logger->error('Forum seeding: Failed to rename table', ['exception' => $e->getMessage()]);
+				throw $e;
+			}
+		}
+	}
+
+	/**
+	 * Check if a table exists in the database
+	 */
+	private static function tableExists(\OCP\IDBConnection $db, string $tableName): bool {
+		$platform = $db->getDatabasePlatform();
+		$platformName = $platform->getName();
+
+		try {
+			if ($platformName === 'mysql' || $platformName === 'mariadb') {
+				$result = $db->executeQuery(
+					'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?',
+					[$tableName]
+				);
+			} elseif ($platformName === 'postgresql') {
+				$result = $db->executeQuery(
+					'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?',
+					[$tableName]
+				);
+			} else {
+				// SQLite
+				$result = $db->executeQuery(
+					"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name = ?",
+					[$tableName]
+				);
+			}
+
+			$count = (int)$result->fetchOne();
+			$result->closeCursor();
+			return $count > 0;
+		} catch (\Exception $e) {
+			return false;
 		}
 	}
 

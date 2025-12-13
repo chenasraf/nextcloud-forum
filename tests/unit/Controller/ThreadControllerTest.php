@@ -26,24 +26,53 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class ThreadControllerTest extends TestCase {
 	private ThreadController $controller;
+
+	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
+
+	/** @var CategoryMapper&MockObject */
 	private CategoryMapper $categoryMapper;
+
+	/** @var PostMapper&MockObject */
 	private PostMapper $postMapper;
+
+	/** @var ForumUserMapper&MockObject */
 	private ForumUserMapper $forumUserMapper;
+
+	/** @var ThreadSubscriptionMapper&MockObject */
 	private ThreadSubscriptionMapper $threadSubscriptionMapper;
+
+	/** @var DraftMapper&MockObject */
 	private DraftMapper $draftMapper;
+
+	/** @var ThreadEnrichmentService&MockObject */
 	private ThreadEnrichmentService $threadEnrichmentService;
+
+	/** @var UserPreferencesService&MockObject */
 	private UserPreferencesService $userPreferencesService;
+
+	/** @var UserService&MockObject */
 	private UserService $userService;
+
+	/** @var PermissionService&MockObject */
 	private PermissionService $permissionService;
+
+	/** @var NotificationService&MockObject */
 	private NotificationService $notificationService;
+
+	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

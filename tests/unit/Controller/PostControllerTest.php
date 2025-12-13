@@ -30,25 +30,41 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class PostControllerTest extends TestCase {
 	private PostController $controller;
+	/** @var PostMapper&MockObject */
 	private PostMapper $postMapper;
+	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
+	/** @var CategoryMapper&MockObject */
 	private CategoryMapper $categoryMapper;
+	/** @var ForumUserMapper&MockObject */
 	private ForumUserMapper $forumUserMapper;
+	/** @var ReactionMapper&MockObject */
 	private ReactionMapper $reactionMapper;
+	/** @var BBCodeService&MockObject */
 	private BBCodeService $bbCodeService;
+	/** @var BBCodeMapper&MockObject */
 	private BBCodeMapper $bbCodeMapper;
+	/** @var PermissionService&MockObject */
 	private PermissionService $permissionService;
+	/** @var ReadMarkerMapper&MockObject */
 	private ReadMarkerMapper $readMarkerMapper;
+	/** @var NotificationService&MockObject */
 	private NotificationService $notificationService;
+	/** @var PostEnrichmentService&MockObject */
 	private PostEnrichmentService $postEnrichmentService;
+	/** @var UserService&MockObject */
 	private UserService $userService;
+	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

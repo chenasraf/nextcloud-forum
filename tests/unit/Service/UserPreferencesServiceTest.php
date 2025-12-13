@@ -9,13 +9,17 @@ use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Service\UserPreferencesService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IConfig;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class UserPreferencesServiceTest extends TestCase {
 	private UserPreferencesService $service;
+	/** @var IConfig&MockObject */
 	private IConfig $config;
+	/** @var ForumUserMapper&MockObject */
 	private ForumUserMapper $forumUserMapper;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 
 	protected function setUp(): void {

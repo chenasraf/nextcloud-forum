@@ -14,15 +14,21 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class ReadMarkerControllerTest extends TestCase {
 	private ReadMarkerController $controller;
+	/** @var ReadMarkerMapper&MockObject */
 	private ReadMarkerMapper $readMarkerMapper;
+	/** @var NotificationService&MockObject */
 	private NotificationService $notificationService;
+	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

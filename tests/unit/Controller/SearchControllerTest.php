@@ -18,18 +18,27 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class SearchControllerTest extends TestCase {
 	private SearchController $controller;
+	/** @var SearchService&MockObject */
 	private SearchService $searchService;
+	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
+	/** @var PostEnrichmentService&MockObject */
 	private PostEnrichmentService $postEnrichmentService;
+	/** @var ThreadEnrichmentService&MockObject */
 	private ThreadEnrichmentService $threadEnrichmentService;
+	/** @var UserService&MockObject */
 	private UserService $userService;
+	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

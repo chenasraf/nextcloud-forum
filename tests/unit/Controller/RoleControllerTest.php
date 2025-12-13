@@ -12,14 +12,19 @@ use OCA\Forum\Db\RoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class RoleControllerTest extends TestCase {
 	private RoleController $controller;
+	/** @var RoleMapper&MockObject */
 	private RoleMapper $roleMapper;
+	/** @var CategoryPermMapper&MockObject */
 	private CategoryPermMapper $categoryPermMapper;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

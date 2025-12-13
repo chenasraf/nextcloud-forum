@@ -22,19 +22,29 @@ use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class CategoryControllerTest extends TestCase {
 	private CategoryController $controller;
+	/** @var CatHeaderMapper&MockObject */
 	private CatHeaderMapper $catHeaderMapper;
+	/** @var CategoryMapper&MockObject */
 	private CategoryMapper $categoryMapper;
+	/** @var CategoryPermMapper&MockObject */
 	private CategoryPermMapper $categoryPermMapper;
+	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
+	/** @var RoleMapper&MockObject */
 	private RoleMapper $roleMapper;
+	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+	/** @var IGroupManager&MockObject */
 	private IGroupManager $groupManager;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

@@ -18,17 +18,25 @@ use OCA\Forum\Db\UserRole;
 use OCA\Forum\Db\UserRoleMapper;
 use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class PermissionServiceTest extends TestCase {
 	private PermissionService $service;
+	/** @var UserRoleMapper&MockObject */
 	private UserRoleMapper $userRoleMapper;
+	/** @var RoleMapper&MockObject */
 	private RoleMapper $roleMapper;
+	/** @var CategoryPermMapper&MockObject */
 	private CategoryPermMapper $categoryPermMapper;
+	/** @var CategoryMapper&MockObject */
 	private CategoryMapper $categoryMapper;
+	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
+	/** @var PostMapper&MockObject */
 	private PostMapper $postMapper;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 
 	protected function setUp(): void {

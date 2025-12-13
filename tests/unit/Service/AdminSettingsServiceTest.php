@@ -7,13 +7,17 @@ namespace OCA\Forum\Tests\Service;
 use OCA\Forum\Service\AdminSettingsService;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\IL10N;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class AdminSettingsServiceTest extends TestCase {
 	private AdminSettingsService $service;
+	/** @var IAppConfig&MockObject */
 	private IAppConfig $config;
+	/** @var IL10N&MockObject */
 	private IL10N $l10n;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 
 	protected function setUp(): void {

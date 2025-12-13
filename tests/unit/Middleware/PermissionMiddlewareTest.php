@@ -13,6 +13,7 @@ use OCP\AppFramework\Services\IAppConfig;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -50,10 +51,15 @@ class TestPermissionController extends Controller {
 
 class PermissionMiddlewareTest extends TestCase {
 	private PermissionMiddleware $middleware;
+	/** @var IRequest&MockObject */
 	private IRequest $request;
+	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+	/** @var PermissionService&MockObject */
 	private PermissionService $permissionService;
+	/** @var IAppConfig&MockObject */
 	private IAppConfig $config;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 	private TestPermissionController $controller;
 

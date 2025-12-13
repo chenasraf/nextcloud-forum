@@ -12,14 +12,19 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IDBConnection;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class CategoryMapperTest extends TestCase {
 	private CategoryMapper $mapper;
+	/** @var IDBConnection&MockObject */
 	private IDBConnection $db;
+	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+	/** @var RoleMapper&MockObject */
 	private RoleMapper $roleMapper;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 
 	protected function setUp(): void {

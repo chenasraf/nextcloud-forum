@@ -18,18 +18,35 @@ use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class BookmarkControllerTest extends TestCase {
 	private BookmarkController $controller;
+
+	/** @var BookmarkMapper&MockObject */
 	private BookmarkMapper $bookmarkMapper;
+
+	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
+
+	/** @var ReadMarkerMapper&MockObject */
 	private ReadMarkerMapper $readMarkerMapper;
+
+	/** @var ThreadEnrichmentService&MockObject */
 	private ThreadEnrichmentService $threadEnrichmentService;
+
+	/** @var UserService&MockObject */
 	private UserService $userService;
+
+	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
+
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

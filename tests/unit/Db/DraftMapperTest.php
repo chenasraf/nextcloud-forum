@@ -7,10 +7,13 @@ namespace OCA\Forum\Tests\Db;
 use OCA\Forum\Db\Draft;
 use OCA\Forum\Db\DraftMapper;
 use OCP\IDBConnection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class DraftMapperTest extends TestCase {
 	private DraftMapper $mapper;
+
+	/** @var IDBConnection&MockObject */
 	private IDBConnection $db;
 
 	protected function setUp(): void {

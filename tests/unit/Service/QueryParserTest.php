@@ -10,12 +10,16 @@ use OCP\DB\QueryBuilder\IExpressionBuilder;
 use OCP\DB\QueryBuilder\IFunctionBuilder;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\DB\QueryBuilder\IQueryFunction;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class QueryParserTest extends TestCase {
 	private QueryParser $parser;
+	/** @var IQueryBuilder&MockObject */
 	private IQueryBuilder $qb;
+	/** @var IExpressionBuilder&MockObject */
 	private IExpressionBuilder $expr;
+	/** @var IFunctionBuilder&MockObject */
 	private IFunctionBuilder $func;
 
 	protected function setUp(): void {

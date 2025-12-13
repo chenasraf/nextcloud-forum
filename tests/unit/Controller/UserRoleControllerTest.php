@@ -14,15 +14,21 @@ use OCA\Forum\Service\UserRoleService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class UserRoleControllerTest extends TestCase {
 	private UserRoleController $controller;
+	/** @var UserRoleMapper&MockObject */
 	private UserRoleMapper $userRoleMapper;
+	/** @var RoleMapper&MockObject */
 	private RoleMapper $roleMapper;
+	/** @var UserRoleService&MockObject */
 	private UserRoleService $userRoleService;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

@@ -7,10 +7,12 @@ namespace OCA\Forum\Tests\Db;
 use OCA\Forum\Db\Bookmark;
 use OCA\Forum\Db\BookmarkMapper;
 use OCP\IDBConnection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class BookmarkMapperTest extends TestCase {
 	private BookmarkMapper $mapper;
+	/** @var IDBConnection&MockObject */
 	private IDBConnection $db;
 
 	protected function setUp(): void {

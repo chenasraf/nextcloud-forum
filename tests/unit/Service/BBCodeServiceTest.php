@@ -10,15 +10,21 @@ use OCA\Forum\Service\BBCodeService;
 use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class BBCodeServiceTest extends TestCase {
 	private BBCodeService $service;
+	/** @var BBCodeMapper&MockObject */
 	private BBCodeMapper $bbCodeMapper;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+	/** @var IRootFolder&MockObject */
 	private IRootFolder $rootFolder;
+	/** @var IURLGenerator&MockObject */
 	private IURLGenerator $urlGenerator;
+	/** @var IUserManager&MockObject */
 	private IUserManager $userManager;
 
 	protected function setUp(): void {

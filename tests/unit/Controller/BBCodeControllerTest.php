@@ -11,13 +11,17 @@ use OCA\Forum\Db\BBCodeMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class BBCodeControllerTest extends TestCase {
 	private BBCodeController $controller;
+	/** @var BBCodeMapper&MockObject */
 	private BBCodeMapper $bbCodeMapper;
+	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
+	/** @var IRequest&MockObject */
 	private IRequest $request;
 
 	protected function setUp(): void {

@@ -91,8 +91,8 @@ importers:
         specifier: ^6.4.1
         version: 6.4.1(@types/node@20.17.10)(sass-embedded@1.96.0)(sass@1.96.0)(yaml@2.8.2)
       vite-plugin-checker:
-        specifier: ^0.11.0
-        version: 0.11.0(eslint@9.39.2)(meow@13.2.0)(optionator@0.9.4)(stylelint@16.11.0(typescript@5.9.2))(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.96.0)(sass@1.96.0)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.2))
+        specifier: ^0.12.0
+        version: 0.12.0(eslint@9.39.2)(meow@13.2.0)(optionator@0.9.4)(stylelint@16.11.0(typescript@5.9.2))(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.96.0)(sass@1.96.0)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.2))
       vue-router:
         specifier: ^4.6.4
         version: 4.6.4(vue@3.5.25(typescript@5.9.2))
@@ -3815,18 +3815,18 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  vite-plugin-checker@0.11.0:
-    resolution: {integrity: sha512-iUdO9Pl9UIBRPAragwi3as/BXXTtRu4G12L3CMrjx+WVTd9g/MsqNakreib9M/2YRVkhZYiTEwdH2j4Dm0w7lw==}
+  vite-plugin-checker@0.12.0:
+    resolution: {integrity: sha512-CmdZdDOGss7kdQwv73UyVgLPv0FVYe5czAgnmRX2oKljgEvSrODGuClaV3PDR2+3ou7N/OKGauDDBjy2MB07Rg==}
     engines: {node: '>=16.11'}
     peerDependencies:
       '@biomejs/biome': '>=1.7'
-      eslint: '>=7'
+      eslint: '>=9.39.1'
       meow: ^13.2.0
       optionator: ^0.9.4
       oxlint: '>=1'
       stylelint: '>=16'
       typescript: '*'
-      vite: '>=5.4.20'
+      vite: '>=5.4.21'
       vls: '*'
       vti: '*'
       vue-tsc: ~2.2.10 || ^3.0.0
@@ -8340,7 +8340,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-checker@0.11.0(eslint@9.39.2)(meow@13.2.0)(optionator@0.9.4)(stylelint@16.11.0(typescript@5.9.2))(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.96.0)(sass@1.96.0)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.2)):
+  vite-plugin-checker@0.12.0(eslint@9.39.2)(meow@13.2.0)(optionator@0.9.4)(stylelint@16.11.0(typescript@5.9.2))(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.96.0)(sass@1.96.0)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.2)):
     dependencies:
       '@babel/code-frame': 7.27.1
       chokidar: 4.0.3

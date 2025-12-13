@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.17.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.17.0...v0.17.1) (2025-12-13)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([5fec057](https://github.com/chenasraf/nextcloud-forum/commit/5fec0577eee3ffa1efcf39208b5090c6285f63cd))
+* migration/seed users table mismatches ([b5df3a6](https://github.com/chenasraf/nextcloud-forum/commit/b5df3a66be83873523eddf02889857ca9cf75b94))
+
 ## [0.17.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.16.0...v0.17.0) (2025-12-12)
 
 

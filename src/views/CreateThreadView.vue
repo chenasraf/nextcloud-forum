@@ -46,7 +46,14 @@
 
       <!-- Create Thread Form -->
       <div v-else class="mt-16">
-        <ThreadCreateForm ref="createForm" @submit="handleCreateThread" @cancel="goBack" />
+        <ThreadCreateForm
+          ref="createForm"
+          :draft-status="draftStatus"
+          @submit="handleCreateThread"
+          @cancel="goBack"
+          @update:title="handleTitleChange"
+          @update:content="handleContentChange"
+        />
       </div>
     </div>
   </PageWrapper>
@@ -60,12 +67,14 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppToolbar from '@/components/AppToolbar.vue'
 import PageWrapper from '@/components/PageWrapper.vue'
 import PageHeader from '@/components/PageHeader.vue'
-import ThreadCreateForm from '@/components/ThreadCreateForm.vue'
+import ThreadCreateForm, { type DraftStatus } from '@/components/ThreadCreateForm.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
-import type { Category, Thread } from '@/types'
+import type { Category, Thread, Draft } from '@/types'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { showError, showSuccess } from '@nextcloud/dialogs'
+
+const DRAFT_DEBOUNCE_DELAY = 1500 // 1.5 seconds
 
 export default defineComponent({
   name: 'CreateThreadView',
@@ -84,6 +93,11 @@ export default defineComponent({
       loading: false,
       category: null as Category | null,
       error: null as string | null,
+      // Draft state
+      draftTitle: '',
+      draftContent: '',
+      draftStatus: null as DraftStatus,
+      draftDebounceTimer: null as ReturnType<typeof setTimeout> | null,
 
       strings: {
         back: t('forum', 'Back'),
@@ -110,6 +124,12 @@ export default defineComponent({
   created() {
     this.fetchCategory()
   },
+  beforeUnmount() {
+    // Clear any pending draft save
+    if (this.draftDebounceTimer) {
+      clearTimeout(this.draftDebounceTimer)
+    }
+  },
   methods: {
     async fetchCategory() {
       if (!this.categoryId && !this.categorySlug) {
@@ -128,12 +148,95 @@ export default defineComponent({
           resp = await ocs.get<Category>(`/categories/${this.categoryId}`)
         }
         this.category = resp!.data
+
+        // After loading category, fetch any existing draft
+        await this.fetchDraft()
       } catch (e) {
         console.error('Failed to fetch category', e)
         this.error = t('forum', 'Category not found')
       } finally {
         this.loading = false
       }
+    },
+
+    async fetchDraft() {
+      if (!this.category) return
+
+      try {
+        const response = await ocs.get<{ draft: Draft | null }>(
+          `/drafts/thread/${this.category.id}`,
+        )
+        const draft = response.data.draft
+
+        if (draft) {
+          // Load draft into form
+          const form = this.$refs.createForm as any
+          if (form) {
+            form.setTitle(draft.title || '')
+            form.setContent(draft.content || '')
+          }
+          // Update local state for tracking
+          this.draftTitle = draft.title || ''
+          this.draftContent = draft.content || ''
+          // Mark as saved since we just loaded it
+          this.draftStatus = 'saved'
+        }
+      } catch (e) {
+        console.error('Failed to fetch draft', e)
+        // Silently fail - not critical
+      }
+    },
+
+    async saveDraft() {
+      if (!this.category) return
+
+      // Do not save if content is empty
+      if (!this.draftContent.trim()) {
+        return
+      }
+
+      try {
+        this.draftStatus = 'saving'
+        await ocs.put(`/drafts/thread/${this.category.id}`, {
+          title: this.draftTitle || null,
+          content: this.draftContent,
+        })
+        this.draftStatus = 'saved'
+      } catch (e) {
+        console.error('Failed to save draft', e)
+        // On error, mark as dirty since it was not saved
+        this.draftStatus = 'dirty'
+      }
+    },
+
+    scheduleDraftSave() {
+      // Clear any existing timer
+      if (this.draftDebounceTimer) {
+        clearTimeout(this.draftDebounceTimer)
+      }
+
+      // Only save if there's content
+      if (!this.draftContent.trim()) {
+        this.draftStatus = null
+        return
+      }
+
+      // Mark as dirty immediately when user makes changes
+      this.draftStatus = 'dirty'
+
+      this.draftDebounceTimer = setTimeout(() => {
+        this.saveDraft()
+      }, DRAFT_DEBOUNCE_DELAY)
+    },
+
+    handleTitleChange(title: string) {
+      this.draftTitle = title
+      this.scheduleDraftSave()
+    },
+
+    handleContentChange(content: string) {
+      this.draftContent = content
+      this.scheduleDraftSave()
     },
 
     async handleCreateThread(data: { title: string; content: string }) {
@@ -144,6 +247,12 @@ export default defineComponent({
 
       const form = this.$refs.createForm as any
       form?.setSubmitting(true)
+
+      // Cancel any pending draft save
+      if (this.draftDebounceTimer) {
+        clearTimeout(this.draftDebounceTimer)
+        this.draftDebounceTimer = null
+      }
 
       try {
         // Create the thread with initial post in a single request

@@ -8,6 +8,7 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\ThreadController;
 use OCA\Forum\Db\Category;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\DraftMapper;
 use OCA\Forum\Db\ForumUser;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
@@ -35,6 +36,7 @@ class ThreadControllerTest extends TestCase {
 	private PostMapper $postMapper;
 	private ForumUserMapper $forumUserMapper;
 	private ThreadSubscriptionMapper $threadSubscriptionMapper;
+	private DraftMapper $draftMapper;
 	private ThreadEnrichmentService $threadEnrichmentService;
 	private UserPreferencesService $userPreferencesService;
 	private UserService $userService;
@@ -51,6 +53,7 @@ class ThreadControllerTest extends TestCase {
 		$this->postMapper = $this->createMock(PostMapper::class);
 		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
 		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
+		$this->draftMapper = $this->createMock(DraftMapper::class);
 		$this->threadEnrichmentService = $this->createMock(ThreadEnrichmentService::class);
 		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
 		$this->userService = $this->createMock(UserService::class);
@@ -78,6 +81,7 @@ class ThreadControllerTest extends TestCase {
 			$this->postMapper,
 			$this->forumUserMapper,
 			$this->threadSubscriptionMapper,
+			$this->draftMapper,
 			$this->threadEnrichmentService,
 			$this->userPreferencesService,
 			$this->userService,

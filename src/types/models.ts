@@ -164,3 +164,14 @@ export interface SearchParams {
   limit: number
   offset: number
 }
+
+export interface Draft {
+  id: number
+  userId: string
+  entityType: 'thread' | 'post'
+  parentId: number
+  title: string | null
+  content: string
+  createdAt: number
+  updatedAt: number
+}

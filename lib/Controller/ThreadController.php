@@ -9,6 +9,7 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\DraftMapper;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
@@ -40,6 +41,7 @@ class ThreadController extends OCSController {
 		private PostMapper $postMapper,
 		private ForumUserMapper $forumUserMapper,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
+		private DraftMapper $draftMapper,
 		private ThreadEnrichmentService $threadEnrichmentService,
 		private UserPreferencesService $userPreferencesService,
 		private UserService $userService,
@@ -365,6 +367,13 @@ class ThreadController extends OCSController {
 				);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
+			}
+
+			// Delete any draft for this category now that the thread is created
+			try {
+				$this->draftMapper->deleteThreadDraft($user->getUID(), $categoryId);
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to delete thread draft: ' . $e->getMessage());
 			}
 
 			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);

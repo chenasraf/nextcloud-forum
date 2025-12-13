@@ -94,8 +94,8 @@ importers:
         specifier: ^0.11.0
         version: 0.11.0(eslint@9.39.1)(meow@13.2.0)(optionator@0.9.4)(stylelint@16.11.0(typescript@5.9.2))(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.95.0)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.2))
       vue-router:
-        specifier: ^4.6.3
-        version: 4.6.3(vue@3.5.25(typescript@5.9.2))
+        specifier: ^4.6.4
+        version: 4.6.4(vue@3.5.25(typescript@5.9.2))
       vue-tsc:
         specifier: ^2.2.12
         version: 2.2.12(typescript@5.9.2)
@@ -1740,8 +1740,8 @@ packages:
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
 
-  enhanced-resolve@5.18.3:
-    resolution: {integrity: sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==}
+  enhanced-resolve@5.18.4:
+    resolution: {integrity: sha512-LgQMM4WXU3QI+SYgEc2liRgznaD5ojbmY3sb8LxyguVkIg5FxdpTkvk72te2R38/TGKxH634oLxXRGY6d7AP+Q==}
     engines: {node: '>=10.13.0'}
 
   entities@4.5.0:
@@ -3949,8 +3949,8 @@ packages:
     peerDependencies:
       vue: ^3.0.0
 
-  vue-router@4.6.3:
-    resolution: {integrity: sha512-ARBedLm9YlbvQomnmq91Os7ck6efydTSpRP3nuOKCvgJOHNrhRoJDSKtee8kcL1Vf7nz6U+PMBL+hTvR3bTVQg==}
+  vue-router@4.6.4:
+    resolution: {integrity: sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg==}
     peerDependencies:
       vue: ^3.5.0
 
@@ -4636,7 +4636,7 @@ snapshots:
       unist-builder: 4.0.0
       unist-util-visit: 5.0.0
       vue: 3.5.25(typescript@5.9.2)
-      vue-router: 4.6.3(vue@3.5.25(typescript@5.9.2))
+      vue-router: 4.6.4(vue@3.5.25(typescript@5.9.2))
       vue-select: 4.0.0-beta.6(vue@3.5.25(typescript@5.9.2))
     transitivePeerDependencies:
       - '@nuxt/kit'
@@ -5838,7 +5838,7 @@ snapshots:
 
   emoji-regex@8.0.0: {}
 
-  enhanced-resolve@5.18.3:
+  enhanced-resolve@5.18.4:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.0
@@ -6004,7 +6004,7 @@ snapshots:
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
-      enhanced-resolve: 5.18.3
+      enhanced-resolve: 5.18.4
       eslint: 9.39.1
       eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.49.0(eslint@9.39.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.39.1)
       fast-glob: 3.3.3
@@ -8464,7 +8464,7 @@ snapshots:
     dependencies:
       vue: 3.5.25(typescript@5.9.2)
 
-  vue-router@4.6.3(vue@3.5.25(typescript@5.9.2)):
+  vue-router@4.6.4(vue@3.5.25(typescript@5.9.2)):
     dependencies:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.25(typescript@5.9.2)

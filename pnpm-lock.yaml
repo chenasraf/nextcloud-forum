@@ -27,8 +27,8 @@ importers:
         specifier: 2.3.5
         version: 2.3.5(@types/node@20.17.10)(browserslist@4.28.1)(picomatch@4.0.3)(rollup@4.53.3)(sass@1.95.0)(typescript@5.9.2)(vite@6.4.1(@types/node@20.17.10)(sass-embedded@1.93.3)(sass@1.95.0)(yaml@2.8.2))(vue@3.5.25(typescript@5.9.2))
       '@nextcloud/vue':
-        specifier: ^9.3.0
-        version: 9.3.0(typescript@5.9.2)
+        specifier: ^9.3.1
+        version: 9.3.1(typescript@5.9.2)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -551,6 +551,10 @@ packages:
     resolution: {integrity: sha512-LVZklgooZzBj2jkbPRZO4jnnvW5+RvOn7wN5weyOZltF6i2wVMbg1Y/Czl2pi/UNMjUm5ENqc0j7FgxMBo8bwA==}
     engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
 
+  '@nextcloud/files@3.12.1':
+    resolution: {integrity: sha512-GRGBkUMAERKVducWVBTR5kk4GQBncAmKWnSwc6vys3ipXeAeJfEANJVtQ/aHHoQdPc2h78mljbqKsMHdFAUDBA==}
+    engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
+
   '@nextcloud/initial-state@2.2.0':
     resolution: {integrity: sha512-cDW98L5KGGgpS8pzd+05304/p80cyu8U2xSDQGa+kGPTpUFmCbv2qnO5WrwwGTauyjYijCal2bmw82VddSH+Pg==}
     engines: {node: ^20.0.0, npm: ^10.0.0}
@@ -563,12 +567,16 @@ packages:
     resolution: {integrity: sha512-aTFinTcKiK2gEXwLgutXekpZZ8/v/4QiC8C3QCLH5m0o+WtxsBC+fqV142ebC/rfDnzCLhY4ZtswSu8bFbZocg==}
     engines: {node: ^20 || ^22 || ^24}
 
-  '@nextcloud/logger@3.0.2':
-    resolution: {integrity: sha512-wByt0R0/6QC44RBpaJr1MWghjjOxk/pRbACHo/ZWWKht1qYbJRHB4GtEi+35KEIHY07ZpqxiDk6dIRuN7sXYWQ==}
-    engines: {node: ^20.0.0, npm: ^10.0.0}
+  '@nextcloud/logger@3.0.3':
+    resolution: {integrity: sha512-TcbVRL4/O5ffI1RXFmQAFD3gwwT15AAdr1770x+RNqVvfBdoGVyhzOwCIyA5Vfc3fA1iJXFa+rE6buJZSoqlcw==}
+    engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
 
   '@nextcloud/paths@2.3.0':
     resolution: {integrity: sha512-NM9fmFSRcp71ayDCGYKSJTQA2BniGl6Btl8y6f8uywynthY5LbLsazO29vU+ec3fLKCRy1YGcYj+f4kZw+vwiw==}
+    engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
+
+  '@nextcloud/paths@2.4.0':
+    resolution: {integrity: sha512-35hykjqzaJCw8pBYWuKbLLw2wyKMuf9+T8K8GoYiS84AIi8SO16nuEu0fyl/gwCuiDqX5tCCup4wqljf0hdvaw==}
     engines: {node: ^20.0.0 || ^22.0.0 || ^24.0.0}
 
   '@nextcloud/router@3.1.0':
@@ -603,8 +611,8 @@ packages:
       sass: '>=1.60'
       vite: ^5 || ^6
 
-  '@nextcloud/vue@9.3.0':
-    resolution: {integrity: sha512-aeRZGqZMwtW62ASxmMsi7H5rnk9Sof3tmlBk7HfScawQzNlkQwquqLRH1h2miRsUGRTkrTgCLcQlQKUQXxQ3YQ==}
+  '@nextcloud/vue@9.3.1':
+    resolution: {integrity: sha512-zNit83SI7IPT5iT9QsYPCYNwBYvKEqzLvWKTeJemqg9MZ8JGIC3/jjENeXzDolrTN/PixHns5lOYVCejATE1ag==}
     engines: {node: ^20.11.0 || ^22 || ^24}
 
   '@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1':
@@ -1740,8 +1748,8 @@ packages:
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
 
-  enhanced-resolve@5.18.3:
-    resolution: {integrity: sha512-d4lC8xfavMeBjzGr2vECC3fsGXziXZQyJxD868h2M/mBI3PwAuODxAkLkq5HYuvrPYcUtiLzsTo8U3PgX3Ocww==}
+  enhanced-resolve@5.18.4:
+    resolution: {integrity: sha512-LgQMM4WXU3QI+SYgEc2liRgznaD5ojbmY3sb8LxyguVkIg5FxdpTkvk72te2R38/TGKxH634oLxXRGY6d7AP+Q==}
     engines: {node: '>=10.13.0'}
 
   entities@4.5.0:
@@ -4464,7 +4472,7 @@ snapshots:
       '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.3.0
       '@nextcloud/typings': 1.10.0
-      '@nextcloud/vue': 9.3.0(typescript@5.9.2)
+      '@nextcloud/vue': 9.3.1(typescript@5.9.2)
       '@types/toastify-js': 1.12.4
       '@vueuse/core': 13.9.0(vue@3.5.25(typescript@5.9.2))
       cancelable-promise: 4.3.1
@@ -4515,7 +4523,7 @@ snapshots:
       '@nextcloud/auth': 2.5.3
       '@nextcloud/capabilities': 1.2.1
       '@nextcloud/l10n': 3.4.1
-      '@nextcloud/logger': 3.0.2
+      '@nextcloud/logger': 3.0.3
       '@nextcloud/paths': 2.3.0
       '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.2.5
@@ -4523,6 +4531,21 @@ snapshots:
       is-svg: 6.1.0
       typescript-event-target: 1.1.1
       webdav: 5.8.0
+
+  '@nextcloud/files@3.12.1':
+    dependencies:
+      '@nextcloud/auth': 2.5.3
+      '@nextcloud/capabilities': 1.2.1
+      '@nextcloud/l10n': 3.4.1
+      '@nextcloud/logger': 3.0.3
+      '@nextcloud/paths': 2.4.0
+      '@nextcloud/router': 3.1.0
+      '@nextcloud/sharing': 0.3.0
+      cancelable-promise: 4.3.1
+      is-svg: 6.1.0
+      typescript-event-target: 1.1.1
+      webdav: 5.8.0
+    optional: true
 
   '@nextcloud/initial-state@2.2.0': {}
 
@@ -4536,11 +4559,14 @@ snapshots:
       dompurify: 3.3.1
       escape-html: 1.0.3
 
-  '@nextcloud/logger@3.0.2':
+  '@nextcloud/logger@3.0.3':
     dependencies:
       '@nextcloud/auth': 2.5.3
 
   '@nextcloud/paths@2.3.0': {}
+
+  '@nextcloud/paths@2.4.0':
+    optional: true
 
   '@nextcloud/router@3.1.0':
     dependencies:
@@ -4555,7 +4581,7 @@ snapshots:
       '@nextcloud/initial-state': 3.0.0
       is-svg: 6.1.0
     optionalDependencies:
-      '@nextcloud/files': 3.12.0
+      '@nextcloud/files': 3.12.1
 
   '@nextcloud/stylelint-config@3.1.1(stylelint-config-recommended-scss@13.1.0(postcss@8.5.6)(stylelint@16.11.0(typescript@5.9.2)))(stylelint-config-recommended-vue@1.5.0(postcss-html@1.7.0)(stylelint@16.11.0(typescript@5.9.2)))(stylelint@16.11.0(typescript@5.9.2))':
     dependencies:
@@ -4593,7 +4619,7 @@ snapshots:
       - typescript
       - vue
 
-  '@nextcloud/vue@9.3.0(typescript@5.9.2)':
+  '@nextcloud/vue@9.3.1(typescript@5.9.2)':
     dependencies:
       '@ckpack/vue-color': 1.6.0(vue@3.5.25(typescript@5.9.2))
       '@floating-ui/dom': 1.7.4
@@ -4604,7 +4630,7 @@ snapshots:
       '@nextcloud/event-bus': 3.3.3
       '@nextcloud/initial-state': 3.0.0
       '@nextcloud/l10n': 3.4.1
-      '@nextcloud/logger': 3.0.2
+      '@nextcloud/logger': 3.0.3
       '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.3.0
       '@vuepic/vue-datepicker': 11.0.3(vue@3.5.25(typescript@5.9.2))
@@ -5838,7 +5864,7 @@ snapshots:
 
   emoji-regex@8.0.0: {}
 
-  enhanced-resolve@5.18.3:
+  enhanced-resolve@5.18.4:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.0
@@ -6004,7 +6030,7 @@ snapshots:
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
-      enhanced-resolve: 5.18.3
+      enhanced-resolve: 5.18.4
       eslint: 9.39.1
       eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.49.0(eslint@9.39.1)(typescript@5.9.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.39.1)
       fast-glob: 3.3.3

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.17.1...v0.18.0) (2025-12-13)
+
+
+### Features
+
+* thread drafts ([0a0e64d](https://github.com/chenasraf/nextcloud-forum/commit/0a0e64dae553d6369c64698f82d7df86eaa1e7ca))
+
 ## [0.17.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.17.0...v0.17.1) (2025-12-13)
 
 

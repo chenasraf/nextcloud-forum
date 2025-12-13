@@ -51,6 +51,7 @@ OC.L10N.register(
     "New" : "Nòu",
     "Permissions" : "Autorizacions",
     "General settings" : "Paramètres generals",
+    "Appearance" : "Aparéncia",
     "Settings saved" : "Paramètres salvats",
     "Reset" : "Reïnicializar",
     "Category" : "Categoria",

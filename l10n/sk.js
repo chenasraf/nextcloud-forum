@@ -49,6 +49,7 @@ OC.L10N.register(
     "Refresh" : "Obnoviť",
     "Loading …" : "Načítavam …",
     "Retry" : "Zopakovať",
+    "In {category}" : "V {category}",
     "Error" : "Chyba",
     "Searching …" : "Hľadá sa…",
     "No results found" : "Neboli nájdené žiadne výsledky",

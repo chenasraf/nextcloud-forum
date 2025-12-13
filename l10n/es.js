@@ -2,6 +2,8 @@ OC.L10N.register(
     "forum",
     {
     "Admin" : "Administrador",
+    "Moderator" : "Moderador",
+    "Moderator role with elevated permissions" : "Rol de moderador con permisos elevados",
     "User" : "Usuario",
     "Guest" : "Invitado",
     "General" : "General",

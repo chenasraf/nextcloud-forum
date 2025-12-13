@@ -44,7 +44,7 @@
     "prettier-plugin-vue": "^1.1.6",
     "rollup-plugin-visualizer": "^6.0.5",
     "sass": "^1.95.0",
-    "sass-embedded": "^1.93.3",
+    "sass-embedded": "^1.96.0",
     "typescript": "5.9.2",
     "typescript-eslint": "^8.49.0",
     "vite": "^6.4.1",

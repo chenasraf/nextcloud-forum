@@ -157,6 +157,7 @@ OC.L10N.register(
     "Write your thread content …" : "Write your thread content …",
     "Create thread" : "Create thread",
     "Are you sure you want to discard this thread?" : "Are you sure you want to discard this thread?",
+    "Unsaved changes" : "Mabadiliko yasiyohifadhiwa",
     "Back to home" : "Back to home",
     "Refresh" : "Onyesha upya",
     "Loading …" : "Inapakia",

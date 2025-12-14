@@ -28,6 +28,7 @@ OC.L10N.register(
     "Uncategorized" : "Kategoriyasiz",
     "Views" : "Koʻrishlar",
     "Title" : "Sarlavha",
+    "Unsaved changes" : "Saqlanmagan o'zgarishlar",
     "Refresh" : "Yangilash",
     "Loading …" : "Yuklanmoqda…",
     "Retry" : "Qayta urinish",

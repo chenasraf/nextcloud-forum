@@ -40,6 +40,7 @@ OC.L10N.register(
     "Uncategorized" : "Bez kategorijas",
     "Views" : "Skatījumi",
     "Title" : "Virsraksts",
+    "Unsaved changes" : "Nesaglabātas izmaiņas",
     "Refresh" : "Atsvaidzināt",
     "Loading …" : "Ielādē…",
     "Retry" : "Mēģināt vēlreiz",

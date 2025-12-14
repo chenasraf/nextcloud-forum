@@ -25,6 +25,7 @@ OC.L10N.register(
     "Save" : "შენახვა",
     "Uncategorized" : "არაკატეგორიზირებული",
     "Title" : "სათაური",
+    "Unsaved changes" : "შეუნახავი ცვლილებები",
     "Refresh" : "განახლება",
     "Retry" : "ვცადოთ ახლიდან",
     "Error" : "შეცდომა",

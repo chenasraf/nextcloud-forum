@@ -32,6 +32,7 @@ OC.L10N.register(
     "Uncategorized" : "Desorganizadas",
     "Views" : "Vistas",
     "Title" : "Títol",
+    "Unsaved changes" : "Modificacions pas enregistradas",
     "Refresh" : "Refrescar",
     "Loading …" : "Cargament…",
     "Retry" : "Tornar ensajar",

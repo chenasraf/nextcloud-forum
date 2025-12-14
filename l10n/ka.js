@@ -34,6 +34,8 @@ OC.L10N.register(
     "React with {emoji}" : "React with {emoji}",
     "Uncategorized" : "Uncategorized",
     "Views" : "Views",
+    "Saving draft …" : "Saving draft …",
+    "Draft saved" : "Draft saved",
     "Refresh" : "Refresh",
     "Loading …" : "Loading …",
     "Retry" : "Retry",

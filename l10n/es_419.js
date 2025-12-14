@@ -25,6 +25,7 @@ OC.L10N.register(
     "Save" : "Guardar",
     "Uncategorized" : "Sin categoría",
     "Title" : "Título",
+    "Unsaved changes" : "Cambios no guardados",
     "Refresh" : "Actualizar",
     "Retry" : "Reintentar",
     "by" : "por",

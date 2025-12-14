@@ -46,6 +46,8 @@ OC.L10N.register(
     "Uncategorized" : "Sense categoria",
     "Views" : "Vistes",
     "Title" : "Títol",
+    "Saving draft …" : "S'està desant l'esborrany …",
+    "Draft saved" : "S'ha desat l'esborrany",
     "Back to home" : "Tornar a l'inici",
     "Refresh" : "Actualitza",
     "Loading …" : "S'està carregant…",

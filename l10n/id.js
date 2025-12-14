@@ -31,6 +31,7 @@ OC.L10N.register(
     "Save" : "Simpan",
     "Uncategorized" : "Tidak terkategori",
     "Views" : "Tampilan",
+    "Unsaved changes" : "Perubahan belum disimpan",
     "Refresh" : "Muat ulang",
     "Loading …" : "Memuat …",
     "Retry" : "Ulangi",

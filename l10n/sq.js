@@ -28,6 +28,7 @@ OC.L10N.register(
     "Save" : "Ruaje",
     "Uncategorized" : "Të pakategorizuara",
     "Title" : "Titulli",
+    "Unsaved changes" : "Ndryshime të paruajtura",
     "Refresh" : "Rifreskoje",
     "Retry" : "Riprovoni",
     "Error" : "Gabim",

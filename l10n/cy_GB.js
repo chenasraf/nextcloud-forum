@@ -23,6 +23,8 @@ OC.L10N.register(
     "Save" : "Cadw",
     "Uncategorized" : "Dim categori",
     "Views" : "Dangosiadau",
+    "Saving draft …" : "Yn cadw drafft …",
+    "Draft saved" : "Cadwyd y drafft",
     "Refresh" : "Ail-lwytho",
     "Retry" : "Ceisio eto",
     "Error" : "Gwall",

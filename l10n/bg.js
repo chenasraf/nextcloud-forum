@@ -43,6 +43,8 @@ OC.L10N.register(
     "Uncategorized" : "Некатегоризирани",
     "Views" : "Изгледи",
     "Title" : "Заглавие",
+    "Saving draft …" : "Записване на чернова …",
+    "Draft saved" : "Черновата е записана",
     "Refresh" : "Опресняване",
     "Loading …" : "Зареждане …",
     "Retry" : "Опитай отново",

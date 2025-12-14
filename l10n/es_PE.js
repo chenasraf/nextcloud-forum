@@ -23,6 +23,7 @@ OC.L10N.register(
     "Delete" : "Borrar",
     "Save" : "Guardar",
     "Uncategorized" : "Sin categoría",
+    "Unsaved changes" : "Cambios no guardados",
     "Refresh" : "Actualizar",
     "Retry" : "Reintentar",
     "Error" : "Error",

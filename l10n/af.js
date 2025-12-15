@@ -16,6 +16,7 @@ OC.L10N.register(
     "Page not found" : "Blad nie gevind nie",
     "Delete" : "Skrap",
     "Save" : "Stoor",
+    "Unsaved changes" : "Onbewaarde veranderinge",
     "Retry" : "Herprobeer",
     "Back to {category}" : "Terug na {category}",
     "by" : "deur",

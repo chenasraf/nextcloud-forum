@@ -36,6 +36,8 @@ OC.L10N.register(
     "Uncategorized" : "Ensin categoría",
     "Views" : "Vistes",
     "Title" : "Títulu",
+    "Draft saved" : "Guardóse'l borrador",
+    "Unsaved changes" : "Cambeos ensin guardar",
     "Refresh" : "Anovar",
     "Loading …" : "Cargando…",
     "Retry" : "Retentar",

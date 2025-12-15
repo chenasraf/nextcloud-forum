@@ -14,6 +14,7 @@ OC.L10N.register(
     "Home" : "Koti",
     "Bookmarks" : "Kirjanmerkit",
     "Dashboard" : "Kojelauta",
+    "Users" : "Käyttäjät",
     "Categories" : "Luokat",
     "Expand" : "Laajenna",
     "Collapse" : "Kutista näkymää",

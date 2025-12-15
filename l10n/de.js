@@ -160,7 +160,7 @@ OC.L10N.register(
     "Are you sure you want to discard this thread?" : "Soll dieses Thema verworfen werden?",
     "Saving draft …" : "Speichere Entwurf …",
     "Draft saved" : "Entwurf gespeichert",
-    "Unsaved changes" : "Ungespeicherte Änderungen",
+    "Unsaved changes" : "Nicht gespeicherte Änderungen",
     "Back to home" : "Zurück zur Hauptseite",
     "Refresh" : "Aktualisieren",
     "Loading …" : "Lade …",

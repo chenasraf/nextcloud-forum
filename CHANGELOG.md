@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.18.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.18.0...v0.18.1) (2025-12-17)
+
+
+### Bug Fixes
+
+* allow updating thread title ([4b08dad](https://github.com/chenasraf/nextcloud-forum/commit/4b08dad606367229add21cfd71427028b464b528))
+* **l10n:** Update translations from Transifex ([a7c10f2](https://github.com/chenasraf/nextcloud-forum/commit/a7c10f2e0c1ccb97e8f96a6d7abe084743e54f04))
+* **l10n:** Update translations from Transifex ([33e714c](https://github.com/chenasraf/nextcloud-forum/commit/33e714cab25e3c47fde7da8308eb4d8a3e2f2320))
+
 ## [0.18.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.17.1...v0.18.0) (2025-12-15)
 
 

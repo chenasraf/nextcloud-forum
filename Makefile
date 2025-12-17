@@ -163,6 +163,7 @@ source:
 
 # appstore:
 #   - Create an App Store tarball (strips tests, dotfiles, dev configs)
+#   - Installs only production dependencies (no dev deps)
 #   - Output: build/artifacts/appstore/$(app_name).tar.gz
 .PHONY: appstore
 appstore:
@@ -170,7 +171,10 @@ appstore:
 	mkdir -p $(app_intermediate_directory)
 	mkdir -p $(appstore_build_directory)
 	rm -rf $(appstore_package_name).tar.gz
-	rsync -vtr \
+	@echo "Installing production dependencies only..."
+	rm -rf vendor
+	$(composer_bin) install --no-dev --prefer-dist --optimize-autoloader
+	rsync -vtr --delete \
 		--exclude="**/.git/**/*" \
 		--exclude="**/.github/**/*" \
 		--exclude="build" \
@@ -178,8 +182,10 @@ appstore:
 		--exclude="Makefile" \
 		--exclude="*.log" \
 		--exclude="phpunit*xml" \
+		--exclude="psalm.xml" \
 		--exclude="composer.*" \
 		--exclude="node_modules" \
+		--exclude="vendor-bin" \
 		--exclude="dist/js/node_modules" \
 		--exclude="dist/js/tests" \
 		--exclude="dist/js/test" \
@@ -189,17 +195,23 @@ appstore:
 		--exclude="dist/js/karma.*" \
 		--exclude="dist/js/protractor.*" \
 		--exclude="package.json" \
+		--exclude="pnpm-lock.yaml" \
 		--exclude="bower.json" \
 		--exclude="karma.*" \
 		--exclude="protractor\.*" \
 		--exclude="/gen" \
 		--exclude="/.*" \
-		--exclude="dist/js/.*" \
 		--exclude="/src" \
 		--exclude="rename-template.sh" \
+		--exclude="*.config.cjs" \
+		--exclude="*.config.js" \
+		--exclude="*.config.ts" \
+		--exclude="tsconfig*.json" \
 		$(CURDIR)/ $(app_intermediate_directory)
 	cd $(CURDIR)/build/artifacts/intermediate && \
 	tar czf $(appstore_package_name).tar.gz $(app_name)
+	@echo "Restoring dev dependencies..."
+	$(composer_bin) install --prefer-dist
 
 # test:
 #   - Run PHP unit tests locally with a configured Nextcloud installation

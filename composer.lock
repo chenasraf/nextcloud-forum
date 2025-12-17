@@ -4,8 +4,59 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "48d3d1ff5b242a7f16dd89794097f180",
+    "content-hash": "449361de31344c6c5c7f54a44ae518ff",
     "packages": [
+        {
+            "name": "chriskonnertz/bbcode",
+            "version": "v1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chriskonnertz/bbcode.git",
+                "reference": "d3acd447ee11265d4ef38b9058cef32adcafa245"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chriskonnertz/bbcode/zipball/d3acd447ee11265d4ef38b9058cef32adcafa245",
+                "reference": "d3acd447ee11265d4ef38b9058cef32adcafa245",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "ChrisKonnertz\\BBCode": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kai Mallea",
+                    "email": "kmallea@gmail.com"
+                },
+                {
+                    "name": "Chris Konnertz"
+                }
+            ],
+            "description": "A naive attempt at a BBCode 'parser' written in PHP. It uses regex and thus fails at complex, nested tags.",
+            "keywords": [
+                "bbcode"
+            ],
+            "support": {
+                "issues": "https://github.com/chriskonnertz/bbcode/issues",
+                "source": "https://github.com/chriskonnertz/bbcode/tree/master"
+            },
+            "time": "2018-06-17T13:58:51+00:00"
+        }
+    ],
+    "packages-dev": [
         {
             "name": "bamarni/composer-bin-plugin",
             "version": "1.8.3",
@@ -63,57 +114,6 @@
             },
             "time": "2025-11-24T19:20:55+00:00"
         },
-        {
-            "name": "chriskonnertz/bbcode",
-            "version": "v1.1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/chriskonnertz/bbcode.git",
-                "reference": "d3acd447ee11265d4ef38b9058cef32adcafa245"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/chriskonnertz/bbcode/zipball/d3acd447ee11265d4ef38b9058cef32adcafa245",
-                "reference": "d3acd447ee11265d4ef38b9058cef32adcafa245",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.7"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "ChrisKonnertz\\BBCode": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kai Mallea",
-                    "email": "kmallea@gmail.com"
-                },
-                {
-                    "name": "Chris Konnertz"
-                }
-            ],
-            "description": "A naive attempt at a BBCode 'parser' written in PHP. It uses regex and thus fails at complex, nested tags.",
-            "keywords": [
-                "bbcode"
-            ],
-            "support": {
-                "issues": "https://github.com/chriskonnertz/bbcode/issues",
-                "source": "https://github.com/chriskonnertz/bbcode/tree/master"
-            },
-            "time": "2018-06-17T13:58:51+00:00"
-        }
-    ],
-    "packages-dev": [
         {
             "name": "myclabs/deep-copy",
             "version": "1.13.4",
@@ -176,29 +176,29 @@
         },
         {
             "name": "nextcloud/ocp",
-            "version": "dev-stable29",
+            "version": "dev-stable32",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nextcloud-deps/ocp.git",
-                "reference": "f8c70c8d28000510f865028e24bb5cfe562f8b77"
+                "reference": "45612049852ea4234dd799a4a3281a397f0749c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/f8c70c8d28000510f865028e24bb5cfe562f8b77",
-                "reference": "f8c70c8d28000510f865028e24bb5cfe562f8b77",
+                "url": "https://api.github.com/repos/nextcloud-deps/ocp/zipball/45612049852ea4234dd799a4a3281a397f0749c3",
+                "reference": "45612049852ea4234dd799a4a3281a397f0749c3",
                 "shasum": ""
             },
             "require": {
-                "php": "~8.0 || ~8.1 || ~8.2 || ~8.3",
+                "php": "~8.1 || ~8.2 || ~8.3 || ~8.4",
                 "psr/clock": "^1.0",
                 "psr/container": "^2.0.2",
                 "psr/event-dispatcher": "^1.0",
-                "psr/log": "^1.1.4"
+                "psr/log": "^3.0.2"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-stable29": "29.0.0-dev"
+                    "dev-stable32": "32.0.0-dev"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -209,14 +209,18 @@
                 {
                     "name": "Christoph Wurst",
                     "email": "christoph@winzerhof-wurst.at"
+                },
+                {
+                    "name": "Joas Schilling",
+                    "email": "coding@schilljs.com"
                 }
             ],
-            "description": "Composer package containing Nextcloud's public API (classes, interfaces)",
+            "description": "Composer package containing Nextcloud's public OCP API and the unstable NCU API",
             "support": {
                 "issues": "https://github.com/nextcloud-deps/ocp/issues",
-                "source": "https://github.com/nextcloud-deps/ocp/tree/stable29"
+                "source": "https://github.com/nextcloud-deps/ocp/tree/stable32"
             },
-            "time": "2025-11-30T00:58:59+00:00"
+            "time": "2025-12-16T00:55:52+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -977,30 +981,30 @@
         },
         {
             "name": "psr/log",
-            "version": "1.1.4",
+            "version": "3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "d49695b909c3b7628b6289db5479a1c204601f11"
+                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/d49695b909c3b7628b6289db5479a1c204601f11",
-                "reference": "d49695b909c3b7628b6289db5479a1c204601f11",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
+                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=8.0.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.1.x-dev"
+                    "dev-master": "3.x-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Psr\\Log\\": "Psr/Log/"
+                    "Psr\\Log\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1021,9 +1025,9 @@
                 "psr-3"
             ],
             "support": {
-                "source": "https://github.com/php-fig/log/tree/1.1.4"
+                "source": "https://github.com/php-fig/log/tree/3.0.2"
             },
-            "time": "2021-05-03T11:20:27+00:00"
+            "time": "2024-09-11T13:17:53+00:00"
         },
         {
             "name": "roave/security-advisories",
@@ -1031,12 +1035,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "1553067758ae7f3df13df7c7e232c62d928e1d23"
+                "reference": "e5034c4df32edeafb119b2c1e2b58876d0286ea8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/1553067758ae7f3df13df7c7e232c62d928e1d23",
-                "reference": "1553067758ae7f3df13df7c7e232c62d928e1d23",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/e5034c4df32edeafb119b2c1e2b58876d0286ea8",
+                "reference": "e5034c4df32edeafb119b2c1e2b58876d0286ea8",
                 "shasum": ""
             },
             "conflict": {
@@ -1058,6 +1062,7 @@
                 "alextselegidis/easyappointments": "<1.5.2.0-beta1",
                 "alexusmai/laravel-file-manager": "<=3.3.1",
                 "alt-design/alt-redirect": "<1.6.4",
+                "altcha-org/altcha": "<1.3.1",
                 "alterphp/easyadmin-extension-bundle": ">=1.2,<1.2.11|>=1.3,<1.3.1",
                 "amazing/media2click": ">=1,<1.3.3",
                 "ameos/ameos_tarteaucitron": "<1.2.23",
@@ -1081,10 +1086,10 @@
                 "athlon1600/php-proxy-app": "<=3",
                 "athlon1600/youtube-downloader": "<=4",
                 "austintoddj/canvas": "<=3.4.2",
-                "auth0/auth0-php": ">=3.3,<=8.16",
-                "auth0/login": "<=7.18",
-                "auth0/symfony": "<=5.4.1",
-                "auth0/wordpress": "<=5.3",
+                "auth0/auth0-php": ">=3.3,<8.18",
+                "auth0/login": "<7.20",
+                "auth0/symfony": "<=5.5",
+                "auth0/wordpress": "<=5.4",
                 "automad/automad": "<2.0.0.0-alpha5",
                 "automattic/jetpack": "<9.8",
                 "awesome-support/awesome-support": "<=6.0.7",
@@ -2027,7 +2032,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-12T23:06:01+00:00"
+            "time": "2025-12-17T21:06:23+00:00"
         },
         {
             "name": "sebastian/cli-parser",

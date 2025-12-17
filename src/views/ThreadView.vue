@@ -719,6 +719,7 @@ export default defineComponent({
 
     async handleUpdate(data: { post: Post; content: string }): Promise<void> {
       const postCard = this.postCardRefs.get(data.post.id)
+      const isFirstPost = this.firstPost && this.firstPost.id === data.post.id
 
       try {
         const response = await ocs.put<Post>(`/posts/${data.post.id}`, {
@@ -727,8 +728,8 @@ export default defineComponent({
 
         if (response.data) {
           // Update the post in the correct array (firstPost or replies)
-          if (this.firstPost && this.firstPost.id === data.post.id) {
-            this.firstPost = { ...response.data, reactions: this.firstPost.reactions || [] }
+          if (isFirstPost) {
+            this.firstPost = { ...response.data, reactions: this.firstPost!.reactions || [] }
           } else {
             const index = this.replies.findIndex((p) => p.id === data.post.id)
             if (index !== -1) {
@@ -745,11 +746,15 @@ export default defineComponent({
             postCard.finishEdit()
           }
 
-          showSuccess(t('forum', 'Reply updated'))
+          showSuccess(isFirstPost ? t('forum', 'Thread updated') : t('forum', 'Reply updated'))
         }
       } catch (e) {
         console.error('Failed to update post', e)
-        showError(t('forum', 'Failed to update reply'))
+        showError(
+          isFirstPost
+            ? t('forum', 'Failed to update thread')
+            : t('forum', 'Failed to update reply'),
+        )
 
         // Reset submitting state on error
         if (postCard && typeof postCard.setEditSubmitting === 'function') {

@@ -1,173 +1,184 @@
 <template>
   <NcAppNavigation>
     <template #list>
-      <NcAppNavigationItem :name="strings.navHome" :to="{ path: '/' }" :open="true">
-        <template #icon>
-          <HomeIcon :size="20" />
-        </template>
+      <!-- Loading state -->
+      <template v-if="isLoading">
+        <div class="nav-loading">
+          <NcLoadingIcon :size="44" />
+          <span class="nav-loading__text">{{ strings.loading }}</span>
+        </div>
+      </template>
 
-        <!-- Search menu item -->
-        <NcAppNavigationItem
-          :name="strings.navSearch"
-          :to="{ path: '/search' }"
-          :active="isPathActive('/search')"
-        >
+      <!-- Loaded content -->
+      <template v-else>
+        <NcAppNavigationItem :name="strings.navHome" :to="{ path: '/' }" :open="true">
           <template #icon>
-            <MagnifyIcon :size="20" />
+            <HomeIcon :size="20" />
           </template>
+
+          <!-- Search menu item -->
+          <NcAppNavigationItem
+            :name="strings.navSearch"
+            :to="{ path: '/search' }"
+            :active="isPathActive('/search')"
+          >
+            <template #icon>
+              <MagnifyIcon :size="20" />
+            </template>
+          </NcAppNavigationItem>
+
+          <!-- Bookmarks menu item (authenticated users only) -->
+          <NcAppNavigationItem
+            v-if="userId !== null"
+            :name="strings.navBookmarks"
+            :to="{ path: '/bookmarks' }"
+            :active="isPathActive('/bookmarks')"
+          >
+            <template #icon>
+              <BookmarkIcon :size="20" />
+            </template>
+          </NcAppNavigationItem>
+
+          <!-- Category headers as collapsible submenus -->
+          <NcAppNavigationItem
+            v-for="header in categoryHeaders"
+            :key="`header-${header.id}`"
+            :name="header.name"
+            @click="navigateToFirstCategory(header)"
+          >
+            <template #icon>
+              <FolderIcon :size="20" />
+            </template>
+
+            <template #actions>
+              <NcActionButton
+                :aria-label="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
+                :title="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
+                @click.stop="toggleHeader(header.id)"
+              >
+                <template #icon>
+                  <ChevronDownIcon v-if="isHeaderOpen(header.id)" :size="20" />
+                  <ChevronRightIcon v-else :size="20" />
+                </template>
+              </NcActionButton>
+            </template>
+
+            <!-- Categories under each header -->
+            <template v-if="isHeaderOpen(header.id)">
+              <NcAppNavigationItem
+                v-for="category in header.categories"
+                :key="`category-${category.id}`"
+                :name="category.name"
+                :to="{ path: `/c/${category.slug}` }"
+                :active="isCategoryActive(category)"
+              >
+                <template #icon>
+                  <ForumIcon :size="20" />
+                </template>
+              </NcAppNavigationItem>
+            </template>
+          </NcAppNavigationItem>
+
+          <!-- Preferences menu item (authenticated users only) -->
+          <NcAppNavigationItem
+            v-if="userId !== null"
+            :name="strings.navPreferences"
+            :to="{ path: '/preferences' }"
+            :active="isPathActive('/preferences')"
+          >
+            <template #icon>
+              <AccountCogIcon :size="20" />
+            </template>
+          </NcAppNavigationItem>
         </NcAppNavigationItem>
 
-        <!-- Bookmarks menu item (authenticated users only) -->
-        <NcAppNavigationItem
-          v-if="userId !== null"
-          :name="strings.navBookmarks"
-          :to="{ path: '/bookmarks' }"
-          :active="isPathActive('/bookmarks')"
-        >
+        <!-- Admin menu item - only visible to admins -->
+        <NcAppNavigationItem v-if="isAdmin" :name="strings.navAdmin" @click="navigateToAdmin">
           <template #icon>
-            <BookmarkIcon :size="20" />
-          </template>
-        </NcAppNavigationItem>
-
-        <!-- Category headers as collapsible submenus -->
-        <NcAppNavigationItem
-          v-for="header in categoryHeaders"
-          :key="`header-${header.id}`"
-          :name="header.name"
-          @click="navigateToFirstCategory(header)"
-        >
-          <template #icon>
-            <FolderIcon :size="20" />
+            <ShieldCheckIcon :size="20" />
           </template>
 
           <template #actions>
             <NcActionButton
-              :aria-label="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
-              :title="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
-              @click.stop="toggleHeader(header.id)"
+              :aria-label="isAdminOpen ? strings.collapse : strings.expand"
+              :title="isAdminOpen ? strings.collapse : strings.expand"
+              @click.stop="toggleAdmin"
             >
               <template #icon>
-                <ChevronDownIcon v-if="isHeaderOpen(header.id)" :size="20" />
+                <ChevronDownIcon v-if="isAdminOpen" :size="20" />
                 <ChevronRightIcon v-else :size="20" />
               </template>
             </NcActionButton>
           </template>
 
-          <!-- Categories under each header -->
-          <template v-if="isHeaderOpen(header.id)">
+          <!-- Admin sub-items -->
+          <template v-if="isAdminOpen">
             <NcAppNavigationItem
-              v-for="category in header.categories"
-              :key="`category-${category.id}`"
-              :name="category.name"
-              :to="{ path: `/c/${category.slug}` }"
-              :active="isCategoryActive(category)"
+              :name="strings.navAdminDashboard"
+              :to="{ path: '/admin' }"
+              :active="isPathActive('/admin')"
             >
               <template #icon>
-                <ForumIcon :size="20" />
+                <ChartLineIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+
+            <NcAppNavigationItem
+              :name="strings.navAdminSettings"
+              :to="{ path: '/admin/settings' }"
+              :active="isPathActive('/admin/settings')"
+            >
+              <template #icon>
+                <CogIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+
+            <NcAppNavigationItem
+              :name="strings.navAdminUsers"
+              :to="{ path: '/admin/users' }"
+              :active="isPathActive('/admin/users', true)"
+            >
+              <template #icon>
+                <AccountMultipleIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+
+            <NcAppNavigationItem
+              :name="strings.navAdminRoles"
+              :to="{ path: '/admin/roles' }"
+              :active="isPathActive('/admin/roles', true)"
+            >
+              <template #icon>
+                <ShieldAccountIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+
+            <NcAppNavigationItem
+              :name="strings.navAdminCategories"
+              :to="{ path: '/admin/categories' }"
+              :active="isPathActive('/admin/categories', true)"
+            >
+              <template #icon>
+                <FolderIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+
+            <NcAppNavigationItem
+              :name="strings.navAdminBBCodes"
+              :to="{ path: '/admin/bbcodes' }"
+              :active="isPathActive('/admin/bbcodes', true)"
+            >
+              <template #icon>
+                <CodeBracketsIcon :size="20" />
               </template>
             </NcAppNavigationItem>
           </template>
         </NcAppNavigationItem>
-
-        <!-- Preferences menu item (authenticated users only) -->
-        <NcAppNavigationItem
-          v-if="userId !== null"
-          :name="strings.navPreferences"
-          :to="{ path: '/preferences' }"
-          :active="isPathActive('/preferences')"
-        >
-          <template #icon>
-            <AccountCogIcon :size="20" />
-          </template>
-        </NcAppNavigationItem>
-      </NcAppNavigationItem>
-
-      <!-- Admin menu item - only visible to admins -->
-      <NcAppNavigationItem v-if="isAdmin" :name="strings.navAdmin" @click="navigateToAdmin">
-        <template #icon>
-          <ShieldCheckIcon :size="20" />
-        </template>
-
-        <template #actions>
-          <NcActionButton
-            :aria-label="isAdminOpen ? strings.collapse : strings.expand"
-            :title="isAdminOpen ? strings.collapse : strings.expand"
-            @click.stop="toggleAdmin"
-          >
-            <template #icon>
-              <ChevronDownIcon v-if="isAdminOpen" :size="20" />
-              <ChevronRightIcon v-else :size="20" />
-            </template>
-          </NcActionButton>
-        </template>
-
-        <!-- Admin sub-items -->
-        <template v-if="isAdminOpen">
-          <NcAppNavigationItem
-            :name="strings.navAdminDashboard"
-            :to="{ path: '/admin' }"
-            :active="isPathActive('/admin')"
-          >
-            <template #icon>
-              <ChartLineIcon :size="20" />
-            </template>
-          </NcAppNavigationItem>
-
-          <NcAppNavigationItem
-            :name="strings.navAdminSettings"
-            :to="{ path: '/admin/settings' }"
-            :active="isPathActive('/admin/settings')"
-          >
-            <template #icon>
-              <CogIcon :size="20" />
-            </template>
-          </NcAppNavigationItem>
-
-          <NcAppNavigationItem
-            :name="strings.navAdminUsers"
-            :to="{ path: '/admin/users' }"
-            :active="isPathActive('/admin/users', true)"
-          >
-            <template #icon>
-              <AccountMultipleIcon :size="20" />
-            </template>
-          </NcAppNavigationItem>
-
-          <NcAppNavigationItem
-            :name="strings.navAdminRoles"
-            :to="{ path: '/admin/roles' }"
-            :active="isPathActive('/admin/roles', true)"
-          >
-            <template #icon>
-              <ShieldAccountIcon :size="20" />
-            </template>
-          </NcAppNavigationItem>
-
-          <NcAppNavigationItem
-            :name="strings.navAdminCategories"
-            :to="{ path: '/admin/categories' }"
-            :active="isPathActive('/admin/categories', true)"
-          >
-            <template #icon>
-              <FolderIcon :size="20" />
-            </template>
-          </NcAppNavigationItem>
-
-          <NcAppNavigationItem
-            :name="strings.navAdminBBCodes"
-            :to="{ path: '/admin/bbcodes' }"
-            :active="isPathActive('/admin/bbcodes', true)"
-          >
-            <template #icon>
-              <CodeBracketsIcon :size="20" />
-            </template>
-          </NcAppNavigationItem>
-        </template>
-      </NcAppNavigationItem>
+      </template>
     </template>
 
     <template #footer>
-      <div v-if="userId" class="sidebar-footer">
+      <div v-if="!isLoading && userId" class="sidebar-footer">
         <UserInfo :user-id="userId" :display-name="displayName" :avatar-size="32" />
       </div>
     </template>
@@ -181,6 +192,7 @@ import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSearch'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import UserInfo from '@/components/UserInfo.vue'
 import HomeIcon from '@icons/Home.vue'
 import ForumIcon from '@icons/Forum.vue'
@@ -209,6 +221,7 @@ export default defineComponent({
     NcAppNavigationItem,
     NcAppNavigationSearch,
     NcActionButton,
+    NcLoadingIcon,
     UserInfo,
     HomeIcon,
     ForumIcon,
@@ -231,16 +244,11 @@ export default defineComponent({
     const { isAdmin, fetchUserRoles } = useUserRole()
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
 
-    // Fetch current user and their roles on mount
-    fetchCurrentUser().then((user) => {
-      if (user) {
-        fetchUserRoles(user.userId)
-      }
-    })
-
     return {
       categoryHeaders,
       fetchCategories,
+      fetchCurrentUser,
+      fetchUserRoles,
       userId,
       displayName,
       isAdmin,
@@ -251,11 +259,13 @@ export default defineComponent({
   },
   data() {
     return {
+      isLoading: true,
       searchValue: '',
       openHeaders: {} as Record<number, boolean>,
       isAdminOpen: true,
       STORAGE_KEY: 'forum_navigation_state',
       strings: {
+        loading: t('forum', 'Loading …'),
         searchLabel: t('forum', 'Search'),
         navHome: t('forum', 'Home'),
         navSearch: t('forum', 'Search'),
@@ -274,14 +284,34 @@ export default defineComponent({
     }
   },
   async created() {
-    // Fetch categories for sidebar
+    // Fetch all data needed for the sidebar in parallel
+    // Using Promise.allSettled to wait for all requests, even if some fail
     try {
-      await this.fetchCategories()
+      this.isLoading = true
 
-      // Load saved state from local storage
+      // Fetch categories and user data in parallel
+      const [categoriesResult, userResult] = await Promise.allSettled([
+        this.fetchCategories(),
+        this.fetchCurrentUser(),
+      ])
+
+      // If user was fetched successfully, also fetch their roles
+      if (userResult.status === 'fulfilled' && userResult.value) {
+        // Wait for roles to load before showing the sidebar
+        await this.fetchUserRoles(userResult.value.userId).catch((e) => {
+          console.error('Failed to load user roles:', e)
+        })
+      }
+
+      // Log any errors from categories fetch
+      if (categoriesResult.status === 'rejected') {
+        console.error('Failed to load categories for sidebar:', categoriesResult.reason)
+      }
+
+      // Load saved navigation state from local storage
       this.loadNavigationState()
-    } catch (e) {
-      console.error('Failed to load categories for sidebar:', e)
+    } finally {
+      this.isLoading = false
     }
   },
   methods: {
@@ -442,6 +472,20 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+.nav-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  gap: 12px;
+
+  &__text {
+    color: var(--color-text-maxcontrast);
+    font-size: 14px;
+  }
+}
+
 .sidebar-footer {
   padding: 16px;
 }

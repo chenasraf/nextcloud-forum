@@ -24,6 +24,7 @@ use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostEnrichmentService;
+use OCA\Forum\Service\PostHistoryService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -58,6 +59,8 @@ class PostControllerTest extends TestCase {
 	private NotificationService $notificationService;
 	/** @var PostEnrichmentService&MockObject */
 	private PostEnrichmentService $postEnrichmentService;
+	/** @var PostHistoryService&MockObject */
+	private PostHistoryService $postHistoryService;
 	/** @var UserService&MockObject */
 	private UserService $userService;
 	/** @var IUserSession&MockObject */
@@ -80,6 +83,7 @@ class PostControllerTest extends TestCase {
 		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->notificationService = $this->createMock(NotificationService::class);
 		$this->postEnrichmentService = $this->createMock(PostEnrichmentService::class);
+		$this->postHistoryService = $this->createMock(PostHistoryService::class);
 		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
@@ -107,6 +111,7 @@ class PostControllerTest extends TestCase {
 			$this->readMarkerMapper,
 			$this->notificationService,
 			$this->postEnrichmentService,
+			$this->postHistoryService,
 			$this->userService,
 			$this->userSession,
 			$this->logger

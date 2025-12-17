@@ -175,3 +175,18 @@ export interface Draft {
   createdAt: number
   updatedAt: number
 }
+
+export interface PostHistoryEntry {
+  id: number
+  postId: number
+  content: string
+  editedBy: string
+  editedAt: number
+  // Enriched fields
+  editor?: User
+}
+
+export interface PostHistoryResponse {
+  current: Post
+  history: PostHistoryEntry[]
+}

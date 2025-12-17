@@ -11,7 +11,6 @@ use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\ForumUserMapper;
-use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\ReadMarkerMapper;
@@ -20,6 +19,7 @@ use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostEnrichmentService;
+use OCA\Forum\Service\PostHistoryService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -47,6 +47,7 @@ class PostController extends OCSController {
 		private ReadMarkerMapper $readMarkerMapper,
 		private NotificationService $notificationService,
 		private PostEnrichmentService $postEnrichmentService,
+		private PostHistoryService $postHistoryService,
 		private UserService $userService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
@@ -437,7 +438,15 @@ class PostController extends OCSController {
 				return new DataResponse(['error' => 'Insufficient permissions to edit this post'], Http::STATUS_FORBIDDEN);
 			}
 
-			if ($content !== null) {
+			if ($content !== null && $oldContent !== $content) {
+				// Save the old content to history before updating
+				try {
+					$this->postHistoryService->saveHistory($post, $user->getUID());
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to save post edit history: ' . $e->getMessage());
+					// Don't fail the request if history save fails
+				}
+
 				$post->setContent($content);
 				$post->setIsEdited(true);
 				$post->setEditedAt(time());

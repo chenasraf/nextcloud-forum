@@ -41,6 +41,12 @@
             </template>
             {{ strings.delete }}
           </NcActionButton>
+          <NcActionButton v-if="post.isEdited" @click="handleViewHistory">
+            <template #icon>
+              <HistoryIcon :size="20" />
+            </template>
+            {{ strings.viewHistory }}
+          </NcActionButton>
         </NcActions>
       </div>
     </div>
@@ -71,6 +77,13 @@
       :reactions="post.reactions || []"
       @update="handleReactionsUpdate"
     />
+
+    <!-- Edit History Dialog -->
+    <PostHistoryDialog
+      :open="showHistoryDialog"
+      :post-id="post.id"
+      @update:open="showHistoryDialog = $event"
+    />
   </div>
 </template>
 
@@ -82,9 +95,11 @@ import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import ReplyIcon from '@icons/Reply.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
+import HistoryIcon from '@icons/History.vue'
 import UserInfo from './UserInfo.vue'
 import PostReactions from './PostReactions.vue'
 import PostEditForm from './PostEditForm.vue'
+import PostHistoryDialog from './PostHistoryDialog.vue'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 import { useUserRole } from '@/composables/useUserRole'
@@ -100,9 +115,11 @@ export default defineComponent({
     ReplyIcon,
     PencilIcon,
     DeleteIcon,
+    HistoryIcon,
     UserInfo,
     PostReactions,
     PostEditForm,
+    PostHistoryDialog,
   },
   props: {
     post: {
@@ -134,11 +151,13 @@ export default defineComponent({
   data() {
     return {
       isEditing: false,
+      showHistoryDialog: false,
       strings: {
         edited: t('forum', 'Edited'),
         reply: t('forum', 'Quote reply'),
         edit: t('forum', 'Edit'),
         delete: t('forum', 'Delete'),
+        viewHistory: t('forum', 'View edit history'),
         confirmDelete: t(
           'forum',
           'Are you sure you want to delete this post? This action cannot be undone.',
@@ -216,6 +235,11 @@ export default defineComponent({
       }
 
       this.$emit('delete', this.post)
+    },
+
+    handleViewHistory() {
+      this.closeActionsMenu()
+      this.showHistoryDialog = true
     },
 
     handleReactionsUpdate(reactions: ReactionGroup[]) {

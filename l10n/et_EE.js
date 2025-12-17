@@ -359,7 +359,7 @@ OC.L10N.register(
     "New threads" : "Uued jutulõngad",
     "New replies" : "Uued vastused",
     "Top contributors" : "Toimekamad kaasautorid",
-    "No contributors yet" : "Kkaasautoreid veel pole",
+    "No contributors yet" : "Kaasautoreid veel pole",
     "Last 7 days" : "Viimase 7 päeva jooksul",
     "All time" : "Läbi aegade",
     "General settings" : "Üldised seadistused",

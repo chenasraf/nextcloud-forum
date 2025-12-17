@@ -1051,7 +1051,7 @@ export default defineComponent({
       this.isSavingTitle = true
 
       try {
-        const response = await ocs.put(`/threads/${this.thread.id}/title`, {
+        const response = await ocs.put(`/threads/${this.thread.id}`, {
           title: this.editedTitle.trim(),
         })
 

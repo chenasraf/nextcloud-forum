@@ -1,6 +1,7 @@
 { "translations": {
     "Moderator" : "Moderator",
     "User" : "Korisnik",
+    "Loading …" : "Učitavanje...",
     "Search" : "Traži",
     "Home" : "Početak",
     "Hello world!" : "Zdravo svete!",
@@ -12,7 +13,6 @@
     "Edit" : "Izmeni",
     "Delete" : "Obriši",
     "Save" : "Sačuvaj",
-    "Loading …" : "Učitavanje...",
     "Error" : "Greška",
     "Preferences" : "Postavke",
     "Files" : "Fajlovi",

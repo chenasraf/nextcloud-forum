@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Moderator" : "Moderator",
     "User" : "Korisnik",
+    "Loading …" : "Učitavanje...",
     "Search" : "Traži",
     "Home" : "Početak",
     "Hello world!" : "Zdravo svete!",
@@ -14,7 +15,6 @@ OC.L10N.register(
     "Edit" : "Izmeni",
     "Delete" : "Obriši",
     "Save" : "Sačuvaj",
-    "Loading …" : "Učitavanje...",
     "Error" : "Greška",
     "Preferences" : "Postavke",
     "Files" : "Fajlovi",

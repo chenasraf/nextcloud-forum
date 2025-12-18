@@ -21,6 +21,7 @@ OC.L10N.register(
     "Delete" : "Dilemel",
     "Save" : "Enrollañ",
     "Title" : "Titl",
+    "Unsaved changes" : "Kemmoù n'int ket bet enrollet",
     "Refresh" : "Freskaat",
     "Retry" : "Klaskit en dro",
     "Error" : "Fazi",

@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.19.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.18.1...v0.19.0) (2025-12-18)
+
+
+### Features
+
+* post edit history ([a3f5360](https://github.com/chenasraf/nextcloud-forum/commit/a3f5360ff518753439bfc3370700a6f4521ac16b))
+* show loader in navigation sidebar ([d4e9ffd](https://github.com/chenasraf/nextcloud-forum/commit/d4e9ffd467da658629317d88c13f6a7c66425826))
+
+
+### Bug Fixes
+
+* **l10n:** show correct msg in thread update responses ([1793a16](https://github.com/chenasraf/nextcloud-forum/commit/1793a169c4ceeebd3d86cd68bed0056f0aaab1f1))
+* **l10n:** Update translations from Transifex ([6a920d3](https://github.com/chenasraf/nextcloud-forum/commit/6a920d3ebf9530022205a2502185ea1d3701fcac))
+
 ## [0.18.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.18.0...v0.18.1) (2025-12-17)
 
 

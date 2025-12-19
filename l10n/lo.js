@@ -42,6 +42,7 @@ OC.L10N.register(
     "Delete" : "ລຶບ",
     "Unread" : "Unread",
     "Save" : "ບັນທຶກ",
+    "Current version" : "Current version",
     "React with {emoji}" : "React with {emoji}",
     "Uncategorized" : "Uncategorized",
     "_%n reply_::_%n replies_" : ["%n replies"],

@@ -39,6 +39,7 @@ OC.L10N.register(
     "Delete" : "Slet",
     "Unread" : "Ulæst",
     "Save" : "Gem",
+    "Current version" : "Nuværende version",
     "Uncategorized" : "Udenfor kategori",
     "_%n reply_::_%n replies_" : ["%n svar","%n svar"],
     "Views" : "Visninger",

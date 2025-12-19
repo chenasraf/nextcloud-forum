@@ -133,6 +133,7 @@ OC.L10N.register(
     "Unread" : "Nastavit jako nepřečtené",
     "Save" : "Uložit",
     "Are you sure you want to discard your changes?" : "Opravdu chcete vámi provedené změny zahodit?",
+    "Current version" : "Stávající verze",
     "Add reaction" : "Přidat reakci",
     "React with {emoji}" : "Zareagovat {emoji}",
     "You reacted with {emoji}" : "Zareagovali jste s použitím {emoji}",

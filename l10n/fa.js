@@ -38,6 +38,7 @@ OC.L10N.register(
     "Delete" : "حذف",
     "Unread" : "Unread",
     "Save" : "ذخیره",
+    "Current version" : "نسخه فعلی",
     "React with {emoji}" : "React with {emoji}",
     "Uncategorized" : "دسته‌بندی نشده",
     "Views" : "بازدیدها",

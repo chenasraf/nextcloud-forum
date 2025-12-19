@@ -41,6 +41,7 @@ OC.L10N.register(
     "Delete" : "Обриши",
     "Unread" : "Непрочитано",
     "Save" : "Сачувај",
+    "Current version" : "Тренутна верзија",
     "React with {emoji}" : "Реагуј са {emoji}",
     "Uncategorized" : "Некатегоризовано",
     "_%n reply_::_%n replies_" : ["%n одговор","%n одговора","%n одговора"],

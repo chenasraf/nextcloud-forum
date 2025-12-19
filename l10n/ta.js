@@ -16,6 +16,7 @@ OC.L10N.register(
     "Edit" : "தொகுக்க",
     "Delete" : "நீக்குக",
     "Save" : "சேமிக்க ",
+    "Current version" : "தற்போதைய பதிப்பு",
     "Title" : "தலைப்பு",
     "Refresh" : "மீள் ஏற்றுக",
     "Error" : "வழு",

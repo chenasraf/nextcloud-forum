@@ -24,6 +24,7 @@ OC.L10N.register(
     "Edit" : "Modifi",
     "Delete" : "Forigi",
     "Save" : "Konservi",
+    "Current version" : "Nuna versio",
     "Uncategorized" : "Senkategoria",
     "Saving draft …" : "Konservado de malneto...",
     "Draft saved" : "Malneto konservita",

@@ -31,6 +31,7 @@ OC.L10N.register(
     "Edit" : "Chỉnh sửa",
     "Delete" : "Xóa",
     "Save" : "Lưu",
+    "Current version" : "Phiên bản hiện tại",
     "Uncategorized" : "Chưa phân loại",
     "Views" : "Lượt xem",
     "Title" : "Tên",

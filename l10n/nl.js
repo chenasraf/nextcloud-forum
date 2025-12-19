@@ -43,6 +43,7 @@ OC.L10N.register(
     "Delete" : "Verwijderen",
     "Unread" : "Ongelezen",
     "Save" : "Opslaan",
+    "Current version" : "Huidige versie",
     "React with {emoji}" : "Reageer met {emoji}",
     "Uncategorized" : "Niet gecategoriseerd",
     "Views" : "Bekeken",

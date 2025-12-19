@@ -42,6 +42,7 @@ OC.L10N.register(
     "Delete" : "Slett",
     "Unread" : "Ulest",
     "Save" : "Lagre",
+    "Current version" : "Nåværende versjon",
     "React with {emoji}" : "Reager med {emoji}",
     "Uncategorized" : "Ukategorisert",
     "Views" : "Visninger",

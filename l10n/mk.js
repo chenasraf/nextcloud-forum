@@ -31,6 +31,7 @@ OC.L10N.register(
     "Delete" : "Избриши",
     "Unread" : "Непрочитана",
     "Save" : "Сними",
+    "Current version" : "Моментална верзија",
     "React with {emoji}" : "Реагирај со {emoji}",
     "Views" : "Прегледи",
     "Title" : "Наслов",

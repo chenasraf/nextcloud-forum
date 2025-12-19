@@ -30,6 +30,7 @@ OC.L10N.register(
     "Edit" : "Uredi",
     "Delete" : "Izbriši",
     "Save" : "Spremi",
+    "Current version" : "Trenutna verzija",
     "Uncategorized" : "Nekategorizirani",
     "Views" : "Prikazi",
     "Title" : "Naslov",

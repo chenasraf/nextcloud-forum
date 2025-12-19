@@ -137,6 +137,7 @@ OC.L10N.register(
     "Edit your reply …" : "جاۋابىڭىزنى تەھرىرلەڭ …",
     "Save" : "ساقلاش",
     "Are you sure you want to discard your changes?" : "ئۆزگەرتىشلىرىڭىزنى راستىنلا بىكار قىلماقچىمۇ؟",
+    "Current version" : "نۆۋەتتىكى نەشرى",
     "Add reaction" : "رېئاكسىيە قوشۇش",
     "React with {emoji}" : "{emoji} with بىلەن ئىنكاس قايتۇرۇڭ",
     "You reacted with {emoji}" : "سىز {emoji} بىلەن ئىنكاس قايتۇردىڭىز",

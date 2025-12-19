@@ -34,6 +34,7 @@ OC.L10N.register(
     "Delete" : "삭제",
     "Unread" : "읽지 않음",
     "Save" : "저장",
+    "Current version" : "현재 버전",
     "React with {emoji}" : "{emoji}(으)로 반응",
     "Uncategorized" : "분류되지 않음",
     "Views" : "보기",

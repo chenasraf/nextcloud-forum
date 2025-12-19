@@ -137,6 +137,7 @@ OC.L10N.register(
     "Edit your reply …" : "Hariri jibu lako...",
     "Save" : "Hifadhi",
     "Are you sure you want to discard your changes?" : "Je, una uhakika unataka kutupa mabadiliko yako?",
+    "Current version" : "Toleo la sasa",
     "Add reaction" : "Ongeza majibu",
     "React with {emoji}" : "Jibu kwa {emoji}",
     "You reacted with {emoji}" : "You reacted with {emoji}",

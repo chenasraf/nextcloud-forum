@@ -43,6 +43,7 @@ OC.L10N.register(
     "Delete" : "Suprimir",
     "Unread" : "Per llegir",
     "Save" : "Desar",
+    "Current version" : "Versió actual",
     "React with {emoji}" : "Reacciona amb {emoji}",
     "Uncategorized" : "Sense categoria",
     "Views" : "Vistes",

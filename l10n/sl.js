@@ -40,6 +40,7 @@ OC.L10N.register(
     "Delete" : "Izbriši",
     "Unread" : "Neprebrano",
     "Save" : "Shrani",
+    "Current version" : "Trenutna različica",
     "React with {emoji}" : "Odzovi se z {emoji}",
     "Uncategorized" : "Neopredeljeno",
     "Views" : "Pogledi",

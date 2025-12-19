@@ -32,6 +32,7 @@ OC.L10N.register(
     "Delete" : "Cantzella",
     "Unread" : "De lèghere",
     "Save" : "Sarva",
+    "Current version" : "Versione atuale",
     "Views" : "Visualizatziones",
     "Title" : "Tìtulu",
     "Saving draft …" : "Sarvende sa brutacòpia ...",

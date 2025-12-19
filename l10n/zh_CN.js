@@ -39,6 +39,7 @@ OC.L10N.register(
     "Delete" : "删除",
     "Unread" : "未读",
     "Save" : "保存",
+    "Current version" : "当前版本",
     "React with {emoji}" : "使用{emoji}回应",
     "Uncategorized" : "未分类",
     "_%n reply_::_%n replies_" : ["%n 个回复"],

@@ -116,6 +116,7 @@ OC.L10N.register(
     "Unread" : "לא נקרא",
     "Save" : "שמירה",
     "Are you sure you want to discard your changes?" : "האם אתם בטוחים שתרצו לבטל את השינויים שלכם?",
+    "Current version" : "גרסה נוכחית",
     "Uncategorized" : "ללא קטגוריה",
     "Views" : "תצוגות",
     "Saving draft …" : "הטיוטה נשמרת…",

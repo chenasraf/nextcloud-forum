@@ -134,6 +134,7 @@
     "Unread" : "Непрочитанное",
     "Save" : "Сохранить",
     "Are you sure you want to discard your changes?" : "Вы уверены, что хотите отменить изменения?",
+    "Current version" : "Текущая версия",
     "Add reaction" : "Добавить реакцию",
     "React with {emoji}" : "Отреагируйте с {emoji}",
     "You reacted with {emoji}" : "Вы отреагировали {emoji}",

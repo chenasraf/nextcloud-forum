@@ -32,6 +32,7 @@ OC.L10N.register(
     "Delete" : "Eliminar",
     "Unread" : "No leído",
     "Save" : "Guardar",
+    "Current version" : "Versión actual",
     "Uncategorized" : "Sin categoría",
     "Views" : "Vistas",
     "Saving draft …" : "Guardando borrador...",

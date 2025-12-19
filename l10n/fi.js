@@ -41,6 +41,7 @@ OC.L10N.register(
     "Delete" : "Poista",
     "Unread" : "Lukematon",
     "Save" : "Tallenna",
+    "Current version" : "Nykyinen versio",
     "React with {emoji}" : "Reagoi emojilla {emoji}",
     "Uncategorized" : "Luokittelematon",
     "Views" : "Näkymät",

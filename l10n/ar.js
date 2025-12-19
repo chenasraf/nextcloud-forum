@@ -38,6 +38,7 @@ OC.L10N.register(
     "Delete" : "حذف",
     "Unread" : "غير مقروء",
     "Save" : "حفظ",
+    "Current version" : "النسخة الحالية",
     "React with {emoji}" : "تفاعل باستخدام {emoji}",
     "Uncategorized" : "غير مُصنّفة",
     "Views" : "مشاهدات",

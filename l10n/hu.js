@@ -43,6 +43,7 @@ OC.L10N.register(
     "Delete" : "Törlés",
     "Unread" : "Olvasatlan",
     "Save" : "Mentés",
+    "Current version" : "Jelenlegi verzió",
     "React with {emoji}" : "Reagálás ezzel: {emoji}",
     "Uncategorized" : "Kategorizálatlan",
     "_%n reply_::_%n replies_" : ["%n válasz","%n válasz"],

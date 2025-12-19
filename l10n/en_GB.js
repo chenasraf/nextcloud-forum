@@ -138,6 +138,7 @@ OC.L10N.register(
     "Edit your reply …" : "Edit your reply …",
     "Save" : "Save",
     "Are you sure you want to discard your changes?" : "Are you sure you want to discard your changes?",
+    "Current version" : "Current version",
     "Add reaction" : "Add reaction",
     "React with {emoji}" : "React with {emoji}",
     "You reacted with {emoji}" : "You reacted with {emoji}",

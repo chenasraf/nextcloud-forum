@@ -43,6 +43,7 @@ OC.L10N.register(
     "Delete" : "Usuń",
     "Unread" : "Nieprzeczytane",
     "Save" : "Zapisz",
+    "Current version" : "Obecna wersja",
     "React with {emoji}" : "Reakcja za pomocą {emoji}",
     "Uncategorized" : "Bez kategorii",
     "_%n reply_::_%n replies_" : ["%n odpowiedź","%n odpowiedzi","%n odpowiedzi","%n odpowiedzi"],

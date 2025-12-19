@@ -38,6 +38,7 @@ OC.L10N.register(
     "Edit" : "Labot",
     "Delete" : "Izdzēst",
     "Save" : "Saglabāt",
+    "Current version" : "Pašreizējā versija",
     "Uncategorized" : "Bez kategorijas",
     "Views" : "Skatījumi",
     "Title" : "Virsraksts",

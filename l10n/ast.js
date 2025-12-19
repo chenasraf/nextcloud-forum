@@ -34,6 +34,7 @@ OC.L10N.register(
     "Delete" : "Desaniciar",
     "Unread" : "Ensin lleer",
     "Save" : "Guardar",
+    "Current version" : "Versión actual",
     "Uncategorized" : "Ensin categoría",
     "Views" : "Vistes",
     "Title" : "Títulu",

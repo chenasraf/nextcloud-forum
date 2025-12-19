@@ -44,6 +44,7 @@ OC.L10N.register(
     "Delete" : "Supprimer",
     "Unread" : "Non lu",
     "Save" : "Enregistrer",
+    "Current version" : "Version actuelle",
     "React with {emoji}" : "Réagir avec {emoji}",
     "Uncategorized" : "Non catégorisé",
     "_%n reply_::_%n replies_" : ["%n réponse","%n réponses","%n réponses"],

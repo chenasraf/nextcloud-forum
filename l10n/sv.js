@@ -42,6 +42,7 @@ OC.L10N.register(
     "Delete" : "Ta bort",
     "Unread" : "Oläst",
     "Save" : "Spara",
+    "Current version" : "Aktuell version",
     "Add reaction" : "Lägg till reaktion",
     "React with {emoji}" : "Reagera med {emoji}",
     "Uncategorized" : "Okategoriserade",

@@ -115,6 +115,7 @@ OC.L10N.register(
     "Unread" : "No leído",
     "Save" : "Guardar",
     "Are you sure you want to discard your changes?" : "¿Estás seguro de que deseas descartar tus cambios?",
+    "Current version" : "Versión actual",
     "Add reaction" : "Agregar reacción",
     "React with {emoji}" : "Reaccionar con {emoji}",
     "You reacted with {emoji}" : "Has reaccionado con {emoji}",

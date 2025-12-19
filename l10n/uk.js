@@ -44,6 +44,7 @@ OC.L10N.register(
     "Delete" : "Видалити",
     "Unread" : "Непрочитане",
     "Save" : "Зберегти",
+    "Current version" : "Поточна версія",
     "Add reaction" : "Додати реакцію",
     "React with {emoji}" : "Відреагувати з {emoji}",
     "_%n reply_::_%n replies_" : ["%n відповідь","%n відповідей","%n відповідей","%n відповідей"],

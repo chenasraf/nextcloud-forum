@@ -47,6 +47,7 @@ OC.L10N.register(
     "Delete" : "Διαγραφή",
     "Unread" : "Μη αναγνωσμένο",
     "Save" : "Αποθήκευση",
+    "Current version" : "Τρέχουσα έκδοση",
     "React with {emoji}" : "Αντίδραση με {emoji}",
     "Uncategorized" : "Μή-κατηγοριοποιημένα",
     "_%n reply_::_%n replies_" : ["%n απάντηση","%n απαντήσεις"],

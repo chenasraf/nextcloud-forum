@@ -34,6 +34,7 @@ OC.L10N.register(
     "Edit" : "Taisyti",
     "Delete" : "Ištrinti",
     "Save" : "Įrašyti",
+    "Current version" : "Dabartinė versija",
     "React with {emoji}" : "Reaguoti naudojant {emoji}",
     "Uncategorized" : "Nekategorizuotas",
     "Views" : "Rodiniai",

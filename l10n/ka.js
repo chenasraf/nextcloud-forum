@@ -32,6 +32,7 @@ OC.L10N.register(
     "Delete" : "წაშლა",
     "Unread" : "Unread",
     "Save" : "დამახსოვრება",
+    "Current version" : "Current version",
     "React with {emoji}" : "React with {emoji}",
     "Uncategorized" : "Uncategorized",
     "Views" : "Views",

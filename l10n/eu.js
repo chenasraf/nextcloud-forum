@@ -42,6 +42,7 @@ OC.L10N.register(
     "Delete" : "Ezabatu",
     "Unread" : "Irakurri gabe",
     "Save" : "Gorde",
+    "Current version" : "Uneko bertsioa",
     "React with {emoji}" : "Erreakzionatu {emoji}-(r)ekin",
     "Uncategorized" : "Kategoria gabe",
     "Views" : "Ikuspegiak",

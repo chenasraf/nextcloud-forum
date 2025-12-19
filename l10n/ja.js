@@ -37,6 +37,7 @@ OC.L10N.register(
     "Delete" : "削除",
     "Unread" : "未読",
     "Save" : "保存する",
+    "Current version" : "現在のバージョン",
     "React with {emoji}" : "{emoji} で反応する",
     "Uncategorized" : "未分類",
     "_%n reply_::_%n replies_" : ["%n件の返信"],

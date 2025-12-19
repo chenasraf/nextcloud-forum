@@ -36,6 +36,7 @@ OC.L10N.register(
     "Delete" : "Eyða",
     "Unread" : "Ólesið",
     "Save" : "Vista",
+    "Current version" : "Fyrirliggjandi útgáfa",
     "Uncategorized" : "Óflokkað",
     "Views" : "Skoðun",
     "Saving draft …" : "Vista drög …",

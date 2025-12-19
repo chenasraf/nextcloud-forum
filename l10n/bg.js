@@ -40,6 +40,7 @@ OC.L10N.register(
     "Delete" : "Изтриване",
     "Unread" : "Непрочетено",
     "Save" : "Запиши",
+    "Current version" : "Текуща версия",
     "React with {emoji}" : "Реагирайте с {emoji}",
     "Uncategorized" : "Некатегоризирани",
     "Views" : "Изгледи",

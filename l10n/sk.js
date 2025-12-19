@@ -42,6 +42,7 @@ OC.L10N.register(
     "Delete" : "Vymazať",
     "Unread" : "Neprečítané",
     "Save" : "Uložiť",
+    "Current version" : "Aktuálna verzia",
     "React with {emoji}" : "Reagovať s {emoji}",
     "Uncategorized" : "Nezaradené",
     "_%n reply_::_%n replies_" : ["%n odpoveď","%n odpovede","%n odpovedí","%n odpovedí"],

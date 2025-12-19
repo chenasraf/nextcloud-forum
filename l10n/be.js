@@ -56,6 +56,7 @@ OC.L10N.register(
     "Are you sure you want to delete this post? This action cannot be undone." : "Вы ўпэўнены, што хочаце выдаліць гэты допіс? Гэта дзеянне нельга адрабіць.",
     "Unread" : "Непрачытанае",
     "Save" : "Захаваць",
+    "Current version" : "Бягучая версія",
     "Add reaction" : "Дадаць рэакцыю",
     "React with {emoji}" : "Адрэагаваць з {emoji}",
     "_%n reply_::_%n replies_" : ["%n адказ","%n адказы","%n адказаў","%n адказаў"],

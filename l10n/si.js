@@ -13,6 +13,7 @@ OC.L10N.register(
     "Update" : "යාවත්කාල",
     "Back" : "ආපසු",
     "Edit" : "සංස්කරණය",
+    "Current version" : "වත්මන් අනුවාදය",
     "Retry" : "නැවත උත්සාහ කරන්න",
     "Error" : "දෝෂය",
     "Reply" : "පිළිතුර",

@@ -153,7 +153,7 @@ export default defineComponent({
     getVersionLabel(index: number): string {
       const totalVersions = this.historyData?.history.length || 0
       const versionNumber = totalVersions - index
-      return n('forum', 'Version %n', 'Version %n', versionNumber)
+      return t('forum', 'Version {index}', { index: versionNumber })
     },
   },
 })

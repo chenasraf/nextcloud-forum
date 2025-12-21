@@ -145,6 +145,7 @@ OC.L10N.register(
     "Current version" : "Geçerli sürüm",
     "Edited by" : "Düzenleyen",
     "Failed to load edit history" : "Düzenleme geçmişi yüklenemedi",
+    "Version {index}" : "{index} sürümü",
     "Add reaction" : "Tepki ver",
     "React with {emoji}" : "{emoji} ile tepki ver",
     "You reacted with {emoji}" : "{emoji} ile tepki verdiniz",

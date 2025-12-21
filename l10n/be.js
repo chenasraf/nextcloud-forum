@@ -57,6 +57,7 @@ OC.L10N.register(
     "Unread" : "Непрачытанае",
     "Save" : "Захаваць",
     "Current version" : "Бягучая версія",
+    "Version {index}" : "Версія {index}",
     "Add reaction" : "Дадаць рэакцыю",
     "React with {emoji}" : "Адрэагаваць з {emoji}",
     "_%n reply_::_%n replies_" : ["%n адказ","%n адказы","%n адказаў","%n адказаў"],

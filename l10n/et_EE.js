@@ -144,6 +144,7 @@ OC.L10N.register(
     "Current version" : "Hetkeversioon",
     "Edited by" : "Muutja",
     "Failed to load edit history" : "Muudatuste ajaloo laadimine ei õnnestunud",
+    "Version {index}" : "Versioon {index}",
     "Add reaction" : "Lisa reaktsioon",
     "React with {emoji}" : "Reageeri {emoji} emojiga",
     "You reacted with {emoji}" : "Sa reageerisid {emoji} emojiga",

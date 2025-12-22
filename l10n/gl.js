@@ -145,6 +145,7 @@ OC.L10N.register(
     "Current version" : "Versión actual",
     "Edited by" : "Editada por",
     "Failed to load edit history" : "Produciuse un fallo ao cargar o historial de edicións",
+    "Version {index}" : "Versión {index}",
     "Add reaction" : "Engadir reacción",
     "React with {emoji}" : "Reaccionar con {emoji}",
     "You reacted with {emoji}" : "Vde. reaccionou con {emoji}",

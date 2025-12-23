@@ -145,6 +145,7 @@ OC.L10N.register(
     "Current version" : "目前版本",
     "Edited by" : "編輯者",
     "Failed to load edit history" : "載入編輯歷史紀錄失敗",
+    "Version {index}" : "版本 {index}",
     "Add reaction" : "新增反應",
     "React with {emoji}" : "使用 {emoji} 做出反應",
     "You reacted with {emoji}" : "您已以 {emoji} 做出反應",

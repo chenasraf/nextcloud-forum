@@ -145,6 +145,7 @@ OC.L10N.register(
     "Current version" : "Leagan reatha",
     "Edited by" : "Eagarthóireacht déanta ag",
     "Failed to load edit history" : "Theip ar stair eagarthóireachta a lódáil",
+    "Version {index}" : "Leagan {index}",
     "Add reaction" : "Cuir imoibriú leis",
     "React with {emoji}" : "Freagair le {emoji}",
     "You reacted with {emoji}" : "D'imoibrigh tú le {emoji}",

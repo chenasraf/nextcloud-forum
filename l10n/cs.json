@@ -266,6 +266,7 @@
     "Files" : "Soubory",
     "Configure file upload settings" : "Nastavit nahrávání souborů",
     "Upload directory" : "Složka pro nahrání",
+    "Files attached to threads or replies will be uploaded to this directory in your Nextcloud files" : "Soubory připojené k vláknům nebo odpovědím budou nahrány do této složky v Nextcloud Soubory",
     "Browse" : "Procházet",
     "Preferences saved" : "Předvolby uloženy",
     "Signature" : "Podpis",

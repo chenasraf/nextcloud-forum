@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.19.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.1...v0.19.2) (2025-12-27)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([d28b8c0](https://github.com/chenasraf/nextcloud-forum/commit/d28b8c0f88255fad38bff24dd6747ce420f08919))
+* **l10n:** Update translations from Transifex ([4d7efe9](https://github.com/chenasraf/nextcloud-forum/commit/4d7efe9d32084e8accd857e68bd4434d415ff784))
+* **l10n:** Update translations from Transifex ([7ae4d8f](https://github.com/chenasraf/nextcloud-forum/commit/7ae4d8f369c87fb5a65a7dbc60980e4760fb4f7b))
+* **l10n:** Update translations from Transifex ([1dad565](https://github.com/chenasraf/nextcloud-forum/commit/1dad565072ced353a47e2f7ece865a81757ff81a))
+
 ## [0.19.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.0...v0.19.1) (2025-12-22)
 
 

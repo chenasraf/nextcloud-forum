@@ -1,6 +1,7 @@
 { "translations": {
     "Admin" : "Admi",
     "User" : "Používateľ",
+    "Guest" : "Hosť",
     "General" : "Všeobecné",
     "Support" : "Podpora",
     "Bold text" : "Tučné písmo",

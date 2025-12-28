@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Admin" : "Admi",
     "User" : "Používateľ",
+    "Guest" : "Hosť",
     "General" : "Všeobecné",
     "Support" : "Podpora",
     "Bold text" : "Tučné písmo",

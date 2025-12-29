@@ -48,8 +48,9 @@ class SeedHelper {
 	}
 
 	/**
-	 * Ensure forum_users table exists, renaming from forum_user_stats if needed
-	 * This handles cases where migrations partially failed
+	 * Ensure forum_users table exists, renaming from forum_user_stats if needed,
+	 * or creating it from scratch for fresh installations.
+	 * This handles cases where migrations partially failed or fresh installs.
 	 *
 	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
@@ -66,6 +67,7 @@ class SeedHelper {
 		$newTableExists = self::tableExists($db, $newTable);
 
 		if ($oldTableExists && !$newTableExists) {
+			// Case 1: Old table exists, rename it
 			$logger->info('Forum seeding: Renaming forum_user_stats to forum_users...');
 			if ($output) {
 				$output->info('  → Renaming forum_user_stats to forum_users...');
@@ -90,6 +92,89 @@ class SeedHelper {
 				$logger->error('Forum seeding: Failed to rename table', ['exception' => $e->getMessage()]);
 				throw $e;
 			}
+		} elseif (!$oldTableExists && !$newTableExists) {
+			// Case 2: Neither table exists (fresh install), create forum_users
+			$logger->info('Forum seeding: Creating forum_users table...');
+			if ($output) {
+				$output->info('  → Creating forum_users table...');
+			}
+
+			try {
+				self::createForumUsersTable($db);
+
+				$logger->info('Forum seeding: Table created successfully');
+				if ($output) {
+					$output->info('  ✓ Table created successfully');
+				}
+			} catch (\Exception $e) {
+				$logger->error('Forum seeding: Failed to create forum_users table', ['exception' => $e->getMessage()]);
+				throw $e;
+			}
+		}
+		// Case 3: $newTableExists is true - nothing to do
+	}
+
+	/**
+	 * Create the forum_users table from scratch
+	 * This mirrors the schema from Version1 + Version8 migrations
+	 */
+	private static function createForumUsersTable(\OCP\IDBConnection $db): void {
+		$platform = $db->getDatabasePlatform();
+		$config = \OC::$server->get(\OCP\IConfig::class);
+		$prefix = $config->getSystemValueString('dbtableprefix', 'oc_');
+		$tableName = $prefix . 'forum_users';
+
+		// Use instanceof checks for reliable platform detection (getName() is deprecated)
+		if ($platform instanceof \Doctrine\DBAL\Platforms\MySQLPlatform) {
+			// MySQL and MariaDB both extend MySQLPlatform
+			$db->executeStatement("
+				CREATE TABLE `{$tableName}` (
+					`user_id` VARCHAR(64) NOT NULL,
+					`post_count` INT UNSIGNED NOT NULL DEFAULT 0,
+					`thread_count` INT UNSIGNED NOT NULL DEFAULT 0,
+					`last_post_at` INT UNSIGNED DEFAULT NULL,
+					`deleted_at` INT UNSIGNED DEFAULT NULL,
+					`signature` TEXT DEFAULT NULL,
+					`created_at` INT UNSIGNED NOT NULL,
+					`updated_at` INT UNSIGNED NOT NULL,
+					PRIMARY KEY (`user_id`),
+					INDEX `forum_users_post_count_idx` (`post_count`),
+					INDEX `forum_users_deleted_at_idx` (`deleted_at`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
+			");
+		} elseif ($platform instanceof \Doctrine\DBAL\Platforms\PostgreSQLPlatform) {
+			$db->executeStatement("
+				CREATE TABLE \"{$tableName}\" (
+					\"user_id\" VARCHAR(64) NOT NULL,
+					\"post_count\" INTEGER NOT NULL DEFAULT 0,
+					\"thread_count\" INTEGER NOT NULL DEFAULT 0,
+					\"last_post_at\" INTEGER DEFAULT NULL,
+					\"deleted_at\" INTEGER DEFAULT NULL,
+					\"signature\" TEXT DEFAULT NULL,
+					\"created_at\" INTEGER NOT NULL,
+					\"updated_at\" INTEGER NOT NULL,
+					PRIMARY KEY (\"user_id\")
+				)
+			");
+			$db->executeStatement("CREATE INDEX \"forum_users_post_count_idx\" ON \"{$tableName}\" (\"post_count\")");
+			$db->executeStatement("CREATE INDEX \"forum_users_deleted_at_idx\" ON \"{$tableName}\" (\"deleted_at\")");
+		} else {
+			// SQLite (and any other platform as fallback)
+			$db->executeStatement("
+				CREATE TABLE \"{$tableName}\" (
+					\"user_id\" VARCHAR(64) NOT NULL,
+					\"post_count\" INTEGER NOT NULL DEFAULT 0,
+					\"thread_count\" INTEGER NOT NULL DEFAULT 0,
+					\"last_post_at\" INTEGER DEFAULT NULL,
+					\"deleted_at\" INTEGER DEFAULT NULL,
+					\"signature\" TEXT DEFAULT NULL,
+					\"created_at\" INTEGER NOT NULL,
+					\"updated_at\" INTEGER NOT NULL,
+					PRIMARY KEY (\"user_id\")
+				)
+			");
+			$db->executeStatement("CREATE INDEX \"forum_users_post_count_idx\" ON \"{$tableName}\" (\"post_count\")");
+			$db->executeStatement("CREATE INDEX \"forum_users_deleted_at_idx\" ON \"{$tableName}\" (\"deleted_at\")");
 		}
 	}
 

@@ -78,7 +78,6 @@ class Version7Date20251124120000 extends SimpleMigrationStep {
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 		$this->migrateConfigValues($output);
 		$this->updateExistingRoleFlags($output);
-		// Note: SeedHelper::seedAll() is called in Version9 after table rename
 	}
 
 	/**

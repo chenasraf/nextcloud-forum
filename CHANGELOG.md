@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.2...v0.19.3) (2025-12-31)
+
+
+### Bug Fixes
+
+* add seed migration ([b6e40f9](https://github.com/chenasraf/nextcloud-forum/commit/b6e40f9976d1b9a6d5a1a378d1ff43b72feace06))
+
 ## [0.19.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.1...v0.19.2) (2025-12-29)
 
 

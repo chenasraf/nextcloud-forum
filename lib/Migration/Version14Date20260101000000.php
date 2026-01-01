@@ -13,20 +13,21 @@ use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
 
 /**
- * Version 13 Migration:
- * - Ensure forum_users table exists (fixes fresh installs where table was missing)
+ * Version 14 Migration:
+ * - Run seed to ensure all required data exists
  *
- * Note: The seedAll() call was moved to Version14 migration to fix an issue where
- * the seeding used hardcoded role IDs that may not exist during upgrades.
+ * This migration fixes an issue from Version 13 where seeding used hardcoded role IDs
+ * that may not match the actual role IDs in the database during upgrades.
+ * The fix ensures roles are looked up by role_type instead of by ID.
  */
-class Version13Date20251231000000 extends SimpleMigrationStep {
+class Version14Date20260101000000 extends SimpleMigrationStep {
 	/**
 	 * @param IOutput $output
 	 * @param Closure(): ISchemaWrapper $schemaClosure
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		// SeedHelper ensures forum_users table exists (table creation only, seeding moved to Version14)
-		SeedHelper::ensureForumUsersTablePublic($output);
+		// SeedHelper now uses role_type instead of hardcoded IDs to find roles
+		SeedHelper::seedAll($output);
 	}
 }

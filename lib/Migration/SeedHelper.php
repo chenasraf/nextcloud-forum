@@ -48,6 +48,15 @@ class SeedHelper {
 	}
 
 	/**
+	 * Public wrapper for ensureForumUsersTable for use in migrations
+	 *
+	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
+	 */
+	public static function ensureForumUsersTablePublic($output = null): void {
+		self::ensureForumUsersTable($output);
+	}
+
+	/**
 	 * Ensure forum_users table exists, renaming from forum_user_stats if needed,
 	 * or creating it from scratch for fresh installations.
 	 * This handles cases where migrations partially failed or fresh installs.
@@ -224,23 +233,23 @@ class SeedHelper {
 		$timestamp = time();
 
 		try {
-			// Get existing role IDs to check what needs to be created
+			// Get existing roles by role_type (not hardcoded IDs) to check what needs to be created
 			$qb = $db->getQueryBuilder();
-			$qb->select('id')
+			$qb->select('role_type')
 				->from('forum_roles')
-				->where($qb->expr()->in('id', $qb->createNamedParameter([
-					1,
-					2,
-					3,
-					4,
-				], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
+				->where($qb->expr()->in('role_type', $qb->createNamedParameter([
+					\OCA\Forum\Db\Role::ROLE_TYPE_ADMIN,
+					\OCA\Forum\Db\Role::ROLE_TYPE_MODERATOR,
+					\OCA\Forum\Db\Role::ROLE_TYPE_DEFAULT,
+					\OCA\Forum\Db\Role::ROLE_TYPE_GUEST,
+				], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR_ARRAY)));
 			$result = $qb->executeQuery();
 			$existingRoles = $result->fetchAll();
 			$result->closeCursor();
 
-			$existingIds = array_map(fn ($role) => (int)$role['id'], $existingRoles);
+			$existingTypes = array_map(fn ($role) => $role['role_type'], $existingRoles);
 
-			if (count($existingIds) === 4) {
+			if (count($existingTypes) === 4) {
 				$logger->info('Forum seeding: Default roles already exist, skipping');
 				if ($output) {
 					$output->info('  ✓ Default roles already exist');
@@ -255,9 +264,9 @@ class SeedHelper {
 			$db->beginTransaction();
 			$rolesCreated = 0;
 
-			// Define roles with their expected IDs and characteristics
+			// Define roles by role_type (not hardcoded IDs)
 			$rolesToCreate = [
-				1 => [
+				\OCA\Forum\Db\Role::ROLE_TYPE_ADMIN => [
 					'name' => $l->t('Admin'),
 					'description' => $l->t('Administrator role with full permissions'),
 					'can_access_admin_tools' => true,
@@ -266,7 +275,7 @@ class SeedHelper {
 					'is_system_role' => true,
 					'role_type' => \OCA\Forum\Db\Role::ROLE_TYPE_ADMIN,
 				],
-				2 => [
+				\OCA\Forum\Db\Role::ROLE_TYPE_MODERATOR => [
 					'name' => $l->t('Moderator'),
 					'description' => $l->t('Moderator role with elevated permissions'),
 					'can_access_admin_tools' => true,
@@ -275,7 +284,7 @@ class SeedHelper {
 					'is_system_role' => true,
 					'role_type' => \OCA\Forum\Db\Role::ROLE_TYPE_MODERATOR,
 				],
-				3 => [
+				\OCA\Forum\Db\Role::ROLE_TYPE_DEFAULT => [
 					'name' => $l->t('User'),
 					'description' => $l->t('Default user role with basic permissions'),
 					'can_access_admin_tools' => false,
@@ -284,7 +293,7 @@ class SeedHelper {
 					'is_system_role' => true,
 					'role_type' => \OCA\Forum\Db\Role::ROLE_TYPE_DEFAULT,
 				],
-				4 => [
+				\OCA\Forum\Db\Role::ROLE_TYPE_GUEST => [
 					'name' => $l->t('Guest'),
 					'description' => $l->t('Guest role for unauthenticated users with read-only access'),
 					'can_access_admin_tools' => false,
@@ -295,11 +304,8 @@ class SeedHelper {
 				],
 			];
 
-			foreach ($rolesToCreate as $roleId => $roleData) {
-				if (!in_array($roleId, $existingIds)) {
-					// Note: We cannot force auto-increment IDs in a portable way
-					// This assumes roles are created in order during initial migration
-					// If roles are missing, they will be created with next available IDs
+			foreach ($rolesToCreate as $roleType => $roleData) {
+				if (!in_array($roleType, $existingTypes)) {
 					$qb = $db->getQueryBuilder();
 					$qb->insert('forum_roles')
 						->values([
@@ -314,7 +320,7 @@ class SeedHelper {
 						])
 						->executeStatement();
 					$rolesCreated++;
-					$logger->warning("Forum seeding: Created role ID expected to be $roleId, but actual ID may differ due to database state");
+					$logger->info("Forum seeding: Created role with type '$roleType'");
 				}
 			}
 
@@ -694,25 +700,34 @@ class SeedHelper {
 				throw new \RuntimeException('Cannot create category permissions: categories must be created first');
 			}
 
-			// Check if roles exist
+			// Find Moderator role by role_type (not hardcoded ID)
 			$qb = $db->getQueryBuilder();
 			$qb->select('id')
 				->from('forum_roles')
-				->where($qb->expr()->in('id', $qb->createNamedParameter([
-					2,
-					3,
-				], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
+				->where($qb->expr()->eq('role_type', $qb->createNamedParameter(\OCA\Forum\Db\Role::ROLE_TYPE_MODERATOR, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)));
 			$result = $qb->executeQuery();
-			$roles = $result->fetchAll();
+			$moderatorRole = $result->fetch();
 			$result->closeCursor();
 
-			if (count($roles) < 2) {
+			// Find User (default) role by role_type (not hardcoded ID)
+			$qb = $db->getQueryBuilder();
+			$qb->select('id')
+				->from('forum_roles')
+				->where($qb->expr()->eq('role_type', $qb->createNamedParameter(\OCA\Forum\Db\Role::ROLE_TYPE_DEFAULT, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)));
+			$result = $qb->executeQuery();
+			$userRole = $result->fetch();
+			$result->closeCursor();
+
+			if (!$moderatorRole || !$userRole) {
 				$logger->error('Forum seeding: Not all required roles exist, cannot create permissions');
 				if ($output) {
 					$output->warning('  ✗ Required roles do not exist, cannot create permissions');
 				}
 				throw new \RuntimeException('Cannot create category permissions: roles must be created first');
 			}
+
+			$moderatorRoleId = (int)$moderatorRole['id'];
+			$userRoleId = (int)$userRole['id'];
 
 			if ($output) {
 				$output->info('  → Creating category permissions...');
@@ -721,7 +736,7 @@ class SeedHelper {
 			$db->beginTransaction();
 			$permissionsCreated = 0;
 
-			// Role IDs: ROLE_MODERATOR, ROLE_USER (Admin has implicit permissions)
+			// Create permissions for Moderator and User roles (Admin has implicit permissions)
 			foreach ($categories as $category) {
 				$categoryId = (int)$category['id'];
 
@@ -730,7 +745,7 @@ class SeedHelper {
 				$qb->select('id')
 					->from('forum_category_perms')
 					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
-					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(2, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter($moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
 				$result = $qb->executeQuery();
 				$exists = $result->fetch();
 				$result->closeCursor();
@@ -740,7 +755,7 @@ class SeedHelper {
 					$qb->insert('forum_category_perms')
 						->values([
 							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'role_id' => $qb->createNamedParameter(2, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'role_id' => $qb->createNamedParameter($moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 							'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 							'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -755,7 +770,7 @@ class SeedHelper {
 				$qb->select('id')
 					->from('forum_category_perms')
 					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
-					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(3, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
 				$result = $qb->executeQuery();
 				$exists = $result->fetch();
 				$result->closeCursor();
@@ -765,7 +780,7 @@ class SeedHelper {
 					$qb->insert('forum_category_perms')
 						->values([
 							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'role_id' => $qb->createNamedParameter(3, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 							'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 							'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -905,25 +920,34 @@ class SeedHelper {
 		$timestamp = time();
 
 		try {
-			// Check if roles exist before assigning
+			// Find Admin role by role_type (not hardcoded ID)
 			$qb = $db->getQueryBuilder();
 			$qb->select('id')
 				->from('forum_roles')
-				->where($qb->expr()->in('id', $qb->createNamedParameter([
-					1,
-					3,
-				], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT_ARRAY)));
+				->where($qb->expr()->eq('role_type', $qb->createNamedParameter(\OCA\Forum\Db\Role::ROLE_TYPE_ADMIN, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)));
 			$result = $qb->executeQuery();
-			$roles = $result->fetchAll();
+			$adminRole = $result->fetch();
 			$result->closeCursor();
 
-			if (count($roles) < 2) {
+			// Find User (default) role by role_type (not hardcoded ID)
+			$qb = $db->getQueryBuilder();
+			$qb->select('id')
+				->from('forum_roles')
+				->where($qb->expr()->eq('role_type', $qb->createNamedParameter(\OCA\Forum\Db\Role::ROLE_TYPE_DEFAULT, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)));
+			$result = $qb->executeQuery();
+			$userRole = $result->fetch();
+			$result->closeCursor();
+
+			if (!$adminRole || !$userRole) {
 				$logger->error('Forum seeding: Required roles do not exist, cannot assign user roles');
 				if ($output) {
 					$output->warning('  ✗ Required roles do not exist, cannot assign user roles');
 				}
 				throw new \RuntimeException('Cannot assign user roles: roles must be created first');
 			}
+
+			$adminRoleId = (int)$adminRole['id'];
+			$userRoleId = (int)$userRole['id'];
 
 			if ($output) {
 				$output->info('  → Assigning roles to users...');
@@ -932,7 +956,7 @@ class SeedHelper {
 			// Assign roles to all users
 			$usersProcessed = 0;
 			$usersSkipped = 0;
-			$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $groupManager, $logger, $output, &$usersProcessed, &$usersSkipped) {
+			$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $groupManager, $logger, $output, &$usersProcessed, &$usersSkipped, $adminRoleId, $userRoleId) {
 				try {
 					$userId = $user->getUID();
 					$isAdmin = $groupManager->isAdmin($userId);
@@ -942,7 +966,7 @@ class SeedHelper {
 					$qb->select('id')
 						->from('forum_user_roles')
 						->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-						->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(3, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+						->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
 					$result = $qb->executeQuery();
 					$hasUserRole = $result->fetch();
 					$result->closeCursor();
@@ -953,7 +977,7 @@ class SeedHelper {
 						$qb->insert('forum_user_roles')
 							->values([
 								'user_id' => $qb->createNamedParameter($userId),
-								'role_id' => $qb->createNamedParameter(3, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 								'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 							])
 							->executeStatement();
@@ -965,7 +989,7 @@ class SeedHelper {
 						$qb->select('id')
 							->from('forum_user_roles')
 							->where($qb->expr()->eq('user_id', $qb->createNamedParameter($userId)))
-							->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+							->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter($adminRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
 						$result = $qb->executeQuery();
 						$hasAdminRole = $result->fetch();
 						$result->closeCursor();
@@ -976,7 +1000,7 @@ class SeedHelper {
 							$qb->insert('forum_user_roles')
 								->values([
 									'user_id' => $qb->createNamedParameter($userId),
-									'role_id' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+									'role_id' => $qb->createNamedParameter($adminRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 									'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 								])
 								->executeStatement();

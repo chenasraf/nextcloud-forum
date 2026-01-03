@@ -247,7 +247,8 @@ class SeedHelper {
 			$existingRoles = $result->fetchAll();
 			$result->closeCursor();
 
-			$existingTypes = array_map(fn ($role) => $role['role_type'], $existingRoles);
+			// Use array_unique to handle duplicates (shouldn't happen after cleanup migration, but be defensive)
+			$existingTypes = array_unique(array_map(fn ($role) => $role['role_type'], $existingRoles));
 
 			if (count($existingTypes) === 4) {
 				$logger->info('Forum seeding: Default roles already exist, skipping');
@@ -327,7 +328,8 @@ class SeedHelper {
 			$db->commit();
 
 			// Validate that critical roles can be found by role_type after creation
-			$roleMapper = \OC::$server->get(\OCA\Forum\Db\RoleMapper::class);
+			// Note: We query directly instead of using RoleMapper to avoid MultipleObjectsReturnedException
+			// if duplicates somehow exist (the cleanup migration should have removed them, but be defensive)
 			$criticalRoles = [
 				\OCA\Forum\Db\Role::ROLE_TYPE_GUEST => 'Guest',
 				\OCA\Forum\Db\Role::ROLE_TYPE_DEFAULT => 'Default User',
@@ -335,10 +337,18 @@ class SeedHelper {
 			];
 
 			foreach ($criticalRoles as $roleType => $roleName) {
-				try {
-					$role = $roleMapper->findByRoleType($roleType);
-					$logger->info("Forum seeding: Validated $roleName role (ID {$role->getId()}, type: $roleType)");
-				} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
+				$qb = $db->getQueryBuilder();
+				$qb->select('id')
+					->from('forum_roles')
+					->where($qb->expr()->eq('role_type', $qb->createNamedParameter($roleType, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)))
+					->setMaxResults(1);
+				$result = $qb->executeQuery();
+				$role = $result->fetch();
+				$result->closeCursor();
+
+				if ($role) {
+					$logger->info("Forum seeding: Validated $roleName role (ID {$role['id']}, type: $roleType)");
+				} else {
 					$logger->error("Forum seeding: CRITICAL - $roleName role not found after creation. This will break functionality.");
 					if ($output) {
 						$output->warning("  ✗ CRITICAL: $roleName role not found - forum may not function correctly");

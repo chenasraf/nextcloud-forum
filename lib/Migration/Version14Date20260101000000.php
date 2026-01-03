@@ -14,11 +14,10 @@ use OCP\Migration\SimpleMigrationStep;
 
 /**
  * Version 14 Migration:
- * - Run seed to ensure all required data exists
+ * - Originally ran seed to ensure all required data exists
+ * - Seeding moved to Version15 which first cleans up duplicate roles
  *
- * This migration fixes an issue from Version 13 where seeding used hardcoded role IDs
- * that may not match the actual role IDs in the database during upgrades.
- * The fix ensures roles are looked up by role_type instead of by ID.
+ * This migration is now a no-op but kept for migration history.
  */
 class Version14Date20260101000000 extends SimpleMigrationStep {
 	/**
@@ -27,7 +26,6 @@ class Version14Date20260101000000 extends SimpleMigrationStep {
 	 * @param array $options
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		// SeedHelper now uses role_type instead of hardcoded IDs to find roles
-		SeedHelper::seedAll($output);
+		// No-op: Seeding moved to Version15 which first cleans up duplicate roles
 	}
 }

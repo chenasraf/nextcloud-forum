@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.4...v0.19.5) (2026-01-03)
+
+
+### Bug Fixes
+
+* roles seed ([8848ba0](https://github.com/chenasraf/nextcloud-forum/commit/8848ba03045f69cba40dd9094ade214f1c1b56cc))
+
 ## [0.19.4](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.3...v0.19.4) (2026-01-01)
 
 

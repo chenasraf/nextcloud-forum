@@ -158,6 +158,10 @@ export default defineComponent({
       type: Object as PropType<HTMLTextAreaElement | HTMLElement | null>,
       default: null,
     },
+    modelValue: {
+      type: String,
+      default: '',
+    },
   },
   emits: ['insert'],
   data() {
@@ -340,9 +344,9 @@ export default defineComponent({
           selectedText: textarea.value.substring(start, end),
         }
       } else {
-        // Contenteditable element
-        const el = this.textareaRef
-        const text = el.innerText || ''
+        // Contenteditable element - use modelValue as the source of truth
+        // innerText can differ from what NcRichContenteditable emits, causing position mismatches
+        const text = this.modelValue || ''
         const selection = window.getSelection()
 
         if (!selection || selection.rangeCount === 0) {
@@ -350,26 +354,52 @@ export default defineComponent({
         }
 
         const range = selection.getRangeAt(0)
+        const el = this.textareaRef
 
         // Check if selection is within this element
         if (!el.contains(range.commonAncestorContainer)) {
           return { value: text, start: text.length, end: text.length, selectedText: '' }
         }
 
-        // Calculate start and end positions in the text
+        // Get the selected text directly from the range
+        const selectedText = range.toString()
+
+        // Find the position of the selected text in the modelValue
+        // We need to find where the selection starts in the actual model value
+        // Use the range to calculate relative position within the contenteditable
         const preCaretRange = range.cloneRange()
         preCaretRange.selectNodeContents(el)
         preCaretRange.setEnd(range.startContainer, range.startOffset)
-        const start = preCaretRange.toString().length
+        const domStart = preCaretRange.toString().length
 
-        preCaretRange.setEnd(range.endContainer, range.endOffset)
-        const end = preCaretRange.toString().length
+        // The DOM position should map to the modelValue position
+        // Account for any differences (e.g., zero-width spaces used for cursor positioning)
+        let start = domStart
+        let end = domStart + selectedText.length
+
+        // Clamp to valid range
+        if (start > text.length) start = text.length
+        if (end > text.length) end = text.length
+        if (start < 0) start = 0
+        if (end < start) end = start
+
+        // Verify the selected text matches what's in modelValue at this position
+        // If it doesn't match exactly, try to find it nearby
+        const modelSelectedText = text.substring(start, end)
+        if (modelSelectedText !== selectedText && selectedText.length > 0) {
+          // Try to find the selected text in the model value
+          const foundIndex = text.indexOf(selectedText)
+          if (foundIndex !== -1) {
+            start = foundIndex
+            end = foundIndex + selectedText.length
+          }
+        }
 
         return {
           value: text,
           start,
           end,
-          selectedText: range.toString(),
+          selectedText: text.substring(start, end),
         }
       }
     },

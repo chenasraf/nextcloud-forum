@@ -9,6 +9,7 @@
     <BBCodeToolbar
       ref="toolbar"
       :textarea-ref="contenteditableElement"
+      :model-value="modelValue"
       @insert="handleBBCodeInsert"
     />
     <NcRichContenteditable

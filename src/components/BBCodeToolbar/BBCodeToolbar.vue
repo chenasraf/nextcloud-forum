@@ -98,6 +98,14 @@ import NcDialog from '@nextcloud/vue/components/NcDialog'
 import NcProgressBar from '@nextcloud/vue/components/NcProgressBar'
 import LazyEmojiPicker from '@/components/LazyEmojiPicker'
 import { getFilePickerBuilder, FilePickerType } from '@nextcloud/dialogs'
+import {
+  applyBBCodeTemplate,
+  insertTextAtSelection,
+  getEditorState,
+  setCursorPosition,
+  editorStateToSelection,
+  extractRelativePathFromFilePicker,
+} from '@/utils/bbcode'
 import { generateUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 import FormatBoldIcon from '@icons/FormatBold.vue'
@@ -318,156 +326,6 @@ export default defineComponent({
     },
   },
   methods: {
-    /**
-     * Check if the element is a textarea
-     */
-    isTextarea(el: HTMLElement | HTMLTextAreaElement): el is HTMLTextAreaElement {
-      return el.tagName === 'TEXTAREA'
-    },
-
-    /**
-     * Get text content and selection info from the editor element
-     */
-    getEditorState(): { value: string; start: number; end: number; selectedText: string } | null {
-      if (!this.textareaRef) {
-        return null
-      }
-
-      if (this.isTextarea(this.textareaRef)) {
-        const textarea = this.textareaRef
-        const start = textarea.selectionStart
-        const end = textarea.selectionEnd
-        return {
-          value: textarea.value,
-          start,
-          end,
-          selectedText: textarea.value.substring(start, end),
-        }
-      } else {
-        // Contenteditable element - use modelValue as the source of truth
-        // Remove zero-width spaces that may be added for cursor positioning
-        const text = (this.modelValue || '').replace(/\u200B/g, '')
-        const selection = window.getSelection()
-
-        if (!selection || selection.rangeCount === 0) {
-          return { value: text, start: text.length, end: text.length, selectedText: '' }
-        }
-
-        const range = selection.getRangeAt(0)
-        const el = this.textareaRef
-
-        // Check if selection is within this element
-        if (!el.contains(range.commonAncestorContainer)) {
-          return { value: text, start: text.length, end: text.length, selectedText: '' }
-        }
-
-        // Get the selected text from the DOM range
-        const domSelectedText = range.toString()
-
-        if (!domSelectedText) {
-          // No selection - put cursor at end of text
-          return { value: text, start: text.length, end: text.length, selectedText: '' }
-        }
-
-        // Find the selected text in the modelValue
-        // The DOM selection text should match exactly what's in the model
-        // We search for it to get the correct position
-        const trimmedSelection = domSelectedText.trim()
-
-        if (!trimmedSelection) {
-          return { value: text, start: text.length, end: text.length, selectedText: '' }
-        }
-
-        // Find the position of the trimmed selection in the model
-        const foundIndex = text.indexOf(trimmedSelection)
-
-        if (foundIndex === -1) {
-          // Selected text not found - append at end
-          return { value: text, start: text.length, end: text.length, selectedText: '' }
-        }
-
-        // If there are multiple occurrences, find the best match using DOM position estimate
-        let start = foundIndex
-        let nextIndex = text.indexOf(trimmedSelection, foundIndex + 1)
-
-        if (nextIndex !== -1) {
-          // Multiple occurrences - use DOM position to pick the closest one
-          const preCaretRange = range.cloneRange()
-          preCaretRange.selectNodeContents(el)
-          preCaretRange.setEnd(range.startContainer, range.startOffset)
-          const domStartEstimate = preCaretRange.toString().length
-
-          // Check all occurrences and pick closest to DOM estimate
-          let bestMatch = foundIndex
-          let bestDiff = Math.abs(foundIndex - domStartEstimate)
-
-          let idx = foundIndex
-          while (idx !== -1) {
-            const diff = Math.abs(idx - domStartEstimate)
-            if (diff < bestDiff) {
-              bestDiff = diff
-              bestMatch = idx
-            }
-            idx = text.indexOf(trimmedSelection, idx + 1)
-          }
-          start = bestMatch
-        }
-
-        const end = start + trimmedSelection.length
-
-        return {
-          value: text,
-          start,
-          end,
-          selectedText: trimmedSelection,
-        }
-      }
-    },
-
-    /**
-     * Set cursor position in the editor element
-     */
-    setCursorPosition(position: number): void {
-      if (!this.textareaRef) {
-        return
-      }
-
-      if (this.isTextarea(this.textareaRef)) {
-        this.textareaRef.setSelectionRange(position, position)
-      } else {
-        // For contenteditable, we need to find the text node and set cursor
-        const el = this.textareaRef
-        const selection = window.getSelection()
-        if (!selection) return
-
-        // Find the text node at the position
-        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null)
-        let currentPos = 0
-        let node: Node | null = walker.nextNode()
-
-        while (node) {
-          const nodeLength = (node.textContent || '').length
-          if (currentPos + nodeLength >= position) {
-            const range = document.createRange()
-            range.setStart(node, position - currentPos)
-            range.collapse(true)
-            selection.removeAllRanges()
-            selection.addRange(range)
-            return
-          }
-          currentPos += nodeLength
-          node = walker.nextNode()
-        }
-
-        // If we couldn't find the position, put cursor at end
-        const range = document.createRange()
-        range.selectNodeContents(el)
-        range.collapse(false)
-        selection.removeAllRanges()
-        selection.addRange(range)
-      }
-    },
-
     async insertBBCode(button: BBCodeButton): Promise<void> {
       // If button has a custom handler, use it instead
       if (button.handler) {
@@ -475,16 +333,13 @@ export default defineComponent({
         return
       }
 
-      const state = this.getEditorState()
+      const state = getEditorState(this.textareaRef, this.modelValue)
       if (!state || !this.textareaRef) {
         return
       }
 
-      const { value, start, end, selectedText } = state
-      const beforeText = value.substring(0, start)
-      const afterText = value.substring(end)
+      const { selectedText } = state
 
-      let insertText = ''
       let promptValue = ''
       let contentText = selectedText
 
@@ -507,28 +362,28 @@ export default defineComponent({
         }
       }
 
-      // Generate the BBCode text
-      insertText = button.template
-        .replace('{value}', promptValue)
-        .replace('{text}', contentText || button.placeholder || '')
-
-      // Calculate new cursor position
-      const newText = beforeText + insertText + afterText
-      const cursorPos = beforeText.length + insertText.length
+      // Use the bbcode utility to apply the template
+      const result = applyBBCodeTemplate(editorStateToSelection(state), {
+        template: button.template,
+        value: promptValue,
+        fallbackText: contentText || button.placeholder || '',
+      })
 
       // Emit the insert event so the parent can update the model
       this.$emit('insert', {
-        text: newText,
-        cursorPos,
+        text: result.text,
+        cursorPos: result.cursorPosition,
         selectedText,
       })
 
       // Focus and set cursor position after insertion
+      // Use $nextTick + requestAnimationFrame to ensure DOM has fully updated
+      const editorRef = this.textareaRef
       this.$nextTick(() => {
-        if (this.textareaRef) {
-          this.textareaRef.focus()
-          this.setCursorPosition(cursorPos)
-        }
+        requestAnimationFrame(() => {
+          editorRef.focus()
+          setCursorPosition(editorRef, result.cursorPosition)
+        })
       })
     },
 
@@ -549,46 +404,31 @@ export default defineComponent({
           return
         }
 
-        // Extract relative path from the full path
-        // File picker returns: /username/files/path/to/file.pdf
-        // We need: path/to/file.pdf (relative to user's files directory)
-        let relativePath = path
+        const fileId = extractRelativePathFromFilePicker(path)
 
-        // Remove the leading /username/files/ part
-        const pathParts = path.split('/')
-        if (pathParts.length >= 3 && pathParts[2] === 'files') {
-          // Remove first 3 parts: ['', 'username', 'files']
-          relativePath = pathParts.slice(3).join('/')
-        }
-
-        const fileId = relativePath
-
-        const state = this.getEditorState()
+        const state = getEditorState(this.textareaRef, this.modelValue)
         if (!state) {
           return
         }
 
-        const { value, start, end } = state
-        const beforeText = value.substring(0, start)
-        const afterText = value.substring(end)
-
-        const insertText = `[attachment]${fileId}[/attachment]`
-        const newText = beforeText + insertText + afterText
-        const cursorPos = beforeText.length + insertText.length
+        // Use the bbcode utility to insert the attachment tag
+        const result = insertTextAtSelection(
+          editorStateToSelection(state),
+          `[attachment]${fileId}[/attachment]`,
+        )
 
         // Emit the insert event so the parent can update the model
         this.$emit('insert', {
-          text: newText,
-          cursorPos,
+          text: result.text,
+          cursorPos: result.cursorPosition,
           selectedText: '',
         })
 
         // Focus the editor after insertion
+        const editorRef = this.textareaRef
         this.$nextTick(() => {
-          if (this.textareaRef) {
-            this.textareaRef.focus()
-            this.setCursorPosition(cursorPos)
-          }
+          editorRef.focus()
+          setCursorPosition(editorRef, result.cursorPosition)
         })
       } catch (error) {
         // Silently ignore if user canceled the dialog
@@ -605,31 +445,26 @@ export default defineComponent({
     },
 
     handleEmojiSelect(emoji: string): void {
-      const state = this.getEditorState()
+      const state = getEditorState(this.textareaRef, this.modelValue)
       if (!state || !this.textareaRef) {
         return
       }
 
-      const { value, start, end } = state
-      const beforeText = value.substring(0, start)
-      const afterText = value.substring(end)
-
-      const newText = beforeText + emoji + afterText
-      const cursorPos = beforeText.length + emoji.length
+      // Use the bbcode utility to insert the emoji
+      const result = insertTextAtSelection(editorStateToSelection(state), emoji)
 
       // Emit the insert event so the parent can update the model
       this.$emit('insert', {
-        text: newText,
-        cursorPos,
+        text: result.text,
+        cursorPos: result.cursorPosition,
         selectedText: '',
       })
 
       // Focus the editor after insertion
+      const editorRef = this.textareaRef
       this.$nextTick(() => {
-        if (this.textareaRef) {
-          this.textareaRef.focus()
-          this.setCursorPosition(cursorPos)
-        }
+        editorRef.focus()
+        setCursorPosition(editorRef, result.cursorPosition)
       })
     },
 
@@ -701,34 +536,33 @@ export default defineComponent({
         })
 
         // Insert attachment BBCode
-        const state = this.getEditorState()
+        const state = getEditorState(this.textareaRef, this.modelValue)
         if (!state) {
           return
         }
 
-        const { value, start, end } = state
-        const beforeText = value.substring(0, start)
-        const afterText = value.substring(end)
-
+        // Use the bbcode utility to insert the attachment tag
         const filePath = `${uploadDirectory}/${file.name}`
-        const insertText = `[attachment]${filePath}[/attachment]`
-        const newText = beforeText + insertText + afterText
-        const cursorPos = beforeText.length + insertText.length
+        const result = insertTextAtSelection(
+          editorStateToSelection(state),
+          `[attachment]${filePath}[/attachment]`,
+        )
 
         // Emit the insert event
         this.$emit('insert', {
-          text: newText,
-          cursorPos,
+          text: result.text,
+          cursorPos: result.cursorPosition,
           selectedText: '',
         })
 
         // Focus the editor after insertion
-        this.$nextTick(() => {
-          if (this.textareaRef) {
-            this.textareaRef.focus()
-            this.setCursorPosition(cursorPos)
-          }
-        })
+        const editorRef = this.textareaRef
+        if (editorRef) {
+          this.$nextTick(() => {
+            editorRef.focus()
+            setCursorPosition(editorRef, result.cursorPosition)
+          })
+        }
 
         // Close dialog on success
         this.uploadDialog = false

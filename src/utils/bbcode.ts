@@ -18,6 +18,20 @@ export interface TextSelection {
 }
 
 /**
+ * Editor state with value and selection info
+ */
+export interface EditorState {
+  /** Full text content */
+  value: string
+  /** Start position of selection (0-indexed) */
+  start: number
+  /** End position of selection (0-indexed) */
+  end: number
+  /** The selected text */
+  selectedText: string
+}
+
+/**
  * Result of a BBCode insertion operation
  */
 export interface InsertionResult {
@@ -325,4 +339,262 @@ export function toggleBBCodeTags(
     return unwrapSelection(selection, openTag, closeTag)
   }
   return wrapSelection(selection, openTag, closeTag, fallbackText)
+}
+
+// =============================================================================
+// DOM-based editor utilities
+// =============================================================================
+
+/**
+ * Check if an element is a textarea
+ */
+export function isTextarea(el: HTMLElement): el is HTMLTextAreaElement {
+  return el.tagName === 'TEXTAREA'
+}
+
+/**
+ * Get editor state from a textarea element
+ *
+ * @param textarea - The textarea element
+ * @returns Editor state with value and selection info
+ */
+export function getEditorStateFromTextarea(textarea: HTMLTextAreaElement): EditorState {
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+  return {
+    value: textarea.value,
+    start,
+    end,
+    selectedText: textarea.value.substring(start, end),
+  }
+}
+
+/**
+ * Get editor state from a contenteditable element
+ *
+ * @param element - The contenteditable element
+ * @param modelValue - The model value (source of truth for text content)
+ * @returns Editor state with value and selection info
+ */
+export function getEditorStateFromContenteditable(
+  element: HTMLElement,
+  modelValue: string,
+): EditorState {
+  // Remove zero-width spaces that may be added for cursor positioning
+  const text = (modelValue || '').replace(/\u200B/g, '')
+  const selection = window.getSelection()
+
+  if (!selection || selection.rangeCount === 0) {
+    return { value: text, start: text.length, end: text.length, selectedText: '' }
+  }
+
+  const range = selection.getRangeAt(0)
+
+  // Check if selection is within this element
+  if (!element.contains(range.commonAncestorContainer)) {
+    return { value: text, start: text.length, end: text.length, selectedText: '' }
+  }
+
+  // Get the selected text from the DOM range
+  const domSelectedText = range.toString()
+
+  if (!domSelectedText) {
+    // No selection - put cursor at end of text
+    return { value: text, start: text.length, end: text.length, selectedText: '' }
+  }
+
+  // Find the selected text in the modelValue
+  // The DOM selection text should match exactly what's in the model
+  // We search for it to get the correct position
+  const trimmedSelection = domSelectedText.trim()
+
+  if (!trimmedSelection) {
+    return { value: text, start: text.length, end: text.length, selectedText: '' }
+  }
+
+  // Find the position of the trimmed selection in the model
+  const foundIndex = text.indexOf(trimmedSelection)
+
+  if (foundIndex === -1) {
+    // Selected text not found - append at end
+    return { value: text, start: text.length, end: text.length, selectedText: '' }
+  }
+
+  // If there are multiple occurrences, find the best match using DOM position estimate
+  let start = foundIndex
+  const nextIndex = text.indexOf(trimmedSelection, foundIndex + 1)
+
+  if (nextIndex !== -1) {
+    // Multiple occurrences - use DOM position to pick the closest one
+    const preCaretRange = range.cloneRange()
+    preCaretRange.selectNodeContents(element)
+    preCaretRange.setEnd(range.startContainer, range.startOffset)
+    const domStartEstimate = preCaretRange.toString().length
+
+    // Check all occurrences and pick closest to DOM estimate
+    let bestMatch = foundIndex
+    let bestDiff = Math.abs(foundIndex - domStartEstimate)
+
+    let idx = foundIndex
+    while (idx !== -1) {
+      const diff = Math.abs(idx - domStartEstimate)
+      if (diff < bestDiff) {
+        bestDiff = diff
+        bestMatch = idx
+      }
+      idx = text.indexOf(trimmedSelection, idx + 1)
+    }
+    start = bestMatch
+  }
+
+  const end = start + trimmedSelection.length
+
+  return {
+    value: text,
+    start,
+    end,
+    selectedText: trimmedSelection,
+  }
+}
+
+/**
+ * Get editor state from either a textarea or contenteditable element
+ *
+ * @param element - The editor element (textarea or contenteditable)
+ * @param modelValue - The model value (used for contenteditable elements)
+ * @returns Editor state with value and selection info, or null if element is null
+ */
+export function getEditorState(
+  element: HTMLTextAreaElement | HTMLElement | null,
+  modelValue = '',
+): EditorState | null {
+  if (!element) {
+    return null
+  }
+
+  if (isTextarea(element)) {
+    return getEditorStateFromTextarea(element)
+  }
+  return getEditorStateFromContenteditable(element, modelValue)
+}
+
+/**
+ * Set cursor position in a textarea element
+ *
+ * @param textarea - The textarea element
+ * @param position - The cursor position to set
+ */
+export function setCursorInTextarea(textarea: HTMLTextAreaElement, position: number): void {
+  textarea.setSelectionRange(position, position)
+}
+
+/**
+ * Set cursor position in a contenteditable element
+ *
+ * @param element - The contenteditable element
+ * @param position - The cursor position to set (in visible characters, excluding zero-width spaces)
+ */
+export function setCursorInContenteditable(element: HTMLElement, position: number): void {
+  const selection = window.getSelection()
+  if (!selection) return
+
+  // Find the text node at the position, accounting for zero-width spaces
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null)
+  let currentPos = 0
+  let node: Node | null = walker.nextNode()
+
+  while (node) {
+    const nodeText = node.textContent || ''
+    // Count only visible characters (exclude zero-width spaces for position calculation)
+    const visibleLength = nodeText.replace(/\u200B/g, '').length
+    const actualLength = nodeText.length
+
+    if (currentPos + visibleLength >= position) {
+      // Found the node containing our position
+      // Calculate offset within this node, accounting for zero-width spaces
+      let targetOffset = position - currentPos
+      let actualOffset = 0
+
+      // Map visible position to actual offset (skipping zero-width spaces)
+      for (let i = 0; i < actualLength && targetOffset > 0; i++) {
+        if (nodeText[i] !== '\u200B') {
+          targetOffset--
+        }
+        actualOffset++
+      }
+
+      const range = document.createRange()
+      try {
+        range.setStart(node, Math.min(actualOffset, actualLength))
+        range.collapse(true)
+        selection.removeAllRanges()
+        selection.addRange(range)
+      } catch {
+        // If setting range fails, fall through to end placement
+      }
+      return
+    }
+    currentPos += visibleLength
+    node = walker.nextNode()
+  }
+
+  // If we couldn't find the position, put cursor at end
+  const range = document.createRange()
+  range.selectNodeContents(element)
+  range.collapse(false)
+  selection.removeAllRanges()
+  selection.addRange(range)
+}
+
+/**
+ * Set cursor position in either a textarea or contenteditable element
+ *
+ * @param element - The editor element (textarea or contenteditable)
+ * @param position - The cursor position to set
+ */
+export function setCursorPosition(
+  element: HTMLTextAreaElement | HTMLElement | null,
+  position: number,
+): void {
+  if (!element) {
+    return
+  }
+
+  if (isTextarea(element)) {
+    setCursorInTextarea(element, position)
+  } else {
+    setCursorInContenteditable(element, position)
+  }
+}
+
+/**
+ * Convert EditorState to TextSelection for use with text manipulation functions
+ *
+ * @param state - The editor state
+ * @returns TextSelection object
+ */
+export function editorStateToSelection(state: EditorState): TextSelection {
+  return {
+    text: state.value,
+    start: state.start,
+    end: state.end,
+  }
+}
+
+/**
+ * Extract relative path from Nextcloud file picker path
+ *
+ * File picker returns: /username/files/path/to/file.pdf
+ * We need: path/to/file.pdf (relative to user's files directory)
+ *
+ * @param path - The full path from file picker
+ * @returns The relative path
+ */
+export function extractRelativePathFromFilePicker(path: string): string {
+  const pathParts = path.split('/')
+  if (pathParts.length >= 3 && pathParts[2] === 'files') {
+    // Remove first 3 parts: ['', 'username', 'files']
+    return pathParts.slice(3).join('/')
+  }
+  return path
 }

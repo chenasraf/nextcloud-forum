@@ -247,57 +247,6 @@ describe('BBCodeToolbar', () => {
     })
   })
 
-  describe('getEditorState', () => {
-    it('returns null when textareaRef is null', () => {
-      const wrapper = createWrapper({ textareaRef: null })
-      const vm = wrapper.vm as unknown as { getEditorState: () => unknown }
-
-      expect(vm.getEditorState()).toBeNull()
-    })
-
-    it('returns editor state for textarea element', () => {
-      const textarea = document.createElement('textarea')
-      textarea.value = 'Hello world'
-      textarea.selectionStart = 0
-      textarea.selectionEnd = 5
-
-      const wrapper = createWrapper({ textareaRef: textarea })
-      const vm = wrapper.vm as unknown as {
-        getEditorState: () => {
-          value: string
-          start: number
-          end: number
-          selectedText: string
-        } | null
-      }
-
-      const state = vm.getEditorState()
-      expect(state).not.toBeNull()
-      expect(state!.value).toBe('Hello world')
-      expect(state!.start).toBe(0)
-      expect(state!.end).toBe(5)
-      expect(state!.selectedText).toBe('Hello')
-    })
-  })
-
-  describe('isTextarea', () => {
-    it('returns true for textarea elements', () => {
-      const wrapper = createWrapper()
-      const vm = wrapper.vm as unknown as { isTextarea: (el: HTMLElement) => boolean }
-
-      const textarea = document.createElement('textarea')
-      expect(vm.isTextarea(textarea)).toBe(true)
-    })
-
-    it('returns false for div elements', () => {
-      const wrapper = createWrapper()
-      const vm = wrapper.vm as unknown as { isTextarea: (el: HTMLElement) => boolean }
-
-      const div = document.createElement('div')
-      expect(vm.isTextarea(div)).toBe(false)
-    })
-  })
-
   describe('insertBBCode', () => {
     it('does nothing when textareaRef is null', async () => {
       const wrapper = createWrapper({ textareaRef: null })

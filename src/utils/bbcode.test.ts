@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   getSelectedText,
   applyBBCodeTemplate,
@@ -8,7 +8,13 @@ import {
   isSelectionWrapped,
   unwrapSelection,
   toggleBBCodeTags,
+  isTextarea,
+  getEditorStateFromTextarea,
+  getEditorState,
+  editorStateToSelection,
+  extractRelativePathFromFilePicker,
   type TextSelection,
+  type EditorState,
 } from './bbcode'
 
 describe('bbcode utilities', () => {
@@ -428,6 +434,171 @@ describe('bbcode utilities', () => {
 
       expect(result.text.length).toBe(10000 + 7) // original + [b][/b]
       expect(result.text.substring(5000, 5017)).toBe('[b]aaaaaaaaaa[/b]')
+    })
+  })
+
+  describe('isTextarea', () => {
+    it('returns true for textarea elements', () => {
+      const textarea = document.createElement('textarea')
+      expect(isTextarea(textarea)).toBe(true)
+    })
+
+    it('returns false for div elements', () => {
+      const div = document.createElement('div')
+      expect(isTextarea(div)).toBe(false)
+    })
+
+    it('returns false for input elements', () => {
+      const input = document.createElement('input')
+      expect(isTextarea(input)).toBe(false)
+    })
+  })
+
+  describe('getEditorStateFromTextarea', () => {
+    it('returns correct state with no selection', () => {
+      const textarea = document.createElement('textarea')
+      textarea.value = 'Hello world'
+      textarea.selectionStart = 5
+      textarea.selectionEnd = 5
+
+      const state = getEditorStateFromTextarea(textarea)
+
+      expect(state.value).toBe('Hello world')
+      expect(state.start).toBe(5)
+      expect(state.end).toBe(5)
+      expect(state.selectedText).toBe('')
+    })
+
+    it('returns correct state with selection', () => {
+      const textarea = document.createElement('textarea')
+      textarea.value = 'Hello world'
+      textarea.selectionStart = 6
+      textarea.selectionEnd = 11
+
+      const state = getEditorStateFromTextarea(textarea)
+
+      expect(state.value).toBe('Hello world')
+      expect(state.start).toBe(6)
+      expect(state.end).toBe(11)
+      expect(state.selectedText).toBe('world')
+    })
+
+    it('handles empty textarea', () => {
+      const textarea = document.createElement('textarea')
+      textarea.value = ''
+      textarea.selectionStart = 0
+      textarea.selectionEnd = 0
+
+      const state = getEditorStateFromTextarea(textarea)
+
+      expect(state.value).toBe('')
+      expect(state.start).toBe(0)
+      expect(state.end).toBe(0)
+      expect(state.selectedText).toBe('')
+    })
+  })
+
+  describe('getEditorState', () => {
+    it('returns null for null element', () => {
+      const state = getEditorState(null)
+      expect(state).toBeNull()
+    })
+
+    it('returns state for textarea element', () => {
+      const textarea = document.createElement('textarea')
+      textarea.value = 'Test content'
+      textarea.selectionStart = 0
+      textarea.selectionEnd = 4
+
+      const state = getEditorState(textarea)
+
+      expect(state).not.toBeNull()
+      expect(state!.value).toBe('Test content')
+      expect(state!.selectedText).toBe('Test')
+    })
+
+    it('uses modelValue for contenteditable elements', () => {
+      const div = document.createElement('div')
+      div.contentEditable = 'true'
+      // Without proper selection setup, it falls back to end of text
+      const state = getEditorState(div, 'Model value')
+
+      expect(state).not.toBeNull()
+      expect(state!.value).toBe('Model value')
+    })
+  })
+
+  describe('editorStateToSelection', () => {
+    it('converts editor state to text selection', () => {
+      const state: EditorState = {
+        value: 'Hello world',
+        start: 6,
+        end: 11,
+        selectedText: 'world',
+      }
+
+      const selection = editorStateToSelection(state)
+
+      expect(selection.text).toBe('Hello world')
+      expect(selection.start).toBe(6)
+      expect(selection.end).toBe(11)
+    })
+
+    it('handles empty selection', () => {
+      const state: EditorState = {
+        value: 'Hello',
+        start: 5,
+        end: 5,
+        selectedText: '',
+      }
+
+      const selection = editorStateToSelection(state)
+
+      expect(selection.text).toBe('Hello')
+      expect(selection.start).toBe(5)
+      expect(selection.end).toBe(5)
+    })
+  })
+
+  describe('extractRelativePathFromFilePicker', () => {
+    it('extracts relative path from standard Nextcloud path', () => {
+      const path = '/admin/files/Documents/report.pdf'
+      expect(extractRelativePathFromFilePicker(path)).toBe('Documents/report.pdf')
+    })
+
+    it('handles nested directories', () => {
+      const path = '/user123/files/Projects/2024/Q1/data.csv'
+      expect(extractRelativePathFromFilePicker(path)).toBe('Projects/2024/Q1/data.csv')
+    })
+
+    it('handles file in root of files directory', () => {
+      const path = '/admin/files/document.txt'
+      expect(extractRelativePathFromFilePicker(path)).toBe('document.txt')
+    })
+
+    it('returns original path if not matching expected format', () => {
+      const path = '/some/other/path/file.txt'
+      expect(extractRelativePathFromFilePicker(path)).toBe('/some/other/path/file.txt')
+    })
+
+    it('returns original path if too short', () => {
+      const path = '/admin'
+      expect(extractRelativePathFromFilePicker(path)).toBe('/admin')
+    })
+
+    it('handles empty path parts correctly', () => {
+      const path = '/admin/files/'
+      expect(extractRelativePathFromFilePicker(path)).toBe('')
+    })
+
+    it('handles path with special characters', () => {
+      const path = '/admin/files/My Documents/file (1).pdf'
+      expect(extractRelativePathFromFilePicker(path)).toBe('My Documents/file (1).pdf')
+    })
+
+    it('handles path with unicode characters', () => {
+      const path = '/admin/files/文档/报告.pdf'
+      expect(extractRelativePathFromFilePicker(path)).toBe('文档/报告.pdf')
     })
   })
 })

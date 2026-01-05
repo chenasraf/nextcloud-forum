@@ -1,43 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { createIconMock } from '@/test-utils'
 import Pagination from './Pagination.vue'
 
-// Mock @nextcloud/l10n
-vi.mock('@nextcloud/l10n', () => ({
-  t: (app: string, text: string, vars?: Record<string, unknown>) => {
-    if (vars) {
-      return Object.entries(vars).reduce(
-        (acc, [key, value]) => acc.replace(`{${key}}`, String(value)),
-        text,
-      )
-    }
-    return text
-  },
-}))
-
-// Mock @nextcloud/vue/components/NcButton
-vi.mock('@nextcloud/vue/components/NcButton', () => ({
-  default: {
-    name: 'NcButton',
-    template:
-      '<button :disabled="disabled" @click="$emit(\'click\')"><slot /><slot name="icon" /></button>',
-    props: ['variant', 'disabled', 'ariaLabel', 'title'],
-  },
-}))
-
-// Mock icon components
-vi.mock('@icons/PageFirst.vue', () => ({
-  default: { name: 'PageFirstIcon', template: '<span>«</span>', props: ['size'] },
-}))
-vi.mock('@icons/PageLast.vue', () => ({
-  default: { name: 'PageLastIcon', template: '<span>»</span>', props: ['size'] },
-}))
-vi.mock('@icons/ChevronLeft.vue', () => ({
-  default: { name: 'ChevronLeftIcon', template: '<span>‹</span>', props: ['size'] },
-}))
-vi.mock('@icons/ChevronRight.vue', () => ({
-  default: { name: 'ChevronRightIcon', template: '<span>›</span>', props: ['size'] },
-}))
+vi.mock('@icons/PageFirst.vue', () => createIconMock('PageFirstIcon'))
+vi.mock('@icons/PageLast.vue', () => createIconMock('PageLastIcon'))
+vi.mock('@icons/ChevronLeft.vue', () => createIconMock('ChevronLeftIcon'))
+vi.mock('@icons/ChevronRight.vue', () => createIconMock('ChevronRightIcon'))
 
 describe('Pagination', () => {
   describe('visibility', () => {
@@ -61,7 +30,6 @@ describe('Pagination', () => {
       const wrapper = mount(Pagination, {
         props: { currentPage: 1, maxPages: 5 },
       })
-      // Access the computed property via vm
       const pageItems = (wrapper.vm as unknown as { pageItems: (number | 'ellipsis')[] }).pageItems
       expect(pageItems).toEqual([1, 2, 3, 4, 5])
     })
@@ -79,7 +47,6 @@ describe('Pagination', () => {
         props: { currentPage: 1, maxPages: 20 },
       })
       const pageItems = (wrapper.vm as unknown as { pageItems: (number | 'ellipsis')[] }).pageItems
-      // Should show: 1, 2, 3 (first 3) + ellipsis + 18, 19, 20 (last 3)
       expect(pageItems).toEqual([1, 2, 3, 'ellipsis', 18, 19, 20])
     })
 
@@ -88,7 +55,6 @@ describe('Pagination', () => {
         props: { currentPage: 20, maxPages: 20 },
       })
       const pageItems = (wrapper.vm as unknown as { pageItems: (number | 'ellipsis')[] }).pageItems
-      // Should show: 1, 2, 3 (first 3) + ellipsis + 18, 19, 20 (last 3)
       expect(pageItems).toEqual([1, 2, 3, 'ellipsis', 18, 19, 20])
     })
 
@@ -97,7 +63,6 @@ describe('Pagination', () => {
         props: { currentPage: 10, maxPages: 20 },
       })
       const pageItems = (wrapper.vm as unknown as { pageItems: (number | 'ellipsis')[] }).pageItems
-      // Should show: 1, 2, 3 + ellipsis + 8, 9, 10, 11, 12 + ellipsis + 18, 19, 20
       expect(pageItems).toEqual([1, 2, 3, 'ellipsis', 8, 9, 10, 11, 12, 'ellipsis', 18, 19, 20])
     })
 
@@ -106,7 +71,6 @@ describe('Pagination', () => {
         props: { currentPage: 4, maxPages: 20 },
       })
       const pageItems = (wrapper.vm as unknown as { pageItems: (number | 'ellipsis')[] }).pageItems
-      // Current=4, so around: 2,3,4,5,6, combined with first 3 (1,2,3): 1,2,3,4,5,6
       expect(pageItems).toContain(1)
       expect(pageItems).toContain(4)
       expect(pageItems).toContain(6)
@@ -117,7 +81,6 @@ describe('Pagination', () => {
         props: { currentPage: 17, maxPages: 20 },
       })
       const pageItems = (wrapper.vm as unknown as { pageItems: (number | 'ellipsis')[] }).pageItems
-      // Current=17, so around: 15,16,17,18,19, combined with last 3 (18,19,20): 15,16,17,18,19,20
       expect(pageItems).toContain(15)
       expect(pageItems).toContain(17)
       expect(pageItems).toContain(20)
@@ -130,7 +93,6 @@ describe('Pagination', () => {
         props: { currentPage: 5, maxPages: 10 },
       })
 
-      // Find all buttons and click the one for page 3
       const buttons = wrapper.findAll('button')
       const page3Button = buttons.find((btn) => btn.text() === '3')
       expect(page3Button).toBeDefined()
@@ -158,9 +120,8 @@ describe('Pagination', () => {
       })
 
       const buttons = wrapper.findAll('button')
-      // First two buttons are first page and previous page
-      expect(buttons[0].attributes('disabled')).toBeDefined()
-      expect(buttons[1].attributes('disabled')).toBeDefined()
+      expect(buttons[0]!.attributes('disabled')).toBeDefined()
+      expect(buttons[1]!.attributes('disabled')).toBeDefined()
     })
 
     it('should disable next/last buttons on last page', () => {
@@ -169,10 +130,9 @@ describe('Pagination', () => {
       })
 
       const buttons = wrapper.findAll('button')
-      // Last two buttons are next page and last page
       const lastIdx = buttons.length - 1
-      expect(buttons[lastIdx].attributes('disabled')).toBeDefined()
-      expect(buttons[lastIdx - 1].attributes('disabled')).toBeDefined()
+      expect(buttons[lastIdx]!.attributes('disabled')).toBeDefined()
+      expect(buttons[lastIdx - 1]!.attributes('disabled')).toBeDefined()
     })
   })
 })

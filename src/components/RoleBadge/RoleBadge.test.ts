@@ -1,30 +1,9 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import RoleBadge from './RoleBadge.vue'
-import type { Role } from '@/types/models'
+import { createMockRole } from '@/test-mocks'
 
-// Mock isDarkTheme - default to light theme
-vi.mock('@nextcloud/vue/functions/isDarkTheme', () => ({
-  isDarkTheme: false,
-}))
-
-// Helper to create a mock role
-function createMockRole(overrides: Partial<Role> = {}): Role {
-  return {
-    id: 100,
-    name: 'Test Role',
-    description: null,
-    colorLight: null,
-    colorDark: null,
-    canAccessAdminTools: false,
-    canEditRoles: false,
-    canEditCategories: false,
-    isSystemRole: false,
-    roleType: 'custom',
-    createdAt: Date.now(),
-    ...overrides,
-  }
-}
+// Uses global mock for @nextcloud/vue/functions/isDarkTheme from test-setup.ts
 
 describe('RoleBadge', () => {
   describe('rendering', () => {
@@ -69,7 +48,6 @@ describe('RoleBadge', () => {
         props: { role },
       })
       const style = wrapper.find('.role-badge').attributes('style')
-      // Fallback light color for Admin is #dc2626
       expect(style).toContain('background-color: #dc2626')
     })
 
@@ -79,7 +57,6 @@ describe('RoleBadge', () => {
         props: { role },
       })
       const style = wrapper.find('.role-badge').attributes('style')
-      // Fallback light color for Moderator is #2563eb
       expect(style).toContain('background-color: #2563eb')
     })
 
@@ -89,7 +66,6 @@ describe('RoleBadge', () => {
         props: { role },
       })
       const style = wrapper.find('.role-badge').attributes('style')
-      // Fallback light color for User is #059669
       expect(style).toContain('background-color: #059669')
     })
 
@@ -99,14 +75,12 @@ describe('RoleBadge', () => {
         props: { role },
       })
       const style = wrapper.find('.role-badge').attributes('style')
-      // Default light fallback is #000000
       expect(style).toContain('background-color: #000000')
     })
   })
 
   describe('text color calculation (contrast)', () => {
     it('should use dark text on light backgrounds', () => {
-      // White background should have black text
       const role = createMockRole({ colorLight: '#ffffff' })
       const wrapper = mount(RoleBadge, {
         props: { role },
@@ -116,7 +90,6 @@ describe('RoleBadge', () => {
     })
 
     it('should use light text on dark backgrounds', () => {
-      // Black background should have white text
       const role = createMockRole({ colorLight: '#000000' })
       const wrapper = mount(RoleBadge, {
         props: { role },
@@ -126,7 +99,6 @@ describe('RoleBadge', () => {
     })
 
     it('should use light text on moderately dark backgrounds', () => {
-      // Dark blue should have white text
       const role = createMockRole({ colorLight: '#1e3a5f' })
       const wrapper = mount(RoleBadge, {
         props: { role },
@@ -136,7 +108,6 @@ describe('RoleBadge', () => {
     })
 
     it('should use dark text on moderately light backgrounds', () => {
-      // Light yellow should have black text
       const role = createMockRole({ colorLight: '#ffeb3b' })
       const wrapper = mount(RoleBadge, {
         props: { role },
@@ -152,7 +123,6 @@ describe('RoleBadge', () => {
       const wrapper = mount(RoleBadge, {
         props: { role },
       })
-      // Access the method via vm
       const vm = wrapper.vm as unknown as {
         hexToRgb: (hex: string) => { r: number; g: number; b: number } | null
       }
@@ -168,7 +138,6 @@ describe('RoleBadge', () => {
       const vm = wrapper.vm as unknown as {
         hexToRgb: (hex: string) => { r: number; g: number; b: number } | null
       }
-      // #f00 expands to #ff0000
       const result = vm.hexToRgb('#f00')
       expect(result).toEqual({ r: 255, g: 0, b: 0 })
     })

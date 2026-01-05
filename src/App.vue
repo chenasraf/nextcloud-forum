@@ -124,12 +124,3 @@ export default defineComponent({
   margin-top: 128px;
 }
 </style>
-
-<style lang="scss">
-// Global styles for smooth scrolling
-html,
-body,
-* {
-  scroll-behavior: smooth;
-}
-</style>

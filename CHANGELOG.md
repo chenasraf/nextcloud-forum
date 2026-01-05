@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.19.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.5...v0.19.6) (2026-01-05)
+
+
+### Bug Fixes
+
+* bbcode editor ([ec49855](https://github.com/chenasraf/nextcloud-forum/commit/ec49855173e026b683a6dd0cc29e46a72f62e98e))
+* bbcode text wrapping ([145e6d8](https://github.com/chenasraf/nextcloud-forum/commit/145e6d8f814d3899ef6327eaff5637a296b6582d))
+
 ## [0.19.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.4...v0.19.5) (2026-01-03)
 
 

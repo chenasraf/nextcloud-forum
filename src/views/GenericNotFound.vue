@@ -12,8 +12,8 @@
 
 <script setup lang="ts">
 import { t } from '@nextcloud/l10n'
-import NotFoundPage from '../components/NotFoundPage.vue'
-import PageWrapper from '../components/PageWrapper.vue'
+import NotFoundPage from '@/components/NotFoundPage'
+import PageWrapper from '@/components/PageWrapper'
 import AlertCircleIcon from '@icons/AlertCircle.vue'
 
 const strings = {

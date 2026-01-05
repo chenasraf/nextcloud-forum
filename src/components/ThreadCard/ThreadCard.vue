@@ -58,7 +58,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
-import UserInfo from '@/components/UserInfo.vue'
+import UserInfo from '@/components/UserInfo'
 import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import CommentIcon from '@icons/Comment.vue'

@@ -37,8 +37,8 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
-import UserAvatar from './UserAvatar.vue'
-import RoleBadge from './RoleBadge.vue'
+import UserAvatar from '@/components/UserAvatar'
+import RoleBadge from '@/components/RoleBadge'
 import type { Role } from '@/types'
 import { isAdminRole, isModeratorRole, isCustomRole } from '@/constants'
 

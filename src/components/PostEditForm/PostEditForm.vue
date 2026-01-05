@@ -29,7 +29,7 @@
 import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
-import BBCodeEditor from './BBCodeEditor.vue'
+import BBCodeEditor from '@/components/BBCodeEditor'
 import { t } from '@nextcloud/l10n'
 
 export default defineComponent({

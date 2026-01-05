@@ -23,7 +23,7 @@ import { defineComponent } from 'vue'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
-import AppNavigation from '@/components/AppNavigation.vue'
+import AppNavigation from '@/components/AppNavigation'
 import { isDarkTheme } from '@nextcloud/vue/functions/isDarkTheme'
 
 export default defineComponent({

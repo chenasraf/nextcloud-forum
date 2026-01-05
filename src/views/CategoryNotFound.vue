@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { t } from '@nextcloud/l10n'
-import NotFoundPage from '../components/NotFoundPage.vue'
+import NotFoundPage from '@/components/NotFoundPage'
 import FolderAlertIcon from '@icons/FolderAlert.vue'
 
 const strings = {

@@ -321,10 +321,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import PageWrapper from '@/components/PageWrapper.vue'
-import PageHeader from '@/components/PageHeader.vue'
-import AppToolbar from '@/components/AppToolbar.vue'
-import HeaderEditDialog from '@/components/HeaderEditDialog.vue'
+import PageWrapper from '@/components/PageWrapper'
+import PageHeader from '@/components/PageHeader'
+import AppToolbar from '@/components/AppToolbar'
+import HeaderEditDialog from '@/components/HeaderEditDialog'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcDialog from '@nextcloud/vue/components/NcDialog'

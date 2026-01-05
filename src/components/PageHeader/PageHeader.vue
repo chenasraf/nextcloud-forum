@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Skeleton from './Skeleton.vue'
+import Skeleton from '@/components/Skeleton'
 
 export default defineComponent({
   name: 'PageHeader',

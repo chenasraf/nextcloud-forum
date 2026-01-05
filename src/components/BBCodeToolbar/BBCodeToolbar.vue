@@ -122,7 +122,7 @@ import PaperclipIcon from '@icons/Paperclip.vue'
 import UploadIcon from '@icons/Upload.vue'
 import EmoticonIcon from '@icons/Emoticon.vue'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
-import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
+import BBCodeHelpDialog from '@/components/BBCodeHelpDialog'
 import { t } from '@nextcloud/l10n'
 import { webDav, ocs } from '@/axios'
 

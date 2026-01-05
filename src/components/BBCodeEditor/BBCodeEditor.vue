@@ -43,7 +43,7 @@
 import { defineComponent, type PropType } from 'vue'
 import NcRichContenteditable from '@nextcloud/vue/components/NcRichContenteditable'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
-import BBCodeToolbar from './BBCodeToolbar.vue'
+import BBCodeToolbar from '@/components/BBCodeToolbar'
 import UploadIcon from '@icons/Upload.vue'
 import { t } from '@nextcloud/l10n'
 import { ocs } from '@/axios'

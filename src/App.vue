@@ -124,3 +124,12 @@ export default defineComponent({
   margin-top: 128px;
 }
 </style>
+
+<style lang="scss">
+// Fix content width on mobile
+@media screen and (max-width: 768px) {
+  #content-vue.app-forum {
+    width: 100%;
+  }
+}
+</style>

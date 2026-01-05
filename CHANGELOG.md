@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.19.7](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.6...v0.19.7) (2026-01-05)
+
+
+### Bug Fixes
+
+* aggressive scroll-behavior interferes with mobile apps popover menu ([eb1b2f8](https://github.com/chenasraf/nextcloud-forum/commit/eb1b2f86df7e7bf75bdbd9ba8260471ec91110fb))
+* bbcode text insertion/selection logic ([919a13f](https://github.com/chenasraf/nextcloud-forum/commit/919a13fdd3da0579c7d9ebdd032e3108e9da7047))
+* main content size on mobile ([3e7cebc](https://github.com/chenasraf/nextcloud-forum/commit/3e7cebc8c3316dada42cf1ba81acb062d5b1d41a))
+
 ## [0.19.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.5...v0.19.6) (2026-01-05)
 
 

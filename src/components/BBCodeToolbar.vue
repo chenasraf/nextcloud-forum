@@ -345,8 +345,8 @@ export default defineComponent({
         }
       } else {
         // Contenteditable element - use modelValue as the source of truth
-        // innerText can differ from what NcRichContenteditable emits, causing position mismatches
-        const text = this.modelValue || ''
+        // Remove zero-width spaces that may be added for cursor positioning
+        const text = (this.modelValue || '').replace(/\u200B/g, '')
         const selection = window.getSelection()
 
         if (!selection || selection.rangeCount === 0) {
@@ -361,45 +361,65 @@ export default defineComponent({
           return { value: text, start: text.length, end: text.length, selectedText: '' }
         }
 
-        // Get the selected text directly from the range
-        const selectedText = range.toString()
+        // Get the selected text from the DOM range
+        const domSelectedText = range.toString()
 
-        // Find the position of the selected text in the modelValue
-        // We need to find where the selection starts in the actual model value
-        // Use the range to calculate relative position within the contenteditable
-        const preCaretRange = range.cloneRange()
-        preCaretRange.selectNodeContents(el)
-        preCaretRange.setEnd(range.startContainer, range.startOffset)
-        const domStart = preCaretRange.toString().length
-
-        // The DOM position should map to the modelValue position
-        // Account for any differences (e.g., zero-width spaces used for cursor positioning)
-        let start = domStart
-        let end = domStart + selectedText.length
-
-        // Clamp to valid range
-        if (start > text.length) start = text.length
-        if (end > text.length) end = text.length
-        if (start < 0) start = 0
-        if (end < start) end = start
-
-        // Verify the selected text matches what's in modelValue at this position
-        // If it doesn't match exactly, try to find it nearby
-        const modelSelectedText = text.substring(start, end)
-        if (modelSelectedText !== selectedText && selectedText.length > 0) {
-          // Try to find the selected text in the model value
-          const foundIndex = text.indexOf(selectedText)
-          if (foundIndex !== -1) {
-            start = foundIndex
-            end = foundIndex + selectedText.length
-          }
+        if (!domSelectedText) {
+          // No selection - put cursor at end of text
+          return { value: text, start: text.length, end: text.length, selectedText: '' }
         }
+
+        // Find the selected text in the modelValue
+        // The DOM selection text should match exactly what's in the model
+        // We search for it to get the correct position
+        const trimmedSelection = domSelectedText.trim()
+
+        if (!trimmedSelection) {
+          return { value: text, start: text.length, end: text.length, selectedText: '' }
+        }
+
+        // Find the position of the trimmed selection in the model
+        const foundIndex = text.indexOf(trimmedSelection)
+
+        if (foundIndex === -1) {
+          // Selected text not found - append at end
+          return { value: text, start: text.length, end: text.length, selectedText: '' }
+        }
+
+        // If there are multiple occurrences, find the best match using DOM position estimate
+        let start = foundIndex
+        let nextIndex = text.indexOf(trimmedSelection, foundIndex + 1)
+
+        if (nextIndex !== -1) {
+          // Multiple occurrences - use DOM position to pick the closest one
+          const preCaretRange = range.cloneRange()
+          preCaretRange.selectNodeContents(el)
+          preCaretRange.setEnd(range.startContainer, range.startOffset)
+          const domStartEstimate = preCaretRange.toString().length
+
+          // Check all occurrences and pick closest to DOM estimate
+          let bestMatch = foundIndex
+          let bestDiff = Math.abs(foundIndex - domStartEstimate)
+
+          let idx = foundIndex
+          while (idx !== -1) {
+            const diff = Math.abs(idx - domStartEstimate)
+            if (diff < bestDiff) {
+              bestDiff = diff
+              bestMatch = idx
+            }
+            idx = text.indexOf(trimmedSelection, idx + 1)
+          }
+          start = bestMatch
+        }
+
+        const end = start + trimmedSelection.length
 
         return {
           value: text,
           start,
           end,
-          selectedText: text.substring(start, end),
+          selectedText: trimmedSelection,
         }
       }
     },

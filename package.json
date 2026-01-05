@@ -13,7 +13,9 @@
     "lint": "eslint src",
     "format": "eslint --fix src && prettier --write {vite.config.ts,src/,README.md}",
     "prepare": "husky",
-    "gen": "simple-scaffold -c . -k"
+    "gen": "simple-scaffold -c . -k",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"
@@ -36,8 +38,11 @@
     "@nextcloud/browserslist-config": "^3.1.2",
     "@nextcloud/eslint-config": "^8.4.2",
     "@nextcloud/stylelint-config": "^3.1.1",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.39.2",
+    "happy-dom": "^20.0.11",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^2.8.8",
@@ -49,6 +54,7 @@
     "typescript-eslint": "^8.51.0",
     "vite": "^6.4.1",
     "vite-plugin-checker": "^0.12.0",
+    "vitest": "^4.0.16",
     "vue-router": "^4.6.4",
     "vue-tsc": "^2.2.12"
   }

@@ -5,8 +5,9 @@
   "type": "module",
   "engines": {
     "node": "^22.19.0",
-    "pnpm": "^10.17.0"
+    "pnpm": "^10.27.0"
   },
+  "packageManager": "pnpm@10.27.0",
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build",

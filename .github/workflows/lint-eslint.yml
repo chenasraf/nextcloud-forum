@@ -1,10 +1,5 @@
-# This workflow is provided via the organization template repository
-#
-# https://github.com/nextcloud/.github
-# https://docs.github.com/en/actions/learn-github-actions/sharing-workflows-with-your-organization
-#
-# Use lint-eslint together with lint-eslint-when-unrelated to make eslint a required check for GitHub actions
-# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+# SPDX-FileCopyrightText: Chen Asraf <contact@casraf.dev>
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 name: Lint eslint
 
@@ -20,39 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-
-    outputs:
-      src: ${{ steps.changes.outputs.src}}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - uses: dorny/paths-filter@v3
-        id: changes
-        continue-on-error: true
-        with:
-          filters: |
-            src:
-              - '.github/workflows/**'
-              - 'src/**'
-              - 'appinfo/info.xml'
-              - 'package.json'
-              - 'package-lock.json'
-              - 'tsconfig.json'
-              - '.eslintrc.*'
-              - '.eslintignore'
-              - '**.js'
-              - '**.ts'
-              - '**.vue'
-
   lint:
     runs-on: ubuntu-latest
-
-    needs: changes
-    if: needs.changes.outputs.src != 'false'
 
     name: NPM lint
 
@@ -75,13 +39,12 @@ jobs:
     permissions:
       contents: none
     runs-on: ubuntu-latest
-    needs: [changes, lint]
+    needs: lint
 
     if: always()
 
-    # This is the summary, we just avoid to rename it so that branch protection rules still match
     name: eslint
 
     steps:
       - name: Summary status
-        run: if ${{ needs.changes.outputs.src != 'false' && needs.lint.result != 'success' }}; then exit 1; fi
+        run: if ${{ needs.lint.result != 'success' }}; then exit 1; fi

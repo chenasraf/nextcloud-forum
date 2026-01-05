@@ -169,7 +169,7 @@ describe('PostReactions', () => {
         props: { postId: 1, reactions },
       })
       const thumbsUpButton = wrapper.findAll('.reaction-button')[0]!
-      expect(thumbsUpButton.attributes('title')).toBe('%n people reacted with 👍')
+      expect(thumbsUpButton.attributes('title')).toBe('3 people reacted with 👍')
     })
   })
 

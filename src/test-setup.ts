@@ -25,6 +25,8 @@ vi.mock('@nextcloud/l10n', () => ({
     vars?: Record<string, unknown>,
   ) => {
     let result = count === 1 ? singular : plural
+    // Replace %n with actual count
+    result = result.replace(/%n/g, String(count))
     if (vars) {
       result = Object.entries(vars).reduce(
         (acc, [key, value]) => acc.replace(`{${key}}`, String(value)),

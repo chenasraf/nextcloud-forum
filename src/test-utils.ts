@@ -47,7 +47,7 @@ export function createIconMock(name: string, className?: string) {
  */
 export function createComponentMock(
   name: string,
-  options: { template?: string; props?: string[] } = {},
+  options: { template?: string; props?: string[]; emits?: string[] } = {},
 ) {
   const className = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
   return {
@@ -55,6 +55,7 @@ export function createComponentMock(
       name,
       template: options.template ?? `<div class="${className}-mock" />`,
       props: options.props ?? [],
+      emits: options.emits ?? [],
     },
   }
 }

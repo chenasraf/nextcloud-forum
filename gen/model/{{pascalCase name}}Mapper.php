@@ -40,7 +40,7 @@ class {{pascalCase name}}Mapper extends QBMapper {
 	}
 
 	/**
-	 * @param string $projectId
+	 * @param string $id
 	 * @return array<{{pascalCase name}}>
 	 */
 	public function findAll(): array {

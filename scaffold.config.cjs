@@ -22,7 +22,6 @@ module.exports = () => {
     component: {
       templates: ['gen/component'],
       output: 'src/components',
-      subDir: false,
     },
     view: {
       templates: ['gen/view'],

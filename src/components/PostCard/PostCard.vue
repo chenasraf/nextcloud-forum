@@ -445,6 +445,12 @@ export default defineComponent({
         line-height: 1.6;
       }
     }
+
+    // Images ([img]) - auto-scale to fit content width
+    :deep(img) {
+      max-width: 100%;
+      height: auto;
+    }
   }
 
   .icon {

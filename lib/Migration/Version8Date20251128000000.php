@@ -43,9 +43,18 @@ class Version8Date20251128000000 extends SimpleMigrationStep {
 			}
 		}
 
-		// Add signature column to user stats
-		if ($schema->hasTable('forum_user_stats')) {
-			$table = $schema->getTable('forum_user_stats');
+		// Add signature column to forum_users table (handles both old and new table names)
+		// On fresh installs: forum_users is created with signature column in Version1
+		// On progressive installs: forum_user_stats may still exist and needs signature added
+		$userTableName = null;
+		if ($schema->hasTable('forum_users')) {
+			$userTableName = 'forum_users';
+		} elseif ($schema->hasTable('forum_user_stats')) {
+			$userTableName = 'forum_user_stats';
+		}
+
+		if ($userTableName !== null) {
+			$table = $schema->getTable($userTableName);
 
 			if (!$table->hasColumn('signature')) {
 				$table->addColumn('signature', 'text', [

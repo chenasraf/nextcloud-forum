@@ -31,7 +31,6 @@ use OCP\AppFramework\Db\Entity;
  * @method void setUpdatedAt(int $updatedAt)
  */
 class ForumUser extends Entity implements JsonSerializable {
-	public $id;
 	protected string $userId = '';
 	protected int $postCount = 0;
 	protected int $threadCount = 0;

@@ -85,12 +85,30 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 		$table->addIndex(['name'], 'forum_roles_name_idx');
 	}
 
+	/**
+	 * Create forum_users table (formerly forum_user_stats)
+	 * Note: On fresh installs, this creates forum_users directly with the final schema.
+	 * For progressive installs where forum_user_stats already exists,
+	 * SeedHelper::ensureForumUsersTable() handles the rename.
+	 *
+	 * The table structure matches what Version2 transforms it to:
+	 * - id: auto-increment primary key
+	 * - user_id: unique string
+	 * - signature: added in Version8
+	 */
 	private function createUserStatsTable(ISchemaWrapper $schema): void {
-		if ($schema->hasTable('forum_user_stats')) {
+		// Skip if either table already exists (handles both fresh and progressive installs)
+		if ($schema->hasTable('forum_users') || $schema->hasTable('forum_user_stats')) {
 			return;
 		}
 
-		$table = $schema->createTable('forum_user_stats');
+		// Create forum_users directly with the final schema (matching Version2's transformation)
+		$table = $schema->createTable('forum_users');
+		$table->addColumn('id', 'bigint', [
+			'autoincrement' => true,
+			'notnull' => true,
+			'unsigned' => true,
+		]);
 		$table->addColumn('user_id', 'string', [
 			'notnull' => true,
 			'length' => 64,
@@ -115,6 +133,10 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'unsigned' => true,
 			'default' => null,
 		]);
+		$table->addColumn('signature', 'text', [
+			'notnull' => false,
+			'default' => null,
+		]);
 		$table->addColumn('created_at', 'integer', [
 			'notnull' => true,
 			'unsigned' => true,
@@ -123,9 +145,11 @@ class Version1Date20251106004226 extends SimpleMigrationStep {
 			'notnull' => true,
 			'unsigned' => true,
 		]);
-		$table->setPrimaryKey(['user_id']);
-		$table->addIndex(['post_count'], 'user_stats_post_count_idx');
-		$table->addIndex(['deleted_at'], 'user_stats_deleted_at_idx');
+		$table->setPrimaryKey(['id']);
+		$table->addUniqueIndex(['user_id'], 'forum_users_user_id_uniq');
+		$table->addIndex(['post_count'], 'forum_users_post_count_idx');
+		$table->addIndex(['thread_count'], 'forum_users_thread_count_idx');
+		$table->addIndex(['deleted_at'], 'forum_users_deleted_at_idx');
 	}
 
 	private function createForumUserRolesTable(ISchemaWrapper $schema): void {

@@ -67,15 +67,35 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 		$table->addUniqueIndex(['user_id', 'thread_id'], 'thread_subs_uniq_idx');
 	}
 
+	/**
+	 * Fix forum_user_stats or forum_users table structure
+	 * Handles both old table name (progressive installs) and new table name (fresh installs)
+	 */
 	private function fixForumUserStatsTable(ISchemaWrapper $schema): void {
-		if (!$schema->hasTable('forum_user_stats')) {
+		// Determine which table exists (handles both fresh and progressive installs)
+		$tableName = null;
+		if ($schema->hasTable('forum_user_stats')) {
+			$tableName = 'forum_user_stats';
+		} elseif ($schema->hasTable('forum_users')) {
+			$tableName = 'forum_users';
+		}
+
+		if ($tableName === null) {
 			return;
 		}
 
-		$table = $schema->getTable('forum_user_stats');
+		$table = $schema->getTable($tableName);
 
 		// Check if already fixed (has id column)
+		// Note: On fresh installs, forum_users uses user_id as primary key (no id column needed)
+		// This fix is only needed for progressive installs with old forum_user_stats structure
 		if ($table->hasColumn('id')) {
+			return;
+		}
+
+		// Only add id column to forum_user_stats (old structure)
+		// forum_users created in Version1 uses user_id as primary key and doesn't need this fix
+		if ($tableName !== 'forum_user_stats') {
 			return;
 		}
 
@@ -123,8 +143,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 	}
 
 	/**
-	 * Rebuild user stats using the old table name (forum_user_stats)
-	 * This is needed because Version8 hasn't renamed the table yet
+	 * Rebuild user stats - handles both old (forum_user_stats) and new (forum_users) table names
 	 */
 	private function rebuildAllUserStatsLegacy(): array {
 		// Get all user IDs from Nextcloud
@@ -133,11 +152,22 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 			$users[] = $user->getUID();
 		});
 
+		// Determine which table to use
+		$tableName = $this->getUserStatsTableName();
+		if ($tableName === null) {
+			// No table exists yet - this shouldn't happen but handle gracefully
+			return [
+				'users' => count($users),
+				'updated' => 0,
+				'created' => 0,
+			];
+		}
+
 		$updated = 0;
 		$created = 0;
 
 		foreach ($users as $userId) {
-			$wasCreated = $this->rebuildUserStatsLegacy($userId);
+			$wasCreated = $this->rebuildUserStatsLegacy($userId, $tableName);
 			if ($wasCreated) {
 				$created++;
 			} else {
@@ -153,9 +183,36 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 	}
 
 	/**
-	 * Rebuild stats for a single user using the old table name
+	 * Get the user stats table name (handles both old and new names)
 	 */
-	private function rebuildUserStatsLegacy(string $userId): bool {
+	private function getUserStatsTableName(): ?string {
+		// Check forum_users first (new name, for fresh installs)
+		// Then check forum_user_stats (old name, for progressive installs)
+		try {
+			$qb = $this->db->getQueryBuilder();
+			$qb->select('user_id')->from('forum_users')->setMaxResults(1);
+			$qb->executeQuery()->closeCursor();
+			return 'forum_users';
+		} catch (\Exception $e) {
+			// Table doesn't exist, try old name
+		}
+
+		try {
+			$qb = $this->db->getQueryBuilder();
+			$qb->select('user_id')->from('forum_user_stats')->setMaxResults(1);
+			$qb->executeQuery()->closeCursor();
+			return 'forum_user_stats';
+		} catch (\Exception $e) {
+			// Neither table exists
+		}
+
+		return null;
+	}
+
+	/**
+	 * Rebuild stats for a single user
+	 */
+	private function rebuildUserStatsLegacy(string $userId, string $tableName): bool {
 		// Count non-deleted threads created by this user
 		$threadQb = $this->db->getQueryBuilder();
 		$threadQb->select($threadQb->func()->count('*', 'count'))
@@ -194,10 +251,10 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 		$lastPostAt = $lastPostResult->fetchOne();
 		$lastPostResult->closeCursor();
 
-		// Check if forum user record already exists (using OLD table name)
+		// Check if forum user record already exists
 		$checkQb = $this->db->getQueryBuilder();
 		$checkQb->select('user_id')
-			->from('forum_user_stats')  // OLD table name!
+			->from($tableName)
 			->where($checkQb->expr()->eq('user_id', $checkQb->createNamedParameter($userId)));
 		$checkResult = $checkQb->executeQuery();
 		$exists = $checkResult->fetch();
@@ -206,9 +263,9 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 		$timestamp = time();
 
 		if ($exists) {
-			// Update existing record (using OLD table name)
+			// Update existing record
 			$updateQb = $this->db->getQueryBuilder();
-			$updateQb->update('forum_user_stats')  // OLD table name!
+			$updateQb->update($tableName)
 				->set('thread_count', $updateQb->createNamedParameter($threadCount, IQueryBuilder::PARAM_INT))
 				->set('post_count', $updateQb->createNamedParameter($postCount, IQueryBuilder::PARAM_INT))
 				->set('updated_at', $updateQb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT))
@@ -221,9 +278,9 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 			$updateQb->executeStatement();
 			return false;
 		} else {
-			// Create new record (using OLD table name)
+			// Create new record
 			$insertQb = $this->db->getQueryBuilder();
-			$insertQb->insert('forum_user_stats')  // OLD table name!
+			$insertQb->insert($tableName)
 				->values([
 					'user_id' => $insertQb->createNamedParameter($userId),
 					'thread_count' => $insertQb->createNamedParameter($threadCount, IQueryBuilder::PARAM_INT),
@@ -239,7 +296,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 			} catch (\Exception $e) {
 				// If insert fails (race condition), try updating instead
 				$updateQb = $this->db->getQueryBuilder();
-				$updateQb->update('forum_user_stats')  // OLD table name!
+				$updateQb->update($tableName)
 					->set('thread_count', $updateQb->createNamedParameter($threadCount, IQueryBuilder::PARAM_INT))
 					->set('post_count', $updateQb->createNamedParameter($postCount, IQueryBuilder::PARAM_INT))
 					->set('updated_at', $updateQb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT))

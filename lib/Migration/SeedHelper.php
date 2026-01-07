@@ -125,7 +125,8 @@ class SeedHelper {
 
 	/**
 	 * Create the forum_users table from scratch
-	 * This mirrors the schema from Version1 + Version8 migrations
+	 * This mirrors the final schema from Version1 + Version2 + Version8 migrations
+	 * (id as primary key, user_id as unique, includes signature column)
 	 */
 	private static function createForumUsersTable(\OCP\IDBConnection $db): void {
 		$platform = $db->getDatabasePlatform();
@@ -138,6 +139,7 @@ class SeedHelper {
 			// MySQL and MariaDB both extend MySQLPlatform
 			$db->executeStatement("
 				CREATE TABLE `{$tableName}` (
+					`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 					`user_id` VARCHAR(64) NOT NULL,
 					`post_count` INT UNSIGNED NOT NULL DEFAULT 0,
 					`thread_count` INT UNSIGNED NOT NULL DEFAULT 0,
@@ -146,14 +148,17 @@ class SeedHelper {
 					`signature` TEXT DEFAULT NULL,
 					`created_at` INT UNSIGNED NOT NULL,
 					`updated_at` INT UNSIGNED NOT NULL,
-					PRIMARY KEY (`user_id`),
+					PRIMARY KEY (`id`),
+					UNIQUE INDEX `forum_users_user_id_uniq` (`user_id`),
 					INDEX `forum_users_post_count_idx` (`post_count`),
+					INDEX `forum_users_thread_count_idx` (`thread_count`),
 					INDEX `forum_users_deleted_at_idx` (`deleted_at`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
 			");
 		} elseif ($platform instanceof \Doctrine\DBAL\Platforms\PostgreSQLPlatform) {
 			$db->executeStatement("
 				CREATE TABLE \"{$tableName}\" (
+					\"id\" BIGSERIAL PRIMARY KEY,
 					\"user_id\" VARCHAR(64) NOT NULL,
 					\"post_count\" INTEGER NOT NULL DEFAULT 0,
 					\"thread_count\" INTEGER NOT NULL DEFAULT 0,
@@ -161,16 +166,18 @@ class SeedHelper {
 					\"deleted_at\" INTEGER DEFAULT NULL,
 					\"signature\" TEXT DEFAULT NULL,
 					\"created_at\" INTEGER NOT NULL,
-					\"updated_at\" INTEGER NOT NULL,
-					PRIMARY KEY (\"user_id\")
+					\"updated_at\" INTEGER NOT NULL
 				)
 			");
+			$db->executeStatement("CREATE UNIQUE INDEX \"forum_users_user_id_uniq\" ON \"{$tableName}\" (\"user_id\")");
 			$db->executeStatement("CREATE INDEX \"forum_users_post_count_idx\" ON \"{$tableName}\" (\"post_count\")");
+			$db->executeStatement("CREATE INDEX \"forum_users_thread_count_idx\" ON \"{$tableName}\" (\"thread_count\")");
 			$db->executeStatement("CREATE INDEX \"forum_users_deleted_at_idx\" ON \"{$tableName}\" (\"deleted_at\")");
 		} else {
 			// SQLite (and any other platform as fallback)
 			$db->executeStatement("
 				CREATE TABLE \"{$tableName}\" (
+					\"id\" INTEGER PRIMARY KEY AUTOINCREMENT,
 					\"user_id\" VARCHAR(64) NOT NULL,
 					\"post_count\" INTEGER NOT NULL DEFAULT 0,
 					\"thread_count\" INTEGER NOT NULL DEFAULT 0,
@@ -178,11 +185,12 @@ class SeedHelper {
 					\"deleted_at\" INTEGER DEFAULT NULL,
 					\"signature\" TEXT DEFAULT NULL,
 					\"created_at\" INTEGER NOT NULL,
-					\"updated_at\" INTEGER NOT NULL,
-					PRIMARY KEY (\"user_id\")
+					\"updated_at\" INTEGER NOT NULL
 				)
 			");
+			$db->executeStatement("CREATE UNIQUE INDEX \"forum_users_user_id_uniq\" ON \"{$tableName}\" (\"user_id\")");
 			$db->executeStatement("CREATE INDEX \"forum_users_post_count_idx\" ON \"{$tableName}\" (\"post_count\")");
+			$db->executeStatement("CREATE INDEX \"forum_users_thread_count_idx\" ON \"{$tableName}\" (\"thread_count\")");
 			$db->executeStatement("CREATE INDEX \"forum_users_deleted_at_idx\" ON \"{$tableName}\" (\"deleted_at\")");
 		}
 	}

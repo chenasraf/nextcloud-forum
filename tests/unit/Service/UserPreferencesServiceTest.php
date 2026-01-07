@@ -42,7 +42,7 @@ class UserPreferencesServiceTest extends TestCase {
 		$userId = 'user1';
 
 		// Only config-based preferences (signature is from forum_users)
-		$this->config->expects($this->exactly(2))
+		$this->config->expects($this->exactly(3))
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $appId, $key, $default) use ($userId) {
 				$this->assertEquals($userId, $uid);
@@ -50,6 +50,7 @@ class UserPreferencesServiceTest extends TestCase {
 
 				return match ($key) {
 					UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => 'true',
+					UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS => 'false',
 					UserPreferencesService::PREF_UPLOAD_DIRECTORY => 'Forum',
 					default => $default,
 				};
@@ -58,8 +59,9 @@ class UserPreferencesServiceTest extends TestCase {
 		$result = $this->service->getAllPreferences($userId);
 
 		$this->assertIsArray($result);
-		$this->assertCount(3, $result);
+		$this->assertCount(4, $result);
 		$this->assertTrue($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS]);
+		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS]);
 		$this->assertEquals('Forum', $result[UserPreferencesService::PREF_UPLOAD_DIRECTORY]);
 		$this->assertEquals('', $result[UserPreferencesService::PREF_SIGNATURE]);
 	}
@@ -144,7 +146,7 @@ class UserPreferencesServiceTest extends TestCase {
 				}
 			});
 
-		$this->config->expects($this->exactly(2))
+		$this->config->expects($this->exactly(3))
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $appId, $key, $default) use ($userId) {
 				$this->assertEquals($userId, $uid);
@@ -152,6 +154,7 @@ class UserPreferencesServiceTest extends TestCase {
 
 				return match ($key) {
 					UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => 'false',
+					UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS => 'false',
 					UserPreferencesService::PREF_UPLOAD_DIRECTORY => 'Documents',
 					default => $default,
 				};
@@ -160,8 +163,9 @@ class UserPreferencesServiceTest extends TestCase {
 		$result = $this->service->updatePreferences($userId, $preferences);
 
 		$this->assertIsArray($result);
-		$this->assertCount(3, $result);
+		$this->assertCount(4, $result);
 		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS]);
+		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS]);
 		$this->assertEquals('Documents', $result[UserPreferencesService::PREF_UPLOAD_DIRECTORY]);
 		$this->assertEquals('', $result[UserPreferencesService::PREF_SIGNATURE]);
 	}

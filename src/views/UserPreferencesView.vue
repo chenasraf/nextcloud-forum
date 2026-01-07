@@ -43,9 +43,16 @@
 
           <div class="preference-item">
             <NcCheckboxRadioSwitch v-model="formData.auto_subscribe_created_threads">
-              {{ strings.autoSubscribeLabel }}
+              {{ strings.autoSubscribeCreatedLabel }}
             </NcCheckboxRadioSwitch>
-            <p class="preference-hint">{{ strings.autoSubscribeHint }}</p>
+            <p class="preference-hint">{{ strings.autoSubscribeCreatedHint }}</p>
+          </div>
+
+          <div class="preference-item">
+            <NcCheckboxRadioSwitch v-model="formData.auto_subscribe_replied_threads">
+              {{ strings.autoSubscribeRepliedLabel }}
+            </NcCheckboxRadioSwitch>
+            <p class="preference-hint">{{ strings.autoSubscribeRepliedHint }}</p>
           </div>
         </div>
 
@@ -134,6 +141,7 @@ import { getFilePickerBuilder, FilePickerType } from '@nextcloud/dialogs'
 
 interface UserPreferences {
   auto_subscribe_created_threads: boolean
+  auto_subscribe_replied_threads: boolean
   upload_directory: string
   signature: string
 }
@@ -162,11 +170,13 @@ export default defineComponent({
       error: null as string | null,
       originalData: {
         auto_subscribe_created_threads: true,
+        auto_subscribe_replied_threads: false,
         upload_directory: 'Forum',
         signature: '',
       } as UserPreferences,
       formData: {
         auto_subscribe_created_threads: true,
+        auto_subscribe_replied_threads: false,
         upload_directory: 'Forum',
         signature: '',
       } as UserPreferences,
@@ -180,10 +190,15 @@ export default defineComponent({
         retry: t('forum', 'Retry'),
         subscriptionsTitle: t('forum', 'Notifications'),
         subscriptionsDesc: t('forum', 'Configure how you receive notifications'),
-        autoSubscribeLabel: t('forum', 'Auto-subscribe to threads I create'),
-        autoSubscribeHint: t(
+        autoSubscribeCreatedLabel: t('forum', 'Auto-subscribe to threads I create'),
+        autoSubscribeCreatedHint: t(
           'forum',
           'When enabled, you will automatically receive notifications for replies to threads you create',
+        ),
+        autoSubscribeRepliedLabel: t('forum', 'Auto-subscribe to threads I reply to'),
+        autoSubscribeRepliedHint: t(
+          'forum',
+          'When enabled, you will automatically receive notifications for new replies in threads you have replied to',
         ),
         filesTitle: t('forum', 'Files'),
         filesDesc: t('forum', 'Configure file upload settings'),
@@ -212,6 +227,8 @@ export default defineComponent({
       return (
         this.formData.auto_subscribe_created_threads !==
           this.originalData.auto_subscribe_created_threads ||
+        this.formData.auto_subscribe_replied_threads !==
+          this.originalData.auto_subscribe_replied_threads ||
         this.formData.upload_directory !== this.originalData.upload_directory ||
         this.formData.signature !== this.originalData.signature
       )

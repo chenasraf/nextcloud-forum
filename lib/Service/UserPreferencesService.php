@@ -17,6 +17,9 @@ class UserPreferencesService {
 	/** Preference key for auto-subscribing to created threads */
 	public const PREF_AUTO_SUBSCRIBE_CREATED_THREADS = 'auto_subscribe_created_threads';
 
+	/** Preference key for auto-subscribing to threads when replying */
+	public const PREF_AUTO_SUBSCRIBE_REPLIED_THREADS = 'auto_subscribe_replied_threads';
+
 	/** Preference key for upload directory path */
 	public const PREF_UPLOAD_DIRECTORY = 'upload_directory';
 
@@ -26,6 +29,7 @@ class UserPreferencesService {
 	/** @var array<string, mixed> Default preference values */
 	private const DEFAULTS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => true,
+		self::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS => false,
 		self::PREF_UPLOAD_DIRECTORY => 'Forum',
 		self::PREF_SIGNATURE => '',
 	];
@@ -33,6 +37,7 @@ class UserPreferencesService {
 	/** @var array<string> List of valid preference keys */
 	private const VALID_KEYS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS,
+		self::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS,
 		self::PREF_UPLOAD_DIRECTORY,
 		self::PREF_SIGNATURE,
 	];

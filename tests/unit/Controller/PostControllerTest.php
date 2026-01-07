@@ -20,11 +20,13 @@ use OCA\Forum\Db\ReadMarker;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostEnrichmentService;
 use OCA\Forum\Service\PostHistoryService;
+use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -63,6 +65,10 @@ class PostControllerTest extends TestCase {
 	private PostHistoryService $postHistoryService;
 	/** @var UserService&MockObject */
 	private UserService $userService;
+	/** @var UserPreferencesService&MockObject */
+	private UserPreferencesService $userPreferencesService;
+	/** @var ThreadSubscriptionMapper&MockObject */
+	private ThreadSubscriptionMapper $threadSubscriptionMapper;
 	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
 	/** @var LoggerInterface&MockObject */
@@ -85,6 +91,8 @@ class PostControllerTest extends TestCase {
 		$this->postEnrichmentService = $this->createMock(PostEnrichmentService::class);
 		$this->postHistoryService = $this->createMock(PostHistoryService::class);
 		$this->userService = $this->createMock(UserService::class);
+		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
+		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -113,6 +121,8 @@ class PostControllerTest extends TestCase {
 			$this->postEnrichmentService,
 			$this->postHistoryService,
 			$this->userService,
+			$this->userPreferencesService,
+			$this->threadSubscriptionMapper,
 			$this->userSession,
 			$this->logger
 		);

@@ -15,11 +15,13 @@ use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostEnrichmentService;
 use OCA\Forum\Service\PostHistoryService;
+use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -49,6 +51,8 @@ class PostController extends OCSController {
 		private PostEnrichmentService $postEnrichmentService,
 		private PostHistoryService $postHistoryService,
 		private UserService $userService,
+		private UserPreferencesService $userPreferencesService,
+		private ThreadSubscriptionMapper $threadSubscriptionMapper,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -398,6 +402,21 @@ class PostController extends OCSController {
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
 				// Don't fail the request if mention notification sending fails
+			}
+
+			// Auto-subscribe the user to the thread if preference is enabled and not already subscribed
+			try {
+				$autoSubscribe = $this->userPreferencesService->getPreference(
+					$user->getUID(),
+					UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS
+				);
+
+				if ($autoSubscribe && !$this->threadSubscriptionMapper->isUserSubscribed($user->getUID(), $threadId)) {
+					$this->threadSubscriptionMapper->subscribe($user->getUID(), $threadId);
+				}
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to auto-subscribe user to thread: ' . $e->getMessage());
+				// Don't fail the request if auto-subscribe fails
 			}
 
 			return new DataResponse($this->postEnrichmentService->enrichPost($createdPost), Http::STATUS_CREATED);

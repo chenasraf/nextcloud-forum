@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.20.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.7...v0.20.0) (2026-01-07)
+
+
+### Features
+
+* add max-width to post/signature images ([00e5d6d](https://github.com/chenasraf/nextcloud-forum/commit/00e5d6d3b2e14939b233a80050f645ebd7b8503a))
+* add preference to auto subscribe to replied threads ([cb7a03c](https://github.com/chenasraf/nextcloud-forum/commit/cb7a03c1d51f2dc5642a47ab222b07cec6e01731))
+
+
+### Bug Fixes
+
+* forum users tables migrations ([8b489b9](https://github.com/chenasraf/nextcloud-forum/commit/8b489b9cc3919dedf1463c7c7dd54e7a8009fc6f))
+
 ## [0.19.7](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.6...v0.19.7) (2026-01-05)
 
 

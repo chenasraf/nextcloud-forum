@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.20.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.0...v0.20.1) (2026-01-08)
+
+
+### Bug Fixes
+
+* db seed migrations ([c017bb3](https://github.com/chenasraf/nextcloud-forum/commit/c017bb3d09a517c19e772420311c23a957f25cba))
+* **l10n:** Update translations from Transifex ([67c92c0](https://github.com/chenasraf/nextcloud-forum/commit/67c92c05a3e7f58bbc05265087b763368653f7d3))
+
 ## [0.20.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.19.7...v0.20.0) (2026-01-07)
 
 

@@ -54,12 +54,12 @@ describe('bbcode utilities', () => {
       expect(result.cursorPosition).toBe(18)
     })
 
-    it('inserts template at cursor when no selection', () => {
+    it('inserts template at cursor when no selection, cursor between tags', () => {
       const selection: TextSelection = { text: 'Hello world', start: 6, end: 6 }
       const result = applyBBCodeTemplate(selection, { template: '[b]{text}[/b]' })
 
       expect(result.text).toBe('Hello [b][/b]world')
-      expect(result.cursorPosition).toBe(13) // cursor after [/b]
+      expect(result.cursorPosition).toBe(9) // cursor between tags (after [b]) for immediate typing
     })
 
     it('uses fallback text when no selection', () => {
@@ -130,6 +130,83 @@ describe('bbcode utilities', () => {
 
       expect(result.text).toBe('[size=]text[/size]')
     })
+
+    describe('cursor positioning', () => {
+      it('places cursor between tags when no selection (simple tag)', () => {
+        const selection: TextSelection = { text: '', start: 0, end: 0 }
+        const result = applyBBCodeTemplate(selection, { template: '[b]{text}[/b]' })
+
+        expect(result.text).toBe('[b][/b]')
+        expect(result.cursorPosition).toBe(3) // right after [b]
+      })
+
+      it('places cursor between tags when no selection (tag with value)', () => {
+        const selection: TextSelection = { text: '', start: 0, end: 0 }
+        const result = applyBBCodeTemplate(selection, {
+          template: '[url={value}]{text}[/url]',
+          value: 'http://example.com',
+        })
+
+        expect(result.text).toBe('[url=http://example.com][/url]')
+        expect(result.cursorPosition).toBe(24) // right after the ]
+      })
+
+      it('places cursor between tags when no selection (color tag)', () => {
+        const selection: TextSelection = { text: '', start: 0, end: 0 }
+        const result = applyBBCodeTemplate(selection, {
+          template: '[color={value}]{text}[/color]',
+          value: '#ff0000',
+        })
+
+        expect(result.text).toBe('[color=#ff0000][/color]')
+        expect(result.cursorPosition).toBe(15) // right after [color=#ff0000]
+      })
+
+      it('places cursor after closing tag when selection exists', () => {
+        const selection: TextSelection = { text: 'hello', start: 0, end: 5 }
+        const result = applyBBCodeTemplate(selection, { template: '[b]{text}[/b]' })
+
+        expect(result.text).toBe('[b]hello[/b]')
+        expect(result.cursorPosition).toBe(12) // after [/b]
+      })
+
+      it('places cursor after closing tag when fallback text is used', () => {
+        const selection: TextSelection = { text: '', start: 0, end: 0 }
+        const result = applyBBCodeTemplate(selection, {
+          template: '[b]{text}[/b]',
+          fallbackText: 'bold',
+        })
+
+        expect(result.text).toBe('[b]bold[/b]')
+        expect(result.cursorPosition).toBe(11) // after [/b]
+      })
+
+      it('places cursor between tags for quote tag without selection', () => {
+        const selection: TextSelection = { text: 'Some text', start: 9, end: 9 }
+        const result = applyBBCodeTemplate(selection, { template: '[quote]{text}[/quote]' })
+
+        expect(result.text).toBe('Some text[quote][/quote]')
+        expect(result.cursorPosition).toBe(16) // right after [quote]
+      })
+
+      it('places cursor between tags for code tag without selection', () => {
+        const selection: TextSelection = { text: '', start: 0, end: 0 }
+        const result = applyBBCodeTemplate(selection, { template: '[code]{text}[/code]' })
+
+        expect(result.text).toBe('[code][/code]')
+        expect(result.cursorPosition).toBe(6) // right after [code]
+      })
+
+      it('handles template with newlines - cursor between tags', () => {
+        const selection: TextSelection = { text: '', start: 0, end: 0 }
+        const result = applyBBCodeTemplate(selection, {
+          template: '[list]\n[*]{text}\n[/list]',
+        })
+
+        expect(result.text).toBe('[list]\n[*]\n[/list]')
+        expect(result.cursorPosition).toBe(10) // right after [*]
+      })
+    })
   })
 
   describe('insertTextAtSelection', () => {
@@ -183,12 +260,12 @@ describe('bbcode utilities', () => {
       expect(result.cursorPosition).toBe(18)
     })
 
-    it('inserts empty tags when no selection', () => {
+    it('inserts empty tags when no selection, cursor between tags', () => {
       const selection: TextSelection = { text: 'Hello', start: 5, end: 5 }
       const result = wrapSelection(selection, '[i]', '[/i]')
 
       expect(result.text).toBe('Hello[i][/i]')
-      expect(result.cursorPosition).toBe(12)
+      expect(result.cursorPosition).toBe(8) // cursor between tags (after [i]) for immediate typing
     })
 
     it('uses fallback text when no selection', () => {
@@ -419,12 +496,12 @@ describe('bbcode utilities', () => {
       expect(result.text).toBe('Use [code][b][/code] for bold')
     })
 
-    it('handles empty string', () => {
+    it('handles empty string, cursor between tags', () => {
       const selection: TextSelection = { text: '', start: 0, end: 0 }
       const result = wrapSelection(selection, '[b]', '[/b]')
 
       expect(result.text).toBe('[b][/b]')
-      expect(result.cursorPosition).toBe(7)
+      expect(result.cursorPosition).toBe(3) // cursor between tags (after [b]) for immediate typing
     })
 
     it('handles very long text', () => {

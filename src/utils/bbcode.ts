@@ -74,6 +74,11 @@ export function getSelectedText(selection: TextSelection): string {
  * 2. Replaces the selected text with the BBCode-wrapped version
  * 3. Returns the new text and cursor position
  *
+ * Cursor positioning:
+ * - With selected text or fallback text: cursor is placed after the closing tag
+ * - Without any content: cursor is placed between the opening and closing tags
+ *   so the user can immediately start typing
+ *
  * Template placeholders:
  * - {text}: Replaced with selected text (or fallbackText if nothing selected)
  * - {value}: Replaced with the provided value (for tags like [url=...], [color=...])
@@ -83,12 +88,20 @@ export function getSelectedText(selection: TextSelection): string {
  * @returns The insertion result with new text and cursor position
  *
  * @example
- * // Simple wrap with [b] tags
+ * // Simple wrap with [b] tags - cursor after closing tag
  * applyBBCodeTemplate(
  *   { text: 'Hello world', start: 6, end: 11 },
  *   { template: '[b]{text}[/b]' }
  * )
  * // Returns: { text: 'Hello [b]world[/b]', cursorPosition: 18 }
+ *
+ * @example
+ * // No selection - cursor between tags for immediate typing
+ * applyBBCodeTemplate(
+ *   { text: 'Hello ', start: 6, end: 6 },
+ *   { template: '[b]{text}[/b]' }
+ * )
+ * // Returns: { text: 'Hello [b][/b]', cursorPosition: 9 }
  *
  * @example
  * // URL with value
@@ -115,7 +128,27 @@ export function applyBBCodeTemplate(
     .replace('{text}', contentText)
 
   const newText = beforeText + insertText + afterText
-  const cursorPosition = beforeText.length + insertText.length
+
+  // Calculate cursor position:
+  // - If there's content (selected text or fallback), place cursor after the closing tag
+  // - If no content, place cursor between tags (at the {text} placeholder position)
+  //   so user can immediately start typing
+  let cursorPosition: number
+  if (contentText) {
+    // Cursor after the entire inserted text (after closing tag)
+    cursorPosition = beforeText.length + insertText.length
+  } else {
+    // No content - find where {text} was in the template and place cursor there
+    const templateWithValue = template.template.replace('{value}', template.value || '')
+    const textPlaceholderIndex = templateWithValue.indexOf('{text}')
+    if (textPlaceholderIndex !== -1) {
+      // Place cursor where {text} placeholder was (between tags)
+      cursorPosition = beforeText.length + textPlaceholderIndex
+    } else {
+      // Fallback: place cursor at end of inserted text
+      cursorPosition = beforeText.length + insertText.length
+    }
+  }
 
   return {
     text: newText,

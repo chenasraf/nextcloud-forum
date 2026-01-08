@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.1...v0.20.2) (2026-01-08)
+
+
+### Bug Fixes
+
+* bbcode cursor positions after inserting ([e2dcebc](https://github.com/chenasraf/nextcloud-forum/commit/e2dcebc6ee6e4d017f7f26fc86e72e6734a1f757))
+
 ## [0.20.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.0...v0.20.1) (2026-01-08)
 
 

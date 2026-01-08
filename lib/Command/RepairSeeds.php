@@ -87,7 +87,8 @@ class RepairSeeds extends Command {
 				}
 			};
 
-			SeedHelper::seedAll($migrationOutput);
+			// Pass throwOnError=true so users get proper error feedback
+			SeedHelper::seedAll($migrationOutput, true);
 
 			$output->writeln('');
 			$output->writeln('<info>Forum data repair/seed completed successfully!</info>');

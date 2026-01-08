@@ -17,8 +17,10 @@ class SeedHelper {
 	 * Each function checks its own state and returns early if already seeded
 	 *
 	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
+	 * @param bool $throwOnError If true, throws exceptions on failure. If false (default), logs errors and continues.
+	 *                           Set to false when called from migrations to avoid PostgreSQL transaction abort issues.
 	 */
-	public static function seedAll($output = null): void {
+	public static function seedAll($output = null, bool $throwOnError = false): void {
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$logger->info('Forum seeding: Starting data seed/repair');
 
@@ -26,24 +28,61 @@ class SeedHelper {
 			$output->info('Forum: Starting data seed/repair...');
 		}
 
+		$errors = [];
+
 		// Ensure forum_users table exists (handle rename from forum_user_stats if needed)
-		self::ensureForumUsersTable($output);
+		// This is critical and should fail early if it cannot be done
+		try {
+			self::ensureForumUsersTable($output);
+		} catch (\Exception $e) {
+			$errors[] = 'ensureForumUsersTable: ' . $e->getMessage();
+			$logger->error('Forum seeding: Failed to ensure forum_users table', ['exception' => $e->getMessage()]);
+			if ($output) {
+				$output->warning('  Failed to ensure forum_users table: ' . $e->getMessage());
+			}
+		}
 
 		// Each function checks its own state and returns early if already seeded
-		// They run independently so one failure doesn't block others
-		self::seedDefaultRoles($output);
-		self::seedCategoryHeaders($output);
-		self::seedDefaultCategories($output);
-		self::seedCategoryPermissions($output);
-		self::seedGuestRolePermissions($output);
-		self::seedDefaultBBCodes($output);
-		self::assignUserRoles($output);
-		self::seedWelcomeThread($output);
+		// They run independently so one failure does not block others
+		// This is especially important for PostgreSQL where a failed query aborts the transaction
+		$seedOperations = [
+			'seedDefaultRoles' => fn () => self::seedDefaultRoles($output),
+			'seedCategoryHeaders' => fn () => self::seedCategoryHeaders($output),
+			'seedDefaultCategories' => fn () => self::seedDefaultCategories($output),
+			'seedCategoryPermissions' => fn () => self::seedCategoryPermissions($output),
+			'seedGuestRolePermissions' => fn () => self::seedGuestRolePermissions($output),
+			'seedDefaultBBCodes' => fn () => self::seedDefaultBBCodes($output),
+			'assignUserRoles' => fn () => self::assignUserRoles($output),
+			'seedWelcomeThread' => fn () => self::seedWelcomeThread($output),
+		];
 
-		$logger->info('Forum seeding: Completed data seed/repair');
+		foreach ($seedOperations as $name => $operation) {
+			try {
+				$operation();
+			} catch (\Exception $e) {
+				$errors[] = "$name: " . $e->getMessage();
+				$logger->error("Forum seeding: $name failed", ['exception' => $e->getMessage()]);
+				// Continue with other operations - don't let one failure block others
+			}
+		}
 
-		if ($output) {
-			$output->info('Forum: Data seed/repair completed');
+		if (!empty($errors)) {
+			$errorSummary = 'Some seeding operations failed: ' . implode('; ', $errors);
+			$logger->warning('Forum seeding: Completed with errors', ['errors' => $errors]);
+
+			if ($output) {
+				$output->warning('Forum: Data seed/repair completed with errors. Run "occ forum:repair-seeds" to retry failed operations.');
+			}
+
+			if ($throwOnError) {
+				throw new \RuntimeException($errorSummary);
+			}
+		} else {
+			$logger->info('Forum seeding: Completed data seed/repair successfully');
+
+			if ($output) {
+				$output->info('Forum: Data seed/repair completed');
+			}
 		}
 	}
 

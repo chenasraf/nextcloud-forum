@@ -76,7 +76,15 @@ class Version15Date20260103000000 extends SimpleMigrationStep {
 	 */
 	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
 		// Re-run seeding to ensure all required data exists
-		SeedHelper::seedAll($output);
+		// Pass throwOnError=false to avoid PostgreSQL transaction abort issues
+		// If seeding fails, users can run "occ forum:repair-seeds" to retry
+		try {
+			SeedHelper::seedAll($output, false);
+		} catch (\Exception $e) {
+			// This should not happen with throwOnError=false, but handle it gracefully
+			$this->logger->error('Forum migration: Seeding failed unexpectedly', ['exception' => $e->getMessage()]);
+			$output->warning('Forum: Seeding failed. Run "occ forum:repair-seeds" after enabling the app to complete setup.');
+		}
 	}
 
 	/**

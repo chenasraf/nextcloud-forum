@@ -281,6 +281,8 @@ OC.L10N.register(
     "Configure how you receive notifications" : "Seadista endale teavituste saatmise viisi",
     "Auto-subscribe to threads I create" : "Telli minu loodud jutulõngad automaatselt",
     "When enabled, you will automatically receive notifications for replies to threads you create" : "Kui see eelistus on kasutusel, siis saad automaatselt teavituse sinu loodud jutulõngade vastuste puhul",
+    "Auto-subscribe to threads I reply to" : "Telli minu poolt vastatud jutulõngad automaatselt",
+    "When enabled, you will automatically receive notifications for new replies in threads you have replied to" : "Kui see eelistus on kasutusel, siis saad automaatselt teavituse nende jutulõngade kohta, kuhu oled vastuse kirjutanud",
     "Files" : "Failid",
     "Configure file upload settings" : "Seadista failide üleslaadimise seadistusi",
     "Upload directory" : "Üleslaadimiskaust",

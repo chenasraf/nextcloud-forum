@@ -282,6 +282,8 @@ OC.L10N.register(
     "Configure how you receive notifications" : "Einrichten, wie du Benachrichtigungen erhältst",
     "Auto-subscribe to threads I create" : "Themen die ich erstellt habe, automatisch abonnieren",
     "When enabled, you will automatically receive notifications for replies to threads you create" : "Wenn diese Option aktiviert ist, erhältst du automatisch Benachrichtigungen für Antworten auf von dir erstellte Themen",
+    "Auto-subscribe to threads I reply to" : "Themen auf die ich geantwortet habe, automatisch abonnieren",
+    "When enabled, you will automatically receive notifications for new replies in threads you have replied to" : "Wenn diese Option aktiviert ist, erhältst du automatisch Benachrichtigungen für Antworten in Themen, in denen du geantwortet hast",
     "Files" : "Dateien",
     "Configure file upload settings" : "Einstellungen für das Hochladen von Dateien",
     "Upload directory" : "Hochladeverzeichnis",

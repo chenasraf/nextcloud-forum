@@ -282,6 +282,8 @@ OC.L10N.register(
     "Configure how you receive notifications" : "設定您要如何接收通知",
     "Auto-subscribe to threads I create" : "自動訂閱我建立的討論串",
     "When enabled, you will automatically receive notifications for replies to threads you create" : "啟用後，您會自動收到您所建立的討論串回覆的通知",
+    "Auto-subscribe to threads I reply to" : "自動訂閱我回覆的討論串",
+    "When enabled, you will automatically receive notifications for new replies in threads you have replied to" : "啟用後，您將會自動收到您回覆過的討論串中的新回覆通知",
     "Files" : "檔案",
     "Configure file upload settings" : "設定檔案上傳設定",
     "Upload directory" : "上傳目錄",

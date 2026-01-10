@@ -1146,6 +1146,9 @@ class SeedHelper {
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$timestamp = time();
 
+		// Recover connection state before starting (important for PostgreSQL)
+		self::recoverConnectionState($db, $logger);
+
 		try {
 			// Check if welcome thread already exists
 			$qb = $db->getQueryBuilder();
@@ -1197,6 +1200,42 @@ class SeedHelper {
 				}
 			});
 
+			// Check if slug column still exists BEFORE starting transaction
+			// (for backwards compatibility with old migrations)
+			// On PostgreSQL, a failed query inside a transaction aborts the entire transaction,
+			// so we must check column existence outside the transaction
+			$hasSlugColumn = true;
+			try {
+				$checkQb = $db->getQueryBuilder();
+				$checkQb->select('slug')->from('forum_posts')->setMaxResults(1);
+				$checkQb->executeQuery()->closeCursor();
+			} catch (\Exception $e) {
+				$hasSlugColumn = false;
+				// Recover connection state after the failed query (important for PostgreSQL)
+				self::recoverConnectionState($db, $logger);
+			}
+
+			// Prepare welcome post content
+			$welcomeContent = $l->t('Welcome to the Nextcloud Forums!') . "\n\n"
+				. $l->t('This is a community-driven forum built right into your Nextcloud instance. '
+				. 'Here you can discuss topics, share ideas and collaborate with other users.') . "\n\n"
+				. '[b]' . $l->t('Features:') . "[/b]\n"
+				. "[list]\n"
+				. '[*]' . $l->t('Create and reply to threads') . "\n"
+				. '[*]' . $l->t('Organize discussions by categories') . "\n"
+				. '[*]' . $l->t('Use BBCode for rich text formatting') . "\n"
+				. '[*]' . $l->t('Attach files from your Nextcloud storage') . "\n"
+				. '[*]' . $l->t('React to posts') . "\n"
+				. '[*]' . $l->t('Track read/unread threads') . "\n\n"
+				. "[/list]\n"
+				. '[b]' . $l->t('BBCode examples:') . "[/b]\n"
+				. "[list]\n"
+				. '[*][b]' . $l->t('Bold text') . '[/b] - ' . $l->t('Use %1$stext%2$s', ['[icode][b]', '[/b][/icode]']) . "\n"
+				. '[*][i]' . $l->t('Italic text') . '[/i] - ' . $l->t('Use %1$stext%2$s', ['[icode][i]', '[/i][/icode]']) . "\n"
+				. '[*][u]' . $l->t('Underlined text') . '[/u] - ' . $l->t('Use %1$stext%2$s', ['[icode][u]', '[/u][/icode]']) . "\n\n"
+				. "[/list]\n"
+				. $l->t('Feel free to start a new discussion or reply to existing threads. Happy posting!');
+
 			$db->beginTransaction();
 
 			// Create welcome thread
@@ -1218,38 +1257,6 @@ class SeedHelper {
 				])
 				->executeStatement();
 			$threadId = $qb->getLastInsertId();
-
-			// Create welcome post
-			$welcomeContent = $l->t('Welcome to the Nextcloud Forums!') . "\n\n"
-				. $l->t('This is a community-driven forum built right into your Nextcloud instance. '
-				. 'Here you can discuss topics, share ideas and collaborate with other users.') . "\n\n"
-				. '[b]' . $l->t('Features:') . "[/b]\n"
-				. "[list]\n"
-				. '[*]' . $l->t('Create and reply to threads') . "\n"
-				. '[*]' . $l->t('Organize discussions by categories') . "\n"
-				. '[*]' . $l->t('Use BBCode for rich text formatting') . "\n"
-				. '[*]' . $l->t('Attach files from your Nextcloud storage') . "\n"
-				. '[*]' . $l->t('React to posts') . "\n"
-				. '[*]' . $l->t('Track read/unread threads') . "\n\n"
-				. "[/list]\n"
-				. '[b]' . $l->t('BBCode examples:') . "[/b]\n"
-				. "[list]\n"
-				. '[*][b]' . $l->t('Bold text') . '[/b] - ' . $l->t('Use %1$stext%2$s', ['[icode][b]', '[/b][/icode]']) . "\n"
-				. '[*][i]' . $l->t('Italic text') . '[/i] - ' . $l->t('Use %1$stext%2$s', ['[icode][i]', '[/i][/icode]']) . "\n"
-				. '[*][u]' . $l->t('Underlined text') . '[/u] - ' . $l->t('Use %1$stext%2$s', ['[icode][u]', '[/u][/icode]']) . "\n\n"
-				. "[/list]\n"
-				. $l->t('Feel free to start a new discussion or reply to existing threads. Happy posting!');
-
-			// Check if slug column still exists (for backwards compatibility with old migrations)
-			// Use a query to check column existence since schema introspection APIs vary
-			$hasSlugColumn = true;
-			try {
-				$checkQb = $db->getQueryBuilder();
-				$checkQb->select('slug')->from('forum_posts')->setMaxResults(1);
-				$checkQb->executeQuery()->closeCursor();
-			} catch (\Exception $e) {
-				$hasSlugColumn = false;
-			}
 
 			// Build post values - slug is optional (removed in Version8)
 			$qb = $db->getQueryBuilder();

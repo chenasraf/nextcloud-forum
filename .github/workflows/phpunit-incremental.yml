@@ -1,0 +1,339 @@
+# Incremental migration test workflow
+#
+# This workflow tests that migrations work correctly when upgrading from an older version.
+# It first installs the app at v0.14.0 (last version before forum_user_stats -> forum_users rename),
+# then upgrades to the current version and verifies all migrations run successfully.
+#
+# SPDX-FileCopyrightText: 2025 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: MIT
+
+name: PHPUnit Incremental Migration
+
+on: pull_request
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phpunit-incremental-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    outputs:
+      src: ${{ steps.changes.outputs.src }}
+
+    steps:
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: changes
+        continue-on-error: true
+        with:
+          filters: |
+            src:
+              - '.github/workflows/**'
+              - 'appinfo/**'
+              - 'lib/**'
+              - 'tests/**'
+              - 'composer.json'
+              - 'composer.lock'
+
+  incremental-pgsql:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.src != 'false'
+
+    name: Incremental Migration (PostgreSQL)
+
+    services:
+      postgres:
+        image: ghcr.io/nextcloud/continuous-integration-postgres-16:latest # zizmor: ignore[unpinned-images]
+        ports:
+          - 4444:5432/tcp
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: rootpassword
+          POSTGRES_DB: nextcloud
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 2s --health-retries 5
+
+    steps:
+      - name: Checkout app (current)
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+          path: app-current
+          fetch-depth: 0
+
+      - name: Detect app ID from appinfo/info.xml
+        run: |
+          APP_ID=$(grep -oP '(?<=<id>)[^<]+' app-current/appinfo/info.xml | head -1)
+          echo "APP_NAME=$APP_ID" >> $GITHUB_ENV
+          echo "Detected app ID: $APP_ID"
+
+      - name: Get supported server versions
+        id: versions
+        uses: icewind1991/nextcloud-version-matrix@58becf3b4bb6dc6cef677b15e2fd8e7d48c0908f # v1.3.1
+        with:
+          filename: app-current/appinfo/info.xml
+
+      - name: Save current app for later
+        run: |
+          mkdir -p /tmp/app-backup
+          cp -r app-current /tmp/app-backup/
+
+      - name: Checkout server
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+          submodules: true
+          repository: nextcloud/server
+          ref: ${{ fromJson(steps.versions.outputs.branches)[0] }}
+
+      - name: Checkout app at v0.14.0 (pre-rename baseline)
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+          ref: v0.14.0
+          path: apps/${{ env.APP_NAME }}
+
+      - name: Set up php 8.3
+        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        with:
+          php-version: '8.3'
+          extensions: bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, pgsql, pdo_pgsql
+          coverage: none
+          ini-file: development
+          ini-values: disable_functions=
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up dependencies (v0.14.0)
+        working-directory: apps/${{ env.APP_NAME }}
+        run: |
+          composer remove nextcloud/ocp --dev --no-scripts || true
+          composer i --no-scripts || composer i
+
+      - name: Set up Nextcloud and install app at v0.14.0
+        env:
+          DB_PORT: 4444
+        run: |
+          mkdir data
+          ./occ maintenance:install --verbose --database=pgsql --database-name=nextcloud --database-host=127.0.0.1 --database-port=$DB_PORT --database-user=root --database-pass=rootpassword --admin-user admin --admin-pass admin
+          echo "::group::Installing app at v0.14.0"
+          ./occ app:enable --force ${{ env.APP_NAME }}
+          echo "::endgroup::"
+          echo "::group::Database tables after v0.14.0 install"
+          ./occ db:convert-filecache-bigint --no-interaction || true
+          PGPASSWORD=rootpassword psql -h 127.0.0.1 -p $DB_PORT -U root -d nextcloud -c "\dt oc_forum_*"
+          echo "::endgroup::"
+
+      - name: Upgrade app to current version
+        run: |
+          echo "::group::Replacing app with current version"
+          rm -rf apps/${{ env.APP_NAME }}
+          cp -r /tmp/app-backup/app-current apps/${{ env.APP_NAME }}
+          echo "::endgroup::"
+
+      - name: Set up dependencies (current)
+        working-directory: apps/${{ env.APP_NAME }}
+        run: |
+          composer remove nextcloud/ocp --dev --no-scripts || true
+          composer i
+
+      - name: Run migrations to current version
+        env:
+          DB_PORT: 4444
+        run: |
+          echo "::group::Running upgrade migrations"
+          # Disable maintenance mode if it was left on
+          ./occ maintenance:mode --off || true
+          # Disable and re-enable the app to trigger migrations
+          # This simulates what happens when a user upgrades the app
+          ./occ app:disable ${{ env.APP_NAME }}
+          ./occ app:enable ${{ env.APP_NAME }}
+          echo "::endgroup::"
+          echo "::group::Database tables after upgrade"
+          PGPASSWORD=rootpassword psql -h 127.0.0.1 -p $DB_PORT -U root -d nextcloud -c "\dt oc_forum_*"
+          echo "::endgroup::"
+          echo "::group::Checking forum_users table exists"
+          PGPASSWORD=rootpassword psql -h 127.0.0.1 -p $DB_PORT -U root -d nextcloud -c "SELECT COUNT(*) FROM oc_forum_users" || exit 1
+          echo "::endgroup::"
+
+      - name: Check PHPUnit integration script is defined
+        id: check_integration
+        continue-on-error: true
+        working-directory: apps/${{ env.APP_NAME }}
+        run: |
+          composer run --list | grep '^  test:integration ' | wc -l | grep 1
+
+      - name: Run Nextcloud
+        if: steps.check_integration.outcome == 'success'
+        run: php -S localhost:8080 &
+
+      - name: PHPUnit integration
+        if: steps.check_integration.outcome == 'success'
+        working-directory: apps/${{ env.APP_NAME }}
+        run: composer run test:integration
+
+      - name: Print logs
+        if: always()
+        run: |
+          cat data/nextcloud.log
+
+  incremental-mysql:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.src != 'false'
+
+    name: Incremental Migration (MySQL)
+
+    services:
+      mysql:
+        image: ghcr.io/nextcloud/continuous-integration-mariadb-10.11:latest # zizmor: ignore[unpinned-images]
+        ports:
+          - 4444:3306/tcp
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: nextcloud
+        options: --health-cmd="mysqladmin ping" --health-interval 5s --health-timeout 2s --health-retries 5
+
+    steps:
+      - name: Checkout app (current)
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+          path: app-current
+          fetch-depth: 0
+
+      - name: Detect app ID from appinfo/info.xml
+        run: |
+          APP_ID=$(grep -oP '(?<=<id>)[^<]+' app-current/appinfo/info.xml | head -1)
+          echo "APP_NAME=$APP_ID" >> $GITHUB_ENV
+          echo "Detected app ID: $APP_ID"
+
+      - name: Get supported server versions
+        id: versions
+        uses: icewind1991/nextcloud-version-matrix@58becf3b4bb6dc6cef677b15e2fd8e7d48c0908f # v1.3.1
+        with:
+          filename: app-current/appinfo/info.xml
+
+      - name: Save current app for later
+        run: |
+          mkdir -p /tmp/app-backup
+          cp -r app-current /tmp/app-backup/
+
+      - name: Checkout server
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+          submodules: true
+          repository: nextcloud/server
+          ref: ${{ fromJson(steps.versions.outputs.branches)[0] }}
+
+      - name: Checkout app at v0.14.0 (pre-rename baseline)
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          persist-credentials: false
+          ref: v0.14.0
+          path: apps/${{ env.APP_NAME }}
+
+      - name: Set up php 8.3
+        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        with:
+          php-version: '8.3'
+          extensions: bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, mysql, pdo_mysql
+          coverage: none
+          ini-file: development
+          ini-values: disable_functions=
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up dependencies (v0.14.0)
+        working-directory: apps/${{ env.APP_NAME }}
+        run: |
+          composer remove nextcloud/ocp --dev --no-scripts || true
+          composer i --no-scripts || composer i
+
+      - name: Set up Nextcloud and install app at v0.14.0
+        env:
+          DB_PORT: 4444
+        run: |
+          mkdir data
+          ./occ maintenance:install --verbose --database=mysql --database-name=nextcloud --database-host=127.0.0.1 --database-port=$DB_PORT --database-user=root --database-pass=rootpassword --admin-user admin --admin-pass admin
+          echo "::group::Installing app at v0.14.0"
+          ./occ app:enable --force ${{ env.APP_NAME }}
+          echo "::endgroup::"
+          echo "::group::Database tables after v0.14.0 install"
+          mysql -h 127.0.0.1 -P $DB_PORT -u root -prootpassword nextcloud -e "SHOW TABLES LIKE 'oc_forum_%'"
+          echo "::endgroup::"
+
+      - name: Upgrade app to current version
+        run: |
+          echo "::group::Replacing app with current version"
+          rm -rf apps/${{ env.APP_NAME }}
+          cp -r /tmp/app-backup/app-current apps/${{ env.APP_NAME }}
+          echo "::endgroup::"
+
+      - name: Set up dependencies (current)
+        working-directory: apps/${{ env.APP_NAME }}
+        run: |
+          composer remove nextcloud/ocp --dev --no-scripts || true
+          composer i
+
+      - name: Run migrations to current version
+        env:
+          DB_PORT: 4444
+        run: |
+          echo "::group::Running upgrade migrations"
+          # Disable maintenance mode if it was left on
+          ./occ maintenance:mode --off || true
+          # Disable and re-enable the app to trigger migrations
+          # This simulates what happens when a user upgrades the app
+          ./occ app:disable ${{ env.APP_NAME }}
+          ./occ app:enable ${{ env.APP_NAME }}
+          echo "::endgroup::"
+          echo "::group::Database tables after upgrade"
+          mysql -h 127.0.0.1 -P $DB_PORT -u root -prootpassword nextcloud -e "SHOW TABLES LIKE 'oc_forum_%'"
+          echo "::endgroup::"
+          echo "::group::Checking forum_users table exists"
+          mysql -h 127.0.0.1 -P $DB_PORT -u root -prootpassword nextcloud -e "SELECT COUNT(*) FROM oc_forum_users" || exit 1
+          echo "::endgroup::"
+
+      - name: Check PHPUnit integration script is defined
+        id: check_integration
+        continue-on-error: true
+        working-directory: apps/${{ env.APP_NAME }}
+        run: |
+          composer run --list | grep '^  test:integration ' | wc -l | grep 1
+
+      - name: Run Nextcloud
+        if: steps.check_integration.outcome == 'success'
+        run: php -S localhost:8080 &
+
+      - name: PHPUnit integration
+        if: steps.check_integration.outcome == 'success'
+        working-directory: apps/${{ env.APP_NAME }}
+        run: composer run test:integration
+
+      - name: Print logs
+        if: always()
+        run: |
+          cat data/nextcloud.log
+
+  summary:
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest
+    needs: [changes, incremental-pgsql, incremental-mysql]
+
+    if: always()
+
+    name: incremental-migration-summary
+
+    steps:
+      - name: Summary status
+        run: if ${{ needs.changes.outputs.src != 'false' && (needs.incremental-pgsql.result != 'success' || needs.incremental-mysql.result != 'success') }}; then exit 1; fi

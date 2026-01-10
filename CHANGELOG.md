@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.20.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.2...v0.20.3) (2026-01-10)
+
+
+### Bug Fixes
+
+* db seed transactions logic ([c3d267f](https://github.com/chenasraf/nextcloud-forum/commit/c3d267f12269568e0a091cc094e043e4f1ad8cb8))
+* **l10n:** Update translations from Transifex ([679abe3](https://github.com/chenasraf/nextcloud-forum/commit/679abe3fb6ce7c8545bf99875092f20cf5d468b8))
+* **l10n:** Update translations from Transifex ([043af15](https://github.com/chenasraf/nextcloud-forum/commit/043af1580912d201a724313d4788d7a776e11934))
+
 ## [0.20.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.1...v0.20.2) (2026-01-08)
 
 

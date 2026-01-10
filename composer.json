@@ -26,6 +26,7 @@
     "cs:fix": "php-cs-fixer fix",
     "psalm": "psalm --threads=1 --no-cache",
     "test:unit": "phpunit tests -c tests/phpunit.xml --colors=always --fail-on-warning --fail-on-risky",
+    "test:integration": "phpunit tests -c tests/phpunit.integration.xml --colors=always --fail-on-warning --fail-on-risky",
     "openapi": "generate-spec"
   },
   "require": {

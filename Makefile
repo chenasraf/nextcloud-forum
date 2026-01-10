@@ -17,13 +17,14 @@
 #   - JS build is delegated to your package.json scripts (tool-agnostic).
 #
 # Common recipes:
-#   make build     → install deps & build
-#   make dist      → build source + appstore tarballs
-#   make test      → run PHP unit tests
-#   make lint      → lint JS & PHP
-#   make openapi   → generate OpenAPI JSON
-#   make sign      → print signature for GitHub tarball
-#   make release   → upload release to Nextcloud App Store
+#   make build            → install deps & build
+#   make dist             → build source + appstore tarballs
+#   make test             → run PHP unit tests
+#   make test-integration → run PHP integration tests
+#   make lint             → lint JS & PHP
+#   make openapi          → generate OpenAPI JSON
+#   make sign             → print signature for GitHub tarball
+#   make release          → upload release to Nextcloud App Store
 #
 
 app_name=forum
@@ -242,10 +243,33 @@ test: composer
 		exit 1; \
 	fi; \
 	echo "\x1b[32mUsing Nextcloud root: $$NC_ROOT\x1b[0m"; \
-	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml; \
-	if [ -f tests/phpunit.integration.xml ]; then \
-		NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.integration.xml; \
-	fi
+	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
+
+# test-integration:
+#   - Run only PHP integration tests (database-dependent tests)
+#   - These tests run against a real database and test migration/seeding
+.PHONY: test-integration
+test-integration: composer
+	@NC_ROOT="$(NEXTCLOUD_ROOT)"; \
+	if [ -n "$$NC_ROOT" ]; then \
+		NC_ROOT=$$(echo "$$NC_ROOT" | sed "s|^\\\~|$$HOME|" | sed "s|^~|$$HOME|"); \
+	fi; \
+	if [ -z "$$NC_ROOT" ]; then \
+		if [ -d "$(CURDIR)/../../../tests/bootstrap.php" ]; then \
+			NC_ROOT="$(CURDIR)/../../.."; \
+		fi; \
+	fi; \
+	if [ -z "$$NC_ROOT" ]; then \
+		echo "\x1b[33mCould not find Nextcloud installation.\x1b[0m"; \
+		echo "Set NEXTCLOUD_ROOT environment variable."; \
+		exit 1; \
+	fi; \
+	if [ ! -f tests/phpunit.integration.xml ]; then \
+		echo "\x1b[31mNo integration tests found (tests/phpunit.integration.xml missing)\x1b[0m"; \
+		exit 1; \
+	fi; \
+	echo "\x1b[32mUsing Nextcloud root: $$NC_ROOT\x1b[0m"; \
+	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.integration.xml
 
 # test-docker:
 #  - Run PHP unit tests inside a Nextcloud Docker container

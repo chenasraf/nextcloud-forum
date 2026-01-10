@@ -22,6 +22,7 @@ class SeedHelper {
 	 */
 	public static function seedAll($output = null, bool $throwOnError = false): void {
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
+		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$logger->info('Forum seeding: Starting data seed/repair');
 
 		if ($output) {
@@ -40,6 +41,8 @@ class SeedHelper {
 			if ($output) {
 				$output->warning('  Failed to ensure forum_users table: ' . $e->getMessage());
 			}
+			// Try to recover connection state for PostgreSQL
+			self::recoverConnectionState($db, $logger);
 		}
 
 		// Each function checks its own state and returns early if already seeded
@@ -58,10 +61,14 @@ class SeedHelper {
 
 		foreach ($seedOperations as $name => $operation) {
 			try {
+				// Before each operation, ensure connection is in a clean state
+				self::recoverConnectionState($db, $logger);
 				$operation();
 			} catch (\Exception $e) {
 				$errors[] = "$name: " . $e->getMessage();
 				$logger->error("Forum seeding: $name failed", ['exception' => $e->getMessage()]);
+				// Try to recover connection state for next operation (especially important for PostgreSQL)
+				self::recoverConnectionState($db, $logger);
 				// Continue with other operations - don't let one failure block others
 			}
 		}
@@ -83,6 +90,33 @@ class SeedHelper {
 			if ($output) {
 				$output->info('Forum: Data seed/repair completed');
 			}
+		}
+	}
+
+	/**
+	 * Recover database connection state after an error
+	 * On PostgreSQL, a failed query aborts the entire transaction, and subsequent queries fail.
+	 * This method attempts to rollback any open transactions to restore a usable connection state.
+	 *
+	 * @param \OCP\IDBConnection $db Database connection
+	 * @param \Psr\Log\LoggerInterface $logger Logger instance
+	 */
+	private static function recoverConnectionState(\OCP\IDBConnection $db, \Psr\Log\LoggerInterface $logger): void {
+		try {
+			// If we're in a transaction, try to roll back to recover the connection
+			while ($db->inTransaction()) {
+				try {
+					$db->rollBack();
+					$logger->debug('Forum seeding: Rolled back transaction to recover connection state');
+				} catch (\Exception $e) {
+					// If rollback fails, the connection might be in an unrecoverable state
+					$logger->warning('Forum seeding: Failed to rollback transaction during recovery', ['exception' => $e->getMessage()]);
+					break;
+				}
+			}
+		} catch (\Exception $e) {
+			// Ignore errors when checking transaction state
+			$logger->debug('Forum seeding: Error checking transaction state', ['exception' => $e->getMessage()]);
 		}
 	}
 
@@ -309,7 +343,8 @@ class SeedHelper {
 				$output->info('  → Creating default roles...');
 			}
 
-			$db->beginTransaction();
+			// Note: We don't use explicit transactions here to avoid PostgreSQL transaction abort cascade.
+			// Each INSERT is independent and idempotent, so partial success is acceptable.
 			$rolesCreated = 0;
 
 			// Define roles by role_type (not hardcoded IDs)
@@ -354,25 +389,28 @@ class SeedHelper {
 
 			foreach ($rolesToCreate as $roleType => $roleData) {
 				if (!in_array($roleType, $existingTypes)) {
-					$qb = $db->getQueryBuilder();
-					$qb->insert('forum_roles')
-						->values([
-							'name' => $qb->createNamedParameter($roleData['name']),
-							'description' => $qb->createNamedParameter($roleData['description']),
-							'can_access_admin_tools' => $qb->createNamedParameter($roleData['can_access_admin_tools'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_edit_roles' => $qb->createNamedParameter($roleData['can_edit_roles'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_edit_categories' => $qb->createNamedParameter($roleData['can_edit_categories'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'is_system_role' => $qb->createNamedParameter($roleData['is_system_role'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'role_type' => $qb->createNamedParameter($roleData['role_type'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR),
-							'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						])
-						->executeStatement();
-					$rolesCreated++;
-					$logger->info("Forum seeding: Created role with type '$roleType'");
+					try {
+						$qb = $db->getQueryBuilder();
+						$qb->insert('forum_roles')
+							->values([
+								'name' => $qb->createNamedParameter($roleData['name']),
+								'description' => $qb->createNamedParameter($roleData['description']),
+								'can_access_admin_tools' => $qb->createNamedParameter($roleData['can_access_admin_tools'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_edit_roles' => $qb->createNamedParameter($roleData['can_edit_roles'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_edit_categories' => $qb->createNamedParameter($roleData['can_edit_categories'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'is_system_role' => $qb->createNamedParameter($roleData['is_system_role'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'role_type' => $qb->createNamedParameter($roleData['role_type'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR),
+								'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							])
+							->executeStatement();
+						$rolesCreated++;
+						$logger->info("Forum seeding: Created role with type '$roleType'");
+					} catch (\Exception $e) {
+						// Log but continue - other roles might succeed
+						$logger->warning("Forum seeding: Failed to create role '$roleType': " . $e->getMessage());
+					}
 				}
 			}
-
-			$db->commit();
 
 			// Validate that critical roles can be found by role_type after creation
 			// Note: We query directly instead of using RoleMapper to avoid MultipleObjectsReturnedException
@@ -408,9 +446,6 @@ class SeedHelper {
 				$output->info("  ✓ Created $rolesCreated default roles (Admin, Moderator, User, Guest)");
 			}
 		} catch (\Exception $e) {
-			if ($db->inTransaction()) {
-				$db->rollBack();
-			}
 			$logger->error('Forum seeding: Failed to create default roles', [
 				'exception' => $e->getMessage(),
 			]);
@@ -503,7 +538,7 @@ class SeedHelper {
 			$userAccessibleCategories = $result->fetchAll();
 			$result->closeCursor();
 
-			$db->beginTransaction();
+			// Note: No explicit transaction - each INSERT auto-commits to avoid PostgreSQL transaction abort cascade
 			$categoriesGranted = 0;
 			foreach ($userAccessibleCategories as $categoryRow) {
 				$categoryId = (int)$categoryRow['category_id'];
@@ -519,30 +554,31 @@ class SeedHelper {
 				$result->closeCursor();
 
 				if (!$permExists) {
-					$qb = $db->getQueryBuilder();
-					$qb->insert('forum_category_perms')
-						->values([
-							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'role_id' => $qb->createNamedParameter($guestRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_post' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_reply' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_moderate' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						])
-						->executeStatement();
-					$categoriesGranted++;
+					try {
+						$qb = $db->getQueryBuilder();
+						$qb->insert('forum_category_perms')
+							->values([
+								'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'role_id' => $qb->createNamedParameter($guestRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_post' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_reply' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_moderate' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							])
+							->executeStatement();
+						$categoriesGranted++;
+					} catch (\Exception $e) {
+						// Log but continue - other categories might succeed
+						$logger->warning("Forum seeding: Failed to set guest permission for category $categoryId: " . $e->getMessage());
+					}
 				}
 			}
 
-			$db->commit();
 			$logger->info('Forum seeding: Set guest role view-only permissions for ' . $categoriesGranted . ' categories (matching User role access)');
 			if ($output) {
 				$output->info('  ✓ Set guest role view-only permissions for ' . $categoriesGranted . ' categories');
 			}
 		} catch (\Exception $e) {
-			if ($db->inTransaction()) {
-				$db->rollBack();
-			}
 			$logger->error('Forum seeding: Failed to set guest role permissions', [
 				'exception' => $e->getMessage(),
 			]);
@@ -586,8 +622,7 @@ class SeedHelper {
 				$output->info('  → Creating category headers...');
 			}
 
-			$db->beginTransaction();
-
+			// Note: No explicit transaction - single INSERT auto-commits
 			// Create "General" category header
 			$qb = $db->getQueryBuilder();
 			$qb->insert('forum_cat_headers')
@@ -599,15 +634,11 @@ class SeedHelper {
 				])
 				->executeStatement();
 
-			$db->commit();
 			$logger->info('Forum seeding: Created category headers');
 			if ($output) {
 				$output->info('  ✓ Created category headers');
 			}
 		} catch (\Exception $e) {
-			if ($db->inTransaction()) {
-				$db->rollBack();
-			}
 			$logger->error('Forum seeding: Failed to create category headers', [
 				'exception' => $e->getMessage(),
 			]);
@@ -653,7 +684,7 @@ class SeedHelper {
 			}
 
 			$headerId = (int)$header['id'];
-			$db->beginTransaction();
+			// Note: No explicit transaction - each INSERT auto-commits to avoid PostgreSQL transaction abort cascade
 			$categoriesCreated = 0;
 
 			// Check if "General Discussions" category exists
@@ -666,22 +697,26 @@ class SeedHelper {
 			$result->closeCursor();
 
 			if (!$exists) {
-				// Create "General Discussions" category
-				$qb = $db->getQueryBuilder();
-				$qb->insert('forum_categories')
-					->values([
-						'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'name' => $qb->createNamedParameter($l->t('General discussions')),
-						'description' => $qb->createNamedParameter($l->t('A place for general conversations and discussions')),
-						'slug' => $qb->createNamedParameter('general-discussions'),
-						'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					])
-					->executeStatement();
-				$categoriesCreated++;
+				try {
+					// Create "General Discussions" category
+					$qb = $db->getQueryBuilder();
+					$qb->insert('forum_categories')
+						->values([
+							'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'name' => $qb->createNamedParameter($l->t('General discussions')),
+							'description' => $qb->createNamedParameter($l->t('A place for general conversations and discussions')),
+							'slug' => $qb->createNamedParameter('general-discussions'),
+							'sort_order' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						])
+						->executeStatement();
+					$categoriesCreated++;
+				} catch (\Exception $e) {
+					$logger->warning('Forum seeding: Failed to create General Discussions category: ' . $e->getMessage());
+				}
 			}
 
 			// Check if "Support" category exists
@@ -694,33 +729,33 @@ class SeedHelper {
 			$result->closeCursor();
 
 			if (!$exists) {
-				// Create "Support" category
-				$qb = $db->getQueryBuilder();
-				$qb->insert('forum_categories')
-					->values([
-						'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'name' => $qb->createNamedParameter($l->t('Support')),
-						'description' => $qb->createNamedParameter($l->t('Ask questions about the forum, provide feedback or report issues.')),
-						'slug' => $qb->createNamedParameter('support'),
-						'sort_order' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					])
-					->executeStatement();
-				$categoriesCreated++;
+				try {
+					// Create "Support" category
+					$qb = $db->getQueryBuilder();
+					$qb->insert('forum_categories')
+						->values([
+							'header_id' => $qb->createNamedParameter($headerId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'name' => $qb->createNamedParameter($l->t('Support')),
+							'description' => $qb->createNamedParameter($l->t('Ask questions about the forum, provide feedback or report issues.')),
+							'slug' => $qb->createNamedParameter('support'),
+							'sort_order' => $qb->createNamedParameter(1, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'thread_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'post_count' => $qb->createNamedParameter(0, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+						])
+						->executeStatement();
+					$categoriesCreated++;
+				} catch (\Exception $e) {
+					$logger->warning('Forum seeding: Failed to create Support category: ' . $e->getMessage());
+				}
 			}
 
-			$db->commit();
 			$logger->info("Forum seeding: Created $categoriesCreated default categories");
 			if ($output) {
 				$output->info("  ✓ Created $categoriesCreated default categories (General Discussions, Support)");
 			}
 		} catch (\Exception $e) {
-			if ($db->inTransaction()) {
-				$db->rollBack();
-			}
 			$logger->error('Forum seeding: Failed to create default categories', [
 				'exception' => $e->getMessage(),
 			]);
@@ -790,7 +825,7 @@ class SeedHelper {
 				$output->info('  → Creating category permissions...');
 			}
 
-			$db->beginTransaction();
+			// Note: No explicit transaction - each INSERT auto-commits to avoid PostgreSQL transaction abort cascade
 			$permissionsCreated = 0;
 
 			// Create permissions for Moderator and User roles (Admin has implicit permissions)
@@ -808,18 +843,22 @@ class SeedHelper {
 				$result->closeCursor();
 
 				if (!$exists) {
-					$qb = $db->getQueryBuilder();
-					$qb->insert('forum_category_perms')
-						->values([
-							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'role_id' => $qb->createNamedParameter($moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						])
-						->executeStatement();
-					$permissionsCreated++;
+					try {
+						$qb = $db->getQueryBuilder();
+						$qb->insert('forum_category_perms')
+							->values([
+								'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'role_id' => $qb->createNamedParameter($moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_moderate' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							])
+							->executeStatement();
+						$permissionsCreated++;
+					} catch (\Exception $e) {
+						$logger->warning("Forum seeding: Failed to create moderator permission for category $categoryId: " . $e->getMessage());
+					}
 				}
 
 				// Check and create User role permissions
@@ -833,30 +872,30 @@ class SeedHelper {
 				$result->closeCursor();
 
 				if (!$exists) {
-					$qb = $db->getQueryBuilder();
-					$qb->insert('forum_category_perms')
-						->values([
-							'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-							'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'can_moderate' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-						])
-						->executeStatement();
-					$permissionsCreated++;
+					try {
+						$qb = $db->getQueryBuilder();
+						$qb->insert('forum_category_perms')
+							->values([
+								'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'can_moderate' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+							])
+							->executeStatement();
+						$permissionsCreated++;
+					} catch (\Exception $e) {
+						$logger->warning("Forum seeding: Failed to create user permission for category $categoryId: " . $e->getMessage());
+					}
 				}
 			}
 
-			$db->commit();
 			$logger->info("Forum seeding: Created $permissionsCreated category permissions");
 			if ($output) {
 				$output->info("  ✓ Created $permissionsCreated category permissions for " . count($categories) . ' categories');
 			}
 		} catch (\Exception $e) {
-			if ($db->inTransaction()) {
-				$db->rollBack();
-			}
 			$logger->error('Forum seeding: Failed to create category permissions', [
 				'exception' => $e->getMessage(),
 			]);
@@ -883,8 +922,7 @@ class SeedHelper {
 				$output->info('  → Creating default BBCodes...');
 			}
 
-			$db->beginTransaction();
-
+			// Note: No explicit transaction - each INSERT auto-commits to avoid PostgreSQL transaction abort cascade
 			$bbcodes = [
 				[
 					'tag' => 'icode',
@@ -927,33 +965,33 @@ class SeedHelper {
 				$result->closeCursor();
 
 				if (!$exists) {
-					$qb = $db->getQueryBuilder();
-					$qb->insert('forum_bbcodes')
-						->values([
-							'tag' => $qb->createNamedParameter($bbcode['tag']),
-							'replacement' => $qb->createNamedParameter($bbcode['replacement']),
-							'example' => $qb->createNamedParameter($bbcode['example']),
-							'description' => $qb->createNamedParameter($bbcode['description']),
-							'enabled' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'parse_inner' => $qb->createNamedParameter($bbcode['parse_inner'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'is_builtin' => $qb->createNamedParameter($bbcode['is_builtin'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
-							'special_handler' => $qb->createNamedParameter($bbcode['special_handler']),
-							'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-						])
-						->executeStatement();
-					$bbcodesCreated++;
+					try {
+						$qb = $db->getQueryBuilder();
+						$qb->insert('forum_bbcodes')
+							->values([
+								'tag' => $qb->createNamedParameter($bbcode['tag']),
+								'replacement' => $qb->createNamedParameter($bbcode['replacement']),
+								'example' => $qb->createNamedParameter($bbcode['example']),
+								'description' => $qb->createNamedParameter($bbcode['description']),
+								'enabled' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'parse_inner' => $qb->createNamedParameter($bbcode['parse_inner'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'is_builtin' => $qb->createNamedParameter($bbcode['is_builtin'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
+								'special_handler' => $qb->createNamedParameter($bbcode['special_handler']),
+								'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+							])
+							->executeStatement();
+						$bbcodesCreated++;
+					} catch (\Exception $e) {
+						$logger->warning("Forum seeding: Failed to create BBCode '{$bbcode['tag']}': " . $e->getMessage());
+					}
 				}
 			}
 
-			$db->commit();
 			$logger->info("Forum seeding: Created $bbcodesCreated default BBCodes");
 			if ($output) {
 				$output->info("  ✓ Created $bbcodesCreated default BBCodes (icode, spoiler, attachment)");
 			}
 		} catch (\Exception $e) {
-			if ($db->inTransaction()) {
-				$db->rollBack();
-			}
 			$logger->error('Forum seeding: Failed to create default BBCodes', [
 				'exception' => $e->getMessage(),
 			]);
@@ -1312,8 +1350,13 @@ class SeedHelper {
 				$output->info('  ✓ Created welcome thread');
 			}
 		} catch (\Exception $e) {
-			if ($db->inTransaction()) {
-				$db->rollBack();
+			// Try to rollback if we're in a transaction - important for PostgreSQL recovery
+			try {
+				if ($db->inTransaction()) {
+					$db->rollBack();
+				}
+			} catch (\Exception $rollbackEx) {
+				$logger->debug('Forum seeding: Failed to rollback after welcome thread error', ['exception' => $rollbackEx->getMessage()]);
 			}
 			$logger->error('Forum seeding: Failed to create welcome thread', [
 				'exception' => $e->getMessage(),

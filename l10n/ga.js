@@ -282,6 +282,8 @@ OC.L10N.register(
     "Configure how you receive notifications" : "Cumraigh conas a fhaigheann tú fógraí",
     "Auto-subscribe to threads I create" : "Liostáil go huathoibríoch le snáitheanna a chruthaím",
     "When enabled, you will automatically receive notifications for replies to threads you create" : "Nuair a bheidh sé cumasaithe, gheobhaidh tú fógraí go huathoibríoch le haghaidh freagraí ar shnáitheanna a chruthaíonn tú",
+    "Auto-subscribe to threads I reply to" : "Liostáil go huathoibríoch le snáitheanna a bhfreagraím orthu",
+    "When enabled, you will automatically receive notifications for new replies in threads you have replied to" : "Nuair a bheidh sé cumasaithe, gheobhaidh tú fógraí go huathoibríoch faoi fhreagraí nua i snáitheanna ar fhreagair tú iad",
     "Files" : "Comhaid",
     "Configure file upload settings" : "Cumraigh socruithe uaslódála comhad",
     "Upload directory" : "Uaslódáil eolaire",

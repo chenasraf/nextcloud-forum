@@ -27,8 +27,8 @@ importers:
         specifier: 2.3.5
         version: 2.3.5(@types/node@20.19.27)(browserslist@4.28.1)(picomatch@4.0.3)(rollup@4.55.1)(sass@1.97.2)(typescript@5.9.2)(vite@6.4.1(@types/node@20.19.27)(sass-embedded@1.97.2)(sass@1.97.2)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.2))
       '@nextcloud/vue':
-        specifier: ^9.3.1
-        version: 9.3.1(typescript@5.9.2)
+        specifier: ^9.3.3
+        version: 9.3.3(typescript@5.9.2)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -611,8 +611,8 @@ packages:
       sass: '>=1.60'
       vite: ^5 || ^6
 
-  '@nextcloud/vue@9.3.1':
-    resolution: {integrity: sha512-zNit83SI7IPT5iT9QsYPCYNwBYvKEqzLvWKTeJemqg9MZ8JGIC3/jjENeXzDolrTN/PixHns5lOYVCejATE1ag==}
+  '@nextcloud/vue@9.3.3':
+    resolution: {integrity: sha512-M/M4L9vp1AJQ8RRk75mbMwUo7sOwWDaTDmAwgpTa9LARDe5e6UBJoMhOmiz5EPkYRHLn2SLE+baOIXVmtVMdqw==}
     engines: {node: ^20.11.0 || ^22 || ^24}
 
   '@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1':
@@ -2190,8 +2190,8 @@ packages:
       '@nuxt/kit':
         optional: true
 
-  focus-trap@7.7.1:
-    resolution: {integrity: sha512-Pkp8m55GjxBLnhBoT6OXdMvfRr4TjMAKLvFM566zlIryq5plbhaTmLAJWTGR0EkRwLjEte1lCOG9MxF1ipJrOg==}
+  focus-trap@7.6.6:
+    resolution: {integrity: sha512-v/Z8bvMCajtx4mEXmOo7QEsIzlIOqRXTIwgUfsFOF9gEsespdbD0AkPIka1bSXZ8Y8oZ+2IVDQZePkTfEHZl7Q==}
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
@@ -3525,8 +3525,9 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  sax@1.4.3:
-    resolution: {integrity: sha512-yqYn1JhPczigF94DMS+shiDMjDowYO6y9+wB/4WgO0Y19jWYk0lQ4tuG5KI7kj4FTp1wxPj5IFfcrz/s1c3jjQ==}
+  sax@1.4.4:
+    resolution: {integrity: sha512-1n3r/tGXO6b6VXMdFT54SHzT9ytu9yr7TaELowdYpMqY/Ao7EnlQGmAQ1+RatX7Tkkdm6hONI2owqNx2aZj5Sw==}
+    engines: {node: '>=11.0.0'}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -4587,7 +4588,7 @@ snapshots:
 
   '@file-type/xml@0.4.4':
     dependencies:
-      sax: 1.4.3
+      sax: 1.4.4
       strtok3: 10.3.4
 
   '@floating-ui/core@1.7.3':
@@ -4719,7 +4720,7 @@ snapshots:
       '@nextcloud/paths': 3.0.0
       '@nextcloud/router': 3.1.0
       '@nextcloud/sharing': 0.3.0
-      '@nextcloud/vue': 9.3.1(typescript@5.9.2)
+      '@nextcloud/vue': 9.3.3(typescript@5.9.2)
       '@types/toastify-js': 1.12.4
       '@vueuse/core': 14.1.0(vue@3.5.26(typescript@5.9.2))
       cancelable-promise: 4.3.1
@@ -4839,7 +4840,7 @@ snapshots:
       - typescript
       - vue
 
-  '@nextcloud/vue@9.3.1(typescript@5.9.2)':
+  '@nextcloud/vue@9.3.3(typescript@5.9.2)':
     dependencies:
       '@ckpack/vue-color': 1.6.0(vue@3.5.26(typescript@5.9.2))
       '@floating-ui/dom': 1.7.4
@@ -4863,7 +4864,7 @@ snapshots:
       emoji-mart-vue-fast: 15.0.5(vue@3.5.26(typescript@5.9.2))
       escape-html: 1.0.3
       floating-vue: 5.2.2(vue@3.5.26(typescript@5.9.2))
-      focus-trap: 7.7.1
+      focus-trap: 7.6.6
       linkifyjs: 4.3.2
       p-queue: 9.1.0
       rehype-external-links: 3.0.0
@@ -6639,7 +6640,7 @@ snapshots:
       vue: 3.5.26(typescript@5.9.2)
       vue-resize: 2.0.0-alpha.1(vue@3.5.26(typescript@5.9.2))
 
-  focus-trap@7.7.1:
+  focus-trap@7.6.6:
     dependencies:
       tabbable: 6.4.0
 
@@ -8208,7 +8209,7 @@ snapshots:
     optionalDependencies:
       '@parcel/watcher': 2.5.1
 
-  sax@1.4.3: {}
+  sax@1.4.4: {}
 
   semver@6.3.1: {}
 

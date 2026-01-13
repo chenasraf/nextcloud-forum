@@ -19,6 +19,7 @@ OC.L10N.register(
     "Collapse" : "접기",
     "Hello world!" : "Hello world!",
     "Code" : "코드",
+    "Quote" : "ㅇ",
     "Font size" : "글꼴 크기",
     "List" : "목록",
     "Insert emoji" : "이모지 삽입",

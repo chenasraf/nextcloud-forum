@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.20.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.4...v0.20.5) (2026-01-16)
+
+
+### Bug Fixes
+
+* allow creating multiple custom roles ([362fdc8](https://github.com/chenasraf/nextcloud-forum/commit/362fdc8b032299a4f32d8e4b70163a3077dcab3c))
+* category header update ([0d98473](https://github.com/chenasraf/nextcloud-forum/commit/0d98473cbfc8f89a2b4962781449ccc881ab8eee))
+* db seeds ([ed04879](https://github.com/chenasraf/nextcloud-forum/commit/ed048795756f474ce8126aa37fb34a7c57fa2d65))
+* **l10n:** Update translations from Transifex ([3242a1c](https://github.com/chenasraf/nextcloud-forum/commit/3242a1cad51b90841ff1bde5ca7e231ea92687d9))
+
 ## [0.20.4](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.3...v0.20.4) (2026-01-15)
 
 

@@ -225,7 +225,7 @@ class CategoryControllerTest extends TestCase {
 				return $updatedCategory;
 			});
 
-		$response = $this->controller->update($categoryId, $newName);
+		$response = $this->controller->update($categoryId, null, $newName);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
@@ -256,9 +256,35 @@ class CategoryControllerTest extends TestCase {
 				return $updatedCategory;
 			});
 
-		$response = $this->controller->update($categoryId, $newName, $newDescription, $newSlug, $newSortOrder);
+		$response = $this->controller->update($categoryId, null, $newName, $newDescription, $newSlug, $newSortOrder);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testUpdateCategoryHeaderId(): void {
+		$categoryId = 1;
+		$originalHeaderId = 1;
+		$newHeaderId = 2;
+
+		$category = $this->createCategory($categoryId, $originalHeaderId, 'Test Category');
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with($categoryId)
+			->willReturn($category);
+
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedCategory) use ($newHeaderId) {
+				$this->assertEquals($newHeaderId, $updatedCategory->getHeaderId());
+				return $updatedCategory;
+			});
+
+		$response = $this->controller->update($categoryId, $newHeaderId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($newHeaderId, $data['headerId']);
 	}
 
 	public function testUpdateCategoryReturnsNotFoundWhenCategoryDoesNotExist(): void {
@@ -269,7 +295,7 @@ class CategoryControllerTest extends TestCase {
 			->with($categoryId)
 			->willThrowException(new DoesNotExistException('Category not found'));
 
-		$response = $this->controller->update($categoryId, 'New Name');
+		$response = $this->controller->update($categoryId, null, 'New Name');
 
 		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
 		$this->assertEquals(['error' => 'Category not found'], $response->getData());

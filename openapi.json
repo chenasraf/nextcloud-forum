@@ -2729,6 +2729,13 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
+                                    "headerId": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Category header ID"
+                                    },
                                     "name": {
                                         "type": "string",
                                         "nullable": true,

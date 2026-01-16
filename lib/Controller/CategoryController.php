@@ -192,6 +192,7 @@ class CategoryController extends OCSController {
 	 * Update a category
 	 *
 	 * @param int $id Category ID
+	 * @param int|null $headerId Category header ID
 	 * @param string|null $name Category name
 	 * @param string|null $description Category description
 	 * @param string|null $slug Category slug
@@ -203,10 +204,13 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'PUT', url: '/api/categories/{id}')]
-	public function update(int $id, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null): DataResponse {
+	public function update(int $id, ?int $headerId = null, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null): DataResponse {
 		try {
 			$category = $this->categoryMapper->find($id);
 
+			if ($headerId !== null) {
+				$category->setHeaderId($headerId);
+			}
 			if ($name !== null) {
 				$category->setName($name);
 			}

@@ -280,6 +280,8 @@
     "Configure how you receive notifications" : "Bildirimleri nasıl almak istediğinizi ayarlayın",
     "Auto-subscribe to threads I create" : "Oluşturduğum konulara otomatik olarak abone olayım",
     "When enabled, you will automatically receive notifications for replies to threads you create" : "Açıldığında, oluşturduğunuz konulara verilen yanıtlar için bildirimleri otomatik olarak alırsınız",
+    "Auto-subscribe to threads I reply to" : "Yanıtladığım konulara otomatik olarak abone olayım",
+    "When enabled, you will automatically receive notifications for new replies in threads you have replied to" : "Açıldığında, yanıtladığınız konulara verilen yanıtlar için bildirimleri otomatik olarak alırsınız",
     "Files" : "Dosyalar",
     "Configure file upload settings" : "Dosya yükleme ayarlarını yapılandırın",
     "Upload directory" : "Yükleme klasörü",

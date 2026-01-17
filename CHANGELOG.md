@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.20.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.5...v0.20.6) (2026-01-17)
+
+
+### Bug Fixes
+
+* db seeds ([03c2a61](https://github.com/chenasraf/nextcloud-forum/commit/03c2a6162bf1d30e4361f8ebbdf2a4e113692da2))
+* remove post slug from seed ([51c49c3](https://github.com/chenasraf/nextcloud-forum/commit/51c49c32dac5894c6711f8924fe5a7b44e07596b))
+
 ## [0.20.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.4...v0.20.5) (2026-01-16)
 
 

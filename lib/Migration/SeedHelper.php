@@ -1200,21 +1200,6 @@ class SeedHelper {
 				}
 			});
 
-			// Check if slug column still exists BEFORE starting transaction
-			// (for backwards compatibility with old migrations)
-			// On PostgreSQL, a failed query inside a transaction aborts the entire transaction,
-			// so we must check column existence outside the transaction
-			$hasSlugColumn = true;
-			try {
-				$checkQb = $db->getQueryBuilder();
-				$checkQb->select('slug')->from('forum_posts')->setMaxResults(1);
-				$checkQb->executeQuery()->closeCursor();
-			} catch (\Exception $e) {
-				$hasSlugColumn = false;
-				// Recover connection state after the failed query (important for PostgreSQL)
-				self::recoverConnectionState($db, $logger);
-			}
-
 			// Prepare welcome post content
 			$welcomeContent = $l->t('Welcome to the Nextcloud Forums!') . "\n\n"
 				. $l->t('This is a community-driven forum built right into your Nextcloud instance. '
@@ -1258,7 +1243,7 @@ class SeedHelper {
 				->executeStatement();
 			$threadId = $qb->getLastInsertId();
 
-			// Build post values - slug is optional (removed in Version8)
+			// Build post values (slug column was removed in Version8)
 			$qb = $db->getQueryBuilder();
 			$postValues = [
 				'thread_id' => $qb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
@@ -1270,9 +1255,6 @@ class SeedHelper {
 				'created_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				'updated_at' => $qb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 			];
-			if ($hasSlugColumn) {
-				$postValues['slug'] = $qb->createNamedParameter('welcome-to-nextcloud-forums-1');
-			}
 
 			$qb->insert('forum_posts')
 				->values($postValues)

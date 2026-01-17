@@ -11,22 +11,17 @@ use Closure;
 use OCP\DB\ISchemaWrapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
-use Psr\Log\LoggerInterface;
 
 /**
  * Version 16 Migration:
  * - Remove unique constraint on role_type column to allow multiple custom roles
- * - Re-run seeding to ensure all required data exists
  *
  * The unique constraint was incorrectly added in Version15, which prevented
  * creating more than one custom role (since all custom roles have role_type='custom').
+ *
+ * Seeding is handled in Version17.
  */
 class Version16Date20260117000000 extends SimpleMigrationStep {
-	public function __construct(
-		private LoggerInterface $logger,
-	) {
-	}
-
 	/**
 	 * @param IOutput $output
 	 * @param Closure(): ISchemaWrapper $schemaClosure
@@ -50,23 +45,5 @@ class Version16Date20260117000000 extends SimpleMigrationStep {
 		}
 
 		return null;
-	}
-
-	/**
-	 * @param IOutput $output
-	 * @param Closure(): ISchemaWrapper $schemaClosure
-	 * @param array $options
-	 */
-	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		// Re-run seeding to ensure all required data exists
-		// Pass throwOnError=false to avoid PostgreSQL transaction abort issues
-		// If seeding fails, users can run "occ forum:repair-seeds" to retry
-		try {
-			SeedHelper::seedAll($output, false);
-		} catch (\Exception $e) {
-			// This should not happen with throwOnError=false, but handle it gracefully
-			$this->logger->error('Forum migration: Seeding failed unexpectedly', ['exception' => $e->getMessage()]);
-			$output->warning('Forum: Seeding failed. Run "occ forum:repair-seeds" after enabling the app to complete setup.');
-		}
 	}
 }

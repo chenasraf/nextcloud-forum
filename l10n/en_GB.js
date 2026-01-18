@@ -282,6 +282,8 @@ OC.L10N.register(
     "Configure how you receive notifications" : "Configure how you receive notifications",
     "Auto-subscribe to threads I create" : "Auto-subscribe to threads I create",
     "When enabled, you will automatically receive notifications for replies to threads you create" : "When enabled, you will automatically receive notifications for replies to threads you create",
+    "Auto-subscribe to threads I reply to" : "Auto-subscribe to threads I reply to",
+    "When enabled, you will automatically receive notifications for new replies in threads you have replied to" : "When enabled, you will automatically receive notifications for new replies in threads you have replied to",
     "Files" : "Files",
     "Configure file upload settings" : "Configure file upload settings",
     "Upload directory" : "Upload directory",

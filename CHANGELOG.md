@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.21.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.6...v0.21.0) (2026-01-20)
+
+
+### Features
+
+* admin section with repair seeds+add role helpers ([d74a97e](https://github.com/chenasraf/nextcloud-forum/commit/d74a97e571379fb03b9d01acf73fe195ca13d644))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([d2aa196](https://github.com/chenasraf/nextcloud-forum/commit/d2aa196765c1ad0860526a6a327f3ee3f695128c))
+* **l10n:** Update translations from Transifex ([8b7fa5e](https://github.com/chenasraf/nextcloud-forum/commit/8b7fa5ebfb62368afe66cd2330646c12ee6606d2))
+* **l10n:** Update translations from Transifex ([6a4efc6](https://github.com/chenasraf/nextcloud-forum/commit/6a4efc6826c92e93ca64344f15ec822a53062d77))
+
 ## [0.20.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.5...v0.20.6) (2026-01-17)
 
 

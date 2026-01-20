@@ -37,6 +37,8 @@ OC.L10N.register(
     "Edit" : "Sunting",
     "Delete" : "Hapus",
     "Save" : "Simpan",
+    "Current version" : "Versi saat ini",
+    "Version {index}" : "Versi {index}",
     "Uncategorized" : "Tidak terkategori",
     "Views" : "Tampilan",
     "Title" : "Judul",

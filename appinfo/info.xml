@@ -67,6 +67,10 @@ The forum integrates seamlessly with your Nextcloud instance, using your existin
 		<command>OCA\Forum\Command\SetRole</command>
 		<command>OCA\Forum\Command\TestNotifier</command>
 	</commands>
+	<settings>
+		<admin>OCA\Forum\Settings\AdminSettings</admin>
+		<admin-section>OCA\Forum\Sections\AdminSection</admin-section>
+	</settings>
 	<navigations>
 		<navigation role="all">
 			<name>Forum</name>

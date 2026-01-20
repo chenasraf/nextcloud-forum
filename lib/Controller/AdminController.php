@@ -11,9 +11,12 @@ use OCA\Forum\Attribute\RequirePermission;
 use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\UserRoleMapper;
+use OCA\Forum\Migration\SeedHelper;
 use OCA\Forum\Service\AdminSettingsService;
+use OCA\Forum\Service\UserRoleService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -23,6 +26,7 @@ use OCP\AppFramework\OCSController;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
+use OCP\Migration\IOutput;
 use Psr\Log\LoggerInterface;
 
 class AdminController extends OCSController {
@@ -36,6 +40,8 @@ class AdminController extends OCSController {
 		private PostMapper $postMapper,
 		private CategoryMapper $categoryMapper,
 		private UserRoleMapper $userRoleMapper,
+		private RoleMapper $roleMapper,
+		private UserRoleService $userRoleService,
 		private IUserManager $userManager,
 		private IUserSession $userSession,
 		private AdminSettingsService $settingsService,
@@ -226,6 +232,204 @@ class AdminController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->warning('Error checking admin role: ' . $e->getMessage());
 			return false;
+		}
+	}
+
+	/**
+	 * Run the repair seeds command to restore default forum data
+	 *
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
+	 *
+	 * 200: Seeds repaired successfully
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
+	#[ApiRoute(verb: 'POST', url: '/api/admin/repair-seeds')]
+	public function repairSeeds(): DataResponse {
+		try {
+			$messages = [];
+			$migrationOutput = new class($messages) implements IOutput {
+				/** @var array<string> */
+				private array $messages;
+
+				public function __construct(array &$messages) {
+					$this->messages = &$messages;
+				}
+
+				public function info($message): void {
+					$this->messages[] = $message;
+				}
+
+				public function warning($message): void {
+					$this->messages[] = '[Warning] ' . $message;
+				}
+
+				public function debug($message): void {
+					$this->messages[] = '[Debug] ' . $message;
+				}
+
+				public function startProgress($max = 0): void {
+				}
+
+				public function advance($step = 1, $description = ''): void {
+				}
+
+				public function finishProgress(): void {
+				}
+			};
+
+			SeedHelper::seedAll($migrationOutput, true);
+
+			$this->logger->info('Forum repair seeds completed successfully');
+			return new DataResponse([
+				'success' => true,
+				'message' => implode("\n", $messages),
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error running repair seeds: ' . $e->getMessage());
+			return new DataResponse([
+				'success' => false,
+				'message' => 'Failed to repair seeds: ' . $e->getMessage(),
+			], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Get all available roles
+	 *
+	 * @return DataResponse<Http::STATUS_OK, array{roles: list<array<string, mixed>>}, array{}>
+	 *
+	 * 200: Roles list returned
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
+	#[ApiRoute(verb: 'GET', url: '/api/admin/roles')]
+	public function getRoles(): DataResponse {
+		try {
+			$roles = $this->roleMapper->findAll();
+			$rolesData = array_map(fn ($role) => [
+				'id' => $role->getId(),
+				'name' => $role->getName(),
+				'roleType' => $role->getRoleType(),
+			], $roles);
+			return new DataResponse(['roles' => $rolesData]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching roles: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch roles'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Assign a role to a user
+	 *
+	 * @param string $userId The user ID
+	 * @param int $roleId The role ID to assign
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
+	 *
+	 * 200: Role assigned successfully
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
+	#[ApiRoute(verb: 'POST', url: '/api/admin/users/{userId}/roles')]
+	public function assignRole(string $userId, int $roleId): DataResponse {
+		try {
+			// Check if user exists
+			$user = $this->userManager->get($userId);
+			if ($user === null) {
+				return new DataResponse([
+					'success' => false,
+					'message' => "User '$userId' does not exist.",
+				], Http::STATUS_NOT_FOUND);
+			}
+
+			// Check if role exists
+			try {
+				$role = $this->roleMapper->find($roleId);
+			} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
+				return new DataResponse([
+					'success' => false,
+					'message' => "Role with ID '$roleId' does not exist.",
+				], Http::STATUS_NOT_FOUND);
+			}
+
+			// Check if user already has this role
+			if ($this->userRoleService->hasRole($userId, $roleId)) {
+				return new DataResponse([
+					'success' => true,
+					'message' => "User '$userId' already has the role '{$role->getName()}'.",
+				]);
+			}
+
+			// Assign the role
+			$this->userRoleService->assignRole($userId, $roleId, skipIfExists: false);
+			$this->logger->info("Assigned role '{$role->getName()}' to user '$userId'");
+
+			return new DataResponse([
+				'success' => true,
+				'message' => "Successfully assigned role '{$role->getName()}' to user '$userId'.",
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error assigning role: ' . $e->getMessage());
+			return new DataResponse([
+				'success' => false,
+				'message' => 'Failed to assign role: ' . $e->getMessage(),
+			], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Remove a role from a user
+	 *
+	 * @param string $userId The user ID
+	 * @param int $roleId The role ID to remove
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
+	 *
+	 * 200: Role removed successfully
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
+	#[ApiRoute(verb: 'DELETE', url: '/api/admin/users/{userId}/roles/{roleId}')]
+	public function removeRole(string $userId, int $roleId): DataResponse {
+		try {
+			// Check if user exists
+			$user = $this->userManager->get($userId);
+			if ($user === null) {
+				return new DataResponse([
+					'success' => false,
+					'message' => "User '$userId' does not exist.",
+				], Http::STATUS_NOT_FOUND);
+			}
+
+			// Check if role exists
+			try {
+				$role = $this->roleMapper->find($roleId);
+			} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
+				return new DataResponse([
+					'success' => false,
+					'message' => "Role with ID '$roleId' does not exist.",
+				], Http::STATUS_NOT_FOUND);
+			}
+
+			// Remove the role
+			$removed = $this->userRoleService->removeRole($userId, $roleId);
+			if (!$removed) {
+				return new DataResponse([
+					'success' => true,
+					'message' => "User '$userId' does not have the role '{$role->getName()}'.",
+				]);
+			}
+
+			$this->logger->info("Removed role '{$role->getName()}' from user '$userId'");
+			return new DataResponse([
+				'success' => true,
+				'message' => "Successfully removed role '{$role->getName()}' from user '$userId'.",
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error removing role: ' . $e->getMessage());
+			return new DataResponse([
+				'success' => false,
+				'message' => 'Failed to remove role: ' . $e->getMessage(),
+			], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 }

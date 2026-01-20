@@ -34,6 +34,7 @@ const nextcloudSharedList = [
 export default createAppConfig(
   {
     app: path.resolve(path.join('src', 'app.ts')),
+    admin: path.resolve(path.join('src', 'admin.ts')),
   },
   {
     config: {

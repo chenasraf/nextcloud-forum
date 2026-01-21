@@ -8,6 +8,7 @@ OC.L10N.register(
     "General" : "General",
     "Forum" : "Forum",
     "Deleted user" : "Utilizator șters",
+    "User ID" : "ID-ul utilizatorului",
     "Search" : "Căutare",
     "Dashboard" : "Panou",
     "Users" : "Utilizatori",

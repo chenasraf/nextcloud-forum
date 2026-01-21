@@ -9,6 +9,8 @@ OC.L10N.register(
     "Bold text" : "Texto en negritas",
     "Underlined text" : "Texto subrayado",
     "Forum" : "Foro",
+    "User ID" : "ID de usuario",
+    "Role" : "Cargo",
     "Loading …" : "Cargando …",
     "Search" : "Buscar",
     "Home" : "Inicio",

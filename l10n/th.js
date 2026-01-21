@@ -5,6 +5,7 @@ OC.L10N.register(
     "User" : "ผู้ใช้",
     "General" : "ทั่วไป",
     "Forum" : "ฟอรัม",
+    "User ID" : "ไอดีผู้ใช้งาน",
     "Search" : "ค้นหา",
     "Home" : "หน้าหลัก",
     "Dashboard" : "แดชบอร์ด",

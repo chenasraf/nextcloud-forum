@@ -7,6 +7,7 @@ OC.L10N.register(
     "General" : "General",
     "Support" : "Soporte",
     "Forum" : "Foro",
+    "Role" : "Rol",
     "Search" : "Buscar",
     "Home" : "Casa",
     "Users" : "Usuarios",

@@ -9,6 +9,7 @@ OC.L10N.register(
     "Underlined text" : "Подвлечен текст",
     "Forum" : "Форум",
     "Deleted user" : "Избришан корисник",
+    "Role" : "Улога",
     "Loading …" : "Се вчитува…",
     "Search" : "Барај",
     "Home" : "Дома",

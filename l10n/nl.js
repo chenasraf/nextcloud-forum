@@ -10,6 +10,8 @@ OC.L10N.register(
     "Underlined text" : "Onderstreepte tekst",
     "Forum" : "Forum",
     "Deleted user" : "Verwijderen gebruiker",
+    "User ID" : "Gebruiker-ID",
+    "Role" : "Rol",
     "Loading …" : "Laden …",
     "Search" : "Zoeken",
     "Home" : "Startpagina",

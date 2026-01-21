@@ -8,6 +8,7 @@ OC.L10N.register(
     "General" : "Umum",
     "Support" : "Dukung",
     "Forum" : "Forum",
+    "Role" : "Peran",
     "Loading …" : "Memuat …",
     "Search" : "Cari",
     "Home" : "Beranda",

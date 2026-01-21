@@ -9,6 +9,8 @@ OC.L10N.register(
     "Underlined text" : "Podpisano besedilo",
     "Forum" : "Spletni forum",
     "Deleted user" : "Izbrisan uporabnik",
+    "User ID" : "ID Uporabnika",
+    "Role" : "Vloga",
     "Loading …" : "Poteka nalaganje …",
     "Search" : "Poišči",
     "Home" : "Začetna stran",

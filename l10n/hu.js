@@ -9,6 +9,8 @@ OC.L10N.register(
     "Underlined text" : "Aláhúzott szöveg",
     "Forum" : "Fórum",
     "Deleted user" : "Törölt felhasználó",
+    "User ID" : "Felhasználóazonosító",
+    "Role" : "Szerepkör",
     "Loading …" : "Betöltés…",
     "Search" : "Keresés",
     "Home" : "Kezdőlap",

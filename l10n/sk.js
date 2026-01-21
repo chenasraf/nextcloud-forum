@@ -10,6 +10,8 @@ OC.L10N.register(
     "Underlined text" : "Podčiarknutý text",
     "Forum" : "Fórum",
     "Deleted user" : "Zmazaný užívateľ",
+    "User ID" : "ID užívateľa",
+    "Role" : "Rola",
     "Loading …" : "Načítavam …",
     "Search" : "Hľadať",
     "Home" : "Domov",

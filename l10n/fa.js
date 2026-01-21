@@ -10,6 +10,7 @@ OC.L10N.register(
     "Underlined text" : "Underlined text",
     "Forum" : "انجمن",
     "Deleted user" : "Deleted user",
+    "User ID" : "شناسه کاربر",
     "Loading …" : "در حال بارگذاری...",
     "Search" : "جستجو",
     "Home" : "خانه",

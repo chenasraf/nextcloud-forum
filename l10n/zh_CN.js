@@ -11,6 +11,8 @@ OC.L10N.register(
     "Underlined text" : "下划线",
     "Forum" : "论坛",
     "Deleted user" : "删除用户",
+    "User ID" : "用户ID",
+    "Role" : "角色",
     "Loading …" : "正在加载…",
     "Search" : "搜索",
     "Home" : "首页",

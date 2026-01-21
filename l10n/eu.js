@@ -9,6 +9,8 @@ OC.L10N.register(
     "Underlined text" : "Azpimarratutako testua",
     "Forum" : "Foroa",
     "Deleted user" : "Ezabatutako erabiltzaileak",
+    "User ID" : "Erabiltzailearen ID",
+    "Role" : "Zeregina",
     "Loading …" : "Kargatzen ...",
     "Search" : "Bilatu",
     "Home" : "Etxea",

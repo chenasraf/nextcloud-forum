@@ -8,6 +8,7 @@ OC.L10N.register(
     "General" : "General",
     "Forum" : "Forum",
     "Deleted user" : "Deleted user",
+    "Role" : "Role",
     "Loading …" : "Loading …",
     "Search" : "ძიება",
     "Home" : "მთავარი",

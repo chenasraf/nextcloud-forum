@@ -42,6 +42,8 @@ OC.L10N.register(
     "Welcome to the forum!" : "Tere tulemast foorumisse!",
     "Deleted user" : "Kustutatud kasutaja",
     "A community-driven forum built right into your Nextcloud instance" : "Kogukonnapõhine foorum, mis toimib otse sinu Nextcloudi serveris.",
+    "User ID" : "Kasutajatunnus",
+    "Role" : "Roll",
     "Loading …" : "Laadin...",
     "Search" : "Otsi",
     "Home" : "Avaleht",

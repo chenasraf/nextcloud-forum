@@ -7,6 +7,7 @@ OC.L10N.register(
     "General" : "Cài đặt chung",
     "Bold text" : "Chữ in đậm",
     "Forum" : "Diễn đàn",
+    "Role" : "Vai trò",
     "Loading …" : "Đang tải …",
     "Search" : "Tìm kiếm",
     "Home" : "Trang nhà",

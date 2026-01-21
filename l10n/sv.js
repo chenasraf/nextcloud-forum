@@ -9,6 +9,8 @@ OC.L10N.register(
     "Underlined text" : "Understruken text",
     "Forum" : "Forum",
     "Deleted user" : "Borttagen användare",
+    "User ID" : "Användar-ID",
+    "Role" : "Roll",
     "Loading …" : "Laddar ...",
     "Search" : "Sök",
     "Home" : "Hem",

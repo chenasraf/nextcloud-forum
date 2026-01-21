@@ -9,6 +9,8 @@ OC.L10N.register(
     "Underlined text" : "下線を引きたい文字",
     "Forum" : "フォーラム",
     "Deleted user" : "ユーザーを削除",
+    "User ID" : "ユーザーID",
+    "Role" : "ロール",
     "Loading …" : "読み込み中…",
     "Search" : "検索",
     "Home" : "ホーム",

@@ -11,6 +11,8 @@ OC.L10N.register(
     "Underlined text" : "Подвучени текст",
     "Forum" : "Форум",
     "Deleted user" : "Обрисани корисник",
+    "User ID" : "Кориснички ID",
+    "Role" : "Улога",
     "Loading …" : "Учитавање…",
     "Search" : "Претрага",
     "Home" : "Почетна",

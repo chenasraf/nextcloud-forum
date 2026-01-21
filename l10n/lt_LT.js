@@ -9,6 +9,8 @@ OC.L10N.register(
     "Underlined text" : "Pabrauktas tekstas",
     "Forum" : "Forumas",
     "Deleted user" : "Ištrintas naudotojas",
+    "User ID" : "Naudotojo ID",
+    "Role" : "Vaidmuo",
     "Loading …" : "Įkeliama…",
     "Search" : "Paieška",
     "Home" : "Namai",

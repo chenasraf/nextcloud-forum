@@ -10,6 +10,8 @@ OC.L10N.register(
     "Underlined text" : "Alleviivattu teksti",
     "Forum" : "Keskustelupalsta",
     "Deleted user" : "Poistettu käyttäjä",
+    "User ID" : "Käyttäjätunniste",
+    "Role" : "Rooli",
     "Loading …" : "Ladataan…",
     "Search" : "Etsi",
     "Home" : "Koti",

@@ -7,6 +7,7 @@ OC.L10N.register(
     "Support" : "Podrška",
     "Forum" : "Forum",
     "Deleted user" : "Izbrisan korisnik",
+    "Role" : "Uloga",
     "Loading …" : "Učitavanje…",
     "Search" : "Traži",
     "Home" : "Doma",

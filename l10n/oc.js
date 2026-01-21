@@ -7,6 +7,7 @@ OC.L10N.register(
     "General" : "Generals",
     "Forum" : "Forum",
     "Deleted user" : "Utilizaire suprimit",
+    "Role" : "Ròtle",
     "Loading …" : "Cargament…",
     "Search" : "Recercar",
     "Bookmarks" : "Marcapaginas",

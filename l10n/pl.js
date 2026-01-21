@@ -10,6 +10,8 @@ OC.L10N.register(
     "Underlined text" : "Podkreślony tekst",
     "Forum" : "Forum",
     "Deleted user" : "Usunięty użytkownik",
+    "User ID" : "ID użytkownika",
+    "Role" : "Rola społeczna",
     "Loading …" : "Wczytywanie…",
     "Search" : "Szukaj",
     "Home" : "Strona główna",

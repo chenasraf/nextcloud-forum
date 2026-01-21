@@ -11,6 +11,8 @@ OC.L10N.register(
     "Underlined text" : "Підкреслений текст",
     "Forum" : "Форум",
     "Deleted user" : "Вилучений користувач",
+    "User ID" : "ID користувача",
+    "Role" : "Роль",
     "Loading …" : "Завантаження …",
     "Search" : "Пошук",
     "Home" : "Домівка",

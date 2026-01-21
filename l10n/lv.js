@@ -17,6 +17,7 @@ OC.L10N.register(
     "Ask questions about the forum, provide feedback or report issues." : "Uzdod jautājumus par forumu, sniedz atgriezenisko saiti vai ziņo par nepilnībām!",
     "Forum" : "Forums",
     "Welcome to the forum!" : "Laipni lūdzam forumā!",
+    "Role" : "Loma",
     "Loading …" : "Ielādē…",
     "Search" : "Meklēt",
     "Home" : "Sākums",

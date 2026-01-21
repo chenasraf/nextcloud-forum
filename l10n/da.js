@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "Fed tekst",
     "Underlined text" : "Understreget tekst",
     "Forum" : "Forum",
+    "User ID" : "Bruger ID",
     "Loading …" : "Indlæser ...",
     "Search" : "Søg",
     "Home" : "Hjem",

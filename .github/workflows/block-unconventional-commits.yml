@@ -1,16 +1,8 @@
-# This workflow is provided via the organization template repository
-#
-# https://github.com/nextcloud/.github
-# https://docs.github.com/en/actions/learn-github-actions/sharing-workflows-with-your-organization
-
 name: Block unconventional commits
 
 on:
   pull_request:
     types: [opened, ready_for_review, reopened, synchronize]
-
-permissions:
-  contents: read
 
 concurrency:
   group: block-unconventional-commits-${{ github.head_ref || github.run_id }}
@@ -18,14 +10,5 @@ concurrency:
 
 jobs:
   block-unconventional-commits:
-    name: Block unconventional commits
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - uses: webiny/action-conventional-commits@v1.3.0
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: chenasraf/workflows/.github/workflows/nextcloud-block-unconventional-commits.yml@nextcloud-latest
+    secrets: inherit

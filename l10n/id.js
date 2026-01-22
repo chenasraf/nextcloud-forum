@@ -64,6 +64,8 @@ OC.L10N.register(
     "Name" : "Nama",
     "Enter category name" : "Masukkan nama kategori",
     "New" : "Baru",
+    "Move up" : "Pindah ke atas",
+    "Move down" : "Pindah ke bawah",
     "Last 7 days" : "7 hari terakhir",
     "Appearance" : "Tampilan",
     "Access control" : "Kontol akses",

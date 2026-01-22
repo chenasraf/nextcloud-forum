@@ -16,6 +16,7 @@ OC.L10N.register(
     "Forum" : "Форум",
     "Welcome to the forum!" : "Вітаем на форуме!",
     "Deleted user" : "Выдалены карыстальнік",
+    "Role" : "Роля",
     "Loading …" : "Загрузка …",
     "Search" : "Пошук",
     "Home" : "Дадому",

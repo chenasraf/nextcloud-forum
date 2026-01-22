@@ -11,6 +11,7 @@ OC.L10N.register(
     "Underlined text" : "Text subratllat",
     "Forum" : "Fòrum",
     "Deleted user" : "Usuari suprimit",
+    "User ID" : "ID de l'usuari",
     "Loading …" : "S'està carregant…",
     "Search" : "Cercar",
     "Home" : "Casa",

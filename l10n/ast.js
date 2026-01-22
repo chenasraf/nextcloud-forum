@@ -11,6 +11,7 @@ OC.L10N.register(
     "Underlined text" : "Testu solliniáu",
     "Forum" : "Foru",
     "Deleted user" : "Usuariu desaniciáu",
+    "Role" : "Rol",
     "Loading …" : "Cargando…",
     "Search" : "Buscar",
     "Home" : "Aniciu",

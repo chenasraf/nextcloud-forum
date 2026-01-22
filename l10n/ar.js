@@ -10,6 +10,8 @@ OC.L10N.register(
     "Underlined text" : "نصٌ مُسطّرٌ تحتيّاً",
     "Forum" : "المنتدى",
     "Deleted user" : "مستخدم محذوف",
+    "User ID" : "رمز المستخدم",
+    "Role" : "الوظيفة",
     "Loading …" : "التحميل جارٍ ...",
     "Search" : "بحث",
     "Home" : "الرئيسية",

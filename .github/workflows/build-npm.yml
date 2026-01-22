@@ -5,14 +5,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - '.github/workflows/build-npm.yml'
-      - 'src/**'
-      - '*.ts'
-      - '*.js'
-      - '*.json'
-      - '*.yaml'
-      - 'pnpm-lock.yaml'
 
 concurrency:
   group: build-npm-${{ github.head_ref || github.run_id }}

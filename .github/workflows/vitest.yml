@@ -5,15 +5,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - '.github/workflows/vitest.yml'
-      - 'src/**'
-      - 'tests/**'
-      - '*.ts'
-      - '*.js'
-      - '*.json'
-      - '*.yaml'
-      - 'pnpm-lock.yaml'
 
 concurrency:
   group: vitest-${{ github.head_ref || github.run_id }}

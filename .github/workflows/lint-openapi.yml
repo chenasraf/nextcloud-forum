@@ -5,10 +5,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'lib/**/*.php'
-      - 'openapi.json'
-      - '.github/workflows/lint-openapi.yml'
 
 concurrency:
   group: openapi-${{ github.head_ref || github.run_id }}

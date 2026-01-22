@@ -6,6 +6,10 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: vitest-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true

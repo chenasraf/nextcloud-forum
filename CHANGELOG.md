@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.21.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.21.0...v0.21.1) (2026-01-23)
+
+
+### Bug Fixes
+
+* better error unwrapping with axios for ocs ([860c0a6](https://github.com/chenasraf/nextcloud-forum/commit/860c0a63c5cb13725d02b9d6faa7e6cd3e34ebfb))
+* **l10n:** Update translations from Transifex ([b8548e9](https://github.com/chenasraf/nextcloud-forum/commit/b8548e9f333c4cb4d716dade0adfba032ed97fad))
+* **l10n:** Update translations from Transifex ([463ab8c](https://github.com/chenasraf/nextcloud-forum/commit/463ab8c44a99683325f273adc4efcaa94ef5a4f1))
+* **l10n:** Update translations from Transifex ([02d08fc](https://github.com/chenasraf/nextcloud-forum/commit/02d08fc9e9760cd292aad4fe40398597c39801ee))
+
 ## [0.21.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.20.6...v0.21.0) (2026-01-20)
 
 

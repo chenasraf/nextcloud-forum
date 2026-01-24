@@ -24,6 +24,7 @@ OC.L10N.register(
     "Code" : "Kod",
     "Quote" : "Citat",
     "Font size" : "Teckenstorlek",
+    "List" : "Lista",
     "Insert emoji" : "Infoga emoji",
     "Upload failed" : "Misslyckad uppladdning",
     "Close" : "Stäng",

@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Admin" : "Admin",
     "User" : "Användare",
+    "Guest" : "Gäst",
     "General" : "Allmänt",
     "Support" : "Support",
     "Bold text" : "Fetstil",

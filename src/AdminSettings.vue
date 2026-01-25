@@ -178,8 +178,13 @@ export default {
       } catch (e) {
         console.error('Failed to run repair seeds', e)
         this.repairSeedsSuccess = false
-        this.repairSeedsResult =
-          e.response?.data?.message || t('forum', 'Failed to run repair seeds')
+        // Extract error message from various possible locations in the response
+        const errorMessage =
+          e.response?.data?.message ||
+          e.response?.data?.error ||
+          e.message ||
+          t('forum', 'Failed to run repair seeds')
+        this.repairSeedsResult = errorMessage
       } finally {
         this.repairSeedsLoading = false
       }

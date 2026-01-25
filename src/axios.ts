@@ -12,9 +12,16 @@ ocs.interceptors.response.use(
     return response
   },
   (error) => {
-    const ocsData = error.response?.data?.ocs?.data
-    if (ocsData !== undefined) {
-      error.response.data = ocsData
+    const ocsResponse = error.response?.data?.ocs
+    if (ocsResponse !== undefined) {
+      // Extract data from OCS response, falling back to meta message for errors
+      const ocsData = ocsResponse.data
+      if (ocsData !== undefined && ocsData !== null) {
+        error.response.data = ocsData
+      } else if (ocsResponse.meta?.message) {
+        // For OCS errors that only have meta message (no data)
+        error.response.data = { message: ocsResponse.meta.message }
+      }
     }
     return Promise.reject(error)
   },

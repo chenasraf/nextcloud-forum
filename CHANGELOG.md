@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.21.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.21.1...v0.21.2) (2026-01-25)
+
+
+### Bug Fixes
+
+* improve repair seeds error handling ([2a41a33](https://github.com/chenasraf/nextcloud-forum/commit/2a41a3397ce21d3f3ef68da75bac097f318d5e8e))
+* **l10n:** Update translations from Transifex ([4161034](https://github.com/chenasraf/nextcloud-forum/commit/416103465794be593f80ab26d406853048be0b59))
+* **l10n:** Update translations from Transifex ([0dd8abf](https://github.com/chenasraf/nextcloud-forum/commit/0dd8abf0983faab0f9b5321aac62324a6eef32ad))
+
 ## [0.21.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.21.0...v0.21.1) (2026-01-23)
 
 

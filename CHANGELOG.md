@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.21.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.21.2...v0.21.3) (2026-01-26)
+
+
+### Bug Fixes
+
+* don't require forum admin permissions for global admin endpoints ([66e03c3](https://github.com/chenasraf/nextcloud-forum/commit/66e03c3a5df9334c52662ba2121f816c299a1532))
+* **l10n:** Update translations from Transifex ([c8d39a4](https://github.com/chenasraf/nextcloud-forum/commit/c8d39a4c710a62e4435af34f29ed4c8963274841))
+* roles error handling on admin ui ([a2e44af](https://github.com/chenasraf/nextcloud-forum/commit/a2e44af6bde7c1443bf78335935ff99665bb0b67))
+
 ## [0.21.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.21.1...v0.21.2) (2026-01-25)
 
 

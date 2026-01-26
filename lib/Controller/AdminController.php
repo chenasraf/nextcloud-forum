@@ -242,8 +242,6 @@ class AdminController extends OCSController {
 	 *
 	 * 200: Seeds repaired successfully
 	 */
-	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'POST', url: '/api/admin/repair-seeds')]
 	public function repairSeeds(): DataResponse {
 		try {
@@ -301,8 +299,6 @@ class AdminController extends OCSController {
 	 *
 	 * 200: Roles list returned
 	 */
-	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/admin/roles')]
 	public function getRoles(): DataResponse {
 		try {
@@ -328,8 +324,6 @@ class AdminController extends OCSController {
 	 *
 	 * 200: Role assigned successfully
 	 */
-	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'POST', url: '/api/admin/users/{userId}/roles')]
 	public function assignRole(string $userId, int $roleId): DataResponse {
 		try {

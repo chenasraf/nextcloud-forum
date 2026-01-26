@@ -16,7 +16,11 @@ ocs.interceptors.response.use(
     if (ocsResponse !== undefined) {
       // Extract data from OCS response, falling back to meta message for errors
       const ocsData = ocsResponse.data
-      if (ocsData !== undefined && ocsData !== null) {
+      const isEmpty =
+        ocsData === undefined ||
+        ocsData === null ||
+        (Array.isArray(ocsData) && ocsData.length === 0)
+      if (!isEmpty) {
         error.response.data = ocsData
       } else if (ocsResponse.meta?.message) {
         // For OCS errors that only have meta message (no data)

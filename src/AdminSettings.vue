@@ -29,6 +29,10 @@
         {{ strings.userRolesHelp }}
       </NcNoteCard>
 
+      <NcNoteCard v-if="rolesError" type="error">
+        {{ rolesError }}
+      </NcNoteCard>
+
       <div class="settings-section-content">
         <div class="user-role-form">
           <div class="field-row">
@@ -111,6 +115,7 @@ export default {
 
       // User roles
       rolesLoading: true,
+      rolesError: null,
       roles: [],
       userId: '',
       selectedRole: null,
@@ -157,10 +162,12 @@ export default {
     async fetchRoles() {
       try {
         this.rolesLoading = true
+        this.rolesError = null
         const resp = await ocs.get('/admin/roles')
         this.roles = resp.data.roles
       } catch (e) {
         console.error('Failed to fetch roles', e)
+        this.rolesError = e.response?.data?.message || t('forum', 'Failed to fetch roles')
       } finally {
         this.rolesLoading = false
       }

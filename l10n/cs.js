@@ -43,6 +43,7 @@ OC.L10N.register(
     "Deleted user" : "Smazaný uživatel",
     "A community-driven forum built right into your Nextcloud instance" : "Komunitou řízené fórum, vestavěné přímo do vámi využívané instance Nextcloud",
     "User ID" : "Identif. uživatele",
+    "Role" : "Role",
     "Loading …" : "Načítání …",
     "Search" : "Hledat",
     "Home" : "Domů",

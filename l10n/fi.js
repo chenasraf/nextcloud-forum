@@ -23,6 +23,7 @@ OC.L10N.register(
     "Collapse" : "Kutista näkymää",
     "Hello world!" : "Hei maailma!",
     "Code" : "Koodi",
+    "Quote" : "Lainaus",
     "Font size" : "Fontin koko",
     "List" : "Lista",
     "Insert emoji" : "Lisää emoji",

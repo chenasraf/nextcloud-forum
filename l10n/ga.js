@@ -1,6 +1,9 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n thread_::_%n threads_" : ["%n snáithe","%n snáitheanna","%n snáitheanna","%n snáitheanna","%n snáitheanna"],
+    "_%n view_::_%n views_" : ["%n radharc","%n radharic","%n radharic","%n radharic","%n radharc"],
+    "No categories available" : "Níl aon chatagóirí ar fáil",
     "Admin" : "Riarachán",
     "Administrator role with full permissions" : "Ról riarthóra le ceadanna iomlána",
     "Moderator" : "Modhnóir",
@@ -172,7 +175,6 @@ OC.L10N.register(
     "Locked thread" : "Snáithe faoi ghlas",
     "Uncategorized" : "Gan catagóir",
     "_%n reply_::_%n replies_" : ["%n freagra","%n freagraí","%n freagraí","%n freagraí","%n freagraí"],
-    "_%n view_::_%n views_" : ["%n radharc","%n radharic","%n radharic","%n radharic","%n radharc"],
     "Views" : "Radhairc",
     "Title" : "Teideal",
     "Enter thread title …" : "Cuir isteach teideal an tsnáithe …",
@@ -371,7 +373,6 @@ OC.L10N.register(
     "-- Select a category --" : "-- Roghnaigh catagóir --",
     "Create header" : "Cruthaigh ceanntásc",
     "_%n category_::_%n categories_" : ["%n catagóir","%n catagóirí","%n catagóirí","%n catagóirí","%n catagóirí"],
-    "_%n thread_::_%n threads_" : ["%n snáithe","%n snáitheanna","%n snáitheanna","%n snáitheanna","%n snáitheanna"],
     "Delete header" : "Scrios ceanntásc",
     "Are you sure you want to delete the header \"{name}\"?" : "An bhfuil tú cinnte gur mian leat an ceanntásc \"{name}\" a scriosadh?",
     "_This header contains %n category._::_This header contains %n categories._" : ["Tá %n catagóir sa cheanntásc seo.","Tá %n catagóir sa cheanntásc seo.","Tá %n catagóir sa cheanntásc seo.","Tá %n catagóir sa cheanntásc seo.","Tá %n catagóir sa cheanntásc seo."],
@@ -439,7 +440,6 @@ OC.L10N.register(
     "Can view" : "Is féidir féachaint air",
     "Can moderate" : "Is féidir maolú a dhéanamh",
     "Allow" : "Ceadaigh",
-    "No categories available" : "Níl aon chatagóirí ar fáil",
     "Admin role must have all permissions enabled" : "Ní mór gach cead a bheith cumasaithe i ról an riarthóra",
     "Admin role has full access to all categories" : "Tá rochtain iomlán ag ról an riarthóra ar gach catagóir",
     "Guest role cannot have admin permissions" : "Ní féidir ceadanna riarthóra a bheith ag ról aoi",

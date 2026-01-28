@@ -1,6 +1,9 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n thread_::_%n threads_" : ["%n jutulõng","%n jutulõnga"],
+    "_%n view_::_%n views_" : ["%n vaatamine","%n vaatamist"],
+    "No categories available" : "Ühtegi kategooriat pole saadaval",
     "Admin" : "Peakasutaja",
     "Administrator role with full permissions" : "Peakasutajal on kõik vajalikud õigused",
     "Moderator" : "Moderaator",
@@ -161,7 +164,6 @@ OC.L10N.register(
     "Locked thread" : "Lukustatud jutulõng",
     "Uncategorized" : "Määratlemata",
     "_%n reply_::_%n replies_" : ["%n vastus","%n vastust"],
-    "_%n view_::_%n views_" : ["%n vaatamine","%n vaatamist"],
     "Views" : "Vaated",
     "Title" : "Pealkiri",
     "Enter thread title …" : "Sisesta jutulõnga pealkiri…",
@@ -360,7 +362,6 @@ OC.L10N.register(
     "-- Select a category --" : "-- Vali kategooria --",
     "Create header" : "Lisa päis",
     "_%n category_::_%n categories_" : ["%n kategooria","%n kategooriat"],
-    "_%n thread_::_%n threads_" : ["%n jutulõng","%n jutulõnga"],
     "Delete header" : "Kustuta päis",
     "Are you sure you want to delete the header \"{name}\"?" : "Kas oled kindel, et soovid „{name}“ päise kustutada?",
     "_This header contains %n category._::_This header contains %n categories._" : ["Selles päises on %n kategooria.","Selles päises on %n kategooriat."],
@@ -428,7 +429,6 @@ OC.L10N.register(
     "Can view" : "Võib vaadata",
     "Can moderate" : "Võib modereerida",
     "Allow" : "Luba",
-    "No categories available" : "Ühtegi kategooriat pole saadaval",
     "Admin role must have all permissions enabled" : "Peakasutaja rollil peavad olema kõik õigused lubatud",
     "Admin role has full access to all categories" : "Peakasutaja rollil on ligipääs kõikidele kategooriatele",
     "Guest role cannot have admin permissions" : "Külalisrollil ei saa olla peakasutaja õigusi",

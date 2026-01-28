@@ -1,6 +1,9 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n thread_::_%n threads_" : ["%n يىپ","%n يىپ"],
+    "_%n view_::_%n views_" : ["%n قېتىم كۆرۈلدى","%n قېتىم كۆرۈلدى"],
+    "No categories available" : "ھېچقانداق كاتېگورىيە يوق",
     "Admin" : "باشقۇرغۇچى",
     "Administrator role with full permissions" : "تولۇق ھوقۇققا ئىگە باشقۇرغۇچى رولى",
     "Moderator" : "رىياسەتچى",
@@ -162,7 +165,6 @@ OC.L10N.register(
     "Locked thread" : "قۇلۇپلانغان تېما",
     "Uncategorized" : "تۈرگە ئايرىلمىغان",
     "_%n reply_::_%n replies_" : ["%n جاۋاپ","%n جاۋاپلار"],
-    "_%n view_::_%n views_" : ["%n قېتىم كۆرۈلدى","%n قېتىم كۆرۈلدى"],
     "Views" : "كۆرۈنۈشلەر",
     "Title" : "ماۋزۇ",
     "Enter thread title …" : "تېما تېمىسىنى كىرگۈزۈڭ …",
@@ -359,7 +361,6 @@ OC.L10N.register(
     "-- Select a category --" : "-- بىر تۈر تاللاڭ --",
     "Create header" : "باشلىق قۇرۇش",
     "_%n category_::_%n categories_" : ["%n تۈر","%n تۈر"],
-    "_%n thread_::_%n threads_" : ["%n يىپ","%n يىپ"],
     "Delete header" : "باشلىقنى ئۆچۈرۈش",
     "Are you sure you want to delete the header \"{name}\"?" : "«{name}» ماۋزۇسىنى ئۆچۈرمەكچىمۇ؟",
     "_This header contains %n category._::_This header contains %n categories._" : ["بۇ ماۋزۇ %n تۈرنى ئۆز-ئىچىگە ئالىدۇ.","بۇ ماۋزۇ %n تۈرنى ئۆز-ئىچىگە ئالىدۇ."],
@@ -427,7 +428,6 @@ OC.L10N.register(
     "Can view" : "كۆرەلەيدۇ",
     "Can moderate" : "ئوتتۇراھال قىلالايدۇ",
     "Allow" : "رۇخسەت قىلىڭ",
-    "No categories available" : "ھېچقانداق كاتېگورىيە يوق",
     "Admin role must have all permissions enabled" : "باشقۇرغۇچى رولىدا بارلىق ئىجازەتلەر قوزغىتىلغان بولۇشى كېرەك",
     "Admin role has full access to all categories" : "باشقۇرغۇچى رولى بارلىق تۈرلەرگە تولۇق كىرىش ھوقۇقىغا ئىگە",
     "Guest role cannot have admin permissions" : "مېھمان رولىدا باشقۇرۇش ھوقۇقى بولمايدۇ",

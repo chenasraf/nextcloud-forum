@@ -1,6 +1,9 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n thread_::_%n threads_" : ["%n utas"],
+    "_%n view_::_%n views_" : ["%n tampilan"],
+    "No categories available" : "Tidak ada kategori yang tersedia",
     "Admin" : "Admin",
     "Administrator role with full permissions" : "Peran administrator dengan izin penuh",
     "Moderator" : "Moderator",
@@ -172,7 +175,6 @@ OC.L10N.register(
     "Locked thread" : "Utas dikunci",
     "Uncategorized" : "Tidak terkategori",
     "_%n reply_::_%n replies_" : ["%n balasan"],
-    "_%n view_::_%n views_" : ["%n tampilan"],
     "Views" : "Tampilan",
     "Title" : "Judul",
     "Enter thread title …" : "Masukkan judul utas …",
@@ -371,7 +373,6 @@ OC.L10N.register(
     "-- Select a category --" : "-- Pilih sebuah kategori --",
     "Create header" : "Buat header",
     "_%n category_::_%n categories_" : ["%n kategori"],
-    "_%n thread_::_%n threads_" : ["%n utas"],
     "Delete header" : "Hapus header",
     "Are you sure you want to delete the header \"{name}\"?" : "Apakah Anda yakin ingin menghapus header \"{name}\"?",
     "_This header contains %n category._::_This header contains %n categories._" : ["Header ini berisi %n kategori."],
@@ -439,7 +440,6 @@ OC.L10N.register(
     "Can view" : "Dapat melihat",
     "Can moderate" : "Dapat memoderasi",
     "Allow" : "Izinkan",
-    "No categories available" : "Tidak ada kategori yang tersedia",
     "Admin role must have all permissions enabled" : "Peran admin harus mengaktifkan semua izin",
     "Admin role has full access to all categories" : "Peran admin memiliki akses penuh ke semua kategori",
     "Guest role cannot have admin permissions" : "Peran tamu tidak dapat memiliki izin admin",

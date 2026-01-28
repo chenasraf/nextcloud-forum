@@ -1,6 +1,9 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n thread_::_%n threads_" : ["%n fío","%n fíos"],
+    "_%n view_::_%n views_" : ["%n vista","%n vistas"],
+    "No categories available" : "Non hai ningunha categoría dispoñíbel",
     "Admin" : "Administración",
     "Administrator role with full permissions" : "Rol de administrador con todos os permisos",
     "Moderator" : "Moderador",
@@ -162,7 +165,6 @@ OC.L10N.register(
     "Locked thread" : "Fío bloqueado",
     "Uncategorized" : "Sen categorizar",
     "_%n reply_::_%n replies_" : ["%n resposta","%n respostas"],
-    "_%n view_::_%n views_" : ["%n vista","%n vistas"],
     "Views" : "Vistas",
     "Title" : "Titulo",
     "Enter thread title …" : "Introduza o título do fío…",
@@ -361,7 +363,6 @@ OC.L10N.register(
     "-- Select a category --" : "-- Seleccionar unha categoría --",
     "Create header" : "Crear a cabeceira",
     "_%n category_::_%n categories_" : ["%n categoría","%n categorías"],
-    "_%n thread_::_%n threads_" : ["%n fío","%n fíos"],
     "Delete header" : "Eliminar a cabeceira",
     "Are you sure you want to delete the header \"{name}\"?" : "Confirma que quere eliminar a cabeceira «{name}»?",
     "_This header contains %n category._::_This header contains %n categories._" : ["Esta cabeceira contén %n categoría.","Esta cabeceira contén %n categorías."],
@@ -429,7 +430,6 @@ OC.L10N.register(
     "Can view" : "Pode ver",
     "Can moderate" : "Pode moderar",
     "Allow" : "Permitir",
-    "No categories available" : "Non hai ningunha categoría dispoñíbel",
     "Admin role must have all permissions enabled" : "O rol de administraciónr debe ter todos os permisos activados",
     "Admin role has full access to all categories" : "O rol de administración ten acceso total a todas as categorías",
     "Guest role cannot have admin permissions" : "O rol de convidado non pode ter permisos de administración",

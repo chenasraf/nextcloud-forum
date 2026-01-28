@@ -1,6 +1,9 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n thread_::_%n threads_" : ["%n vlákno","%n vlákna","%n vláken","%n vlákna"],
+    "_%n view_::_%n views_" : ["%n zobrazení","%n zobrazení","%n zobrazení","%n zobrazení"],
+    "No categories available" : "Nejsou k dispozici žádné kategorie",
     "Admin" : "Správce",
     "Administrator role with full permissions" : "Role správce s plnými oprávněními",
     "Moderator" : "Moderátor",
@@ -161,7 +164,6 @@ OC.L10N.register(
     "Locked thread" : "Uzamčené vlákno",
     "Uncategorized" : "Nezařazeno",
     "_%n reply_::_%n replies_" : ["%n odpověď","%n odpovědi","%n odpovědí","%n odpovědi"],
-    "_%n view_::_%n views_" : ["%n zobrazení","%n zobrazení","%n zobrazení","%n zobrazení"],
     "Views" : "Zobrazení",
     "Title" : "Titul",
     "Enter thread title …" : "Zadejte titulek vlákna …",
@@ -358,7 +360,6 @@ OC.L10N.register(
     "-- Select a category --" : "-- Vybrat kategorii --",
     "Create header" : "Vytvořit záhlaví",
     "_%n category_::_%n categories_" : ["%n kategorie","%n kategorie","%n kategorií","%n kategorie"],
-    "_%n thread_::_%n threads_" : ["%n vlákno","%n vlákna","%n vláken","%n vlákna"],
     "Delete header" : "Smazat záhlaví",
     "Are you sure you want to delete the header \"{name}\"?" : "Opravdu chcete záhlaví „{name}“ smazat?",
     "_This header contains %n category._::_This header contains %n categories._" : ["Toto záhlaví obsahuje %n kategorii.","Toto záhlaví obsahuje %n kategorie.","Toto záhlaví obsahuje %n kategorií.","Toto záhlaví obsahuje %n kategorie."],
@@ -426,7 +427,6 @@ OC.L10N.register(
     "Can view" : "Může zobrazovat",
     "Can moderate" : "Může moderovat",
     "Allow" : "Umožnit",
-    "No categories available" : "Nejsou k dispozici žádné kategorie",
     "Admin role must have all permissions enabled" : "Je třeba, aby role správce měla povolené všechna oprávnění",
     "Admin role has full access to all categories" : "Role správce má plný přístup do všech kategorií",
     "Guest role cannot have admin permissions" : "Role hosta nemůže mít roli správce",

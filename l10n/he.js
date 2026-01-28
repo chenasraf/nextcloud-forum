@@ -1,6 +1,7 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n view_::_%n views_" : ["צפייה אחת","%n צפיות","%n צפיות"],
     "Admin" : "אדמין",
     "Administrator role with full permissions" : "תפקיד אדמין עם הרשאות מלאות",
     "Moderator" : "מפקח",
@@ -160,7 +161,6 @@ OC.L10N.register(
     "Locked thread" : "נושא נעול",
     "Uncategorized" : "ללא קטגוריה",
     "_%n reply_::_%n replies_" : ["תגובה אחת","%n תגובות","%n תגובות"],
-    "_%n view_::_%n views_" : ["צפייה אחת","%n צפיות","%n צפיות"],
     "Views" : "תצוגות",
     "Title" : "כותרת",
     "Enter thread title …" : "כתבו כותרת לנושא …",

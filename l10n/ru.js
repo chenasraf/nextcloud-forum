@@ -1,6 +1,7 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n view_::_%n views_" : ["%n просмотр","%n просмотров","%n просмотров","%n просмотров"],
     "Admin" : "Администратор",
     "Administrator role with full permissions" : "Роль администратора с полными правами",
     "Moderator" : "Модератор",
@@ -152,7 +153,6 @@ OC.L10N.register(
     "Locked thread" : "Закрытая тема",
     "Uncategorized" : "Без категории",
     "_%n reply_::_%n replies_" : ["%n ответ","%n ответа","%n ответов","%n ответов"],
-    "_%n view_::_%n views_" : ["%n просмотр","%n просмотров","%n просмотров","%n просмотров"],
     "Views" : "Представления",
     "Title" : "Название",
     "Enter thread title …" : "Введите название темы…",

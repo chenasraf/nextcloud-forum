@@ -1,6 +1,9 @@
 OC.L10N.register(
     "forum",
     {
+    "_%n thread_::_%n threads_" : ["%n konu","%n konu"],
+    "_%n view_::_%n views_" : ["%n görülme","%n görülme"],
+    "No categories available" : "Herhangi bir bölüm yok",
     "Admin" : "Yönetici",
     "Administrator role with full permissions" : "Tüm izinler ile yönetici rolü",
     "Moderator" : "Sorumlu",
@@ -162,7 +165,6 @@ OC.L10N.register(
     "Locked thread" : "Kilitlenmiş konu",
     "Uncategorized" : "Bölümü yok",
     "_%n reply_::_%n replies_" : ["%n yanıt","%n yanıt"],
-    "_%n view_::_%n views_" : ["%n görülme","%n görülme"],
     "Views" : "Görülmeler",
     "Title" : "Başlık",
     "Enter thread title …" : "Konu başlığını yazın…",
@@ -361,7 +363,6 @@ OC.L10N.register(
     "-- Select a category --" : "-- Bir bölüm seçin --",
     "Create header" : "Başlık oluştur",
     "_%n category_::_%n categories_" : ["%n bölüm","%n bölüm"],
-    "_%n thread_::_%n threads_" : ["%n konu","%n konu"],
     "Delete header" : "Başlığı sil",
     "Are you sure you want to delete the header \"{name}\"?" : "\"{name}\" başlığını silmek istediğinize emin misiniz?",
     "_This header contains %n category._::_This header contains %n categories._" : ["Bu başlıkta %n bölüm var.","Bu başlıkta %n bölüm var."],
@@ -429,7 +430,6 @@ OC.L10N.register(
     "Can view" : "Görebilir",
     "Can moderate" : "Yönetebilir",
     "Allow" : "İzin ver",
-    "No categories available" : "Herhangi bir bölüm yok",
     "Admin role must have all permissions enabled" : "Yönetici rolüne tüm izinler verilmiş olmalıdır",
     "Admin role has full access to all categories" : "Yönetici rolü tüm bölümlere tam izinler ile erişebilir",
     "Guest role cannot have admin permissions" : "Konuk rolüne yönetici izinleri verilemez",

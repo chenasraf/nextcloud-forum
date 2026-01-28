@@ -221,6 +221,54 @@ class ThreadMapper extends QBMapper {
 	}
 
 	/**
+	 * Find recent threads in specified categories
+	 *
+	 * @param array<int> $categoryIds Category IDs to filter by
+	 * @param int $limit Maximum results
+	 * @return array<Thread>
+	 */
+	public function findRecentThreads(array $categoryIds, int $limit = 7): array {
+		if (empty($categoryIds)) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->in('category_id', $qb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)))
+			->andWhere($qb->expr()->eq('is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('deleted_at'))
+			->orderBy('created_at', 'DESC')
+			->setMaxResults($limit);
+
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find top threads by view count in specified categories
+	 *
+	 * @param array<int> $categoryIds Category IDs to filter by
+	 * @param int $limit Maximum results
+	 * @return array<Thread>
+	 */
+	public function findTopByViews(array $categoryIds, int $limit = 7): array {
+		if (empty($categoryIds)) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->in('category_id', $qb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)))
+			->andWhere($qb->expr()->eq('is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('deleted_at'))
+			->orderBy('view_count', 'DESC')
+			->setMaxResults($limit);
+
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * Search threads by title and first post content
 	 *
 	 * @param IQueryBuilder $qb QueryBuilder instance (with parameters already bound)

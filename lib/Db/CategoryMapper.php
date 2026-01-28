@@ -213,6 +213,28 @@ class CategoryMapper extends QBMapper {
 	}
 
 	/**
+	 * Find top categories by thread count
+	 *
+	 * @param array<int> $categoryIds Category IDs to filter by (already permission-filtered)
+	 * @param int $limit Maximum results
+	 * @return array<Category>
+	 */
+	public function findTopByThreadCount(array $categoryIds, int $limit = 7): array {
+		if (empty($categoryIds)) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->in('id', $qb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)))
+			->orderBy('thread_count', 'DESC')
+			->setMaxResults($limit);
+
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * Move all categories from one header to another
 	 *
 	 * @param int $fromHeaderId Source header ID

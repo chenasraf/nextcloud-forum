@@ -10,7 +10,8 @@
 /node_modules/
 /dist
 /js
-/css
+/css/*
+!/css/dashboard.css
 .DS_Store
 build/
 tsconfig.app.tsbuildinfo

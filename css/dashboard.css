@@ -1,0 +1,8 @@
+/**
+ * Dashboard widget icon theming
+ * Inverts dark icons in dark mode using Nextcloud's CSS variable
+ */
+img[src*="/forum/img/thread-dark.svg"],
+img[src*="/forum/img/folder-dark.svg"] {
+  filter: var(--background-invert-if-dark);
+}

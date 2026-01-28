@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace OCA\Forum\AppInfo;
 
+use OCA\Forum\Dashboard\RecentActivityWidget;
+use OCA\Forum\Dashboard\TopActivityWidget;
+use OCA\Forum\Dashboard\TopCategoriesWidget;
+use OCA\Forum\Dashboard\TopThreadsWidget;
 use OCA\Forum\Listener\UserEventListener;
 use OCA\Forum\Middleware\PermissionMiddleware;
 use OCA\Forum\Notification\Notifier;
@@ -37,6 +41,12 @@ class Application extends App implements IBootstrap {
 
 		// Register notification notifier
 		$context->registerNotifierService(Notifier::class);
+
+		// Register dashboard widgets
+		$context->registerDashboardWidget(RecentActivityWidget::class);
+		$context->registerDashboardWidget(TopActivityWidget::class);
+		$context->registerDashboardWidget(TopCategoriesWidget::class);
+		$context->registerDashboardWidget(TopThreadsWidget::class);
 	}
 
 	public function boot(IBootContext $context): void {

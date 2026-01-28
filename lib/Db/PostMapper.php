@@ -337,6 +337,33 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
+	 * Find recent replies (non-first posts) in specified categories
+	 *
+	 * @param array<int> $categoryIds Category IDs to filter by
+	 * @param int $limit Maximum results
+	 * @return array<Post>
+	 */
+	public function findRecentReplies(array $categoryIds, int $limit = 7): array {
+		if (empty($categoryIds)) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('p.*')
+			->from($this->getTableName(), 'p')
+			->innerJoin('p', 'forum_threads', 't', $qb->expr()->eq('p.thread_id', 't.id'))
+			->where($qb->expr()->in('t.category_id', $qb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)))
+			->andWhere($qb->expr()->eq('p.is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('p.deleted_at'))
+			->andWhere($qb->expr()->isNull('t.deleted_at'))
+			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->orderBy('p.created_at', 'DESC')
+			->setMaxResults($limit);
+
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * Search posts by content (replies only, excluding first posts)
 	 *
 	 * @param IQueryBuilder $qb QueryBuilder instance (with parameters already bound)

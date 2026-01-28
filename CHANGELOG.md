@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.22.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.21.3...v0.22.0) (2026-01-28)
+
+
+### Features
+
+* add dashboard widgets ([b6cc80d](https://github.com/chenasraf/nextcloud-forum/commit/b6cc80d1f80a148074569d5124d17891a3bdc1dd))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([470ef7b](https://github.com/chenasraf/nextcloud-forum/commit/470ef7b945437e26cf2efa508b7aefa4c18645e4))
+
 ## [0.21.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.21.2...v0.21.3) (2026-01-26)
 
 

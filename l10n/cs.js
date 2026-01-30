@@ -1,6 +1,8 @@
 OC.L10N.register(
     "forum",
     {
+    "More activity" : "Další aktivita",
+    "Browse forum" : "Procházet fórum",
     "_%n thread_::_%n threads_" : ["%n vlákno","%n vlákna","%n vláken","%n vlákna"],
     "_%n view_::_%n views_" : ["%n zobrazení","%n zobrazení","%n zobrazení","%n zobrazení"],
     "No categories available" : "Nejsou k dispozici žádné kategorie",
@@ -45,8 +47,11 @@ OC.L10N.register(
     "Welcome to the forum!" : "Vítejte ve fóru!",
     "Deleted user" : "Smazaný uživatel",
     "A community-driven forum built right into your Nextcloud instance" : "Komunitou řízené fórum, vestavěné přímo do vámi využívané instance Nextcloud",
+    "Repair Seeds" : "Opravit seeds",
+    "User Roles" : "Role uživatele",
     "User ID" : "Identif. uživatele",
     "Role" : "Role",
+    "Assign Role" : "Přiřadit roli",
     "Loading …" : "Načítání …",
     "Search" : "Hledat",
     "Home" : "Domů",

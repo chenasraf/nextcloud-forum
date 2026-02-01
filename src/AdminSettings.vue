@@ -125,12 +125,12 @@ export default {
 
       strings: {
         title: t('forum', 'Forum'),
-        repairSeedsHeader: t('forum', 'Repair Seeds'),
+        repairSeedsHeader: t('forum', 'Repair Database Initial Data'),
         repairSeedsHelp: t(
           'forum',
-          'Run the repair seeds command to restore default forum data (roles, categories, permissions, BBCodes). This is safe to run multiple times as it will skip data that already exists.',
+          'Run the repair database initial data command to restore default forum data (roles, categories, permissions, BBCodes). This is safe to run multiple times as it will skip data that already exists.',
         ),
-        runRepairSeeds: t('forum', 'Run Repair Seeds'),
+        runRepairSeeds: t('forum', 'Run Repair Database Initial Data'),
         userRolesHeader: t('forum', 'User Roles'),
         userRolesHelp: t(
           'forum',
@@ -190,7 +190,7 @@ export default {
           e.response?.data?.message ||
           e.response?.data?.error ||
           e.message ||
-          t('forum', 'Failed to run repair seeds')
+          t('forum', 'Failed to run repair database initial data')
         this.repairSeedsResult = errorMessage
       } finally {
         this.repairSeedsLoading = false

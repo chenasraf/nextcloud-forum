@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.22.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.1...v0.22.2) (2026-02-04)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([b649b2f](https://github.com/chenasraf/nextcloud-forum/commit/b649b2fc84b4f7fe695f49e328a1084e34e603ea))
+* **l10n:** Update translations from Transifex ([f6219b7](https://github.com/chenasraf/nextcloud-forum/commit/f6219b7a1a11e5dd287046052c986a7975c50232))
+* **l10n:** Update translations from Transifex ([bb112b9](https://github.com/chenasraf/nextcloud-forum/commit/bb112b9fc7c8e7ea9f60ff5fb200629211446617))
+* move floating-vue to peer deps ([a12720c](https://github.com/chenasraf/nextcloud-forum/commit/a12720c4ada48e0a2f22f84ab289e8eb421658d7))
+
 ## [0.22.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.0...v0.22.1) (2026-02-01)
 
 

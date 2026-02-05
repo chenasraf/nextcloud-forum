@@ -1,5 +1,5 @@
 <template>
-  <NcContent app-name="forum" :data-theme-dark="isDarkTheme">
+  <NcContent id="content-forum" app-name="forum" :data-theme-dark="isDarkTheme">
     <!-- Left sidebar -->
     <AppNavigation />
 
@@ -128,7 +128,7 @@ export default defineComponent({
 <style lang="scss">
 // Fix content width on mobile
 @media screen and (max-width: 768px) {
-  #content-vue.app-forum {
+  #content-forum.app-forum {
     width: 100%;
   }
 }

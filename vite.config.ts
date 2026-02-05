@@ -3,13 +3,7 @@ import path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
 import checker from 'vite-plugin-checker'
 
-const manualChunksList = [
-  'emoji-mart-vue-fast',
-  'date-fns',
-  'lodash',
-  'floating-vue',
-  'vue-material-design-icons',
-]
+const manualChunksList = ['emoji-mart-vue-fast', 'date-fns', 'lodash', 'vue-material-design-icons']
 
 const manualChunksGroups = {
   vue: ['vue-router', 'vue'],
@@ -60,6 +54,7 @@ export default createAppConfig(
         manifest: true,
         cssCodeSplit: false,
         rollupOptions: {
+          external: ['floating-vue'],
           output: {
             entryFileNames: 'js/[name]-[hash].mjs',
             chunkFileNames: 'js/[name]-[hash].mjs',

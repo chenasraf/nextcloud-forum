@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.4](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.3...v0.22.4) (2026-02-05)
+
+
+### Bug Fixes
+
+* **deps:** unmark floating-vue as external ([a0c70d8](https://github.com/chenasraf/nextcloud-forum/commit/a0c70d8320bd16e7768adda8489d6f73f5fcd148))
+
 ## [0.22.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.2...v0.22.3) (2026-02-05)
 
 

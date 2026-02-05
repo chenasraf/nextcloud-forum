@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.22.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.2...v0.22.3) (2026-02-05)
+
+
+### Bug Fixes
+
+* **deps:** mark floating-vue as external ([4be4d81](https://github.com/chenasraf/nextcloud-forum/commit/4be4d81d48e8ae7c945647d1096242bc990db532))
+* **l10n:** Update translations from Transifex ([9983cb9](https://github.com/chenasraf/nextcloud-forum/commit/9983cb9b1c206d406d97757085465287dc0c711e))
+
 ## [0.22.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.1...v0.22.2) (2026-02-04)
 
 

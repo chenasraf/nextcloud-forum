@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.4...v0.22.5) (2026-02-05)
+
+
+### Bug Fixes
+
+* mobile menu popover ([a472e03](https://github.com/chenasraf/nextcloud-forum/commit/a472e03e984e0e146f872df3f91eb88b9834970d))
+
 ## [0.22.4](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.3...v0.22.4) (2026-02-05)
 
 

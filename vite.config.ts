@@ -54,7 +54,6 @@ export default createAppConfig(
         manifest: true,
         cssCodeSplit: false,
         rollupOptions: {
-          external: ['floating-vue'],
           output: {
             entryFileNames: 'js/[name]-[hash].mjs',
             chunkFileNames: 'js/[name]-[hash].mjs',

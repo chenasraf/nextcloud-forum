@@ -53,6 +53,7 @@ OC.L10N.register(
     "Unread" : "No leído",
     "Save" : "Guardar",
     "Current version" : "Versión actual",
+    "Add reaction" : "Añadir reacción",
     "React with {emoji}" : "Reaccionar con {emoji}",
     "Uncategorized" : "Sin categoría",
     "_%n reply_::_%n replies_" : ["%n respuesta","%n respuestas","%n respuestas"],

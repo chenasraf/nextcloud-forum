@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.22.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.5...v0.22.6) (2026-02-07)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([9c2b6ac](https://github.com/chenasraf/nextcloud-forum/commit/9c2b6ac64d762e45796efd5fe08581926a3fc3e2))
+* **l10n:** Update translations from Transifex ([afb4140](https://github.com/chenasraf/nextcloud-forum/commit/afb4140e6ecd3344d19a3173799a7ecf13c91f10))
+
 ## [0.22.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.4...v0.22.5) (2026-02-05)
 
 

@@ -6,6 +6,7 @@ OC.L10N.register(
     "Guest" : "Invité",
     "General" : "Général",
     "Support" : "Support",
+    "Use BBCode for rich text formatting" : "Utilisez les BBCodes pour un formatage enrichi du texte",
     "Bold text" : "Texte en gras",
     "Underlined text" : "Texte souligné",
     "Forum" : "Forum",

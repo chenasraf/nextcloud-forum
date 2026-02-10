@@ -447,6 +447,7 @@ OC.L10N.register(
     "Created" : "Imetengenezwa",
     "Actions" : "Matendo",
     "No description" : "No description",
+    "No users found" : "Hakuna watumiaji waliopatikana",
     "Status" : "Wadhifa/hadhi/hali",
     "Active" : "Inayotumika",
     "Deleted" : "Vilivyofutwa"

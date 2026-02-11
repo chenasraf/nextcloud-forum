@@ -47,7 +47,7 @@
     </div>
 
     <template #actions>
-      <NcButton @click="handleClose" :disabled="moving">
+      <NcButton @click="handleClose">
         {{ strings.cancel }}
       </NcButton>
       <NcButton
@@ -168,6 +168,7 @@ export default defineComponent({
       immediate: true,
       handler(newValue) {
         if (newValue) {
+          this.moving = false
           this.loadCategories()
           this.selectedCategory = null
         }
@@ -189,9 +190,7 @@ export default defineComponent({
     },
 
     handleClose() {
-      if (!this.moving) {
-        this.$emit('update:open', false)
-      }
+      this.$emit('update:open', false)
     },
 
     handleMove() {

@@ -1089,18 +1089,12 @@ export default defineComponent({
 
         // Refresh the thread data to update category information and back link
         await this.refresh()
-
-        // Reset the move dialog
-        const moveDialog = this.$refs.moveDialog as any
-        if (moveDialog && typeof moveDialog.reset === 'function') {
-          moveDialog.reset()
-        }
       }
     } catch (e) {
       console.error('Failed to move thread', e)
       showError(t('forum', 'Failed to move thread'))
-
-      // Reset moving state in dialog
+    } finally {
+      // Always reset the move dialog state
       const moveDialog = this.$refs.moveDialog as any
       if (moveDialog && typeof moveDialog.reset === 'function') {
         moveDialog.reset()

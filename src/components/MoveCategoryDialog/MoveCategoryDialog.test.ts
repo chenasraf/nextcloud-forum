@@ -434,7 +434,7 @@ describe('MoveCategoryDialog', () => {
       expect(wrapper.emitted('update:open')![0]).toEqual([false])
     })
 
-    it('does not close when moving', async () => {
+    it('allows closing even when moving', async () => {
       mockCategoryHeaders.value = [
         createMockHeader({
           id: 1,
@@ -459,8 +459,9 @@ describe('MoveCategoryDialog', () => {
       // Try to close
       vm.handleClose()
 
-      // Should not emit close event
-      expect(wrapper.emitted('update:open')).toBeFalsy()
+      // Should emit close event even while moving
+      expect(wrapper.emitted('update:open')).toBeTruthy()
+      expect(wrapper.emitted('update:open')![0]).toEqual([false])
     })
   })
 
@@ -517,6 +518,37 @@ describe('MoveCategoryDialog', () => {
       await flushPromises()
 
       expect(vm.selectedCategory).toBeNull()
+    })
+
+    it('resets moving state when dialog reopens', async () => {
+      mockCategoryHeaders.value = [
+        createMockHeader({
+          id: 1,
+          name: 'Header',
+          categories: [createMockCategory({ id: 20, name: 'Category' })],
+        }),
+      ]
+
+      const wrapper = createWrapper({ open: true, currentCategoryId: 10 })
+      await flushPromises()
+
+      const vm = wrapper.vm as unknown as {
+        selectedCategory: { id: number; name: string; isHeader?: boolean } | null
+        handleMove: () => void
+        moving: boolean
+      }
+      vm.selectedCategory = { id: 20, name: 'Category', isHeader: false }
+
+      // Start moving
+      vm.handleMove()
+      expect(vm.moving).toBe(true)
+
+      // Close and reopen
+      await wrapper.setProps({ open: false })
+      await wrapper.setProps({ open: true })
+      await flushPromises()
+
+      expect(vm.moving).toBe(false)
     })
 
     it('refetches categories when dialog reopens', async () => {

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.22.7](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.6...v0.22.7) (2026-02-11)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([6f7c696](https://github.com/chenasraf/nextcloud-forum/commit/6f7c696b3420d81edd6f06e10a88374525cf6b6d))
+* **l10n:** Update translations from Transifex ([06ff4e2](https://github.com/chenasraf/nextcloud-forum/commit/06ff4e2ff9f913636b37b6dd244d4a9dd04082c8))
+* light/dark theme would not listen to user preferences ([60d7aa3](https://github.com/chenasraf/nextcloud-forum/commit/60d7aa3399285280af3f68bd081a8c8de145665b))
+* move thread dialog closing/progress ([d5b8421](https://github.com/chenasraf/nextcloud-forum/commit/d5b8421ed901970bdb8ef09183f370d549058cb8))
+
 ## [0.22.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.5...v0.22.6) (2026-02-07)
 
 

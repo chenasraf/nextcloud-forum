@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Admin" : "Admin",
     "User" : "Utente",
+    "Guest" : "Ospite",
     "General" : "Generale",
     "Support" : "Supporto",
     "Bold text" : "Grassetto",

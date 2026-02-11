@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.22.8](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.7...v0.22.8) (2026-02-11)
+
+
+### Bug Fixes
+
+* allow moving threads ([8c6fb8f](https://github.com/chenasraf/nextcloud-forum/commit/8c6fb8ff8055d44307aa6094195728e7621144f3))
+
 ## [0.22.7](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.6...v0.22.7) (2026-02-11)
 
 

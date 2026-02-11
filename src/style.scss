@@ -172,7 +172,7 @@
   }
 }
 
-// Dark theme avatar - use --avatar-dark when parent has data-theme-dark="true"
-[data-theme-dark='true'] .mention-bubble__icon {
+// Dark theme avatar - use --avatar-dark when parent has data-forum-dark="true"
+[data-forum-dark='true'] .mention-bubble__icon {
   background-image: var(--avatar-dark);
 }

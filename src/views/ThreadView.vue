@@ -1074,32 +1074,33 @@ export default defineComponent({
         this.isSavingTitle = false
       }
     },
-  },
-  async handleMoveThread(categoryId: number): Promise<void> {
-    if (!this.thread) return
 
-    try {
-      const response = await ocs.put(`/threads/${this.thread.id}/move`, {
-        categoryId,
-      })
+    async handleMoveThread(categoryId: number): Promise<void> {
+      if (!this.thread) return
 
-      if (response.data) {
-        showSuccess(this.strings.threadMoved)
-        this.showMoveDialog = false
+      try {
+        const response = await ocs.put(`/threads/${this.thread.id}/move`, {
+          categoryId,
+        })
 
-        // Refresh the thread data to update category information and back link
-        await this.refresh()
+        if (response.data) {
+          showSuccess(this.strings.threadMoved)
+          this.showMoveDialog = false
+
+          // Refresh the thread data to update category information and back link
+          await this.refresh()
+        }
+      } catch (e) {
+        console.error('Failed to move thread', e)
+        showError(t('forum', 'Failed to move thread'))
+      } finally {
+        // Always reset the move dialog state
+        const moveDialog = this.$refs.moveDialog as any
+        if (moveDialog && typeof moveDialog.reset === 'function') {
+          moveDialog.reset()
+        }
       }
-    } catch (e) {
-      console.error('Failed to move thread', e)
-      showError(t('forum', 'Failed to move thread'))
-    } finally {
-      // Always reset the move dialog state
-      const moveDialog = this.$refs.moveDialog as any
-      if (moveDialog && typeof moveDialog.reset === 'function') {
-        moveDialog.reset()
-      }
-    }
+    },
   },
 })
 </script>

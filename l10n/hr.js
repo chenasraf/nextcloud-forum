@@ -90,6 +90,7 @@ OC.L10N.register(
     "Category" : "Kategorija",
     "Allow" : "Dopusti",
     "ID" : "ID",
+    "Created" : "Stvoreno",
     "Actions" : "Radnje",
     "No users found" : "Nije pronađen nijedan korisnik",
     "Joined" : "Pridružen",

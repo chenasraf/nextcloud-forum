@@ -143,12 +143,14 @@ import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useCategories } from '@/composables/useCategories'
 
 export default defineComponent({
   name: 'CategoryView',
   setup() {
     const { userId } = useCurrentUser()
-    return { userId }
+    const { markCategoryAsRead } = useCategories()
+    return { userId, markCategoryAsReadLocal: markCategoryAsRead }
   },
   components: {
     NcButton,
@@ -222,6 +224,8 @@ export default defineComponent({
           await this.fetchThreads()
           // Fetch read markers after threads are loaded
           await this.fetchReadMarkers()
+          // Mark category as read for authenticated users
+          this.markCategoryAsRead()
         }
       } catch (e) {
         console.error('Failed to refresh', e)
@@ -304,6 +308,19 @@ export default defineComponent({
       }
     },
 
+    async markCategoryAsRead() {
+      if (this.userId === null || !this.category) {
+        return
+      }
+      // Update shared state immediately so back navigation shows as read
+      this.markCategoryAsReadLocal(this.category.id)
+      try {
+        await ocs.post('/read-markers', { categoryId: this.category.id })
+      } catch (e) {
+        console.debug('Failed to mark category as read', e)
+      }
+    },
+
     async fetchReadMarkers() {
       try {
         // Guests don't have read markers
@@ -317,7 +334,7 @@ export default defineComponent({
 
         const threadIds = this.threads.map((t) => t.id).join(',')
         const resp = await ocs.get<
-          Record<number, { threadId: number; lastReadPostId: number; readAt: number }>
+          Record<number, { entityId: number; lastReadPostId: number; readAt: number }>
         >('/read-markers', {
           params: { threadIds },
         })

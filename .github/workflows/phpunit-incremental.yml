@@ -15,9 +15,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  phpunit-incremental:
+  phpunit-incremental-v0-14-0:
     uses: chenasraf/workflows/.github/workflows/nextcloud-phpunit-incremental.yml@nextcloud-latest
     secrets: inherit
     with:
       baseline-version: 'v0.14.0'
+      validation-query: 'SELECT COUNT(*) FROM oc_forum_users'
+
+  phpunit-incremental-v0-22-8:
+    uses: chenasraf/workflows/.github/workflows/nextcloud-phpunit-incremental.yml@nextcloud-latest
+    secrets: inherit
+    with:
+      baseline-version: 'v0.22.8'
       validation-query: 'SELECT COUNT(*) FROM oc_forum_users'

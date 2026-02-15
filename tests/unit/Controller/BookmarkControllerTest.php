@@ -391,7 +391,7 @@ class BookmarkControllerTest extends TestCase {
 		$data = $response->getData();
 		$this->assertArrayHasKey('readMarkers', $data);
 		$this->assertArrayHasKey(1, $data['readMarkers']);
-		$this->assertEquals(1, $data['readMarkers'][1]['threadId']);
+		$this->assertEquals(1, $data['readMarkers'][1]['entityId']);
 		$this->assertEquals(5, $data['readMarkers'][1]['lastReadPostId']);
 	}
 
@@ -426,7 +426,8 @@ class BookmarkControllerTest extends TestCase {
 		$marker = new ReadMarker();
 		$marker->setId($id);
 		$marker->setUserId($userId);
-		$marker->setThreadId($threadId);
+		$marker->setEntityId($threadId);
+		$marker->setMarkerType(ReadMarker::TYPE_THREAD);
 		$marker->setLastReadPostId($lastReadPostId);
 		$marker->setReadAt(time());
 		return $marker;

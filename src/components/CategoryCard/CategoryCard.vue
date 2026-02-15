@@ -1,6 +1,7 @@
 <template>
-  <div class="category-card">
+  <div class="category-card" :class="{ unread: isUnread }">
     <div class="category-header">
+      <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
       <h4 class="category-name">{{ category.name }}</h4>
       <div class="category-stats">
         <span class="stat">
@@ -31,6 +32,10 @@ export default defineComponent({
       type: Object as PropType<Category>,
       required: true,
     },
+    isUnread: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -38,6 +43,7 @@ export default defineComponent({
         threads: (count: number) => t('forum', 'Threads'),
         replies: (count: number) => t('forum', 'Replies'),
         noDescription: t('forum', 'No description available'),
+        unread: t('forum', 'New activity'),
       },
     }
   },
@@ -57,9 +63,23 @@ export default defineComponent({
     cursor: inherit;
   }
 
+  &.unread {
+    border-left: 4px solid var(--color-primary-element);
+    background: var(--color-primary-element-light-hover);
+  }
+
   &:hover {
     border-color: var(--color-primary-element);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .unread-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary-element);
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .category-header {

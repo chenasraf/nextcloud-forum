@@ -945,7 +945,8 @@ class PostControllerTest extends TestCase {
 		// Mock read marker - last read post ID is 31
 		$readMarker = new ReadMarker();
 		$readMarker->setUserId('user1');
-		$readMarker->setThreadId($threadId);
+		$readMarker->setEntityId($threadId);
+		$readMarker->setMarkerType(ReadMarker::TYPE_THREAD);
 		$readMarker->setLastReadPostId(31);
 		$readMarker->setReadAt(time());
 
@@ -1017,7 +1018,8 @@ class PostControllerTest extends TestCase {
 		// Mock read marker - all posts read (last read = 50)
 		$readMarker = new ReadMarker();
 		$readMarker->setUserId('user1');
-		$readMarker->setThreadId($threadId);
+		$readMarker->setEntityId($threadId);
+		$readMarker->setMarkerType(ReadMarker::TYPE_THREAD);
 		$readMarker->setLastReadPostId(50);
 		$readMarker->setReadAt(time());
 

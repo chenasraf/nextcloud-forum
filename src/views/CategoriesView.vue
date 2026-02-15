@@ -45,6 +45,7 @@
               v-for="category in header.categories"
               :key="category.id"
               :category="category"
+              :is-unread="isCategoryUnread(category)"
               @click="navigateToCategory(category)"
             />
           </div>
@@ -69,6 +70,7 @@ import CategoryCard from '@/components/CategoryCard'
 import RefreshIcon from '@icons/Refresh.vue'
 import { useCategories } from '@/composables/useCategories'
 import { usePublicSettings } from '@/composables/usePublicSettings'
+import { useCurrentUser } from '@/composables/useCurrentUser'
 import type { Category } from '@/types'
 import { t } from '@nextcloud/l10n'
 
@@ -85,17 +87,21 @@ export default defineComponent({
     RefreshIcon,
   },
   setup() {
-    const { categoryHeaders, loading, fetchCategories, refresh } = useCategories()
+    const { categoryHeaders, loading, fetchCategories, refresh, markCategoryAsRead } =
+      useCategories()
     const { settings, loading: settingsLoading, fetchPublicSettings } = usePublicSettings()
+    const { userId } = useCurrentUser()
 
     return {
       categoryHeaders,
       loading,
       fetchCategories,
       refreshCategories: refresh,
+      markCategoryAsRead,
       publicSettings: settings,
       settingsLoading,
       fetchPublicSettings,
+      userId,
     }
   },
   data() {
@@ -134,7 +140,24 @@ export default defineComponent({
       }
     },
 
+    isCategoryUnread(category: Category): boolean {
+      if (this.userId === null) {
+        return false
+      }
+      const lastActivity = category.lastActivityAt
+      if (!lastActivity) {
+        return false
+      }
+      if (category.readAt == null) {
+        return true
+      }
+      return lastActivity > category.readAt
+    },
+
     navigateToCategory(category: Category) {
+      if (this.userId !== null) {
+        this.markCategoryAsRead(category.id)
+      }
       this.$router.push(`/c/${category.slug}`)
     },
   },

@@ -35,19 +35,34 @@ class ReadMarkerController extends OCSController {
 	 * Get read markers for multiple threads
 	 *
 	 * @param string $threadIds Array of thread IDs (comma-separated in query string)
-	 * @return DataResponse<Http::STATUS_OK, array<string, array{threadId: int, lastReadPostId: int, readAt: int}>, array{}>
+	 * @param string $markerType Marker type ('thread' or 'category')
+	 * @return DataResponse<Http::STATUS_OK, array<string, array{entityId: int, lastReadPostId: int|null, readAt: int}>, array{}>
 	 *
-	 * 200: Read markers returned (keyed by thread ID)
+	 * 200: Read markers returned (keyed by entity ID)
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/read-markers')]
-	public function index(string $threadIds = ''): DataResponse {
+	public function index(string $threadIds = '', string $markerType = 'thread'): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
+			// Category markers
+			if ($markerType === 'category') {
+				$markers = $this->readMarkerMapper->findCategoryMarkersByUserId($user->getUID());
+				$result = [];
+				foreach ($markers as $marker) {
+					$result[$marker->getEntityId()] = [
+						'entityId' => $marker->getEntityId(),
+						'readAt' => $marker->getReadAt(),
+					];
+				}
+				return new DataResponse($result);
+			}
+
+			// Thread markers (default)
 			// Parse thread IDs from query parameter
 			$threadIdArray = [];
 			if (!empty($threadIds)) {
@@ -59,8 +74,8 @@ class ReadMarkerController extends OCSController {
 				$markers = $this->readMarkerMapper->findByUserId($user->getUID());
 				$result = [];
 				foreach ($markers as $marker) {
-					$result[$marker->getThreadId()] = [
-						'threadId' => $marker->getThreadId(),
+					$result[$marker->getEntityId()] = [
+						'entityId' => $marker->getEntityId(),
 						'lastReadPostId' => $marker->getLastReadPostId(),
 						'readAt' => $marker->getReadAt(),
 					];
@@ -73,8 +88,8 @@ class ReadMarkerController extends OCSController {
 			// Convert to associative array keyed by thread ID for easier frontend lookup
 			$result = [];
 			foreach ($markers as $marker) {
-				$result[$marker->getThreadId()] = [
-					'threadId' => $marker->getThreadId(),
+				$result[$marker->getEntityId()] = [
+					'entityId' => $marker->getEntityId(),
 					'lastReadPostId' => $marker->getLastReadPostId(),
 					'readAt' => $marker->getReadAt(),
 				];
@@ -115,21 +130,36 @@ class ReadMarkerController extends OCSController {
 	}
 
 	/**
-	 * Mark a thread as read
+	 * Mark a thread or category as read
 	 *
 	 * @param int $threadId Thread ID
 	 * @param int $lastReadPostId Last read post ID
+	 * @param int|null $categoryId Category ID (if provided, creates a category marker instead)
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
-	 * 200: Thread marked as read
+	 * 200: Marked as read
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/read-markers')]
-	public function create(int $threadId, int $lastReadPostId): DataResponse {
+	public function create(int $threadId = 0, int $lastReadPostId = 0, ?int $categoryId = null): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+			}
+
+			// Category marker
+			if ($categoryId !== null) {
+				$marker = $this->readMarkerMapper->createOrUpdateCategoryMarker(
+					$user->getUID(),
+					$categoryId
+				);
+				return new DataResponse($marker->jsonSerialize());
+			}
+
+			// Thread marker (default)
+			if ($threadId === 0 || $lastReadPostId === 0) {
+				return new DataResponse(['error' => 'threadId and lastReadPostId are required'], Http::STATUS_BAD_REQUEST);
 			}
 
 			$marker = $this->readMarkerMapper->createOrUpdate(
@@ -152,8 +182,8 @@ class ReadMarkerController extends OCSController {
 
 			return new DataResponse($marker->jsonSerialize());
 		} catch (\Exception $e) {
-			$this->logger->error('Error marking thread as read: ' . $e->getMessage());
-			return new DataResponse(['error' => 'Failed to mark thread as read'], Http::STATUS_INTERNAL_SERVER_ERROR);
+			$this->logger->error('Error marking as read: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to mark as read'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 

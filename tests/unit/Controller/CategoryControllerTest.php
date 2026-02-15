@@ -12,6 +12,7 @@ use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeader;
 use OCA\Forum\Db\CatHeaderMapper;
+use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
@@ -36,6 +37,8 @@ class CategoryControllerTest extends TestCase {
 	private CategoryPermMapper $categoryPermMapper;
 	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
+	/** @var ReadMarkerMapper&MockObject */
+	private ReadMarkerMapper $readMarkerMapper;
 	/** @var RoleMapper&MockObject */
 	private RoleMapper $roleMapper;
 	/** @var IUserSession&MockObject */
@@ -53,6 +56,7 @@ class CategoryControllerTest extends TestCase {
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
 		$this->categoryPermMapper = $this->createMock(CategoryPermMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
+		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->roleMapper = $this->createMock(RoleMapper::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
@@ -65,6 +69,7 @@ class CategoryControllerTest extends TestCase {
 			$this->categoryMapper,
 			$this->categoryPermMapper,
 			$this->threadMapper,
+			$this->readMarkerMapper,
 			$this->roleMapper,
 			$this->userSession,
 			$this->groupManager,

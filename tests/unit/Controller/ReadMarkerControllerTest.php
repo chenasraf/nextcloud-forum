@@ -97,7 +97,7 @@ class ReadMarkerControllerTest extends TestCase {
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
-		$this->assertEquals($threadId, $data['threadId']);
+		$this->assertEquals($threadId, $data['entityId']);
 		$this->assertEquals(10, $data['lastReadPostId']);
 	}
 
@@ -151,7 +151,7 @@ class ReadMarkerControllerTest extends TestCase {
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
-		$this->assertEquals($threadId, $data['threadId']);
+		$this->assertEquals($threadId, $data['entityId']);
 		$this->assertEquals($lastReadPostId, $data['lastReadPostId']);
 	}
 
@@ -180,7 +180,7 @@ class ReadMarkerControllerTest extends TestCase {
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
-		$this->assertEquals($threadId, $data['threadId']);
+		$this->assertEquals($threadId, $data['entityId']);
 	}
 
 	public function testCreateReturnsUnauthorizedWhenUserNotAuthenticated(): void {
@@ -232,7 +232,8 @@ class ReadMarkerControllerTest extends TestCase {
 		$marker = new ReadMarker();
 		$marker->setId($id);
 		$marker->setUserId($userId);
-		$marker->setThreadId($threadId);
+		$marker->setEntityId($threadId);
+		$marker->setMarkerType(ReadMarker::TYPE_THREAD);
 		$marker->setLastReadPostId($lastReadPostId);
 		$marker->setReadAt(time());
 		return $marker;

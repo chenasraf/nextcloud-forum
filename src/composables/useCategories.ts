@@ -57,6 +57,22 @@ export function useCategories() {
   }
 
   /**
+   * Mark a category as read in the local state
+   * Updates the readAt timestamp so the category appears read without refetching
+   */
+  const markCategoryAsRead = (categoryId: number): void => {
+    for (const header of categoryHeaders.value) {
+      if (!header.categories) continue
+      for (const category of header.categories) {
+        if (category.id === categoryId) {
+          category.readAt = Math.floor(Date.now() / 1000)
+          return
+        }
+      }
+    }
+  }
+
+  /**
    * Clear cached categories
    */
   const clear = (): void => {
@@ -76,5 +92,6 @@ export function useCategories() {
     fetchCategories,
     refresh,
     clear,
+    markCategoryAsRead,
   }
 }

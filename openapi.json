@@ -1768,12 +1768,12 @@
                                                             "additionalProperties": {
                                                                 "type": "object",
                                                                 "required": [
-                                                                    "threadId",
+                                                                    "entityId",
                                                                     "lastReadPostId",
                                                                     "readAt"
                                                                 ],
                                                                 "properties": {
-                                                                    "threadId": {
+                                                                    "entityId": {
                                                                         "type": "integer",
                                                                         "format": "int64"
                                                                     },
@@ -6238,6 +6238,15 @@
                         }
                     },
                     {
+                        "name": "markerType",
+                        "in": "query",
+                        "description": "Marker type ('thread' or 'category')",
+                        "schema": {
+                            "type": "string",
+                            "default": "thread"
+                        }
+                    },
+                    {
                         "name": "OCS-APIRequest",
                         "in": "header",
                         "description": "Required to be true for the API request to pass",
@@ -6250,7 +6259,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Read markers returned (keyed by thread ID)",
+                        "description": "Read markers returned (keyed by entity ID)",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6274,18 +6283,19 @@
                                                     "additionalProperties": {
                                                         "type": "object",
                                                         "required": [
-                                                            "threadId",
+                                                            "entityId",
                                                             "lastReadPostId",
                                                             "readAt"
                                                         ],
                                                         "properties": {
-                                                            "threadId": {
+                                                            "entityId": {
                                                                 "type": "integer",
                                                                 "format": "int64"
                                                             },
                                                             "lastReadPostId": {
                                                                 "type": "integer",
-                                                                "format": "int64"
+                                                                "format": "int64",
+                                                                "nullable": true
                                                             },
                                                             "readAt": {
                                                                 "type": "integer",
@@ -6333,7 +6343,7 @@
             },
             "post": {
                 "operationId": "read_marker-create",
-                "summary": "Mark a thread as read",
+                "summary": "Mark a thread or category as read",
                 "tags": [
                     "read_marker"
                 ],
@@ -6346,25 +6356,30 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true,
+                    "required": false,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": [
-                                    "threadId",
-                                    "lastReadPostId"
-                                ],
                                 "properties": {
                                     "threadId": {
                                         "type": "integer",
                                         "format": "int64",
+                                        "default": 0,
                                         "description": "Thread ID"
                                     },
                                     "lastReadPostId": {
                                         "type": "integer",
                                         "format": "int64",
+                                        "default": 0,
                                         "description": "Last read post ID"
+                                    },
+                                    "categoryId": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Category ID (if provided, creates a category marker instead)"
                                     }
                                 }
                             }
@@ -6385,7 +6400,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Thread marked as read",
+                        "description": "Marked as read",
                         "content": {
                             "application/json": {
                                 "schema": {

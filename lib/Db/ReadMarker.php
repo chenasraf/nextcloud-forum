@@ -16,23 +16,30 @@ use OCP\AppFramework\Db\Entity;
  * @method void setId(int $value)
  * @method string getUserId()
  * @method void setUserId(string $value)
- * @method int getThreadId()
- * @method void setThreadId(int $value)
- * @method int getLastReadPostId()
- * @method void setLastReadPostId(int $value)
+ * @method int getEntityId()
+ * @method void setEntityId(int $value)
+ * @method string getMarkerType()
+ * @method void setMarkerType(string $value)
+ * @method int|null getLastReadPostId()
+ * @method void setLastReadPostId(?int $value)
  * @method int getReadAt()
  * @method void setReadAt(int $value)
  */
 class ReadMarker extends Entity implements JsonSerializable {
+	public const TYPE_THREAD = 'thread';
+	public const TYPE_CATEGORY = 'category';
+
 	protected $userId;
-	protected $threadId;
+	protected $entityId;
+	protected $markerType;
 	protected $lastReadPostId;
 	protected $readAt;
 
 	public function __construct() {
 		$this->addType('id', 'integer');
 		$this->addType('userId', 'string');
-		$this->addType('threadId', 'integer');
+		$this->addType('entityId', 'integer');
+		$this->addType('markerType', 'string');
 		$this->addType('lastReadPostId', 'integer');
 		$this->addType('readAt', 'integer');
 	}
@@ -41,7 +48,8 @@ class ReadMarker extends Entity implements JsonSerializable {
 		return [
 			'id' => $this->getId(),
 			'userId' => $this->getUserId(),
-			'threadId' => $this->getThreadId(),
+			'entityId' => $this->getEntityId(),
+			'markerType' => $this->getMarkerType(),
 			'lastReadPostId' => $this->getLastReadPostId(),
 			'readAt' => $this->getReadAt(),
 		];

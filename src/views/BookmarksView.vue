@@ -198,7 +198,7 @@ export default defineComponent({
             total: number
             totalPages: number
           }
-          readMarkers: Record<number, { threadId: number; lastReadPostId: number; readAt: number }>
+          readMarkers: Record<number, { entityId: number; lastReadPostId: number; readAt: number }>
         }
 
         const resp = await ocs.get<BookmarksResponse>('/bookmarks', {

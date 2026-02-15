@@ -221,6 +221,31 @@ class ThreadMapper extends QBMapper {
 	}
 
 	/**
+	 * Get last activity timestamp (max updated_at) per category
+	 *
+	 * @return array<int, int> categoryId => lastActivityTimestamp
+	 */
+	public function getLastActivityByCategories(): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('category_id')
+			->selectAlias($qb->func()->max('updated_at'), 'last_activity')
+			->from($this->getTableName())
+			->where($qb->expr()->isNull('deleted_at'))
+			->andWhere($qb->expr()->eq('is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->groupBy('category_id');
+
+		$result = $qb->executeQuery();
+		$rows = $result->fetchAll();
+		$result->closeCursor();
+
+		$map = [];
+		foreach ($rows as $row) {
+			$map[(int)$row['category_id']] = (int)$row['last_activity'];
+		}
+		return $map;
+	}
+
+	/**
 	 * Find recent threads in specified categories
 	 *
 	 * @param array<int> $categoryIds Category IDs to filter by

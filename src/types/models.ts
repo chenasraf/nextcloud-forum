@@ -14,6 +14,8 @@ export interface Category {
   postCount: number
   createdAt: number
   updatedAt: number
+  lastActivityAt?: number | null
+  readAt?: number | null
 }
 
 export interface CategoryHeader {
@@ -106,8 +108,9 @@ export interface BBCode {
 export interface ReadMarker {
   id: number
   userId: string
-  threadId: number
-  lastReadPostId: number
+  entityId: number
+  markerType: string
+  lastReadPostId: number | null
   readAt: number
 }
 

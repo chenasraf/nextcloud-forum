@@ -52,7 +52,10 @@ class ReadMarkerMapper extends QBMapper {
 				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
 			)
 			->andWhere(
-				$qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT))
+				$qb->expr()->eq('marker_type', $qb->createNamedParameter(ReadMarker::TYPE_THREAD, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('entity_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT))
 			);
 		return $this->findEntity($qb);
 	}
@@ -67,6 +70,9 @@ class ReadMarkerMapper extends QBMapper {
 			->from($this->getTableName())
 			->where(
 				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('marker_type', $qb->createNamedParameter(ReadMarker::TYPE_THREAD, IQueryBuilder::PARAM_STR))
 			);
 		return $this->findEntities($qb);
 	}
@@ -91,7 +97,10 @@ class ReadMarkerMapper extends QBMapper {
 				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
 			)
 			->andWhere(
-				$qb->expr()->in('thread_id', $qb->createNamedParameter($threadIds, IQueryBuilder::PARAM_INT_ARRAY))
+				$qb->expr()->eq('marker_type', $qb->createNamedParameter(ReadMarker::TYPE_THREAD, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->in('entity_id', $qb->createNamedParameter($threadIds, IQueryBuilder::PARAM_INT_ARRAY))
 			);
 		return $this->findEntities($qb);
 	}
@@ -119,8 +128,62 @@ class ReadMarkerMapper extends QBMapper {
 			// Create new marker
 			$marker = new ReadMarker();
 			$marker->setUserId($userId);
-			$marker->setThreadId($threadId);
+			$marker->setEntityId($threadId);
+			$marker->setMarkerType(ReadMarker::TYPE_THREAD);
 			$marker->setLastReadPostId($lastReadPostId);
+			$marker->setReadAt(time());
+			return $this->insert($marker);
+		}
+	}
+
+	/**
+	 * Find all category read markers for a user
+	 *
+	 * @return array<ReadMarker>
+	 */
+	public function findCategoryMarkersByUserId(string $userId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('marker_type', $qb->createNamedParameter(ReadMarker::TYPE_CATEGORY, IQueryBuilder::PARAM_STR))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Create or update a category read marker
+	 */
+	public function createOrUpdateCategoryMarker(string $userId, int $categoryId): ReadMarker {
+		try {
+			// Try to find existing marker
+			$qb = $this->db->getQueryBuilder();
+			$qb->select('*')
+				->from($this->getTableName())
+				->where(
+					$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
+				)
+				->andWhere(
+					$qb->expr()->eq('marker_type', $qb->createNamedParameter(ReadMarker::TYPE_CATEGORY, IQueryBuilder::PARAM_STR))
+				)
+				->andWhere(
+					$qb->expr()->eq('entity_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
+				);
+			$marker = $this->findEntity($qb);
+
+			// Always update the timestamp
+			$marker->setReadAt(time());
+			return $this->update($marker);
+		} catch (DoesNotExistException $e) {
+			// Create new marker
+			$marker = new ReadMarker();
+			$marker->setUserId($userId);
+			$marker->setEntityId($categoryId);
+			$marker->setMarkerType(ReadMarker::TYPE_CATEGORY);
+			$marker->setLastReadPostId(null);
 			$marker->setReadAt(time());
 			return $this->insert($marker);
 		}

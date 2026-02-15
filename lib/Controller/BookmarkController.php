@@ -121,7 +121,7 @@ class BookmarkController extends OCSController {
 	 *
 	 * @param int $page Page number (1-indexed)
 	 * @param int $perPage Number of threads per page
-	 * @return DataResponse<Http::STATUS_OK, array{threads: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int}, readMarkers: array<string, array{threadId: int, lastReadPostId: int, readAt: int}>}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{threads: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int}, readMarkers: array<string, array{entityId: int, lastReadPostId: int, readAt: int}>}, array{}>
 	 *
 	 * 200: Bookmarked threads returned with pagination and read markers
 	 */
@@ -197,8 +197,8 @@ class BookmarkController extends OCSController {
 			$readMarkers = [];
 			$markers = $this->readMarkerMapper->findByUserAndThreads($userId, $threadIds);
 			foreach ($markers as $marker) {
-				$readMarkers[$marker->getThreadId()] = [
-					'threadId' => $marker->getThreadId(),
+				$readMarkers[$marker->getEntityId()] = [
+					'entityId' => $marker->getEntityId(),
 					'lastReadPostId' => $marker->getLastReadPostId(),
 					'readAt' => $marker->getReadAt(),
 				];

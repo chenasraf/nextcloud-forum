@@ -12,6 +12,7 @@ use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeaderMapper;
+use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
@@ -35,6 +36,7 @@ class CategoryController extends OCSController {
 		private CategoryMapper $categoryMapper,
 		private CategoryPermMapper $categoryPermMapper,
 		private ThreadMapper $threadMapper,
+		private ReadMarkerMapper $readMarkerMapper,
 		private RoleMapper $roleMapper,
 		private IUserSession $userSession,
 		private IGroupManager $groupManager,
@@ -55,9 +57,20 @@ class CategoryController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/categories')]
 	public function index(): DataResponse {
 		try {
-			// Fetch all headers and categories in just 2 queries
+			// Fetch all headers, categories, and last activity timestamps
 			$headers = $this->catHeaderMapper->findAll();
 			$allCategories = $this->categoryMapper->findAll();
+			$lastActivityMap = $this->threadMapper->getLastActivityByCategories();
+
+			// Fetch category read markers for authenticated users
+			$readMarkerMap = [];
+			$user = $this->userSession->getUser();
+			if ($user) {
+				$markers = $this->readMarkerMapper->findCategoryMarkersByUserId($user->getUID());
+				foreach ($markers as $marker) {
+					$readMarkerMap[$marker->getEntityId()] = $marker->getReadAt();
+				}
+			}
 
 			// Group categories by header_id
 			$categoriesByHeader = [];
@@ -66,7 +79,10 @@ class CategoryController extends OCSController {
 				if (!isset($categoriesByHeader[$headerId])) {
 					$categoriesByHeader[$headerId] = [];
 				}
-				$categoriesByHeader[$headerId][] = $category->jsonSerialize();
+				$categoryData = $category->jsonSerialize();
+				$categoryData['lastActivityAt'] = $lastActivityMap[$category->getId()] ?? null;
+				$categoryData['readAt'] = $readMarkerMap[$category->getId()] ?? null;
+				$categoriesByHeader[$headerId][] = $categoryData;
 			}
 
 			// Build result with nested categories

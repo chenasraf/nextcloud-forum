@@ -126,6 +126,7 @@ OC.L10N.register(
     "Threads" : "Jutulõngad",
     "Replies" : "Vastused",
     "No description available" : "Kirjeldust pole saadaval",
+    "New activity" : "Uus tegevus",
     "Create category header" : "Lisa kategooria päis",
     "Edit category header" : "Muuda kategooria päist",
     "Header name" : "Kategooria päise nimi",

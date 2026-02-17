@@ -127,6 +127,7 @@ OC.L10N.register(
     "Threads" : "Threads",
     "Replies" : "Replies",
     "No description available" : "No description available",
+    "New activity" : "New activity",
     "Create category header" : "Create category header",
     "Edit category header" : "Edit category header",
     "Header name" : "Header name",

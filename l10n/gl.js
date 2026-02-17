@@ -127,6 +127,7 @@ OC.L10N.register(
     "Threads" : "Fíos",
     "Replies" : "Respostas",
     "No description available" : "Non hai ningunha descrición dispoñíbel",
+    "New activity" : "Nova actividade",
     "Create category header" : "Crear a cabeceira de categoría",
     "Edit category header" : "Editar a cabeceira de categoría",
     "Header name" : "Nome da cabeceira",

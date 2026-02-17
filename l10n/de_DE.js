@@ -127,6 +127,7 @@ OC.L10N.register(
     "Threads" : "Themen",
     "Replies" : "Antworten",
     "No description available" : "Keine Beschreibung verfügbar",
+    "New activity" : "Neue Aktivität",
     "Create category header" : "Kategorieüberschrift erstellen",
     "Edit category header" : "Kategorieüberschrift bearbeiten",
     "Header name" : "Name der Überschrift",

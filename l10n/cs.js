@@ -126,6 +126,7 @@ OC.L10N.register(
     "Threads" : "Vláken",
     "Replies" : "Odpovědi",
     "No description available" : "Není k dispozici žádný popis",
+    "New activity" : "Nová aktivita",
     "Create category header" : "Vytvořit záhlaví kategorie",
     "Edit category header" : "Upravit záhlaví kategorie",
     "Header name" : "Název záhlaví",

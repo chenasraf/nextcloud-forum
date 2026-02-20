@@ -127,6 +127,7 @@ OC.L10N.register(
     "Threads" : "Fios",
     "Replies" : "Respostas",
     "No description available" : "Sem descrição disponível",
+    "New activity" : "Nova atividade",
     "Create category header" : "Criar cabeçalho da categoria",
     "Edit category header" : "Editar cabeçalho da categoria",
     "Header name" : "Nome do cabeçalho",

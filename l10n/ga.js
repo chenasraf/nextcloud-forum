@@ -127,6 +127,7 @@ OC.L10N.register(
     "Threads" : "Snáitheanna",
     "Replies" : "Freagraí",
     "No description available" : "Níl aon chur síos ar fáil",
+    "New activity" : "Gníomhaíocht nua",
     "Create category header" : "Cruthaigh ceanntásc catagóire",
     "Edit category header" : "Cuir ceanntásc na catagóire in eagar",
     "Header name" : "Ainm an cheanntásca",

@@ -9,9 +9,6 @@
 
 /node_modules/
 /dist
-/js
-/css/*
-!/css/dashboard.css
 .DS_Store
 build/
 tsconfig.app.tsbuildinfo

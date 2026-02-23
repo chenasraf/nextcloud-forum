@@ -1,7 +1,4 @@
 {
-  "plugins": [
-    "prettier-plugin-vue"
-  ],
   "printWidth": 100,
   "semi": false,
   "singleQuote": true,

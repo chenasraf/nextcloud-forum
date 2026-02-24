@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.23.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.23.0...v0.23.1) (2026-02-24)
+
+
+### Bug Fixes
+
+* **build:** dir structure ([4ddd460](https://github.com/chenasraf/nextcloud-forum/commit/4ddd460464f0c568970245df4246a43c8824d1bb))
+* **l10n:** Update translations from Transifex ([b1c610d](https://github.com/chenasraf/nextcloud-forum/commit/b1c610df22747d2ef0f4ab2cdc8c357aff4cefb5))
+* **l10n:** Update translations from Transifex ([9e4c7c5](https://github.com/chenasraf/nextcloud-forum/commit/9e4c7c53bd416e3518375bf2be14247c059aedb0))
+* **l10n:** Update translations from Transifex ([d93c044](https://github.com/chenasraf/nextcloud-forum/commit/d93c044a0165627a2550e0f05ce9db173ce294fa))
+* **l10n:** Update translations from Transifex ([047c89f](https://github.com/chenasraf/nextcloud-forum/commit/047c89f693a41b86f05af514da6d1e6cec6733b6))
+* **l10n:** Update translations from Transifex ([daf350c](https://github.com/chenasraf/nextcloud-forum/commit/daf350c3853b33e9e1f2a31642dfc8707312ce65))
+* **l10n:** Update translations from Transifex ([3c1425f](https://github.com/chenasraf/nextcloud-forum/commit/3c1425fc45fbc494ff83ea509eab6aeddcd1dc02))
+
 ## [0.23.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.22.8...v0.23.0) (2026-02-17)
 
 

@@ -127,6 +127,7 @@ OC.L10N.register(
     "Threads" : "討論串",
     "Replies" : "回覆",
     "No description available" : "無描述",
+    "New activity" : "新活動",
     "Create category header" : "建立分類標題",
     "Edit category header" : "編輯分類標題",
     "Header name" : "標題名稱",

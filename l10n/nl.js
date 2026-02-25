@@ -4,6 +4,7 @@ OC.L10N.register(
     "Admin" : "Beheer",
     "Moderator" : "Beheerder",
     "User" : "Gebruiker",
+    "Guest" : "Gast",
     "General" : "Algemeen",
     "Support" : "Ondersteuning",
     "Bold text" : "Vette tekst",

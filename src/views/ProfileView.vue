@@ -28,7 +28,7 @@
 
     <div class="profile-view">
       <!-- Loading state -->
-      <div class="center mt-16" v-if="loading">
+      <div class="center center-padded mt-16" v-if="loading">
         <NcLoadingIcon :size="32" />
         <span class="muted ml-8">{{ strings.loading }}</span>
       </div>
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Tabs -->
-        <div class="profile-tabs mt-24">
+        <div class="profile-tabs mt-24 mt-24-responsive">
           <div class="tabs-header">
             <button
               class="tab-button"
@@ -372,10 +372,7 @@ export default defineComponent({
     padding: 0 8px;
   }
 
-  .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .center-padded {
     padding: 32px;
 
     @media (max-width: 768px) {
@@ -383,24 +380,12 @@ export default defineComponent({
     }
   }
 
-  .ml-8 {
-    margin-left: 8px;
-  }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-
-  .mt-24 {
+  .mt-24-responsive {
     margin-top: 24px;
 
     @media (max-width: 768px) {
       margin-top: 16px;
     }
-  }
-
-  .muted {
-    color: var(--color-text-maxcontrast);
   }
 
   .user-header {

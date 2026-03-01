@@ -213,9 +213,4 @@ export default defineComponent({
     }
   }
 }
-
-.muted {
-  color: var(--color-text-maxcontrast);
-  opacity: 0.7;
-}
 </style>

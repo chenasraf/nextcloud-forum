@@ -665,14 +665,14 @@ export default defineComponent({
           canAccessAdminTools: this.isAdmin
             ? true
             : this.isGuest
-            ? false
-            : this.formData.canAccessAdminTools,
+              ? false
+              : this.formData.canAccessAdminTools,
           canEditRoles: this.isAdmin ? true : this.isGuest ? false : this.formData.canEditRoles,
           canEditCategories: this.isAdmin
             ? true
             : this.isGuest
-            ? false
-            : this.formData.canEditCategories,
+              ? false
+              : this.formData.canEditCategories,
         }
 
         let roleId: number
@@ -743,25 +743,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .admin-role-edit {
-  .muted {
-    color: var(--color-text-maxcontrast);
-    opacity: 0.7;
-  }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-
-  .ml-8 {
-    margin-left: 8px;
-  }
-
-  .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .page-header {
     margin-bottom: 24px;
 

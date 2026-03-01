@@ -351,25 +351,6 @@ export default defineComponent({
     }
   }
 
-  .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .muted {
-    color: var(--color-text-maxcontrast);
-    opacity: 0.7;
-  }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-
-  .ml-8 {
-    margin-left: 8px;
-  }
-
   .results-section {
     .results-header {
       margin: 0 0 16px 0;

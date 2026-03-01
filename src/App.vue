@@ -96,11 +96,6 @@ export default defineComponent({
   h2 {
     margin: 0 0 6px 0;
   }
-
-  .muted {
-    color: var(--color-text-maxcontrast);
-    opacity: 0.7;
-  }
 }
 
 #forum-router {

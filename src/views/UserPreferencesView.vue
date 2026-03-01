@@ -308,25 +308,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .user-preferences-view {
-  .muted {
-    color: var(--color-text-maxcontrast);
-    opacity: 0.7;
-  }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-
-  .ml-8 {
-    margin-left: 8px;
-  }
-
-  .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .page-header {
     margin-bottom: 24px;
 
@@ -336,7 +317,6 @@ export default defineComponent({
   }
 
   .preferences-form {
-
     .form-section {
       margin-bottom: 32px;
       padding: 24px;

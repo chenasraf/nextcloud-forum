@@ -278,33 +278,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .admin-dashboard {
-  .muted {
-    color: var(--color-text-maxcontrast);
-    opacity: 0.7;
-  }
-
-  .mt-8 {
-    margin-top: 8px;
-  }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-
-  .mt-24 {
-    margin-top: 24px;
-  }
-
-  .ml-8 {
-    margin-left: 8px;
-  }
-
-  .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .page-header {
     margin-bottom: 24px;
 

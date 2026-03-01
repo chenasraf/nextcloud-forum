@@ -53,10 +53,6 @@ export default defineComponent({
   border-radius: 8px;
   border: 1px solid var(--color-border);
   margin-bottom: 16px;
-
-  .mt-8 {
-    margin-top: 8px;
-  }
 }
 
 .page-title {

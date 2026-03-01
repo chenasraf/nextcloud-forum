@@ -236,25 +236,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .admin-general-settings {
-  .muted {
-    color: var(--color-text-maxcontrast);
-    opacity: 0.7;
-  }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-
-  .ml-8 {
-    margin-left: 8px;
-  }
-
-  .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .page-header {
     margin-bottom: 24px;
 
@@ -264,7 +245,6 @@ export default defineComponent({
   }
 
   .settings-form {
-
     .form-section {
       margin-bottom: 32px;
       padding: 24px;
@@ -278,7 +258,7 @@ export default defineComponent({
         font-weight: 600;
       }
 
-      >p {
+      > p {
         margin: 0 0 20px 0;
         font-size: 0.9rem;
       }

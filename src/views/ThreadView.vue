@@ -1120,34 +1120,6 @@ export default defineComponent({
 .thread-view {
   margin-bottom: 3rem;
 
-  .muted {
-    color: var(--color-text-maxcontrast);
-    opacity: 0.7;
-  }
-
-  .mt-8 {
-    margin-top: 8px;
-  }
-
-  .mt-12 {
-    margin-top: 12px;
-  }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-
-  .ml-8 {
-    margin-left: 8px;
-  }
-
-  .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-
   .thread-header {
     padding: 20px;
     background: var(--color-background-hover);

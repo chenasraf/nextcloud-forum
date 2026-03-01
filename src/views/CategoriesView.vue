@@ -166,33 +166,6 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .categories-view {
-  .muted {
-    color: var(--color-text-maxcontrast);
-    opacity: 0.7;
-  }
-
-  .mt-8 {
-    margin-top: 8px;
-  }
-
-  .mt-12 {
-    margin-top: 12px;
-  }
-
-  .mt-16 {
-    margin-top: 16px;
-  }
-
-  .ml-8 {
-    margin-left: 8px;
-  }
-
-  .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .view-title {
     margin: 0;
     font-size: 1.5rem;

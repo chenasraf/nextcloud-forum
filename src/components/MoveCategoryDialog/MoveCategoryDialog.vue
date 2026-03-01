@@ -248,10 +248,6 @@ export default defineComponent({
   .category-select {
     width: 100%;
   }
-
-  .mt-12 {
-    margin-top: 12px;
-  }
 }
 
 .category-option {

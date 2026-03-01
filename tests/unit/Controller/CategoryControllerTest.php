@@ -18,8 +18,6 @@ use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
-use OCP\IGroup;
-use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -43,8 +41,6 @@ class CategoryControllerTest extends TestCase {
 	private RoleMapper $roleMapper;
 	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
-	/** @var IGroupManager&MockObject */
-	private IGroupManager $groupManager;
 	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 	/** @var IRequest&MockObject */
@@ -59,7 +55,6 @@ class CategoryControllerTest extends TestCase {
 		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->roleMapper = $this->createMock(RoleMapper::class);
 		$this->userSession = $this->createMock(IUserSession::class);
-		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->controller = new CategoryController(
@@ -72,7 +67,6 @@ class CategoryControllerTest extends TestCase {
 			$this->readMarkerMapper,
 			$this->roleMapper,
 			$this->userSession,
-			$this->groupManager,
 			$this->logger
 		);
 	}
@@ -448,9 +442,6 @@ class CategoryControllerTest extends TestCase {
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
 
-		// User is not an admin
-		$this->groupManager->method('get')->with('admin')->willReturn(null);
-
 		// User has a role
 		$role = new Role();
 		$role->setId(1);
@@ -465,7 +456,8 @@ class CategoryControllerTest extends TestCase {
 		$categoryPerm = new CategoryPerm();
 		$categoryPerm->setId(1);
 		$categoryPerm->setCategoryId($categoryId);
-		$categoryPerm->setRoleId(1);
+		$categoryPerm->setTargetType('role');
+		$categoryPerm->setTargetId('1');
 		$categoryPerm->setCanView(true);
 		$categoryPerm->setCanPost(false);
 		$categoryPerm->setCanReply(false);
@@ -492,8 +484,6 @@ class CategoryControllerTest extends TestCase {
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
 
-		$this->groupManager->method('get')->with('admin')->willReturn(null);
-
 		$role = new Role();
 		$role->setId(1);
 		$role->setName('User');
@@ -506,7 +496,8 @@ class CategoryControllerTest extends TestCase {
 		$categoryPerm = new CategoryPerm();
 		$categoryPerm->setId(1);
 		$categoryPerm->setCategoryId($categoryId);
-		$categoryPerm->setRoleId(1);
+		$categoryPerm->setTargetType('role');
+		$categoryPerm->setTargetId('1');
 		$categoryPerm->setCanView(true);
 		$categoryPerm->setCanPost(false);
 		$categoryPerm->setCanReply(false);
@@ -533,10 +524,16 @@ class CategoryControllerTest extends TestCase {
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
 
-		// User is in admin group
-		$adminGroup = $this->createMock(IGroup::class);
-		$adminGroup->method('inGroup')->with($user)->willReturn(true);
-		$this->groupManager->method('get')->with('admin')->willReturn($adminGroup);
+		// User has Admin role
+		$adminRole = new Role();
+		$adminRole->setId(1);
+		$adminRole->setName('Admin');
+		$adminRole->setRoleType(Role::ROLE_TYPE_ADMIN);
+
+		$this->roleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$adminRole]);
 
 		$response = $this->controller->checkPermission($categoryId, $permission);
 
@@ -552,7 +549,8 @@ class CategoryControllerTest extends TestCase {
 		$perm1 = new CategoryPerm();
 		$perm1->setId(1);
 		$perm1->setCategoryId($categoryId);
-		$perm1->setRoleId(2);
+		$perm1->setTargetType('role');
+		$perm1->setTargetId('2');
 		$perm1->setCanView(true);
 		$perm1->setCanPost(true);
 		$perm1->setCanReply(true);
@@ -561,7 +559,8 @@ class CategoryControllerTest extends TestCase {
 		$perm2 = new CategoryPerm();
 		$perm2->setId(2);
 		$perm2->setCategoryId($categoryId);
-		$perm2->setRoleId(3);
+		$perm2->setTargetType('role');
+		$perm2->setTargetId('3');
 		$perm2->setCanView(true);
 		$perm2->setCanPost(false);
 		$perm2->setCanReply(false);
@@ -578,7 +577,8 @@ class CategoryControllerTest extends TestCase {
 		$data = $response->getData();
 		$this->assertIsArray($data);
 		$this->assertCount(2, $data);
-		$this->assertEquals(2, $data[0]['roleId']);
+		$this->assertEquals('role', $data[0]['targetType']);
+		$this->assertEquals('2', $data[0]['targetId']);
 		$this->assertTrue($data[0]['canView']);
 		$this->assertFalse($data[0]['canModerate']);
 	}
@@ -665,7 +665,7 @@ class CategoryControllerTest extends TestCase {
 			->method('insert')
 			->willReturnCallback(function ($perm) {
 				// Verify that Admin role (ID 1) is never inserted
-				$this->assertNotEquals(1, $perm->getRoleId());
+				$this->assertNotEquals('1', $perm->getTargetId());
 				return $perm;
 			});
 
@@ -758,7 +758,7 @@ class CategoryControllerTest extends TestCase {
 			->method('insert')
 			->willReturnCallback(function ($perm) use ($guestRoleId, $categoryId) {
 				$this->assertEquals($categoryId, $perm->getCategoryId());
-				$this->assertEquals($guestRoleId, $perm->getRoleId());
+				$this->assertEquals((string)$guestRoleId, $perm->getTargetId());
 				$this->assertTrue($perm->getCanView());
 				// Verify guest role never has moderate permission, even if requested
 				$this->assertFalse($perm->getCanModerate());
@@ -808,7 +808,7 @@ class CategoryControllerTest extends TestCase {
 			->method('insert')
 			->willReturnCallback(function ($perm) use ($moderatorRoleId, $categoryId) {
 				$this->assertEquals($categoryId, $perm->getCategoryId());
-				$this->assertEquals($moderatorRoleId, $perm->getRoleId());
+				$this->assertEquals((string)$moderatorRoleId, $perm->getTargetId());
 				$this->assertTrue($perm->getCanView());
 				// Verify non-guest role CAN have moderate permission
 				$this->assertTrue($perm->getCanModerate());
@@ -858,7 +858,7 @@ class CategoryControllerTest extends TestCase {
 			->method('insert')
 			->willReturnCallback(function ($perm) use ($defaultRoleId, $categoryId) {
 				$this->assertEquals($categoryId, $perm->getCategoryId());
-				$this->assertEquals($defaultRoleId, $perm->getRoleId());
+				$this->assertEquals((string)$defaultRoleId, $perm->getTargetId());
 				$this->assertTrue($perm->getCanView());
 				// Verify default role never has moderate permission, even if requested
 				$this->assertFalse($perm->getCanModerate());

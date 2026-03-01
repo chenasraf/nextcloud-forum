@@ -40,6 +40,27 @@ class CategoryPermMapper extends QBMapper {
 	}
 
 	/**
+	 * Find permissions by team (circle) ID
+	 *
+	 * @return array<CategoryPerm>
+	 */
+	public function findByTeamId(string $teamId): array {
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('target_type', $qb->createNamedParameter(CategoryPerm::TARGET_TYPE_TEAM, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('target_id', $qb->createNamedParameter($teamId, IQueryBuilder::PARAM_STR))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find permissions by role ID
+	 *
 	 * @return array<CategoryPerm>
 	 */
 	public function findByRoleId(int $roleId): array {
@@ -48,7 +69,10 @@ class CategoryPermMapper extends QBMapper {
 		$qb->select('*')
 			->from($this->getTableName())
 			->where(
-				$qb->expr()->eq('role_id', $qb->createNamedParameter($roleId, IQueryBuilder::PARAM_INT))
+				$qb->expr()->eq('target_type', $qb->createNamedParameter(CategoryPerm::TARGET_TYPE_ROLE, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('target_id', $qb->createNamedParameter((string)$roleId, IQueryBuilder::PARAM_STR))
 			);
 		return $this->findEntities($qb);
 	}
@@ -69,23 +93,34 @@ class CategoryPermMapper extends QBMapper {
 
 	/**
 	 * Find permissions for a category, excluding Admin role (which has implicit full access)
+	 * Returns both role-type and team-type permissions.
 	 *
 	 * @param int $categoryId Category ID
 	 * @return array<CategoryPerm>
 	 */
 	public function findByCategoryIdExcludingAdmin(int $categoryId): array {
-		/* @var $qb IQueryBuilder */
+		// Get all perms for this category
+		$allPerms = $this->findByCategoryId($categoryId);
+
+		// Get admin role IDs to exclude
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('cp.*')
-			->from($this->getTableName(), 'cp')
-			->innerJoin('cp', Application::tableName('forum_roles'), 'r', 'cp.role_id = r.id')
-			->where(
-				$qb->expr()->eq('cp.category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
-			)
-			->andWhere(
-				$qb->expr()->neq('r.role_type', $qb->createNamedParameter(Role::ROLE_TYPE_ADMIN, IQueryBuilder::PARAM_STR))
-			);
-		return $this->findEntities($qb);
+		$qb->select('id')
+			->from(Application::tableName('forum_roles'))
+			->where($qb->expr()->eq('role_type', $qb->createNamedParameter(Role::ROLE_TYPE_ADMIN, IQueryBuilder::PARAM_STR)));
+		$result = $qb->executeQuery();
+		$adminRoleIds = [];
+		while ($row = $result->fetch()) {
+			$adminRoleIds[] = (string)$row['id'];
+		}
+		$result->closeCursor();
+
+		// Filter: include all team-type perms, exclude admin role-type perms
+		return array_values(array_filter($allPerms, function (CategoryPerm $perm) use ($adminRoleIds) {
+			if ($perm->getTargetType() === CategoryPerm::TARGET_TYPE_TEAM) {
+				return true;
+			}
+			return !in_array($perm->getTargetId(), $adminRoleIds, true);
+		}));
 	}
 
 	/**
@@ -103,7 +138,10 @@ class CategoryPermMapper extends QBMapper {
 				$qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
 			)
 			->andWhere(
-				$qb->expr()->eq('role_id', $qb->createNamedParameter($roleId, IQueryBuilder::PARAM_INT))
+				$qb->expr()->eq('target_type', $qb->createNamedParameter(CategoryPerm::TARGET_TYPE_ROLE, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('target_id', $qb->createNamedParameter((string)$roleId, IQueryBuilder::PARAM_STR))
 			);
 		return $this->findEntity($qb);
 	}
@@ -120,6 +158,8 @@ class CategoryPermMapper extends QBMapper {
 			return [];
 		}
 
+		$roleIdStrings = array_map('strval', $roleIds);
+
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
@@ -128,9 +168,55 @@ class CategoryPermMapper extends QBMapper {
 				$qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
 			)
 			->andWhere(
-				$qb->expr()->in('role_id', $qb->createNamedParameter($roleIds, IQueryBuilder::PARAM_INT_ARRAY))
+				$qb->expr()->eq('target_type', $qb->createNamedParameter(CategoryPerm::TARGET_TYPE_ROLE, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->in('target_id', $qb->createNamedParameter($roleIdStrings, IQueryBuilder::PARAM_STR_ARRAY))
 			);
 		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find permissions for specific category and multiple team (circle) IDs
+	 *
+	 * @param int $categoryId Category ID
+	 * @param array<string> $teamIds Array of team/circle IDs
+	 * @return array<CategoryPerm>
+	 */
+	public function findByCategoryAndTeamIds(int $categoryId, array $teamIds): array {
+		if (empty($teamIds)) {
+			return [];
+		}
+
+		/* @var $qb IQueryBuilder */
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
+			)
+			->andWhere(
+				$qb->expr()->eq('target_type', $qb->createNamedParameter(CategoryPerm::TARGET_TYPE_TEAM, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->in('target_id', $qb->createNamedParameter($teamIds, IQueryBuilder::PARAM_STR_ARRAY))
+			);
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Delete all permissions for a team (circle)
+	 */
+	public function deleteByTeamId(string $teamId): void {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where(
+				$qb->expr()->eq('target_type', $qb->createNamedParameter(CategoryPerm::TARGET_TYPE_TEAM, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('target_id', $qb->createNamedParameter($teamId, IQueryBuilder::PARAM_STR))
+			);
+		$qb->executeStatement();
 	}
 
 	/**
@@ -140,7 +226,25 @@ class CategoryPermMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->delete($this->getTableName())
 			->where(
-				$qb->expr()->eq('role_id', $qb->createNamedParameter($roleId, IQueryBuilder::PARAM_INT))
+				$qb->expr()->eq('target_type', $qb->createNamedParameter(CategoryPerm::TARGET_TYPE_ROLE, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('target_id', $qb->createNamedParameter((string)$roleId, IQueryBuilder::PARAM_STR))
+			);
+		$qb->executeStatement();
+	}
+
+	/**
+	 * Delete permissions by target type and ID
+	 */
+	public function deleteByTargetTypeAndId(string $type, string $id): void {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where(
+				$qb->expr()->eq('target_type', $qb->createNamedParameter($type, IQueryBuilder::PARAM_STR))
+			)
+			->andWhere(
+				$qb->expr()->eq('target_id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_STR))
 			);
 		$qb->executeStatement();
 	}

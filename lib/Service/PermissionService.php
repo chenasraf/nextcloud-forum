@@ -15,6 +15,7 @@ use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 class PermissionService {
@@ -25,6 +26,7 @@ class PermissionService {
 		private CategoryMapper $categoryMapper,
 		private ThreadMapper $threadMapper,
 		private PostMapper $postMapper,
+		private IUserManager $userManager,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -143,6 +145,8 @@ class PermissionService {
 			return true;
 		}
 
+		$getter = 'get' . ucfirst($permission);
+
 		try {
 			// Handle guest users (null userId) - use guest role
 			if ($userId === null) {
@@ -156,6 +160,7 @@ class PermissionService {
 				$roles = $this->roleMapper->findByUserId($userId);
 			}
 
+			// Check role-based permissions
 			foreach ($roles as $role) {
 				try {
 					$perm = $this->categoryPermMapper->findByCategoryAndRole(
@@ -163,9 +168,6 @@ class PermissionService {
 						$role->getId()
 					);
 
-					// Check permission using getter method
-					// Note: Nextcloud Entity uses magic methods, so we call directly without method_exists check
-					$getter = 'get' . ucfirst($permission);
 					try {
 						if ($perm->$getter()) {
 							return true;
@@ -177,6 +179,13 @@ class PermissionService {
 				} catch (DoesNotExistException $e) {
 					// No permission entry for this category+role combination, continue checking other roles
 					continue;
+				}
+			}
+
+			// Check team/circle-based permissions (only for authenticated users)
+			if ($userId !== null) {
+				if ($this->hasTeamCategoryPermission($userId, $categoryId, $getter)) {
+					return true;
 				}
 			}
 
@@ -286,5 +295,60 @@ class PermissionService {
 			$this->logger->error('Error getting accessible categories: ' . $e->getMessage());
 			return [];
 		}
+	}
+
+	/**
+	 * Check if user has a specific permission on a category via team (circle) membership
+	 *
+	 * @param string $userId Nextcloud user ID
+	 * @param int $categoryId Category ID
+	 * @param string $getter Getter method name (e.g., 'getCanView')
+	 * @return bool True if user has the permission via a team
+	 */
+	private function hasTeamCategoryPermission(string $userId, int $categoryId, string $getter): bool {
+		try {
+			if (!class_exists(\OCA\Circles\CirclesManager::class)) {
+				return false;
+			}
+
+			$circlesManager = \OCP\Server::get(\OCA\Circles\CirclesManager::class);
+
+			$federatedUser = $circlesManager->getFederatedUser($userId, \OCA\Circles\Model\Member::TYPE_USER);
+			$circlesManager->startSession($federatedUser);
+
+			try {
+				$probe = new \OCA\Circles\Model\Probes\CircleProbe();
+				$probe->mustBeMember()
+					->filterHiddenCircles()
+					->filterBackendCircles()
+					->filterPersonalCircles()
+					->filterSingleCircles();
+
+				$circles = $circlesManager->getCircles($probe);
+				$circleIds = array_map(fn ($c) => $c->getSingleId(), $circles);
+
+				if (empty($circleIds)) {
+					return false;
+				}
+
+				$teamPerms = $this->categoryPermMapper->findByCategoryAndTeamIds($categoryId, $circleIds);
+				foreach ($teamPerms as $perm) {
+					try {
+						if ($perm->$getter()) {
+							return true;
+						}
+					} catch (\BadMethodCallException $e) {
+						continue;
+					}
+				}
+			} finally {
+				$circlesManager->stopSession();
+			}
+		} catch (\Exception $e) {
+			// Circles app not available or other error - skip team permission check
+			$this->logger->debug('Team permission check skipped: ' . $e->getMessage());
+		}
+
+		return false;
 	}
 }

@@ -126,7 +126,7 @@ class CategoryMapper extends QBMapper {
 
 		// Get all permissions for these categories
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('category_id', 'role_id', 'can_view')
+		$qb->select('category_id', 'target_type', 'target_id', 'can_view')
 			->from(Application::tableName('forum_category_perms'))
 			->where($qb->expr()->in('category_id', $qb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)));
 
@@ -138,14 +138,17 @@ class CategoryMapper extends QBMapper {
 				$permissions[$categoryId] = [];
 			}
 			$permissions[$categoryId][] = [
-				'role_id' => (int)$row['role_id'],
+				'target_type' => $row['target_type'],
+				'target_id' => $row['target_id'],
 				'can_view' => (bool)$row['can_view'],
 			];
 		}
 		$result->closeCursor();
 
+		$roleIdStrings = array_map('strval', $userRoleIds);
+
 		// Filter categories based on permissions
-		return array_values(array_filter($categories, function ($category) use ($permissions, $userRoleIds) {
+		return array_values(array_filter($categories, function ($category) use ($permissions, $roleIdStrings) {
 			$categoryId = $category->getId();
 
 			// If no permissions exist for this category, it's public
@@ -153,14 +156,14 @@ class CategoryMapper extends QBMapper {
 				return true;
 			}
 
-			// If user has no roles, they can't view restricted categories
-			if (empty($userRoleIds)) {
-				return false;
-			}
-
 			// Check if user has any role with can_view permission
 			foreach ($permissions[$categoryId] as $perm) {
-				if (in_array($perm['role_id'], $userRoleIds) && $perm['can_view']) {
+				if (!$perm['can_view']) {
+					continue;
+				}
+
+				if ($perm['target_type'] === CategoryPerm::TARGET_TYPE_ROLE
+					&& in_array($perm['target_id'], $roleIdStrings, true)) {
 					return true;
 				}
 			}

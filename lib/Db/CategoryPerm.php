@@ -16,8 +16,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setId(int $value)
  * @method int getCategoryId()
  * @method void setCategoryId(int $value)
- * @method int getRoleId()
- * @method void setRoleId(int $value)
+ * @method string getTargetType()
+ * @method void setTargetType(string $value)
+ * @method string getTargetId()
+ * @method void setTargetId(string $value)
  * @method bool getCanView()
  * @method void setCanView(bool $value)
  * @method bool getCanPost()
@@ -28,8 +30,12 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCanModerate(bool $value)
  */
 class CategoryPerm extends Entity implements JsonSerializable {
+	public const TARGET_TYPE_ROLE = 'role';
+	public const TARGET_TYPE_TEAM = 'team';
+
 	protected $categoryId;
-	protected $roleId;
+	protected $targetType;
+	protected $targetId;
 	protected $canView;
 	protected $canPost;
 	protected $canReply;
@@ -38,7 +44,8 @@ class CategoryPerm extends Entity implements JsonSerializable {
 	public function __construct() {
 		$this->addType('id', 'integer');
 		$this->addType('categoryId', 'integer');
-		$this->addType('roleId', 'integer');
+		$this->addType('targetType', 'string');
+		$this->addType('targetId', 'string');
 		$this->addType('canView', 'boolean');
 		$this->addType('canPost', 'boolean');
 		$this->addType('canReply', 'boolean');
@@ -49,7 +56,8 @@ class CategoryPerm extends Entity implements JsonSerializable {
 		return [
 			'id' => $this->getId(),
 			'categoryId' => $this->getCategoryId(),
-			'roleId' => $this->getRoleId(),
+			'targetType' => $this->getTargetType(),
+			'targetId' => $this->getTargetId(),
 			'canView' => $this->getCanView(),
 			'canPost' => $this->getCanPost(),
 			'canReply' => $this->getCanReply(),

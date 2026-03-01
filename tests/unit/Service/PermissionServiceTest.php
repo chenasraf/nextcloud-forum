@@ -18,6 +18,7 @@ use OCA\Forum\Db\UserRole;
 use OCA\Forum\Db\UserRoleMapper;
 use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -36,6 +37,8 @@ class PermissionServiceTest extends TestCase {
 	private ThreadMapper $threadMapper;
 	/** @var PostMapper&MockObject */
 	private PostMapper $postMapper;
+	/** @var IUserManager&MockObject */
+	private IUserManager $userManager;
 	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 
@@ -46,6 +49,7 @@ class PermissionServiceTest extends TestCase {
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->postMapper = $this->createMock(PostMapper::class);
+		$this->userManager = $this->createMock(IUserManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new PermissionService(
@@ -55,6 +59,7 @@ class PermissionServiceTest extends TestCase {
 			$this->categoryMapper,
 			$this->threadMapper,
 			$this->postMapper,
+			$this->userManager,
 			$this->logger
 		);
 	}
@@ -653,7 +658,8 @@ class PermissionServiceTest extends TestCase {
 		$perm = new CategoryPerm();
 		$perm->setId($id);
 		$perm->setCategoryId($categoryId);
-		$perm->setRoleId($roleId);
+		$perm->setTargetType('role');
+		$perm->setTargetId((string)$roleId);
 		$perm->setCanView($canView);
 		$perm->setCanPost($canPost);
 		$perm->setCanReply($canReply);

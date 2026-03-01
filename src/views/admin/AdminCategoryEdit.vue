@@ -120,8 +120,8 @@
             <div class="form-group">
               <label>{{ strings.viewRoles }}</label>
               <NcSelect
-                v-model="selectedViewRoles"
-                :options="roleOptions"
+                v-model="selectedViewTargets"
+                :options="viewTargetOptions"
                 :placeholder="strings.selectRoles"
                 label="label"
                 track-by="id"
@@ -135,8 +135,8 @@
             <div class="form-group">
               <label>{{ strings.moderateRoles }}</label>
               <NcSelect
-                v-model="selectedModerateRoles"
-                :options="moderateRoleOptions"
+                v-model="selectedModerateTargets"
+                :options="moderateTargetOptions"
                 :placeholder="strings.selectRoles"
                 label="label"
                 track-by="id"
@@ -194,7 +194,7 @@ import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { isAdminRole, isModeratorRole, isDefaultRole, isGuestRole } from '@/constants'
 import { useCategories } from '@/composables/useCategories'
-import type { Category, CatHeader, Role } from '@/types'
+import type { Category, CategoryPerm, CatHeader, Role } from '@/types'
 
 export default defineComponent({
   name: 'AdminCategoryEdit',
@@ -229,8 +229,8 @@ export default defineComponent({
       headers: [] as CatHeader[],
       roles: [] as Role[],
       selectedHeader: null as { id: number; label: string } | null,
-      selectedViewRoles: [] as Array<{ id: number; label: string }>,
-      selectedModerateRoles: [] as Array<{ id: number; label: string }>,
+      selectedViewTargets: [] as Array<{ id: number; label: string }>,
+      selectedModerateTargets: [] as Array<{ id: number; label: string }>,
       formData: {
         headerId: null as number | null,
         name: '',
@@ -281,9 +281,9 @@ export default defineComponent({
           'forum',
           'Control which roles can access and moderate this category',
         ),
-        viewRoles: t('forum', 'Roles that can view'),
+        viewRoles: t('forum', 'Can view'),
         viewRolesHelp: t('forum', 'Select roles that can view this category and its threads'),
-        moderateRoles: t('forum', 'Roles that can moderate'),
+        moderateRoles: t('forum', 'Can moderate'),
         moderateRolesHelp: t(
           'forum',
           'Select roles that can moderate (edit/delete) content in this category',
@@ -312,8 +312,7 @@ export default defineComponent({
         label: header.name,
       }))
     },
-    roleOptions(): Array<{ id: number; label: string }> {
-      // Filter out Admin role - it has implicit full access to all categories
+    viewTargetOptions(): Array<{ id: number; label: string }> {
       return this.roles
         .filter((role) => !isAdminRole(role))
         .map((role) => ({
@@ -321,10 +320,8 @@ export default defineComponent({
           label: role.name,
         }))
     },
-    moderateRoleOptions(): Array<{ id: number; label: string }> {
-      // Filter out Admin, Guest, and Default roles
-      // - Admin has implicit full access
-      // - Guest and Default cannot moderate
+    moderateTargetOptions(): Array<{ id: number; label: string }> {
+      // Filter out Admin, Guest, and Default roles for moderation
       return this.roles
         .filter((role) => !isAdminRole(role) && !isGuestRole(role) && !isDefaultRole(role))
         .map((role) => ({
@@ -403,18 +400,29 @@ export default defineComponent({
           // View: Default user role
           const memberRole = this.roles.find(isDefaultRole)
           if (memberRole) {
-            this.selectedViewRoles = [{ id: memberRole.id, label: memberRole.name }]
+            this.selectedViewTargets = [
+              {
+                id: memberRole.id,
+                label: memberRole.name,
+              },
+            ]
           }
 
           // Moderate: Admin and Moderator
           const adminRole = this.roles.find(isAdminRole)
           const moderatorRole = this.roles.find(isModeratorRole)
-          this.selectedModerateRoles = []
+          this.selectedModerateTargets = []
           if (adminRole) {
-            this.selectedModerateRoles.push({ id: adminRole.id, label: adminRole.name })
+            this.selectedModerateTargets.push({
+              id: adminRole.id,
+              label: adminRole.name,
+            })
           }
           if (moderatorRole) {
-            this.selectedModerateRoles.push({ id: moderatorRole.id, label: moderatorRole.name })
+            this.selectedModerateTargets.push({
+              id: moderatorRole.id,
+              label: moderatorRole.name,
+            })
           }
         }
       } catch (e) {
@@ -454,41 +462,31 @@ export default defineComponent({
       if (!this.categoryId) return
 
       try {
-        const permsResponse = await ocs.get<
-          Array<{
-            id: number
-            categoryId: number
-            roleId: number
-            canView: boolean
-            canModerate: boolean
-          }>
-        >(`/categories/${this.categoryId}/permissions`)
+        const permsResponse = await ocs.get<CategoryPerm[]>(
+          `/categories/${this.categoryId}/permissions`,
+        )
 
         const perms = permsResponse.data || []
 
-        // Map permissions to role selections
-        const viewRoleIds = new Set<number>()
-        const moderateRoleIds = new Set<number>()
+        // Only handle role-type permissions
+        const rolePerms = perms.filter((p) => p.targetType === 'role')
 
-        perms.forEach((perm) => {
-          if (perm.canView) {
-            viewRoleIds.add(perm.roleId)
-          }
-          if (perm.canModerate) {
-            moderateRoleIds.add(perm.roleId)
-          }
-        })
+        this.selectedViewTargets = rolePerms
+          .filter((p) => p.canView)
+          .map((p) => {
+            const role = this.roles.find((r) => String(r.id) === p.targetId)
+            return role ? { id: role.id, label: role.name } : null
+          })
+          .filter((o): o is { id: number; label: string } => o !== null)
 
-        // Set selected roles
-        this.selectedViewRoles = this.roles
-          .filter((role) => viewRoleIds.has(role.id))
-          .map((role) => ({ id: role.id, label: role.name }))
-
-        this.selectedModerateRoles = this.roles
-          .filter(
-            (role) => moderateRoleIds.has(role.id) && !isGuestRole(role) && !isDefaultRole(role),
-          )
-          .map((role) => ({ id: role.id, label: role.name }))
+        this.selectedModerateTargets = rolePerms
+          .filter((p) => p.canModerate)
+          .map((p) => {
+            const role = this.roles.find((r) => String(r.id) === p.targetId)
+            if (!role || isGuestRole(role) || isDefaultRole(role)) return null
+            return { id: role.id, label: role.name }
+          })
+          .filter((o): o is { id: number; label: string } => o !== null)
       } catch (e) {
         console.error('Failed to load category permissions', e)
       }
@@ -537,35 +535,24 @@ export default defineComponent({
     },
 
     async updatePermissions(categoryId: number): Promise<void> {
-      // Build permissions array combining view and moderate roles
-      const allRoleIds = new Set<number>()
-      const viewRoleIds = new Set(this.selectedViewRoles.map((r) => r.id))
-      // Filter out guest and default roles from moderate roles
-      const guestRole = this.roles.find(isGuestRole)
-      const defaultRole = this.roles.find(isDefaultRole)
-      const moderateRoleIds = new Set(
-        this.selectedModerateRoles
-          .filter((r) => r.id !== guestRole?.id && r.id !== defaultRole?.id)
-          .map((r) => r.id),
-      )
+      const viewRoleIds = new Set(this.selectedViewTargets.map((t) => t.id))
+      const moderateRoleIds = new Set(this.selectedModerateTargets.map((t) => t.id))
 
-      // Add all selected role IDs to the set
-      this.selectedViewRoles.forEach((r) => allRoleIds.add(r.id))
-      this.selectedModerateRoles.forEach((r) => {
-        // Don't add guest or default to moderate permissions
-        if (r.id !== guestRole?.id && r.id !== defaultRole?.id) {
-          allRoleIds.add(r.id)
-        }
-      })
+      // Collect all unique role IDs
+      const allRoleIds = new Set([...viewRoleIds, ...moderateRoleIds])
 
-      const permissionsData = Array.from(allRoleIds).map((roleId) => ({
-        roleId,
-        canView: viewRoleIds.has(roleId),
-        canModerate: moderateRoleIds.has(roleId),
-      }))
+      const permissions: Array<{ roleId: number; canView: boolean; canModerate: boolean }> = []
+
+      for (const roleId of allRoleIds) {
+        permissions.push({
+          roleId,
+          canView: viewRoleIds.has(roleId),
+          canModerate: moderateRoleIds.has(roleId),
+        })
+      }
 
       await ocs.post(`/categories/${categoryId}/permissions`, {
-        permissions: permissionsData,
+        permissions,
       })
     },
 

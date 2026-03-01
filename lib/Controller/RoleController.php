@@ -277,7 +277,8 @@ class RoleController extends OCSController {
 			foreach ($permissions as $perm) {
 				$categoryPerm = new CategoryPerm();
 				$categoryPerm->setCategoryId($perm['categoryId']);
-				$categoryPerm->setRoleId($id);
+				$categoryPerm->setTargetType(CategoryPerm::TARGET_TYPE_ROLE);
+				$categoryPerm->setTargetId((string)$id);
 				$categoryPerm->setCanView($perm['canView'] ?? false);
 				// canPost and canReply default to canView value
 				// This ensures that if a role can view a category, they can also post/reply unless explicitly restricted

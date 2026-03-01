@@ -94,6 +94,64 @@
           </NcButton>
         </template>
       </NcEmptyContent>
+
+      <!-- Teams Section -->
+      <PageHeader :title="strings.teamsTitle" :subtitle="strings.teamsSubtitle" class="mt-32" />
+
+      <!-- Teams Loading state -->
+      <div v-if="teamsLoading" class="center mt-16">
+        <NcLoadingIcon :size="32" />
+        <span class="muted ml-8">{{ strings.loadingTeams }}</span>
+      </div>
+
+      <!-- Teams Error state -->
+      <NcEmptyContent
+        v-else-if="teamsError"
+        :title="strings.teamsErrorTitle"
+        :description="teamsError"
+        class="mt-16"
+      >
+        <template #action>
+          <NcButton @click="refreshTeams">{{ strings.retry }}</NcButton>
+        </template>
+      </NcEmptyContent>
+
+      <!-- Teams list -->
+      <AdminTable
+        v-else-if="teams.length > 0"
+        :columns="teamTableColumns"
+        :rows="teams"
+        row-key="id"
+        :has-actions="true"
+        :actions-label="strings.actions"
+      >
+        <template #cell-displayName="{ row }">
+          <span>{{ row.displayName }}</span>
+        </template>
+
+        <template #cell-ownerDisplayName="{ row }">
+          <span>{{ row.ownerDisplayName }}</span>
+        </template>
+
+        <template #actions="{ row }">
+          <NcActions variant="secondary">
+            <NcActionButton @click="editTeam(row.id)">
+              <template #icon>
+                <PencilIcon :size="20" />
+              </template>
+              {{ strings.edit }}
+            </NcActionButton>
+          </NcActions>
+        </template>
+      </AdminTable>
+
+      <!-- Teams empty state -->
+      <NcEmptyContent
+        v-else
+        :title="strings.teamsEmptyTitle"
+        :description="strings.teamsEmptyDesc"
+        class="mt-16"
+      />
     </div>
   </PageWrapper>
 </template>
@@ -116,7 +174,7 @@ import PageHeader from '@/components/PageHeader'
 import AppToolbar from '@/components/AppToolbar'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
-import type { Role } from '@/types'
+import type { Role, Team } from '@/types'
 
 export default defineComponent({
   name: 'AdminRoleList',
@@ -141,6 +199,9 @@ export default defineComponent({
       loading: false,
       roles: [] as Role[],
       error: null as string | null,
+      teamsLoading: false,
+      teams: [] as Team[],
+      teamsError: null as string | null,
 
       strings: {
         title: t('forum', 'Role management'),
@@ -153,6 +214,8 @@ export default defineComponent({
         createRole: t('forum', 'Create role'),
         id: t('forum', 'ID'),
         name: t('forum', 'Name'),
+        displayName: t('forum', 'Name'),
+        owner: t('forum', 'Owner'),
         description: t('forum', 'Description'),
         created: t('forum', 'Created'),
         actions: t('forum', 'Actions'),
@@ -166,6 +229,12 @@ export default defineComponent({
             { name },
           ),
         systemRoleWarning: t('forum', 'System roles cannot be deleted'),
+        teamsTitle: t('forum', 'Team permissions'),
+        teamsSubtitle: t('forum', 'Manage category permissions for Nextcloud Teams'),
+        loadingTeams: t('forum', 'Loading teams …'),
+        teamsErrorTitle: t('forum', 'Error loading teams'),
+        teamsEmptyTitle: t('forum', 'No teams found'),
+        teamsEmptyDesc: t('forum', 'No Nextcloud Teams are available'),
       },
     }
   },
@@ -178,9 +247,16 @@ export default defineComponent({
         { key: 'created', label: this.strings.created, minWidth: '120px' },
       ]
     },
+    teamTableColumns(): TableColumn[] {
+      return [
+        { key: 'displayName', label: this.strings.displayName, minWidth: '200px' },
+        { key: 'ownerDisplayName', label: this.strings.owner, minWidth: '150px' },
+      ]
+    },
   },
   created() {
     this.refresh()
+    this.refreshTeams()
   },
   methods: {
     async refresh(): Promise<void> {
@@ -198,12 +274,31 @@ export default defineComponent({
       }
     },
 
+    async refreshTeams(): Promise<void> {
+      try {
+        this.teamsLoading = true
+        this.teamsError = null
+
+        const response = await ocs.get<Team[]>('/teams')
+        this.teams = response.data || []
+      } catch (e) {
+        console.error('Failed to load teams', e)
+        this.teamsError = (e as Error).message || t('forum', 'An unexpected error occurred')
+      } finally {
+        this.teamsLoading = false
+      }
+    },
+
     createRole(): void {
       this.$router.push('/admin/roles/create')
     },
 
     editRole(roleId: number): void {
       this.$router.push(`/admin/roles/${roleId}/edit`)
+    },
+
+    editTeam(teamId: string): void {
+      this.$router.push(`/admin/teams/${teamId}/edit`)
     },
 
     confirmDelete(role: Role): void {
@@ -239,6 +334,10 @@ export default defineComponent({
 
   .mt-16 {
     margin-top: 16px;
+  }
+
+  .mt-32 {
+    margin-top: 32px;
   }
 
   .ml-8 {

@@ -179,67 +179,12 @@
           </NcNoteCard>
           <p v-else class="muted">{{ strings.categoryPermissionsDesc }}</p>
 
-          <div v-if="categoryHeaders.length > 0" class="permissions-table">
-            <div class="table-header">
-              <div class="col-category">{{ strings.category }}</div>
-              <div class="col-permission">{{ strings.canView }}</div>
-              <div class="col-permission">{{ strings.canModerate }}</div>
-            </div>
-
-            <template v-for="header in categoryHeaders" :key="`header-${header.id}`">
-              <!-- Header row -->
-              <div class="table-header-row">
-                <div class="header-name">{{ header.name }}</div>
-                <div class="header-permission">
-                  <NcCheckboxRadioSwitch
-                    :model-value="getHeaderViewState(header.id).checked"
-                    :indeterminate="getHeaderViewState(header.id).indeterminate"
-                    :disabled="isAdmin"
-                    @update:model-value="toggleHeaderView(header.id)"
-                  />
-                </div>
-                <div class="header-permission">
-                  <NcCheckboxRadioSwitch
-                    :model-value="getHeaderModerateState(header.id).checked"
-                    :indeterminate="getHeaderModerateState(header.id).indeterminate"
-                    :disabled="isAdmin || isGuest || isDefault"
-                    @update:model-value="toggleHeaderModerate(header.id)"
-                  />
-                </div>
-              </div>
-
-              <!-- Category rows under this header -->
-              <div v-for="category in header.categories" :key="category.id" class="table-row">
-                <div class="col-category">
-                  <span class="category-name">{{ category.name }}</span>
-                  <span v-if="category.description" class="category-desc muted">
-                    {{ category.description }}
-                  </span>
-                </div>
-
-                <div class="col-permission">
-                  <NcCheckboxRadioSwitch
-                    :model-value="permissions[category.id]?.canView || false"
-                    :disabled="isAdmin"
-                    @update:model-value="updateCategoryView(category.id, $event)"
-                  >
-                    {{ strings.allow }}
-                  </NcCheckboxRadioSwitch>
-                </div>
-
-                <div class="col-permission">
-                  <NcCheckboxRadioSwitch
-                    :model-value="permissions[category.id]?.canModerate || false"
-                    :disabled="isAdmin || isGuest || isDefault"
-                    @update:model-value="updateCategoryModerate(category.id, $event)"
-                  >
-                    {{ strings.allow }}
-                  </NcCheckboxRadioSwitch>
-                </div>
-              </div>
-            </template>
-          </div>
-          <div v-else class="muted">{{ strings.noCategories }}</div>
+          <CategoryPermissionsTable
+            :category-headers="categoryHeaders"
+            :permissions="permissions"
+            :disable-view="isAdmin"
+            :disable-moderate="isAdmin || isGuest || isDefault"
+          />
         </section>
 
         <!-- Actions -->
@@ -271,16 +216,14 @@ import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import AppToolbar from '@/components/AppToolbar'
+import CategoryPermissionsTable, {
+  type CategoryPermission,
+} from '@/components/CategoryPermissionsTable'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { isAdminRole, isGuestRole, isDefaultRole } from '@/constants'
 import { usePublicSettings } from '@/composables/usePublicSettings'
 import type { Role, CategoryHeader } from '@/types'
-
-interface CategoryPermission {
-  canView: boolean
-  canModerate: boolean
-}
 
 export default defineComponent({
   name: 'AdminRoleEdit',
@@ -297,6 +240,7 @@ export default defineComponent({
     ArrowLeftIcon,
     PageWrapper,
     AppToolbar,
+    CategoryPermissionsTable,
   },
   setup() {
     const { allowGuestAccess, fetchPublicSettings } = usePublicSettings()
@@ -356,11 +300,6 @@ export default defineComponent({
         canEditCategoriesDesc: t('forum', 'Allow creating, editing and deleting categories'),
         categoryPermissions: t('forum', 'Category permissions'),
         categoryPermissionsDesc: t('forum', 'Set which categories this role can access'),
-        category: t('forum', 'Category'),
-        canView: t('forum', 'Can view'),
-        canModerate: t('forum', 'Can moderate'),
-        allow: t('forum', 'Allow'),
-        noCategories: t('forum', 'No categories available'),
         adminAllRolePermissions: t('forum', 'Admin role must have all permissions enabled'),
         adminFullAccess: t('forum', 'Admin role has full access to all categories'),
         guestNoRolePermissions: t('forum', 'Guest role cannot have admin permissions'),
@@ -410,91 +349,6 @@ export default defineComponent({
     this.refresh()
   },
   methods: {
-    ensurePermission(categoryId: number): CategoryPermission {
-      if (!this.permissions[categoryId]) {
-        this.permissions[categoryId] = {
-          canView: false,
-          canModerate: false,
-        }
-      }
-      return this.permissions[categoryId]
-    },
-
-    getHeaderViewState(headerId: number): { checked: boolean; indeterminate: boolean } {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories || header.categories.length === 0) {
-        return { checked: false, indeterminate: false }
-      }
-
-      const checkedCount = header.categories.filter(
-        (cat) => this.permissions[cat.id]?.canView,
-      ).length
-      const totalCount = header.categories.length
-
-      if (checkedCount === 0) {
-        return { checked: false, indeterminate: false }
-      } else if (checkedCount === totalCount) {
-        return { checked: true, indeterminate: false }
-      } else {
-        return { checked: false, indeterminate: true }
-      }
-    },
-
-    getHeaderModerateState(headerId: number): { checked: boolean; indeterminate: boolean } {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories || header.categories.length === 0) {
-        return { checked: false, indeterminate: false }
-      }
-
-      const checkedCount = header.categories.filter(
-        (cat) => this.permissions[cat.id]?.canModerate,
-      ).length
-      const totalCount = header.categories.length
-
-      if (checkedCount === 0) {
-        return { checked: false, indeterminate: false }
-      } else if (checkedCount === totalCount) {
-        return { checked: true, indeterminate: false }
-      } else {
-        return { checked: false, indeterminate: true }
-      }
-    },
-
-    updateCategoryView(categoryId: number, checked: boolean): void {
-      this.ensurePermission(categoryId).canView = checked
-    },
-
-    updateCategoryModerate(categoryId: number, checked: boolean): void {
-      this.ensurePermission(categoryId).canModerate = checked
-    },
-
-    toggleHeaderView(headerId: number): void {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories) return
-
-      const state = this.getHeaderViewState(headerId)
-      // If all are checked, uncheck all
-      // If some or none are checked, check all
-      const newValue = !state.checked
-
-      header.categories.forEach((cat) => {
-        this.ensurePermission(cat.id).canView = newValue
-      })
-    },
-
-    toggleHeaderModerate(headerId: number): void {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories) return
-
-      const state = this.getHeaderModerateState(headerId)
-      // If all are checked, uncheck all
-      // If some or none are checked, check all
-      const newValue = !state.checked
-
-      header.categories.forEach((cat) => {
-        this.ensurePermission(cat.id).canModerate = newValue
-      })
-    },
     async refresh(): Promise<void> {
       try {
         this.loading = true
@@ -852,82 +706,6 @@ export default defineComponent({
           display: block;
           font-size: 0.85rem;
           line-height: 1.4;
-        }
-      }
-    }
-
-    .permissions-table {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      background: var(--color-border);
-      border-radius: 8px;
-      overflow: hidden;
-
-      .table-header,
-      .table-row {
-        display: grid;
-        grid-template-columns: 1fr 150px 150px;
-        gap: 16px;
-        padding: 16px;
-        background: var(--color-main-background);
-        align-items: center;
-      }
-
-      .table-header {
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--color-text-maxcontrast);
-        background: var(--color-background-hover);
-      }
-
-      .table-header-row {
-        display: grid;
-        grid-template-columns: 1fr 150px 150px;
-        gap: 16px;
-        padding: 12px 16px;
-        background: var(--color-background-dark);
-        align-items: center;
-
-        .header-name {
-          font-weight: 600;
-          font-size: 1rem;
-          color: var(--color-main-text);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .header-permission {
-          display: flex;
-          align-items: center;
-        }
-      }
-
-      .table-row {
-        &:hover {
-          background: var(--color-background-hover);
-        }
-
-        .col-category {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-
-          .category-name {
-            font-weight: 500;
-            color: var(--color-main-text);
-          }
-
-          .category-desc {
-            font-size: 0.85rem;
-          }
-        }
-
-        .col-permission {
-          display: flex;
-          align-items: center;
         }
       }
     }

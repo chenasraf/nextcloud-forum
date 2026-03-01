@@ -22,6 +22,10 @@ const routes: RouteRecordRaw[] = [
   { path: '/admin/roles', component: () => import('@/views/admin/AdminRoleList.vue') },
   { path: '/admin/roles/create', component: () => import('@/views/admin/AdminRoleEdit.vue') },
   { path: '/admin/roles/:id/edit', component: () => import('@/views/admin/AdminRoleEdit.vue') },
+  {
+    path: '/admin/teams/:id/edit',
+    component: () => import('@/views/admin/AdminTeamEdit.vue'),
+  },
   { path: '/admin/categories', component: () => import('@/views/admin/AdminCategoryList.vue') },
   {
     path: '/admin/categories/create',

@@ -332,7 +332,8 @@ class RoleControllerTest extends TestCase {
 		$perm1 = new \OCA\Forum\Db\CategoryPerm();
 		$perm1->setId(1);
 		$perm1->setCategoryId(1);
-		$perm1->setRoleId($roleId);
+		$perm1->setTargetType('role');
+		$perm1->setTargetId((string)$roleId);
 		$perm1->setCanView(true);
 		$perm1->setCanPost(true);
 		$perm1->setCanReply(true);
@@ -341,7 +342,8 @@ class RoleControllerTest extends TestCase {
 		$perm2 = new \OCA\Forum\Db\CategoryPerm();
 		$perm2->setId(2);
 		$perm2->setCategoryId(2);
-		$perm2->setRoleId($roleId);
+		$perm2->setTargetType('role');
+		$perm2->setTargetId((string)$roleId);
 		$perm2->setCanView(true);
 		$perm2->setCanPost(false);
 		$perm2->setCanReply(false);
@@ -386,7 +388,7 @@ class RoleControllerTest extends TestCase {
 		$this->categoryPermMapper->expects($this->exactly(2))
 			->method('insert')
 			->willReturnCallback(function ($perm) use ($roleId) {
-				$this->assertEquals($roleId, $perm->getRoleId());
+				$this->assertEquals((string)$roleId, $perm->getTargetId());
 				// Verify canPost and canReply are set based on canView
 				if ($perm->getCategoryId() === 1) {
 					$this->assertTrue($perm->getCanView());
@@ -488,7 +490,7 @@ class RoleControllerTest extends TestCase {
 		$this->categoryPermMapper->expects($this->exactly(2))
 			->method('insert')
 			->willReturnCallback(function ($perm) use ($guestRoleId) {
-				$this->assertEquals($guestRoleId, $perm->getRoleId());
+				$this->assertEquals((string)$guestRoleId, $perm->getTargetId());
 				// Verify guest role never has moderate permission, even if requested
 				$this->assertFalse($perm->getCanModerate());
 				return $perm;
@@ -522,7 +524,7 @@ class RoleControllerTest extends TestCase {
 		$this->categoryPermMapper->expects($this->exactly(2))
 			->method('insert')
 			->willReturnCallback(function ($perm) use ($defaultRoleId) {
-				$this->assertEquals($defaultRoleId, $perm->getRoleId());
+				$this->assertEquals((string)$defaultRoleId, $perm->getTargetId());
 				// Verify default role never has moderate permission, even if requested
 				$this->assertFalse($perm->getCanModerate());
 				return $perm;

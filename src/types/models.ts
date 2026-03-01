@@ -193,3 +193,21 @@ export interface PostHistoryResponse {
   current: Post
   history: PostHistoryEntry[]
 }
+
+export interface CategoryPerm {
+  id: number
+  categoryId: number
+  targetType: 'role' | 'team'
+  targetId: string
+  canView: boolean
+  canPost: boolean
+  canReply: boolean
+  canModerate: boolean
+}
+
+export interface Team {
+  id: string
+  displayName: string
+  owner: string
+  ownerDisplayName: string
+}

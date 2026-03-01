@@ -275,7 +275,7 @@ export default defineComponent({
         navAdminDashboard: t('forum', 'Dashboard'),
         navAdminSettings: t('forum', 'Forum settings'),
         navAdminUsers: t('forum', 'Users'),
-        navAdminRoles: t('forum', 'Roles'),
+        navAdminRoles: t('forum', 'Roles & Teams'),
         navAdminCategories: t('forum', 'Categories'),
         navAdminBBCodes: t('forum', 'BBCodes'),
         expand: t('forum', 'Expand'),

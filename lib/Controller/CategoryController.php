@@ -23,7 +23,6 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
-use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -39,7 +38,6 @@ class CategoryController extends OCSController {
 		private ReadMarkerMapper $readMarkerMapper,
 		private RoleMapper $roleMapper,
 		private IUserSession $userSession,
-		private IGroupManager $groupManager,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -345,54 +343,33 @@ class CategoryController extends OCSController {
 				return new DataResponse(['hasPermission' => false]);
 			}
 
-			// Check if user is in admin group - admins have all permissions
-			$adminGroup = $this->groupManager->get('admin');
-			if ($adminGroup && $adminGroup->inGroup($user)) {
-				return new DataResponse(['hasPermission' => true]);
-			}
+			$getter = 'get' . ucfirst($permission);
 
-			// Get user's roles
+			// Check role-based permissions
 			$roles = $this->roleMapper->findByUserId($user->getUID());
 			$roleIds = array_map(fn ($role) => $role->getId(), $roles);
 
-			if (empty($roleIds)) {
-				return new DataResponse(['hasPermission' => false]);
-			}
-
-			// Get category permissions for user's roles
-			$categoryPerms = $this->categoryPermMapper->findByCategoryAndRoles($id, $roleIds);
-
-			// Check if any role has the requested permission
-			$hasPermission = false;
-			foreach ($categoryPerms as $perm) {
-				switch ($permission) {
-					case 'canView':
-						if ($perm->getCanView()) {
-							$hasPermission = true;
-						}
-						break;
-					case 'canPost':
-						if ($perm->getCanPost()) {
-							$hasPermission = true;
-						}
-						break;
-					case 'canReply':
-						if ($perm->getCanReply()) {
-							$hasPermission = true;
-						}
-						break;
-					case 'canModerate':
-						if ($perm->getCanModerate()) {
-							$hasPermission = true;
-						}
-						break;
+			if (!empty($roleIds)) {
+				// Admin role has all permissions
+				foreach ($roles as $role) {
+					if ($role->getRoleType() === Role::ROLE_TYPE_ADMIN) {
+						return new DataResponse(['hasPermission' => true]);
+					}
 				}
-				if ($hasPermission) {
-					break;
+
+				$categoryPerms = $this->categoryPermMapper->findByCategoryAndRoles($id, $roleIds);
+				foreach ($categoryPerms as $perm) {
+					try {
+						if ($perm->$getter()) {
+							return new DataResponse(['hasPermission' => true]);
+						}
+					} catch (\BadMethodCallException $e) {
+						break;
+					}
 				}
 			}
 
-			return new DataResponse(['hasPermission' => $hasPermission]);
+			return new DataResponse(['hasPermission' => false]);
 		} catch (\Exception $e) {
 			$this->logger->error("Error checking permission {$permission} for category {$id}: " . $e->getMessage());
 			return new DataResponse(['hasPermission' => false]);
@@ -425,7 +402,7 @@ class CategoryController extends OCSController {
 	 * Update permissions for a category
 	 *
 	 * @param int $id Category ID
-	 * @param list<array{roleId: int, canView: bool, canModerate: bool}> $permissions Permissions array
+	 * @param list<array{roleId: int, canView: bool, canModerate: bool}> $permissions Role permissions array
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Permissions updated
@@ -455,14 +432,14 @@ class CategoryController extends OCSController {
 				}
 			});
 
-			// Insert new permissions
+			// Insert role permissions
 			foreach ($filteredPermissions as $perm) {
 				$categoryPerm = new CategoryPerm();
 				$categoryPerm->setCategoryId($id);
-				$categoryPerm->setRoleId($perm['roleId']);
+				$categoryPerm->setTargetType(CategoryPerm::TARGET_TYPE_ROLE);
+				$categoryPerm->setTargetId((string)$perm['roleId']);
 				$categoryPerm->setCanView($perm['canView'] ?? false);
 				// canPost and canReply default to canView value
-				// This ensures that if a role can view a category, they can also post/reply unless explicitly restricted
 				$categoryPerm->setCanPost($perm['canView'] ?? false);
 				$categoryPerm->setCanReply($perm['canView'] ?? false);
 

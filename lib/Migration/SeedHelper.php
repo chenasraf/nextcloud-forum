@@ -510,7 +510,8 @@ class SeedHelper {
 			$qb = $db->getQueryBuilder();
 			$qb->select('id')
 				->from('forum_category_perms')
-				->where($qb->expr()->eq('role_id', $qb->createNamedParameter($guestRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+				->where($qb->expr()->eq('target_type', $qb->createNamedParameter('role', \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)))
+				->andWhere($qb->expr()->eq('target_id', $qb->createNamedParameter((string)$guestRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)))
 				->setMaxResults(1);
 			$result = $qb->executeQuery();
 			$hasPermissions = $result->fetch();
@@ -532,7 +533,8 @@ class SeedHelper {
 			$qb = $db->getQueryBuilder();
 			$qb->select('category_id')
 				->from('forum_category_perms')
-				->where($qb->expr()->eq('role_id', $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+				->where($qb->expr()->eq('target_type', $qb->createNamedParameter('role', \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)))
+				->andWhere($qb->expr()->eq('target_id', $qb->createNamedParameter((string)$userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)))
 				->andWhere($qb->expr()->eq('can_view', $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL)));
 			$result = $qb->executeQuery();
 			$userAccessibleCategories = $result->fetchAll();
@@ -548,7 +550,8 @@ class SeedHelper {
 				$qb->select('id')
 					->from('forum_category_perms')
 					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
-					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter($guestRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+					->andWhere($qb->expr()->eq('target_type', $qb->createNamedParameter('role', \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)))
+					->andWhere($qb->expr()->eq('target_id', $qb->createNamedParameter((string)$guestRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)));
 				$result = $qb->executeQuery();
 				$permExists = $result->fetch();
 				$result->closeCursor();
@@ -559,7 +562,8 @@ class SeedHelper {
 						$qb->insert('forum_category_perms')
 							->values([
 								'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-								'role_id' => $qb->createNamedParameter($guestRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'target_type' => $qb->createNamedParameter('role', \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR),
+								'target_id' => $qb->createNamedParameter((string)$guestRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR),
 								'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 								'can_post' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 								'can_reply' => $qb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -837,7 +841,8 @@ class SeedHelper {
 				$qb->select('id')
 					->from('forum_category_perms')
 					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
-					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter($moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+					->andWhere($qb->expr()->eq('target_type', $qb->createNamedParameter('role', \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)))
+					->andWhere($qb->expr()->eq('target_id', $qb->createNamedParameter((string)$moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)));
 				$result = $qb->executeQuery();
 				$exists = $result->fetch();
 				$result->closeCursor();
@@ -848,7 +853,8 @@ class SeedHelper {
 						$qb->insert('forum_category_perms')
 							->values([
 								'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-								'role_id' => $qb->createNamedParameter($moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'target_type' => $qb->createNamedParameter('role', \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR),
+								'target_id' => $qb->createNamedParameter((string)$moderatorRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR),
 								'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 								'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 								'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
@@ -866,7 +872,8 @@ class SeedHelper {
 				$qb->select('id')
 					->from('forum_category_perms')
 					->where($qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
-					->andWhere($qb->expr()->eq('role_id', $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+					->andWhere($qb->expr()->eq('target_type', $qb->createNamedParameter('role', \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)))
+					->andWhere($qb->expr()->eq('target_id', $qb->createNamedParameter((string)$userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR)));
 				$result = $qb->executeQuery();
 				$exists = $result->fetch();
 				$result->closeCursor();
@@ -877,7 +884,8 @@ class SeedHelper {
 						$qb->insert('forum_category_perms')
 							->values([
 								'category_id' => $qb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-								'role_id' => $qb->createNamedParameter($userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+								'target_type' => $qb->createNamedParameter('role', \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR),
+								'target_id' => $qb->createNamedParameter((string)$userRoleId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR),
 								'can_view' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 								'can_post' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 								'can_reply' => $qb->createNamedParameter(true, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),

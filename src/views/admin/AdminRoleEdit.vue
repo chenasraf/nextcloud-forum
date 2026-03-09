@@ -45,11 +45,11 @@
             <strong>{{ strings.guestAccessDisabledTitle }}</strong>
           </p>
           <p>{{ strings.guestAccessDisabledMessage }}</p>
-          <template #action>
-            <NcButton @click="goToForumSettings" type="primary">
+          <div class="mt-16">
+            <NcButton @click="goToForumSettings" variant="primary">
               {{ strings.goToForumSettings }}
             </NcButton>
-          </template>
+          </div>
         </NcNoteCard>
 
         <!-- Basic Info Section -->
@@ -495,8 +495,9 @@ export default defineComponent({
         this.categoryHeaders.forEach((header) => {
           if (header.categories) {
             header.categories.forEach((category) => {
-              if (this.permissions[category.id]) {
-                this.permissions[category.id].canModerate = false
+              const perm = this.permissions[category.id]
+              if (perm) {
+                perm.canModerate = false
               }
             })
           }
@@ -508,8 +509,9 @@ export default defineComponent({
         this.categoryHeaders.forEach((header) => {
           if (header.categories) {
             header.categories.forEach((category) => {
-              if (this.permissions[category.id]) {
-                this.permissions[category.id].canModerate = false
+              const perm = this.permissions[category.id]
+              if (perm) {
+                perm.canModerate = false
               }
             })
           }

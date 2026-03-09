@@ -55,6 +55,7 @@ export interface Thread {
   categorySlug?: string | null
   categoryName?: string | null
   isSubscribed?: boolean
+  isBookmarked?: boolean
 }
 
 export interface Post {

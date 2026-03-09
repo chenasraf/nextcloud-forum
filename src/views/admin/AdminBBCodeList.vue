@@ -365,7 +365,7 @@ export default defineComponent({
         replacementPlaceholder: t(
           'forum',
           'e.g., {strongStart}{content}{strongEnd}',
-          { strongStart: '<strong>', strongEnd: '</strong>' },
+          { strongStart: '<strong>', content: '{content}', strongEnd: '</strong>' },
           { escape: false },
         ),
         replacementHelp: t(

@@ -150,7 +150,7 @@
             <NcButton
               v-if="!isEditingTitle && canEditTitle"
               @click="handleStartEditTitle"
-              type="tertiary"
+              variant="tertiary"
               :aria-label="strings.editTitle"
               :title="strings.editTitle"
               class="edit-title-button"
@@ -163,7 +163,7 @@
               v-if="isEditingTitle"
               @click="handleSaveTitle"
               :disabled="isSavingTitle || !editedTitle.trim()"
-              type="primary"
+              variant="primary"
               :aria-label="strings.saveTitle"
               :title="strings.saveTitle"
               class="save-title-button"
@@ -198,7 +198,7 @@
       <!-- First post (always shown) -->
       <section v-if="!loading && !error && firstPost" class="mt-16 first-post-section">
         <PostCard
-          :ref="(el) => setPostCardRef(el, firstPost.id)"
+          :ref="(el) => setPostCardRef(el, firstPost!.id)"
           :post="firstPost"
           :is-first-post="true"
           :is-unread="isPostUnread(firstPost)"

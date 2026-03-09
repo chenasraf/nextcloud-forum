@@ -411,7 +411,7 @@ export default defineComponent({
 
       // Navigate to first category if available
       if (header.categories && header.categories.length > 0) {
-        const firstCategory = header.categories[0]
+        const firstCategory = header.categories[0]!
         this.$router.push({ path: `/c/${firstCategory.slug}` })
       }
     },

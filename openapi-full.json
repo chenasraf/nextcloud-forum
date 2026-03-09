@@ -3473,6 +3473,8 @@
                                             "required": [
                                                 "roleId",
                                                 "canView",
+                                                "canPost",
+                                                "canReply",
                                                 "canModerate"
                                             ],
                                             "properties": {
@@ -3481,6 +3483,12 @@
                                                     "format": "int64"
                                                 },
                                                 "canView": {
+                                                    "type": "boolean"
+                                                },
+                                                "canPost": {
+                                                    "type": "boolean"
+                                                },
+                                                "canReply": {
                                                     "type": "boolean"
                                                 },
                                                 "canModerate": {
@@ -7444,6 +7452,8 @@
                                             "required": [
                                                 "categoryId",
                                                 "canView",
+                                                "canPost",
+                                                "canReply",
                                                 "canModerate"
                                             ],
                                             "properties": {
@@ -7452,6 +7462,12 @@
                                                     "format": "int64"
                                                 },
                                                 "canView": {
+                                                    "type": "boolean"
+                                                },
+                                                "canPost": {
+                                                    "type": "boolean"
+                                                },
+                                                "canReply": {
                                                     "type": "boolean"
                                                 },
                                                 "canModerate": {
@@ -8035,6 +8051,8 @@
                                             "required": [
                                                 "categoryId",
                                                 "canView",
+                                                "canPost",
+                                                "canReply",
                                                 "canModerate"
                                             ],
                                             "properties": {
@@ -8043,6 +8061,12 @@
                                                     "format": "int64"
                                                 },
                                                 "canView": {
+                                                    "type": "boolean"
+                                                },
+                                                "canPost": {
+                                                    "type": "boolean"
+                                                },
+                                                "canReply": {
                                                     "type": "boolean"
                                                 },
                                                 "canModerate": {

@@ -146,7 +146,7 @@
             <NcAppNavigationItem
               :name="strings.navAdminRoles"
               :to="{ path: '/admin/roles' }"
-              :active="isPathActive('/admin/roles', true)"
+              :active="isPathActive(['/admin/roles', '/admin/teams'], true)"
             >
               <template #icon>
                 <ShieldAccountIcon :size="20" />
@@ -364,11 +364,22 @@ export default defineComponent({
       }
     },
 
-    isPathActive(path: string, usePrefix = false): boolean {
-      if (usePrefix) {
-        return this.$route.path.startsWith(path)
+    isPathActive(path: string | string[], usePrefix = false): boolean {
+      if (!Array.isArray(path)) {
+        path = [path]
       }
-      return this.$route.path === path
+      for (const p of path) {
+        if (usePrefix) {
+          if (this.$route.path.startsWith(p)) {
+            return true
+          }
+        } else {
+          if (this.$route.path === p) {
+            return true
+          }
+        }
+      }
+      return false
     },
 
     toggleHeader(headerId: number): void {

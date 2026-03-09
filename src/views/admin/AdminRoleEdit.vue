@@ -183,6 +183,8 @@
             :category-headers="categoryHeaders"
             :permissions="permissions"
             :disable-view="isAdmin"
+            :disable-post="isAdmin"
+            :disable-reply="isAdmin"
             :disable-moderate="isAdmin || isGuest || isDefault"
           />
         </section>
@@ -367,6 +369,8 @@ export default defineComponent({
             header.categories.forEach((category) => {
               this.permissions[category.id] = {
                 canView: false,
+                canPost: false,
+                canReply: false,
                 canModerate: false,
               }
             })
@@ -383,6 +387,8 @@ export default defineComponent({
               header.categories.forEach((category) => {
                 this.permissions[category.id] = {
                   canView: true,
+                  canPost: true,
+                  canReply: true,
                   canModerate: false,
                 }
               })
@@ -449,6 +455,8 @@ export default defineComponent({
           categoryId: number
           roleId: number
           canView: boolean
+          canPost: boolean
+          canReply: boolean
           canModerate: boolean
         }>
       >(`/roles/${this.roleId}/permissions`)
@@ -460,6 +468,8 @@ export default defineComponent({
         const categoryPerm = this.permissions[perm.categoryId]
         if (categoryPerm) {
           categoryPerm.canView = perm.canView
+          categoryPerm.canPost = perm.canPost
+          categoryPerm.canReply = perm.canReply
           categoryPerm.canModerate = perm.canModerate
         }
       })
@@ -471,6 +481,8 @@ export default defineComponent({
             header.categories.forEach((category) => {
               this.permissions[category.id] = {
                 canView: true,
+                canPost: true,
+                canReply: true,
                 canModerate: true,
               }
             })
@@ -558,6 +570,8 @@ export default defineComponent({
       const permissionsData = Object.entries(this.permissions).map(([categoryId, perms]) => ({
         categoryId: parseInt(categoryId),
         canView: perms.canView,
+        canPost: perms.canPost,
+        canReply: perms.canReply,
         canModerate: this.isGuest || this.isDefault ? false : perms.canModerate,
       }))
 

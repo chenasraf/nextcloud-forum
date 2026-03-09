@@ -370,8 +370,8 @@ class RoleControllerTest extends TestCase {
 	public function testUpdatePermissionsSuccessfully(): void {
 		$roleId = 2;
 		$permissions = [
-			['categoryId' => 1, 'canView' => true, 'canModerate' => false],
-			['categoryId' => 2, 'canView' => true, 'canModerate' => true],
+			['categoryId' => 1, 'canView' => true, 'canPost' => true, 'canModerate' => false],
+			['categoryId' => 2, 'canView' => true, 'canPost' => false, 'canModerate' => true],
 		];
 
 		$role = $this->createRole($roleId, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
@@ -389,7 +389,6 @@ class RoleControllerTest extends TestCase {
 			->method('insert')
 			->willReturnCallback(function ($perm) use ($roleId) {
 				$this->assertEquals((string)$roleId, $perm->getTargetId());
-				// Verify canPost and canReply are set based on canView
 				if ($perm->getCategoryId() === 1) {
 					$this->assertTrue($perm->getCanView());
 					$this->assertTrue($perm->getCanPost());
@@ -397,8 +396,8 @@ class RoleControllerTest extends TestCase {
 					$this->assertFalse($perm->getCanModerate());
 				} else {
 					$this->assertTrue($perm->getCanView());
-					$this->assertTrue($perm->getCanPost());
-					$this->assertTrue($perm->getCanReply());
+					$this->assertFalse($perm->getCanPost());
+					$this->assertFalse($perm->getCanReply());
 					$this->assertTrue($perm->getCanModerate());
 				}
 				return $perm;
@@ -409,6 +408,38 @@ class RoleControllerTest extends TestCase {
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
 		$this->assertTrue($data['success']);
+	}
+
+	public function testUpdatePermissionsCanPostFallsBackToCanView(): void {
+		$roleId = 2;
+		$permissions = [
+			['categoryId' => 1, 'canView' => true, 'canModerate' => false],
+		];
+
+		$role = $this->createRole($roleId, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
+
+		$this->roleMapper->expects($this->once())
+			->method('find')
+			->with($roleId)
+			->willReturn($role);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('deleteByRoleId')
+			->with($roleId);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function ($perm) {
+				// When canPost is not provided, it should fall back to canView
+				$this->assertTrue($perm->getCanView());
+				$this->assertTrue($perm->getCanPost());
+				$this->assertTrue($perm->getCanReply());
+				return $perm;
+			});
+
+		$response = $this->controller->updatePermissions($roleId, $permissions);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 	}
 
 	public function testUpdatePermissionsReturnsNotFoundWhenRoleDoesNotExist(): void {

@@ -402,7 +402,7 @@ class CategoryController extends OCSController {
 	 * Update permissions for a category
 	 *
 	 * @param int $id Category ID
-	 * @param list<array{roleId: int, canView: bool, canModerate: bool}> $permissions Role permissions array
+	 * @param list<array{roleId: int, canView: bool, canPost: bool, canReply: bool, canModerate: bool}> $permissions Role permissions array
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Permissions updated
@@ -439,9 +439,8 @@ class CategoryController extends OCSController {
 				$categoryPerm->setTargetType(CategoryPerm::TARGET_TYPE_ROLE);
 				$categoryPerm->setTargetId((string)$perm['roleId']);
 				$categoryPerm->setCanView($perm['canView'] ?? false);
-				// canPost and canReply default to canView value
-				$categoryPerm->setCanPost($perm['canView'] ?? false);
-				$categoryPerm->setCanReply($perm['canView'] ?? false);
+				$categoryPerm->setCanPost($perm['canPost'] ?? $perm['canView'] ?? false);
+				$categoryPerm->setCanReply($perm['canReply'] ?? $perm['canPost'] ?? $perm['canView'] ?? false);
 
 				// Guest and Default roles never have moderate permission
 				try {

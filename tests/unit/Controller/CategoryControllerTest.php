@@ -586,8 +586,8 @@ class CategoryControllerTest extends TestCase {
 	public function testUpdatePermissionsSuccessfully(): void {
 		$categoryId = 1;
 		$permissions = [
-			['roleId' => 2, 'canView' => true, 'canModerate' => false],
-			['roleId' => 3, 'canView' => true, 'canModerate' => true],
+			['roleId' => 2, 'canView' => true, 'canPost' => true, 'canModerate' => false],
+			['roleId' => 3, 'canView' => true, 'canPost' => false, 'canModerate' => true],
 		];
 
 		$category = $this->createCategory($categoryId, 1, 'Test Category');
@@ -601,9 +601,33 @@ class CategoryControllerTest extends TestCase {
 			->method('deleteByCategoryId')
 			->with($categoryId);
 
+		$this->roleMapper->expects($this->exactly(4))
+			->method('find')
+			->willReturnMap([
+				[2, (function () {
+					$r = new Role();
+					$r->setId(2);
+					$r->setRoleType(Role::ROLE_TYPE_MODERATOR);
+					return $r;
+				})()],
+				[3, (function () {
+					$r = new Role();
+					$r->setId(3);
+					$r->setRoleType(Role::ROLE_TYPE_MODERATOR);
+					return $r;
+				})()],
+			]);
+
 		$this->categoryPermMapper->expects($this->exactly(2))
 			->method('insert')
 			->willReturnCallback(function ($perm) {
+				if ($perm->getTargetId() === '2') {
+					$this->assertTrue($perm->getCanPost());
+					$this->assertTrue($perm->getCanReply());
+				} else {
+					$this->assertFalse($perm->getCanPost());
+					$this->assertFalse($perm->getCanReply());
+				}
 				return $perm;
 			});
 

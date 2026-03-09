@@ -303,6 +303,12 @@ test-docker:
 	echo "\x1b[33mRunning tests in container $$CONTAINER_ID for app $$APP_DIR\x1b[0m"; \
 	docker exec $$CONTAINER_ID phpunit -c apps-shared/$$APP_DIR/tests/phpunit.docker.xml
 
+# test-frontend:
+#   - Run frontend (Vitest) tests
+.PHONY: test-frontend
+test-frontend:
+	$(pnpm_cmd) vitest run
+
 # lint:
 #   - Lint JS via pnpm and PHP via composer script "lint"
 .PHONY: lint

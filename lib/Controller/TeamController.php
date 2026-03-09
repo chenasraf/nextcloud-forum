@@ -128,7 +128,7 @@ class TeamController extends OCSController {
 	 * Update category permissions for a team (circle)
 	 *
 	 * @param string $id Team/circle single ID
-	 * @param list<array{categoryId: int, canView: bool, canModerate: bool}> $permissions Permissions array
+	 * @param list<array{categoryId: int, canView: bool, canPost: bool, canReply: bool, canModerate: bool}> $permissions Permissions array
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Permissions updated
@@ -163,8 +163,8 @@ class TeamController extends OCSController {
 				$categoryPerm->setTargetType(CategoryPerm::TARGET_TYPE_TEAM);
 				$categoryPerm->setTargetId($id);
 				$categoryPerm->setCanView($perm['canView'] ?? false);
-				$categoryPerm->setCanPost($perm['canView'] ?? false);
-				$categoryPerm->setCanReply($perm['canView'] ?? false);
+				$categoryPerm->setCanPost($perm['canPost'] ?? $perm['canView'] ?? false);
+				$categoryPerm->setCanReply($perm['canReply'] ?? $perm['canPost'] ?? $perm['canView'] ?? false);
 				$categoryPerm->setCanModerate($perm['canModerate'] ?? false);
 
 				$this->categoryPermMapper->insert($categoryPerm);

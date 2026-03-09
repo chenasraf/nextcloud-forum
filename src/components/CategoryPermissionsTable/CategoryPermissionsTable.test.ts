@@ -75,9 +75,9 @@ function createHeaders(): CategoryHeader[] {
 
 function createPermissions(): Record<number, CategoryPermission> {
   return {
-    10: { canView: true, canModerate: false },
-    11: { canView: false, canModerate: false },
-    20: { canView: true, canModerate: true },
+    10: { canView: true, canPost: false, canReply: false, canModerate: false },
+    11: { canView: false, canPost: false, canReply: false, canModerate: false },
+    20: { canView: true, canPost: true, canReply: true, canModerate: true },
   }
 }
 
@@ -153,6 +153,8 @@ describe('CategoryPermissionsTable', () => {
       const header = wrapper.find('.table-header')
       expect(header.text()).toContain('Category')
       expect(header.text()).toContain('Can view')
+      expect(header.text()).toContain('Can post')
+      expect(header.text()).toContain('Can reply')
       expect(header.text()).toContain('Can moderate')
     })
   })
@@ -167,8 +169,8 @@ describe('CategoryPermissionsTable', () => {
         },
       })
       const checkboxes = wrapper.findAll('input[type="checkbox"]')
-      // 3 categories × 2 (view + moderate) + 2 headers × 2 (view + moderate) = 10
-      expect(checkboxes).toHaveLength(10)
+      // 3 categories × 4 perms + 2 headers × 4 perms = 20
+      expect(checkboxes).toHaveLength(20)
     })
   })
 
@@ -183,7 +185,7 @@ describe('CategoryPermissionsTable', () => {
       })
       // Header view checkboxes and category view checkboxes should be disabled
       const disabledLabels = wrapper.findAll('.nc-checkbox.disabled')
-      // 2 header view + 3 category view = 5 disabled checkboxes
+      // 2 header view + 3 category view = 5
       expect(disabledLabels.length).toBe(5)
     })
 
@@ -196,22 +198,24 @@ describe('CategoryPermissionsTable', () => {
         },
       })
       const disabledLabels = wrapper.findAll('.nc-checkbox.disabled')
-      // 2 header moderate + 3 category moderate = 5 disabled checkboxes
+      // 2 header moderate + 3 category moderate = 5
       expect(disabledLabels.length).toBe(5)
     })
 
-    it('should disable all checkboxes when both disable props are true', () => {
+    it('should disable all checkboxes when all disable props are true', () => {
       const wrapper = mount(CategoryPermissionsTable, {
         props: {
           categoryHeaders: createHeaders(),
           permissions: createPermissions(),
           disableView: true,
+          disablePost: true,
+          disableReply: true,
           disableModerate: true,
         },
       })
       const disabledLabels = wrapper.findAll('.nc-checkbox.disabled')
-      // All 10 checkboxes disabled
-      expect(disabledLabels.length).toBe(10)
+      // All 20 checkboxes disabled
+      expect(disabledLabels.length).toBe(20)
     })
 
     it('should not disable any checkboxes by default', () => {
@@ -260,7 +264,7 @@ describe('CategoryPermissionsTable', () => {
       // Category 10 (Announcements) currently has canModerate=false
       const rows = wrapper.findAll('.table-row')
       const announcementsRow = rows[0]
-      const moderateCheckbox = announcementsRow.findAll('.nc-checkbox')[1]
+      const moderateCheckbox = announcementsRow.findAll('.nc-checkbox')[3]
 
       await moderateCheckbox.trigger('click')
 
@@ -272,9 +276,9 @@ describe('CategoryPermissionsTable', () => {
   describe('header toggle behavior', () => {
     it('should check all categories in header when header view is toggled on', () => {
       const permissions: Record<number, CategoryPermission> = {
-        10: { canView: false, canModerate: false },
-        11: { canView: false, canModerate: false },
-        20: { canView: false, canModerate: false },
+        10: { canView: false, canPost: false, canReply: false, canModerate: false },
+        11: { canView: false, canPost: false, canReply: false, canModerate: false },
+        20: { canView: false, canPost: false, canReply: false, canModerate: false },
       }
       const wrapper = mount(CategoryPermissionsTable, {
         props: {
@@ -298,9 +302,9 @@ describe('CategoryPermissionsTable', () => {
 
     it('should uncheck all categories in header when header view is toggled off', () => {
       const permissions: Record<number, CategoryPermission> = {
-        10: { canView: true, canModerate: false },
-        11: { canView: true, canModerate: false },
-        20: { canView: true, canModerate: false },
+        10: { canView: true, canPost: false, canReply: false, canModerate: false },
+        11: { canView: true, canPost: false, canReply: false, canModerate: false },
+        20: { canView: true, canPost: false, canReply: false, canModerate: false },
       }
       const wrapper = mount(CategoryPermissionsTable, {
         props: {
@@ -324,9 +328,9 @@ describe('CategoryPermissionsTable', () => {
 
     it('should check all categories in header when header moderate is toggled on', () => {
       const permissions: Record<number, CategoryPermission> = {
-        10: { canView: true, canModerate: false },
-        11: { canView: true, canModerate: false },
-        20: { canView: true, canModerate: false },
+        10: { canView: true, canPost: false, canReply: false, canModerate: false },
+        11: { canView: true, canPost: false, canReply: false, canModerate: false },
+        20: { canView: true, canPost: false, canReply: false, canModerate: false },
       }
       const wrapper = mount(CategoryPermissionsTable, {
         props: {
@@ -350,9 +354,9 @@ describe('CategoryPermissionsTable', () => {
   describe('header state computation', () => {
     it('should show indeterminate when some categories in header are checked', () => {
       const permissions: Record<number, CategoryPermission> = {
-        10: { canView: true, canModerate: false },
-        11: { canView: false, canModerate: false },
-        20: { canView: true, canModerate: true },
+        10: { canView: true, canPost: false, canReply: false, canModerate: false },
+        11: { canView: false, canPost: false, canReply: false, canModerate: false },
+        20: { canView: true, canPost: true, canReply: true, canModerate: true },
       }
       const wrapper = mount(CategoryPermissionsTable, {
         props: {
@@ -380,9 +384,9 @@ describe('CategoryPermissionsTable', () => {
 
     it('should show checked when all categories in header are checked', () => {
       const permissions: Record<number, CategoryPermission> = {
-        10: { canView: true, canModerate: true },
-        11: { canView: true, canModerate: true },
-        20: { canView: false, canModerate: false },
+        10: { canView: true, canPost: true, canReply: true, canModerate: true },
+        11: { canView: true, canPost: true, canReply: true, canModerate: true },
+        20: { canView: false, canPost: false, canReply: false, canModerate: false },
       }
       const wrapper = mount(CategoryPermissionsTable, {
         props: {
@@ -410,9 +414,9 @@ describe('CategoryPermissionsTable', () => {
 
     it('should show unchecked when no categories in header are checked', () => {
       const permissions: Record<number, CategoryPermission> = {
-        10: { canView: false, canModerate: false },
-        11: { canView: false, canModerate: false },
-        20: { canView: true, canModerate: true },
+        10: { canView: false, canPost: false, canReply: false, canModerate: false },
+        11: { canView: false, canPost: false, canReply: false, canModerate: false },
+        20: { canView: true, canPost: true, canReply: true, canModerate: true },
       }
       const wrapper = mount(CategoryPermissionsTable, {
         props: {
@@ -449,12 +453,17 @@ describe('CategoryPermissionsTable', () => {
       const vm = wrapper.vm as unknown as VM
 
       const result = vm.ensurePermission(999)
-      expect(result).toEqual({ canView: false, canModerate: false })
+      expect(result).toEqual({
+        canView: false,
+        canPost: false,
+        canReply: false,
+        canModerate: false,
+      })
     })
 
     it('should return existing permission entry when it exists', () => {
       const permissions: Record<number, CategoryPermission> = {
-        10: { canView: true, canModerate: true },
+        10: { canView: true, canPost: true, canReply: true, canModerate: true },
       }
       const wrapper = mount(CategoryPermissionsTable, {
         props: {
@@ -469,7 +478,7 @@ describe('CategoryPermissionsTable', () => {
       const vm = wrapper.vm as unknown as VM
 
       const result = vm.ensurePermission(10)
-      expect(result).toEqual({ canView: true, canModerate: true })
+      expect(result).toEqual({ canView: true, canPost: true, canReply: true, canModerate: true })
     })
   })
 })

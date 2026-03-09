@@ -156,6 +156,8 @@ export default defineComponent({
             header.categories.forEach((category) => {
               this.permissions[category.id] = {
                 canView: false,
+                canPost: false,
+                canReply: false,
                 canModerate: false,
               }
             })
@@ -168,6 +170,8 @@ export default defineComponent({
             id: number
             categoryId: number
             canView: boolean
+            canPost: boolean
+            canReply: boolean
             canModerate: boolean
           }>
         >(`/teams/${this.teamId}/permissions`)
@@ -179,6 +183,8 @@ export default defineComponent({
           const categoryPerm = this.permissions[perm.categoryId]
           if (categoryPerm) {
             categoryPerm.canView = perm.canView
+            categoryPerm.canPost = perm.canPost
+            categoryPerm.canReply = perm.canReply
             categoryPerm.canModerate = perm.canModerate
           }
         })
@@ -197,6 +203,8 @@ export default defineComponent({
         const permissionsData = Object.entries(this.permissions).map(([categoryId, perms]) => ({
           categoryId: parseInt(categoryId),
           canView: perms.canView,
+          canPost: perms.canPost,
+          canReply: perms.canReply,
           canModerate: perms.canModerate,
         }))
 

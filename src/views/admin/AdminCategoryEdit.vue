@@ -133,6 +133,36 @@
             </div>
 
             <div class="form-group">
+              <label>{{ strings.postRoles }}</label>
+              <NcSelect
+                v-model="selectedPostTargets"
+                :options="postTargetOptions"
+                :placeholder="strings.selectRoles"
+                label="label"
+                track-by="id"
+                :multiple="true"
+                :taggable="false"
+                :close-on-select="false"
+              />
+              <p class="help-text muted">{{ strings.postRolesHelp }}</p>
+            </div>
+
+            <div class="form-group">
+              <label>{{ strings.replyRoles }}</label>
+              <NcSelect
+                v-model="selectedReplyTargets"
+                :options="replyTargetOptions"
+                :placeholder="strings.selectRoles"
+                label="label"
+                track-by="id"
+                :multiple="true"
+                :taggable="false"
+                :close-on-select="false"
+              />
+              <p class="help-text muted">{{ strings.replyRolesHelp }}</p>
+            </div>
+
+            <div class="form-group">
               <label>{{ strings.moderateRoles }}</label>
               <NcSelect
                 v-model="selectedModerateTargets"
@@ -230,6 +260,8 @@ export default defineComponent({
       roles: [] as Role[],
       selectedHeader: null as { id: number; label: string } | null,
       selectedViewTargets: [] as Array<{ id: number; label: string }>,
+      selectedPostTargets: [] as Array<{ id: number; label: string }>,
+      selectedReplyTargets: [] as Array<{ id: number; label: string }>,
       selectedModerateTargets: [] as Array<{ id: number; label: string }>,
       formData: {
         headerId: null as number | null,
@@ -283,6 +315,10 @@ export default defineComponent({
         ),
         viewRoles: t('forum', 'Can view'),
         viewRolesHelp: t('forum', 'Select roles that can view this category and its threads'),
+        postRoles: t('forum', 'Can post'),
+        postRolesHelp: t('forum', 'Select roles that can create new threads in this category'),
+        replyRoles: t('forum', 'Can reply'),
+        replyRolesHelp: t('forum', 'Select roles that can reply to threads in this category'),
         moderateRoles: t('forum', 'Can moderate'),
         moderateRolesHelp: t(
           'forum',
@@ -313,6 +349,22 @@ export default defineComponent({
       }))
     },
     viewTargetOptions(): Array<{ id: number; label: string }> {
+      return this.roles
+        .filter((role) => !isAdminRole(role))
+        .map((role) => ({
+          id: role.id,
+          label: role.name,
+        }))
+    },
+    postTargetOptions(): Array<{ id: number; label: string }> {
+      return this.roles
+        .filter((role) => !isAdminRole(role))
+        .map((role) => ({
+          id: role.id,
+          label: role.name,
+        }))
+    },
+    replyTargetOptions(): Array<{ id: number; label: string }> {
       return this.roles
         .filter((role) => !isAdminRole(role))
         .map((role) => ({
@@ -397,15 +449,13 @@ export default defineComponent({
           await this.loadPermissions()
         } else {
           // When creating a new category, prefill with default roles
-          // View: Default user role
+          // View, Post, Reply: Default user role
           const memberRole = this.roles.find(isDefaultRole)
           if (memberRole) {
-            this.selectedViewTargets = [
-              {
-                id: memberRole.id,
-                label: memberRole.name,
-              },
-            ]
+            const memberOption = { id: memberRole.id, label: memberRole.name }
+            this.selectedViewTargets = [memberOption]
+            this.selectedPostTargets = [memberOption]
+            this.selectedReplyTargets = [memberOption]
           }
 
           // Moderate: Admin and Moderator
@@ -479,6 +529,22 @@ export default defineComponent({
           })
           .filter((o): o is { id: number; label: string } => o !== null)
 
+        this.selectedPostTargets = rolePerms
+          .filter((p) => p.canPost)
+          .map((p) => {
+            const role = this.roles.find((r) => String(r.id) === p.targetId)
+            return role ? { id: role.id, label: role.name } : null
+          })
+          .filter((o): o is { id: number; label: string } => o !== null)
+
+        this.selectedReplyTargets = rolePerms
+          .filter((p) => p.canReply)
+          .map((p) => {
+            const role = this.roles.find((r) => String(r.id) === p.targetId)
+            return role ? { id: role.id, label: role.name } : null
+          })
+          .filter((o): o is { id: number; label: string } => o !== null)
+
         this.selectedModerateTargets = rolePerms
           .filter((p) => p.canModerate)
           .map((p) => {
@@ -536,17 +602,32 @@ export default defineComponent({
 
     async updatePermissions(categoryId: number): Promise<void> {
       const viewRoleIds = new Set(this.selectedViewTargets.map((t) => t.id))
+      const postRoleIds = new Set(this.selectedPostTargets.map((t) => t.id))
+      const replyRoleIds = new Set(this.selectedReplyTargets.map((t) => t.id))
       const moderateRoleIds = new Set(this.selectedModerateTargets.map((t) => t.id))
 
       // Collect all unique role IDs
-      const allRoleIds = new Set([...viewRoleIds, ...moderateRoleIds])
+      const allRoleIds = new Set([
+        ...viewRoleIds,
+        ...postRoleIds,
+        ...replyRoleIds,
+        ...moderateRoleIds,
+      ])
 
-      const permissions: Array<{ roleId: number; canView: boolean; canModerate: boolean }> = []
+      const permissions: Array<{
+        roleId: number
+        canView: boolean
+        canPost: boolean
+        canReply: boolean
+        canModerate: boolean
+      }> = []
 
       for (const roleId of allRoleIds) {
         permissions.push({
           roleId,
           canView: viewRoleIds.has(roleId),
+          canPost: postRoleIds.has(roleId),
+          canReply: replyRoleIds.has(roleId),
           canModerate: moderateRoleIds.has(roleId),
         })
       }

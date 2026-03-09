@@ -151,7 +151,7 @@ class TeamControllerTest extends TestCase {
 	public function testUpdatePermissionsReturnsServiceUnavailableWhenCirclesNotAvailable(): void {
 		$teamId = 'circle-abc-123';
 		$permissions = [
-			['categoryId' => 1, 'canView' => true, 'canModerate' => false],
+			['categoryId' => 1, 'canView' => true, 'canPost' => true, 'canModerate' => false],
 		];
 
 		// Since Circles is not available in the test environment, this should return 503
@@ -165,7 +165,7 @@ class TeamControllerTest extends TestCase {
 	public function testUpdatePermissionsDoesNotCallMapperWhenCirclesNotAvailable(): void {
 		$teamId = 'circle-abc-123';
 		$permissions = [
-			['categoryId' => 1, 'canView' => true, 'canModerate' => false],
+			['categoryId' => 1, 'canView' => true, 'canPost' => true, 'canModerate' => false],
 		];
 
 		// Mapper methods should never be called when Circles is unavailable

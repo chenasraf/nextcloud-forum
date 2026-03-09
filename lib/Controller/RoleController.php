@@ -257,7 +257,7 @@ class RoleController extends OCSController {
 	 * Update permissions for a role
 	 *
 	 * @param int $id Role ID
-	 * @param list<array{categoryId: int, canView: bool, canModerate: bool}> $permissions Permissions array
+	 * @param list<array{categoryId: int, canView: bool, canPost: bool, canReply: bool, canModerate: bool}> $permissions Permissions array
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Permissions updated
@@ -280,10 +280,8 @@ class RoleController extends OCSController {
 				$categoryPerm->setTargetType(CategoryPerm::TARGET_TYPE_ROLE);
 				$categoryPerm->setTargetId((string)$id);
 				$categoryPerm->setCanView($perm['canView'] ?? false);
-				// canPost and canReply default to canView value
-				// This ensures that if a role can view a category, they can also post/reply unless explicitly restricted
-				$categoryPerm->setCanPost($perm['canView'] ?? false);
-				$categoryPerm->setCanReply($perm['canView'] ?? false);
+				$categoryPerm->setCanPost($perm['canPost'] ?? $perm['canView'] ?? false);
+				$categoryPerm->setCanReply($perm['canReply'] ?? $perm['canPost'] ?? $perm['canView'] ?? false);
 				// Guest and Default roles never have moderate permission
 				$categoryPerm->setCanModerate($role->isModeratorRestricted() ? false : ($perm['canModerate'] ?? false));
 

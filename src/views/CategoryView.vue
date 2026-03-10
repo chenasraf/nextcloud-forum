@@ -22,7 +22,7 @@
               <RefreshIcon :size="20" />
             </template>
           </NcButton>
-          <NcButton @click="createThread" :disabled="loading" variant="primary">
+          <NcButton v-if="canPost" @click="createThread" :disabled="loading" variant="primary">
             <template #icon>
               <MessagePlusIcon :size="20" />
             </template>
@@ -74,7 +74,7 @@
         :description="strings.emptyDesc"
         class="mt-16"
       >
-        <template #action>
+        <template v-if="canPost" #action>
           <NcButton @click="createThread" variant="primary">
             <template #icon>
               <MessagePlusIcon :size="20" />
@@ -144,13 +144,15 @@ import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useCategories } from '@/composables/useCategories'
+import { usePermissions } from '@/composables/usePermissions'
 
 export default defineComponent({
   name: 'CategoryView',
   setup() {
     const { userId } = useCurrentUser()
     const { markCategoryAsRead } = useCategories()
-    return { userId, markCategoryAsReadLocal: markCategoryAsRead }
+    const { checkCategoryPermission } = usePermissions()
+    return { userId, markCategoryAsReadLocal: markCategoryAsRead, checkCategoryPermission }
   },
   components: {
     NcButton,
@@ -170,6 +172,7 @@ export default defineComponent({
     return {
       loading: false,
       loadingThreads: false,
+      canPost: false,
       category: null as Category | null,
       threads: [] as Thread[],
       readMarkers: {} as Record<number, { lastReadPostId: number; readAt: number }>,
@@ -219,13 +222,15 @@ export default defineComponent({
         // Fetch category details
         await this.fetchCategory()
 
-        // Fetch threads
+        // Fetch threads and check permissions
         if (this.category) {
           await this.fetchThreads()
           // Fetch read markers after threads are loaded
           await this.fetchReadMarkers()
           // Mark category as read for authenticated users
           this.markCategoryAsRead()
+          // Check canPost permission
+          this.canPost = await this.checkCategoryPermission(this.category.id, 'canPost')
         }
       } catch (e) {
         console.error('Failed to refresh', e)

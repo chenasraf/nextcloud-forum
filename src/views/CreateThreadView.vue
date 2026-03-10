@@ -73,11 +73,16 @@ import type { Category, Thread, Draft } from '@/types'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { showError, showSuccess } from '@nextcloud/dialogs'
+import { usePermissions } from '@/composables/usePermissions'
 
 const DRAFT_DEBOUNCE_DELAY = 1500 // 1.5 seconds
 
 export default defineComponent({
   name: 'CreateThreadView',
+  setup() {
+    const { checkCategoryPermission } = usePermissions()
+    return { checkCategoryPermission }
+  },
   components: {
     NcButton,
     NcEmptyContent,
@@ -148,6 +153,13 @@ export default defineComponent({
           resp = await ocs.get<Category>(`/categories/${this.categoryId}`)
         }
         this.category = resp!.data
+
+        // Check canPost permission
+        const canPost = await this.checkCategoryPermission(this.category.id, 'canPost')
+        if (!canPost) {
+          this.error = t('forum', 'You do not have permission to create threads in this category.')
+          return
+        }
 
         // After loading category, fetch any existing draft
         await this.fetchDraft()

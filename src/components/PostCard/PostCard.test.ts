@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createIconMock, createComponentMock } from '@/test-utils'
-import { createMockPost, createMockUser, createMockRole } from '@/test-mocks'
+import { createMockPost, createMockUser } from '@/test-mocks'
 import PostCard from './PostCard.vue'
 
 // Mock icons
@@ -172,13 +172,31 @@ describe('PostCard', () => {
   })
 
   describe('action buttons', () => {
-    it('should always show reply button', () => {
+    it('should show reply button when canReply is true', () => {
+      const post = createMockPost()
+      const wrapper = mount(PostCard, {
+        props: { post, canReply: true },
+      })
+      const buttons = wrapper.findAll('.nc-action-button')
+      expect(buttons.some((b) => b.text().includes('Quote reply'))).toBe(true)
+    })
+
+    it('should hide reply button when canReply is false', () => {
+      const post = createMockPost()
+      const wrapper = mount(PostCard, {
+        props: { post, canReply: false },
+      })
+      const buttons = wrapper.findAll('.nc-action-button')
+      expect(buttons.some((b) => b.text().includes('Quote reply'))).toBe(false)
+    })
+
+    it('should hide reply button by default', () => {
       const post = createMockPost()
       const wrapper = mount(PostCard, {
         props: { post },
       })
       const buttons = wrapper.findAll('.nc-action-button')
-      expect(buttons.some((b) => b.text().includes('Quote reply'))).toBe(true)
+      expect(buttons.some((b) => b.text().includes('Quote reply'))).toBe(false)
     })
 
     it('should show edit button when user is author', () => {
@@ -256,7 +274,7 @@ describe('PostCard', () => {
     it('should emit reply event when reply button is clicked', async () => {
       const post = createMockPost()
       const wrapper = mount(PostCard, {
-        props: { post },
+        props: { post, canReply: true },
       })
       const replyButton = wrapper
         .findAll('.nc-action-button')

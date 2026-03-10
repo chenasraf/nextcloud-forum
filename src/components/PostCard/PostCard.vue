@@ -102,7 +102,6 @@ import PostEditForm from '@/components/PostEditForm'
 import PostHistoryDialog from '@/components/PostHistoryDialog'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
-import { useUserRole } from '@/composables/useUserRole'
 import type { Post } from '@/types'
 import type { ReactionGroup } from '@/composables/useReactions'
 
@@ -145,12 +144,7 @@ export default defineComponent({
   },
   emits: ['reply', 'edit', 'delete', 'update'],
   setup() {
-    const { isAdmin, isModerator } = useUserRole()
-
-    return {
-      isAdmin,
-      isModerator,
-    }
+    return {}
   },
   data() {
     return {
@@ -176,31 +170,19 @@ export default defineComponent({
     },
     canEdit(): boolean {
       // Authors can edit their own posts
-      // Admins and global moderators can edit any post
-      // Category moderators can edit posts in their moderated categories
+      // Category moderators (including admins/moderators) can edit any post
       if (!this.currentUser) {
         return false
       }
-      return (
-        this.currentUser.uid === this.post.authorId ||
-        this.isAdmin ||
-        this.isModerator ||
-        this.canModerateCategory
-      )
+      return this.currentUser.uid === this.post.authorId || this.canModerateCategory
     },
     canDelete(): boolean {
       // Authors can delete their own posts
-      // Admins and global moderators can delete any post
-      // Category moderators can delete posts in their moderated categories
+      // Category moderators (including admins/moderators) can delete any post
       if (!this.currentUser) {
         return false
       }
-      return (
-        this.currentUser.uid === this.post.authorId ||
-        this.isAdmin ||
-        this.isModerator ||
-        this.canModerateCategory
-      )
+      return this.currentUser.uid === this.post.authorId || this.canModerateCategory
     },
     formattedContent(): string {
       // Content is already parsed by BBCodeService on the backend

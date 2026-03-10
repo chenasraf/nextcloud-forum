@@ -79,7 +79,8 @@ vi.mock('@/components/AppToolbar', () =>
 
 vi.mock('@/components/PostCard', () =>
   createComponentMock('PostCard', {
-    template: '<div class="post-card-mock" :data-can-reply="canReply" />',
+    template:
+      '<div class="post-card-mock" :data-can-reply="canReply" :data-can-moderate="canModerateCategory" />',
     props: ['post', 'isFirstPost', 'isUnread', 'canModerateCategory', 'canReply'],
     emits: ['reply', 'update', 'delete'],
   }),
@@ -279,6 +280,46 @@ describe('ThreadView', () => {
       expect(wrapper.find('.lock-icon').exists() || wrapper.find('.lock-open-icon').exists()).toBe(
         true,
       )
+    })
+
+    it('passes canModerateCategory=true to PostCard when user can moderate', async () => {
+      mockCheckCategoryPermission.mockImplementation((_id: number, perm: string) => {
+        if (perm === 'canModerate') return Promise.resolve(true)
+        return Promise.resolve(false)
+      })
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const postCards = wrapper.findAll('.post-card-mock')
+      expect(postCards.length).toBeGreaterThan(0)
+      postCards.forEach((card) => {
+        expect(card.attributes('data-can-moderate')).toBe('true')
+      })
+    })
+
+    it('passes canModerateCategory=false to PostCard when user cannot moderate', async () => {
+      mockCheckCategoryPermission.mockResolvedValue(false)
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const postCards = wrapper.findAll('.post-card-mock')
+      expect(postCards.length).toBeGreaterThan(0)
+      postCards.forEach((card) => {
+        expect(card.attributes('data-can-moderate')).toBe('false')
+      })
+    })
+
+    it('checks canModerate permission for the thread category', async () => {
+      mockThread.value = createMockThread({ id: 1, categoryId: 42, slug: 'test-thread' })
+      mockFetchThread.mockResolvedValue(mockThread.value)
+      mockCheckCategoryPermission.mockResolvedValue(false)
+
+      createWrapper()
+      await flushPromises()
+
+      expect(mockCheckCategoryPermission).toHaveBeenCalledWith(42, 'canModerate')
     })
 
     it('shows guest message for unauthenticated users', async () => {

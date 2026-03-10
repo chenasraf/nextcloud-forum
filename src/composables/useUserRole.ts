@@ -40,6 +40,18 @@ export function useUserRole() {
     return userRoles.value.some(isModeratorRole)
   })
 
+  const canAccessAdmin = computed<boolean>(() => {
+    return userRoles.value.some((role) => role.canAccessAdminTools)
+  })
+
+  const canEditRoles = computed<boolean>(() => {
+    return userRoles.value.some((role) => role.canEditRoles)
+  })
+
+  const canEditCategories = computed<boolean>(() => {
+    return userRoles.value.some((role) => role.canEditCategories)
+  })
+
   const refresh = () => {
     if (currentUserId.value) {
       loaded.value = false
@@ -61,6 +73,9 @@ export function useUserRole() {
     loaded,
     isAdmin,
     isModerator,
+    canAccessAdmin,
+    canEditRoles,
+    canEditCategories,
     fetchUserRoles,
     refresh,
     clear,

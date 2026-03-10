@@ -62,22 +62,10 @@ vi.mock('@nextcloud/auth', () => ({
   getCurrentUser: () => mockCurrentUser(),
 }))
 
-// Mock useUserRole
-const mockIsAdmin = vi.fn(() => false)
-const mockIsModerator = vi.fn(() => false)
-vi.mock('@/composables/useUserRole', () => ({
-  useUserRole: () => ({
-    isAdmin: mockIsAdmin(),
-    isModerator: mockIsModerator(),
-  }),
-}))
-
 describe('PostCard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockCurrentUser.mockReturnValue({ uid: 'testuser', displayName: 'Test User' })
-    mockIsAdmin.mockReturnValue(false)
-    mockIsModerator.mockReturnValue(false)
   })
 
   describe('rendering', () => {
@@ -202,28 +190,6 @@ describe('PostCard', () => {
     it('should show edit button when user is author', () => {
       mockCurrentUser.mockReturnValue({ uid: 'author123' })
       const post = createMockPost({ authorId: 'author123' })
-      const wrapper = mount(PostCard, {
-        props: { post },
-      })
-      const buttons = wrapper.findAll('.nc-action-button')
-      expect(buttons.some((b) => b.text().includes('Edit'))).toBe(true)
-    })
-
-    it('should show edit button when user is admin', () => {
-      mockCurrentUser.mockReturnValue({ uid: 'admin' })
-      mockIsAdmin.mockReturnValue(true)
-      const post = createMockPost({ authorId: 'someone_else' })
-      const wrapper = mount(PostCard, {
-        props: { post },
-      })
-      const buttons = wrapper.findAll('.nc-action-button')
-      expect(buttons.some((b) => b.text().includes('Edit'))).toBe(true)
-    })
-
-    it('should show edit button when user is moderator', () => {
-      mockCurrentUser.mockReturnValue({ uid: 'mod' })
-      mockIsModerator.mockReturnValue(true)
-      const post = createMockPost({ authorId: 'someone_else' })
       const wrapper = mount(PostCard, {
         props: { post },
       })

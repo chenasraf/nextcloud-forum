@@ -77,15 +77,15 @@ router.beforeEach(async (to, from, next) => {
 
   // Check if the route is an admin route
   if (to.path.startsWith('/admin')) {
-    const { isAdmin, fetchUserRoles, loaded } = useUserRole()
+    const { canAccessAdmin, fetchUserRoles, loaded } = useUserRole()
 
     // Fetch user and roles if not already loaded
     if (!loaded.value && userId.value) {
       await fetchUserRoles(userId.value)
     }
 
-    // Redirect non-admin users to home
-    if (!isAdmin.value) {
+    // Redirect users without admin access to home
+    if (!canAccessAdmin.value) {
       console.warn('Access denied to admin area - redirecting to home')
       next('/')
       return

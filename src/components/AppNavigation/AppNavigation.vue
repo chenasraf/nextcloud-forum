@@ -92,8 +92,12 @@
           </NcAppNavigationItem>
         </NcAppNavigationItem>
 
-        <!-- Admin menu item - only visible to admins -->
-        <NcAppNavigationItem v-if="isAdmin" :name="strings.navAdmin" @click="navigateToAdmin">
+        <!-- Admin menu item - visible to users with admin tool access -->
+        <NcAppNavigationItem
+          v-if="canAccessAdmin"
+          :name="strings.navAdmin"
+          @click="navigateToAdmin"
+        >
           <template #icon>
             <ShieldCheckIcon :size="20" />
           </template>
@@ -134,6 +138,7 @@
             </NcAppNavigationItem>
 
             <NcAppNavigationItem
+              v-if="canEditRoles"
               :name="strings.navAdminUsers"
               :to="{ path: '/admin/users' }"
               :active="isPathActive('/admin/users', true)"
@@ -144,6 +149,7 @@
             </NcAppNavigationItem>
 
             <NcAppNavigationItem
+              v-if="canEditRoles"
               :name="strings.navAdminRoles"
               :to="{ path: '/admin/roles' }"
               :active="isPathActive(['/admin/roles', '/admin/teams'], true)"
@@ -154,6 +160,7 @@
             </NcAppNavigationItem>
 
             <NcAppNavigationItem
+              v-if="canEditCategories"
               :name="strings.navAdminCategories"
               :to="{ path: '/admin/categories' }"
               :active="isPathActive('/admin/categories', true)"
@@ -241,7 +248,7 @@ export default defineComponent({
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
     const { userId, displayName, fetchCurrentUser } = useCurrentUser()
-    const { isAdmin, fetchUserRoles } = useUserRole()
+    const { canAccessAdmin, canEditRoles, canEditCategories, fetchUserRoles } = useUserRole()
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
 
     return {
@@ -251,7 +258,9 @@ export default defineComponent({
       fetchUserRoles,
       userId,
       displayName,
-      isAdmin,
+      canAccessAdmin,
+      canEditRoles,
+      canEditCategories,
       currentThreadCategoryId,
       fetchThread,
       clearThread,

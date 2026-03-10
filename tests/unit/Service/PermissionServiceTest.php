@@ -259,6 +259,138 @@ class PermissionServiceTest extends TestCase {
 		$this->assertTrue($result);
 	}
 
+	public function testHasCategoryPermissionCanModerateReturnsTrueForModeratorWithPermission(): void {
+		$userId = 'mod1';
+		$categoryId = 1;
+		$permission = 'canModerate';
+
+		$role = $this->createRole(2, 'Moderator', true, false, true, true, Role::ROLE_TYPE_MODERATOR);
+		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 2, true, true, true, true);
+
+		$this->roleMapper->expects($this->exactly(2))
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryAndRole')
+			->with($categoryId, 2)
+			->willReturn($categoryPerm);
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertTrue($result);
+	}
+
+	public function testHasCategoryPermissionCanModerateReturnsTrueForCustomRoleWithPermission(): void {
+		$userId = 'user1';
+		$categoryId = 1;
+		$permission = 'canModerate';
+
+		$role = $this->createRole(10, 'Category Moderator', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
+		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 10, true, true, true, true);
+
+		$this->roleMapper->expects($this->exactly(2))
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryAndRole')
+			->with($categoryId, 10)
+			->willReturn($categoryPerm);
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertTrue($result);
+	}
+
+	public function testHasCategoryPermissionCanModerateReturnsFalseForCustomRoleWithoutPermission(): void {
+		$userId = 'user1';
+		$categoryId = 1;
+		$permission = 'canModerate';
+
+		$role = $this->createRole(10, 'Limited Role', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
+		// Has view/post/reply but NOT moderate
+		$categoryPerm = $this->createCategoryPerm(1, $categoryId, 10, true, true, true, false);
+
+		$this->roleMapper->expects($this->exactly(2))
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->expects($this->once())
+			->method('findByCategoryAndRole')
+			->with($categoryId, 10)
+			->willReturn($categoryPerm);
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertFalse($result);
+	}
+
+	public function testHasCategoryPermissionCanModerateChecksAllRoles(): void {
+		$userId = 'user1';
+		$categoryId = 1;
+		$permission = 'canModerate';
+
+		// Default role has no moderate permission, custom role does
+		$defaultRole = $this->createRole(3, 'User', false, false, false, true, Role::ROLE_TYPE_DEFAULT);
+		$customRole = $this->createRole(10, 'Category Mod', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
+		$defaultPerm = $this->createCategoryPerm(1, $categoryId, 3, true, true, true, false);
+		$customPerm = $this->createCategoryPerm(2, $categoryId, 10, true, true, true, true);
+
+		$this->roleMapper->expects($this->exactly(2))
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$defaultRole, $customRole]);
+
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('findByCategoryAndRole')
+			->willReturnCallback(function ($catId, $roleId) use ($categoryId, $defaultPerm, $customPerm) {
+				$this->assertEquals($categoryId, $catId);
+				if ($roleId === 3) {
+					return $defaultPerm;
+				}
+				if ($roleId === 10) {
+					return $customPerm;
+				}
+				throw new DoesNotExistException('Not found');
+			});
+
+		$result = $this->service->hasCategoryPermission($userId, $categoryId, $permission);
+
+		$this->assertTrue($result);
+	}
+
+	public function testHasCategoryPermissionCanModerateIsCategorySpecific(): void {
+		$userId = 'user1';
+		$permission = 'canModerate';
+
+		// User can moderate category 1 but not category 2
+		$role = $this->createRole(10, 'Partial Mod', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
+		$perm1 = $this->createCategoryPerm(1, 1, 10, true, true, true, true);  // canModerate=true
+		$perm2 = $this->createCategoryPerm(2, 2, 10, true, true, true, false); // canModerate=false
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturnCallback(function ($catId, $roleId) use ($perm1, $perm2) {
+				if ($catId === 1 && $roleId === 10) {
+					return $perm1;
+				}
+				if ($catId === 2 && $roleId === 10) {
+					return $perm2;
+				}
+				throw new DoesNotExistException('Not found');
+			});
+
+		$this->assertTrue($this->service->hasCategoryPermission($userId, 1, $permission));
+		$this->assertFalse($this->service->hasCategoryPermission($userId, 2, $permission));
+	}
+
 	public function testHasGlobalPermissionForGuestUserUsesGuestRole(): void {
 		$userId = null; // Guest user
 		$permission = 'canEditRoles';

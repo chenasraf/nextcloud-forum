@@ -226,13 +226,17 @@ class ThreadMapper extends QBMapper {
 	 * @return array<int, int> categoryId => lastActivityTimestamp
 	 */
 	public function getLastActivityByCategories(): array {
+		$postsTable = Application::tableName('forum_posts');
+
 		$qb = $this->db->getQueryBuilder();
-		$qb->select('category_id')
-			->selectAlias($qb->func()->max('updated_at'), 'last_activity')
-			->from($this->getTableName())
-			->where($qb->expr()->isNull('deleted_at'))
-			->andWhere($qb->expr()->eq('is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
-			->groupBy('category_id');
+		$qb->select('t.category_id')
+			->selectAlias($qb->func()->max('p.created_at'), 'last_activity')
+			->from($this->getTableName(), 't')
+			->innerJoin('t', $postsTable, 'p', $qb->expr()->eq('p.thread_id', 't.id'))
+			->where($qb->expr()->isNull('t.deleted_at'))
+			->andWhere($qb->expr()->isNull('p.deleted_at'))
+			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->groupBy('t.category_id');
 
 		$result = $qb->executeQuery();
 		$rows = $result->fetchAll();

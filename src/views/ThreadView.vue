@@ -85,6 +85,7 @@
           </template>
 
           <NcButton
+            v-if="canReply"
             @click="replyToThread"
             :disabled="loading || (thread?.isLocked && !canModerate)"
             variant="primary"
@@ -203,6 +204,7 @@
           :is-first-post="true"
           :is-unread="isPostUnread(firstPost)"
           :can-moderate-category="canModerate"
+          :can-reply="canReply"
           @reply="handleReply"
           @update="handleUpdate"
           @delete="handleDelete"
@@ -238,6 +240,7 @@
             :is-first-post="false"
             :is-unread="isPostUnread(reply)"
             :can-moderate-category="canModerate"
+            :can-reply="canReply"
             @reply="handleReply"
             @update="handleUpdate"
             @delete="handleDelete"
@@ -261,7 +264,7 @@
         :description="strings.emptyPostsDesc"
         class="mt-16"
       >
-        <template #action>
+        <template v-if="canReply" #action>
           <NcButton @click="replyToThread" variant="primary">
             <template #icon>
               <ReplyIcon :size="20" />
@@ -283,6 +286,15 @@
         </p>
       </NcNoteCard>
 
+      <!-- No reply permission message (shown when user cannot reply, thread is not locked, and not already showing locked message) -->
+      <NcNoteCard
+        v-if="!loading && !error && thread && !canReply && !thread.isLocked && userId !== null"
+        type="info"
+        class="mt-16"
+      >
+        <p>{{ strings.noReplyPermission }}</p>
+      </NcNoteCard>
+
       <!-- Guest user message -->
       <NcNoteCard v-if="!loading && !error && thread && userId === null" type="info" class="mt-16">
         <p>{{ strings.guestMessage }}</p>
@@ -293,9 +305,16 @@
         </template>
       </NcNoteCard>
 
-      <!-- Reply form (authenticated users only, moderators can reply even when locked) -->
+      <!-- Reply form (authenticated users only, with canReply permission, moderators can reply even when locked) -->
       <PostReplyForm
-        v-if="!loading && !error && thread && userId !== null && (!thread.isLocked || canModerate)"
+        v-if="
+          !loading &&
+          !error &&
+          thread &&
+          userId !== null &&
+          canReply &&
+          (!thread.isLocked || canModerate)
+        "
         ref="replyForm"
         @submit="handleSubmitReply"
         @cancel="handleCancelReply"
@@ -410,6 +429,7 @@ export default defineComponent({
       perPage: 20,
       postCardRefs: new Map<number, any>(),
       canModerate: false,
+      canReply: false,
       isEditingTitle: false,
       editedTitle: '',
       isSavingTitle: false,
@@ -431,6 +451,7 @@ export default defineComponent({
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
         lockedMessage: t('forum', 'This thread is locked. Only moderators can add replies.'),
+        noReplyPermission: t('forum', 'You do not have permission to reply in this category.'),
         guestMessage: t('forum', 'You must be signed in to reply to this thread.'),
         signInToReply: t('forum', 'Sign in to reply'),
         lockThread: t('forum', 'Lock thread'),
@@ -536,8 +557,8 @@ export default defineComponent({
         // Fetch posts - use page from query param if present
         const initialPage = this.pageFromQuery || 0
         await this.fetchPosts(initialPage)
-        // Check moderation permission
-        await this.checkModerationPermission()
+        // Check permissions
+        await this.checkPermissions()
       } catch (e) {
         console.error('Failed to refresh', e)
         this.error = (e as Error).message || t('forum', 'An unexpected error occurred')
@@ -546,9 +567,14 @@ export default defineComponent({
       }
     },
 
-    async checkModerationPermission(): Promise<void> {
+    async checkPermissions(): Promise<void> {
       if (this.thread?.categoryId) {
-        this.canModerate = await this.checkCategoryPermission(this.thread.categoryId, 'canModerate')
+        const [canModerate, canReply] = await Promise.all([
+          this.checkCategoryPermission(this.thread.categoryId, 'canModerate'),
+          this.checkCategoryPermission(this.thread.categoryId, 'canReply'),
+        ])
+        this.canModerate = canModerate
+        this.canReply = canReply
       }
     },
 

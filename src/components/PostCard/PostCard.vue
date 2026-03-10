@@ -23,7 +23,7 @@
       </div>
       <div class="post-actions">
         <NcActions ref="actionsMenu">
-          <NcActionButton @click="handleReply">
+          <NcActionButton v-if="canReply" @click="handleReply">
             <template #icon>
               <ReplyIcon :size="20" />
             </template>
@@ -135,6 +135,10 @@ export default defineComponent({
       default: false,
     },
     canModerateCategory: {
+      type: Boolean,
+      default: false,
+    },
+    canReply: {
       type: Boolean,
       default: false,
     },

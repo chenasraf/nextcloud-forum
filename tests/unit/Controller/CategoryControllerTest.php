@@ -12,6 +12,7 @@ use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeader;
 use OCA\Forum\Db\CatHeaderMapper;
+use OCA\Forum\Db\ReadMarker;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
@@ -96,6 +97,155 @@ class CategoryControllerTest extends TestCase {
 		$this->assertArrayHasKey('categories', $data[0]);
 		$this->assertCount(2, $data[0]['categories']);
 		$this->assertCount(1, $data[1]['categories']);
+	}
+
+	public function testIndexIncludesLastActivityAtFromThreadMapper(): void {
+		$header = $this->createCatHeader(1, 'General');
+		$category1 = $this->createCategory(1, 1, 'Announcements');
+		$category2 = $this->createCategory(2, 1, 'Discussion');
+
+		$this->catHeaderMapper->method('findAll')->willReturn([$header]);
+		$this->categoryMapper->method('findAll')->willReturn([$category1, $category2]);
+
+		$lastActivityMap = [1 => 1700000000, 2 => 1700001000];
+		$this->threadMapper->expects($this->once())
+			->method('getLastActivityByCategories')
+			->willReturn($lastActivityMap);
+
+		$response = $this->controller->index();
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$categories = $data[0]['categories'];
+		$this->assertEquals(1700000000, $categories[0]['lastActivityAt']);
+		$this->assertEquals(1700001000, $categories[1]['lastActivityAt']);
+	}
+
+	public function testIndexReturnsNullLastActivityAtWhenNoThreads(): void {
+		$header = $this->createCatHeader(1, 'General');
+		$category = $this->createCategory(1, 1, 'Empty Category');
+
+		$this->catHeaderMapper->method('findAll')->willReturn([$header]);
+		$this->categoryMapper->method('findAll')->willReturn([$category]);
+
+		$this->threadMapper->method('getLastActivityByCategories')
+			->willReturn([]); // No threads in any category
+
+		$response = $this->controller->index();
+
+		$data = $response->getData();
+		$this->assertNull($data[0]['categories'][0]['lastActivityAt']);
+	}
+
+	public function testIndexIncludesReadAtForAuthenticatedUser(): void {
+		$header = $this->createCatHeader(1, 'General');
+		$category1 = $this->createCategory(1, 1, 'Announcements');
+		$category2 = $this->createCategory(2, 1, 'Discussion');
+
+		$this->catHeaderMapper->method('findAll')->willReturn([$header]);
+		$this->categoryMapper->method('findAll')->willReturn([$category1, $category2]);
+		$this->threadMapper->method('getLastActivityByCategories')->willReturn([]);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$marker = new ReadMarker();
+		$marker->setEntityId(1);
+		$marker->setReadAt(1700000500);
+
+		$this->readMarkerMapper->expects($this->once())
+			->method('findCategoryMarkersByUserId')
+			->with('user1')
+			->willReturn([$marker]);
+
+		$response = $this->controller->index();
+
+		$data = $response->getData();
+		$categories = $data[0]['categories'];
+		$this->assertEquals(1700000500, $categories[0]['readAt']);
+		$this->assertNull($categories[1]['readAt']); // No marker for category 2
+	}
+
+	public function testIndexReturnsNullReadAtForGuest(): void {
+		$header = $this->createCatHeader(1, 'General');
+		$category = $this->createCategory(1, 1, 'Announcements');
+
+		$this->catHeaderMapper->method('findAll')->willReturn([$header]);
+		$this->categoryMapper->method('findAll')->willReturn([$category]);
+		$this->threadMapper->method('getLastActivityByCategories')->willReturn([]);
+
+		$this->userSession->method('getUser')->willReturn(null);
+
+		$this->readMarkerMapper->expects($this->never())
+			->method('findCategoryMarkersByUserId');
+
+		$response = $this->controller->index();
+
+		$data = $response->getData();
+		$this->assertNull($data[0]['categories'][0]['readAt']);
+	}
+
+	public function testIndexCategoryUnreadWhenActivityAfterReadMarker(): void {
+		$header = $this->createCatHeader(1, 'General');
+		$category = $this->createCategory(1, 1, 'Announcements');
+
+		$this->catHeaderMapper->method('findAll')->willReturn([$header]);
+		$this->categoryMapper->method('findAll')->willReturn([$category]);
+
+		// Last post activity at timestamp 1000
+		$this->threadMapper->method('getLastActivityByCategories')
+			->willReturn([1 => 1700001000]);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// User last read at timestamp 500 (before activity)
+		$marker = new ReadMarker();
+		$marker->setEntityId(1);
+		$marker->setReadAt(1700000500);
+
+		$this->readMarkerMapper->method('findCategoryMarkersByUserId')
+			->willReturn([$marker]);
+
+		$response = $this->controller->index();
+
+		$data = $response->getData();
+		$cat = $data[0]['categories'][0];
+		// lastActivityAt > readAt means unread
+		$this->assertGreaterThan($cat['readAt'], $cat['lastActivityAt']);
+	}
+
+	public function testIndexCategoryReadWhenReadMarkerAfterActivity(): void {
+		$header = $this->createCatHeader(1, 'General');
+		$category = $this->createCategory(1, 1, 'Announcements');
+
+		$this->catHeaderMapper->method('findAll')->willReturn([$header]);
+		$this->categoryMapper->method('findAll')->willReturn([$category]);
+
+		// Last post activity at timestamp 500
+		$this->threadMapper->method('getLastActivityByCategories')
+			->willReturn([1 => 1700000500]);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// User last read at timestamp 1000 (after activity)
+		$marker = new ReadMarker();
+		$marker->setEntityId(1);
+		$marker->setReadAt(1700001000);
+
+		$this->readMarkerMapper->method('findCategoryMarkersByUserId')
+			->willReturn([$marker]);
+
+		$response = $this->controller->index();
+
+		$data = $response->getData();
+		$cat = $data[0]['categories'][0];
+		// readAt >= lastActivityAt means read
+		$this->assertGreaterThanOrEqual($cat['lastActivityAt'], $cat['readAt']);
 	}
 
 	public function testByHeaderReturnsCategoriesForHeader(): void {

@@ -12,6 +12,7 @@
     "Users" : "Brukarare",
     "Upload failed" : "Feil ved opplasting",
     "Close" : "Lat att",
+    "Category" : "Kategori",
     "Cancel" : "Cancel",
     "Update" : "Oppdater",
     "Move" : "Move",
@@ -32,7 +33,6 @@
     "Name" : "Namn",
     "New" : "Ny",
     "Appearance" : "Utsjånad",
-    "Category" : "Kategori",
     "ID" : "ID",
     "Actions" : "Handlingar",
     "Deleted" : "Sletta"

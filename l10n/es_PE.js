@@ -15,6 +15,7 @@ OC.L10N.register(
     "Hello world!" : "¡Hola mundo!",
     "Upload failed" : "Falla en la carga",
     "Close" : "Cerrar",
+    "Category" : "Categoría",
     "Cancel" : "Cancel",
     "Update" : "Actualizar",
     "Move" : "Mover",
@@ -41,8 +42,8 @@ OC.L10N.register(
     "Access control" : "Control de acceso",
     "Settings saved" : "Se han guardado las configuraciones ",
     "Reset" : "Restablecer",
-    "Category" : "Categoría",
     "ID" : "ID",
+    "Owner" : "Dueño",
     "Actions" : "Acciones",
     "Joined" : "Se ha unido",
     "Deleted" : "Borrado"

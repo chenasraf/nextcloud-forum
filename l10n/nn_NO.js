@@ -14,6 +14,7 @@ OC.L10N.register(
     "Users" : "Brukarare",
     "Upload failed" : "Feil ved opplasting",
     "Close" : "Lat att",
+    "Category" : "Kategori",
     "Cancel" : "Cancel",
     "Update" : "Oppdater",
     "Move" : "Move",
@@ -34,7 +35,6 @@ OC.L10N.register(
     "Name" : "Namn",
     "New" : "Ny",
     "Appearance" : "Utsjånad",
-    "Category" : "Kategori",
     "ID" : "ID",
     "Actions" : "Handlingar",
     "Deleted" : "Sletta"

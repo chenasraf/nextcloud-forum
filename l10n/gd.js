@@ -8,6 +8,8 @@ OC.L10N.register(
     "Font size" : "Meud a’ chrutha-chlò",
     "Upload failed" : "Dh'fhàillig leis an luchdadh suas",
     "Close" : "Dùin",
+    "Category" : "Roinn-seòrsa",
+    "Allow" : "Ceadaich",
     "Cancel" : "Cancel",
     "Create" : "Cruthaich",
     "Move" : "Gluais",
@@ -23,8 +25,6 @@ OC.L10N.register(
     "Files" : "Faidhlichean",
     "Disable" : "Cuir à comas",
     "Name" : "Ainm",
-    "Category" : "Roinn-seòrsa",
-    "Allow" : "Ceadaich",
     "Deleted" : "Chaidh a sguabadh às"
 },
 "nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : (n > 2 && n < 20) ? 2 : 3;");

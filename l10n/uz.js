@@ -16,6 +16,7 @@ OC.L10N.register(
     "Font size" : "Shrift hajmi",
     "List" : "Ro`yxat",
     "Close" : "Yopish",
+    "Category" : "Kategoriya",
     "Sort order" : "Saralash tartibi",
     "Cancel" : "Bekor qilish",
     "Create" : "Yaratish",
@@ -54,7 +55,7 @@ OC.L10N.register(
     "Settings saved" : "Sozlamalar saqlandi",
     "Failed to save settings" : "Sozlamalarni saqlab bo'lmadi",
     "Reset" : "Qayta tiklash",
-    "Category" : "Kategoriya",
+    "Owner" : "Egasi",
     "Actions" : "Faolliklar",
     "Status" : "Holat",
     "Deleted" : "O`chirilgan"

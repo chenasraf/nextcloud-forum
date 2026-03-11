@@ -9,6 +9,7 @@ OC.L10N.register(
     "Users" : "Usatores",
     "Collapse" : "Collaber",
     "Close" : "Clauder",
+    "Category" : "Categoria",
     "Cancel" : "Cancel",
     "Update" : "Actualisation",
     "Move" : "Mover",
@@ -26,7 +27,6 @@ OC.L10N.register(
     "New" : "Nove",
     "Settings saved" : "Configurationes salveguardate",
     "Reset" : "Re-fixar",
-    "Category" : "Categoria",
     "Actions" : "Actiones",
     "Deleted" : "Delite"
 },

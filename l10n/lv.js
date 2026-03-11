@@ -32,6 +32,8 @@ OC.L10N.register(
     "Font size" : "Fonta izmērs",
     "Upload failed" : "Augšupielāde neizdevās",
     "Close" : "Aizvērt",
+    "Category" : "Kategorija",
+    "Allow" : "Atļaut",
     "Cancel" : "Atcelt",
     "Update" : "Atjaunināt",
     "Move" : "Pārvietot",
@@ -69,9 +71,8 @@ OC.L10N.register(
     "Settings saved" : "Iestatījumi saglabāti",
     "Failed to save settings" : "Neizdevās saglabāt iestatījumus",
     "Reset" : "Atiestatīt",
-    "Category" : "Kategorija",
-    "Allow" : "Atļaut",
     "Actions" : "Darbības",
+    "No teams found" : "Netika atrasta neviena komanda",
     "Deleted" : "Izdzēsts"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);");

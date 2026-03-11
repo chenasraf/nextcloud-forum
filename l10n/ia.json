@@ -7,6 +7,7 @@
     "Users" : "Usatores",
     "Collapse" : "Collaber",
     "Close" : "Clauder",
+    "Category" : "Categoria",
     "Cancel" : "Cancel",
     "Update" : "Actualisation",
     "Move" : "Mover",
@@ -24,7 +25,6 @@
     "New" : "Nove",
     "Settings saved" : "Configurationes salveguardate",
     "Reset" : "Re-fixar",
-    "Category" : "Categoria",
     "Actions" : "Actiones",
     "Deleted" : "Delite"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"

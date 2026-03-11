@@ -16,6 +16,7 @@ OC.L10N.register(
     "Font size" : "ขนาดตัวอักษร",
     "Upload failed" : "อัปโหลดล้มเหลว",
     "Close" : "ปิด",
+    "Category" : "หมวดหมู่",
     "Cancel" : "Cancel",
     "Create" : "สร้าง",
     "Update" : "อัปเดต",
@@ -43,8 +44,8 @@ OC.L10N.register(
     "Settings saved" : "บันทึกการตั้งค่าแล้ว",
     "Failed to save settings" : "ไม่สามารถบันทึกการตั้งค่าได้",
     "Reset" : "รีเซ็ต",
-    "Category" : "หมวดหมู่",
     "ID" : "ID",
+    "Owner" : "เจ้าของ",
     "Actions" : "การกระทำ",
     "Status" : "สถานะ",
     "Deleted" : "ลบแล้ว"

@@ -26,6 +26,7 @@ OC.L10N.register(
     "Description" : "விவரிப்பு",
     "Name" : "பெயர்",
     "New" : "புதிய",
+    "Owner" : "Owner",
     "Actions" : "செயல்கள்"
 },
 "nplurals=2; plural=(n != 1);");

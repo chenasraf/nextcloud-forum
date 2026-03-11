@@ -12,6 +12,7 @@ OC.L10N.register(
     "Collapse" : "Yığılma",
     "Upload failed" : "Yüklənmədə səhv baş verdi",
     "Close" : "Bağla",
+    "Category" : "Kateqoriya",
     "Cancel" : "Cancel",
     "Update" : "Yenilənmə",
     "Move" : "Move",
@@ -31,7 +32,6 @@ OC.L10N.register(
     "New" : "Yeni",
     "Settings saved" : "Parametrlər yaddaşa verildi",
     "Reset" : "Sıfırla",
-    "Category" : "Kateqoriya",
     "Actions" : "İşlər",
     "Status" : "Status",
     "Deleted" : "Silinib"

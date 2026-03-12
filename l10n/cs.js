@@ -465,6 +465,7 @@ OC.L10N.register(
     "No roles found" : "Nenalezeny žádné role",
     "Create your first role to get started" : "Začněte vytvořením první role",
     "ID" : "Identif.",
+    "Owner" : "Vlastník",
     "Created" : "Vytvořeno",
     "Actions" : "Akce",
     "No description" : "Bez popisu",

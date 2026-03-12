@@ -30,6 +30,7 @@ OC.L10N.register(
     "Upload failed" : "Lähetys epäonnistui",
     "Close" : "Sulje",
     "Failed to upload file" : "Tiedoston lähettäminen epäonnistui",
+    "Threads" : "Keskusteluketjut",
     "Category" : "Kategoria",
     "Allow" : "Salli",
     "Cancel" : "Peruuta",

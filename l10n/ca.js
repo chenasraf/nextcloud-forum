@@ -92,6 +92,7 @@ OC.L10N.register(
     "Failed to save settings" : "Ha fallat desar els paràmetres",
     "Reset" : "Reinicialitza",
     "ID" : "ID",
+    "Owner" : "Propietat",
     "Created" : "S'ha creat",
     "Actions" : "Accions",
     "No teams found" : "No s'ha trobat cap equip",

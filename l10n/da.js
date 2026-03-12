@@ -87,6 +87,7 @@ OC.L10N.register(
     "Failed to save settings" : "Kunne ikke gemme indstillinger",
     "Reset" : "Nulstil",
     "ID" : "ID",
+    "Owner" : "Ejer",
     "Created" : "Oprettet",
     "Actions" : "Handlinger",
     "No teams found" : "Ingen teams fundet",

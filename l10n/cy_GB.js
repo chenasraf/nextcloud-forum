@@ -37,6 +37,7 @@ OC.L10N.register(
     "Name" : "Enw",
     "New" : "Newydd",
     "ID" : "ID",
+    "Owner" : "Perchennog",
     "Actions" : "Gweithredoedd",
     "Status" : "Statws",
     "Deleted" : "Wedi dileu"

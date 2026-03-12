@@ -86,6 +86,7 @@ OC.L10N.register(
     "Failed to save settings" : "Неуспешно запазване на настройките",
     "Reset" : "Възстановяване",
     "ID" : "ID /Идентификатор/",
+    "Owner" : "Създател",
     "Actions" : "Действия",
     "No description" : "Без описание",
     "No users found" : "Няма намерени потребители",

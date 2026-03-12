@@ -20,7 +20,7 @@ class SeedHelper {
 	 * @param bool $throwOnError If true, throws exceptions on failure. If false (default), logs errors and continues.
 	 *                           Set to false when called from migrations to avoid PostgreSQL transaction abort issues.
 	 */
-	public static function seedAll($output = null, bool $throwOnError = false): void {
+	public static function seedAll($output = null, bool $throwOnError = false, ?array $adminUserIds = null): void {
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$logger->info('Forum seeding: Starting data seed/repair');
@@ -55,7 +55,7 @@ class SeedHelper {
 			'seedCategoryPermissions' => fn () => self::seedCategoryPermissions($output),
 			'seedGuestRolePermissions' => fn () => self::seedGuestRolePermissions($output),
 			'seedDefaultBBCodes' => fn () => self::seedDefaultBBCodes($output),
-			'assignUserRoles' => fn () => self::assignUserRoles($output),
+			'assignUserRoles' => fn () => self::assignUserRoles($output, $adminUserIds),
 			'seedWelcomeThread' => fn () => self::seedWelcomeThread($output),
 		];
 
@@ -89,6 +89,14 @@ class SeedHelper {
 
 			if ($output) {
 				$output->info('Forum: Data seed/repair completed');
+			}
+
+			// Mark as initialized on success
+			try {
+				$appConfig = \OC::$server->get(\OCP\IAppConfig::class);
+				$appConfig->setValueBool('forum', 'is_initialized', true, lazy: true);
+			} catch (\Exception $e) {
+				$logger->warning('Forum seeding: Failed to set is_initialized flag', ['exception' => $e->getMessage()]);
 			}
 		}
 	}
@@ -1015,7 +1023,7 @@ class SeedHelper {
 	 *
 	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
 	 */
-	public static function assignUserRoles($output = null): void {
+	public static function assignUserRoles($output = null, ?array $adminUserIds = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$userManager = \OC::$server->get(\OCP\IUserManager::class);
 		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
@@ -1059,10 +1067,12 @@ class SeedHelper {
 			// Assign roles to all users
 			$usersProcessed = 0;
 			$usersSkipped = 0;
-			$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $groupManager, $logger, $output, &$usersProcessed, &$usersSkipped, $adminRoleId, $userRoleId) {
+			$userManager->callForAllUsers(function ($user) use ($db, $timestamp, $groupManager, $logger, $output, &$usersProcessed, &$usersSkipped, $adminRoleId, $userRoleId, $adminUserIds) {
 				try {
 					$userId = $user->getUID();
-					$isAdmin = $groupManager->isAdmin($userId);
+					$isAdmin = $adminUserIds !== null
+						? in_array($userId, $adminUserIds, true)
+						: $groupManager->isAdmin($userId);
 
 					// Check if user already has the User role
 					$qb = $db->getQueryBuilder();

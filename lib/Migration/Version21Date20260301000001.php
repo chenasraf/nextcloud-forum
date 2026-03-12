@@ -11,7 +11,6 @@ use Closure;
 use OCP\DB\ISchemaWrapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
-use Psr\Log\LoggerInterface;
 
 /**
  * Version 21 Migration (runs after data migration in Version 20):
@@ -20,11 +19,6 @@ use Psr\Log\LoggerInterface;
  * - Create new indexes for (category_id, target_type, target_id)
  */
 class Version21Date20260301000001 extends SimpleMigrationStep {
-	public function __construct(
-		private LoggerInterface $logger,
-	) {
-	}
-
 	/**
 	 * @param IOutput $output
 	 * @param Closure(): ISchemaWrapper $schemaClosure
@@ -68,17 +62,5 @@ class Version21Date20260301000001 extends SimpleMigrationStep {
 		}
 
 		return $schema;
-	}
-
-	/**
-	 * Run seeding after schema is finalized (target_type/target_id columns now exist)
-	 */
-	public function postSchemaChange(IOutput $output, Closure $schemaClosure, array $options): void {
-		try {
-			SeedHelper::seedAll($output, false);
-		} catch (\Exception $e) {
-			$this->logger->error('Forum migration: Seeding failed unexpectedly', ['exception' => $e->getMessage()]);
-			$output->warning('Forum: Seeding failed. Run "occ forum:repair-seeds" after enabling the app to complete setup.');
-		}
 	}
 }

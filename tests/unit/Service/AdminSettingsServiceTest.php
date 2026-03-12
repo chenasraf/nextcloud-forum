@@ -49,18 +49,24 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->once())
+		$this->config->expects($this->exactly(2))
 			->method('getAppValueBool')
-			->with(AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS, false, true)
-			->willReturn(true);
+			->willReturnCallback(function ($key, $default, $lazy) {
+				return match ($key) {
+					AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS => true,
+					AdminSettingsService::SETTING_IS_INITIALIZED => false,
+					default => $default,
+				};
+			});
 
 		$result = $this->service->getAllSettings();
 
 		$this->assertIsArray($result);
-		$this->assertCount(3, $result);
+		$this->assertCount(4, $result);
 		$this->assertEquals('My Forum', $result[AdminSettingsService::SETTING_TITLE]);
 		$this->assertEquals('Welcome!', $result[AdminSettingsService::SETTING_SUBTITLE]);
 		$this->assertTrue($result[AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS]);
+		$this->assertFalse($result[AdminSettingsService::SETTING_IS_INITIALIZED]);
 	}
 
 	public function testGetSettingReturnsCorrectStringValue(): void {
@@ -177,10 +183,15 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->once())
+		$this->config->expects($this->exactly(2))
 			->method('getAppValueBool')
-			->with(AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS, false, true)
-			->willReturn(true);
+			->willReturnCallback(function ($key, $default, $lazy) {
+				return match ($key) {
+					AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS => true,
+					AdminSettingsService::SETTING_IS_INITIALIZED => false,
+					default => $default,
+				};
+			});
 
 		$result = $this->service->updateSettings($settings);
 
@@ -221,10 +232,15 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->once())
+		$this->config->expects($this->exactly(2))
 			->method('getAppValueBool')
-			->with(AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS, false, true)
-			->willReturn(false);
+			->willReturnCallback(function ($key, $default, $lazy) {
+				return match ($key) {
+					AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS => false,
+					AdminSettingsService::SETTING_IS_INITIALIZED => false,
+					default => $default,
+				};
+			});
 
 		$result = $this->service->updateSettings($settings);
 

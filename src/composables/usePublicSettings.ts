@@ -11,6 +11,8 @@ export interface PublicSettings {
   subtitle: string
   /** Whether guest access is enabled */
   allow_guest_access: boolean
+  /** Whether the forum has been initialized */
+  is_initialized: boolean
 }
 
 const settings = ref<PublicSettings | null>(null)
@@ -68,6 +70,10 @@ export function usePublicSettings() {
     return settings.value?.allow_guest_access ?? false
   })
 
+  const isInitialized = computed<boolean>(() => {
+    return settings.value?.is_initialized ?? false
+  })
+
   /**
    * Refresh settings from server, forcing a new fetch
    *
@@ -98,6 +104,8 @@ export function usePublicSettings() {
     loaded,
     /** Computed boolean indicating if guest access is enabled */
     allowGuestAccess,
+    /** Computed boolean indicating if forum has been initialized */
+    isInitialized,
     /** Fetch settings from server */
     fetchPublicSettings,
     /** Force refresh settings from server */

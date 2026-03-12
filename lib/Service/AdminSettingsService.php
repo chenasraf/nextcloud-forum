@@ -21,11 +21,15 @@ class AdminSettingsService {
 	/** Setting key for guest access */
 	public const SETTING_ALLOW_GUEST_ACCESS = 'allow_guest_access';
 
+	/** Setting key for initialization status */
+	public const SETTING_IS_INITIALIZED = 'is_initialized';
+
 	/** @var array<string> List of valid setting keys */
 	private const VALID_KEYS = [
 		self::SETTING_TITLE,
 		self::SETTING_SUBTITLE,
 		self::SETTING_ALLOW_GUEST_ACCESS,
+		self::SETTING_IS_INITIALIZED,
 	];
 
 	public function __construct(
@@ -46,6 +50,7 @@ class AdminSettingsService {
 			self::SETTING_TITLE => $this->l10n->t('Forum'),
 			self::SETTING_SUBTITLE => $this->l10n->t('Welcome to the forum!'),
 			self::SETTING_ALLOW_GUEST_ACCESS => false,
+			self::SETTING_IS_INITIALIZED => false,
 			default => null,
 		};
 	}
@@ -80,7 +85,8 @@ class AdminSettingsService {
 		$default = $this->getDefault($key);
 
 		return match ($key) {
-			self::SETTING_ALLOW_GUEST_ACCESS => $this->config->getAppValueBool($key, $default, true),
+			self::SETTING_ALLOW_GUEST_ACCESS,
+			self::SETTING_IS_INITIALIZED => $this->config->getAppValueBool($key, $default, true),
 			default => $this->config->getAppValueString($key, $default, true),
 		};
 	}
@@ -121,7 +127,7 @@ class AdminSettingsService {
 			throw new \InvalidArgumentException("Invalid setting key: $key");
 		}
 
-		if ($key === self::SETTING_ALLOW_GUEST_ACCESS) {
+		if ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED) {
 			$this->config->setAppValueBool($key, (bool)$value, true);
 		} else {
 			$this->config->setAppValueString($key, (string)$value, true);

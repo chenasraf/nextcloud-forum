@@ -60,10 +60,16 @@ const router = createRouter({
 // Route guard to protect admin routes and enforce guest access settings
 router.beforeEach(async (to, from, next) => {
   const { userId, fetchCurrentUser } = useCurrentUser()
-  const { fetchPublicSettings, allowGuestAccess } = usePublicSettings()
+  const { fetchPublicSettings, allowGuestAccess, isInitialized } = usePublicSettings()
 
   // Fetch public settings and current user in parallel for better performance
   await Promise.all([fetchPublicSettings(), fetchCurrentUser()])
+
+  // If not initialized, skip all other guards — let App.vue handle the init screen
+  if (!isInitialized.value) {
+    next()
+    return
+  }
 
   // If user is not signed in and guest access is disabled, redirect to login
   if (!userId.value && !allowGuestAccess.value) {

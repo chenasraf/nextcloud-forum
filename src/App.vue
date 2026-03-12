@@ -1,10 +1,15 @@
 <template>
   <NcContent id="content-forum" app-name="forum" :data-forum-dark="isDarkTheme">
     <!-- Left sidebar -->
-    <AppNavigation />
+    <AppNavigation v-if="!settingsLoaded || isInitialized" />
+
+    <!-- Initialization screen (only after settings are loaded) -->
+    <NcAppContent v-if="settingsLoaded && !isInitialized" id="forum-main">
+      <InitializationScreen @initialized="onInitialized" />
+    </NcAppContent>
 
     <!-- Main content -->
-    <NcAppContent id="forum-main">
+    <NcAppContent v-else id="forum-main">
       <div id="forum-content">
         <div id="forum-router">
           <div v-if="isRouterLoading" class="router-loading">
@@ -24,7 +29,9 @@ import NcContent from '@nextcloud/vue/components/NcContent'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import AppNavigation from '@/components/AppNavigation'
+import InitializationScreen from '@/components/InitializationScreen.vue'
 import { useIsDarkTheme } from '@nextcloud/vue/composables/useIsDarkTheme'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 
 export default defineComponent({
   name: 'ForumApp',
@@ -33,6 +40,7 @@ export default defineComponent({
     NcAppContent,
     NcLoadingIcon,
     AppNavigation,
+    InitializationScreen,
   },
   // Tell NcContent we *do* have a sidebar so it arranges layout properly
   provide() {
@@ -40,7 +48,8 @@ export default defineComponent({
   },
   setup() {
     const isDarkTheme = useIsDarkTheme()
-    return { isDarkTheme }
+    const { isInitialized, loaded: settingsLoaded, refresh } = usePublicSettings()
+    return { isDarkTheme, isInitialized, settingsLoaded, refreshSettings: refresh }
   },
   data() {
     return {
@@ -48,6 +57,11 @@ export default defineComponent({
       _removeBeforeEach: null as (() => void) | null,
       _removeAfterEach: null as (() => void) | null,
     }
+  },
+  methods: {
+    async onInitialized() {
+      await this.refreshSettings()
+    },
   },
   created() {
     // Show a loading overlay while routes are changing

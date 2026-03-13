@@ -61,7 +61,7 @@
             <h2 class="user-name">{{ displayName }}</h2>
             <div class="user-meta">
               <span v-if="forumUser && forumUser.createdAt" class="meta-item">
-                <span class="meta-label">{{ strings.firstPost }}</span>
+                <span class="meta-label">{{ strings.created }}</span>
                 <NcDateTime :timestamp="forumUser.createdAt * 1000" />
               </span>
               <span v-if="forumUser && forumUser.createdAt" class="meta-divider">·</span>
@@ -207,7 +207,7 @@ export default defineComponent({
         loading: t('forum', 'Loading …'),
         errorTitle: t('forum', 'Error'),
         retry: t('forum', 'Retry'),
-        firstPost: t('forum', 'First activity'),
+        created: t('forum', 'Created'),
         repliesLabel: (count: number) => t('forum', 'Replies'),
         threadsLabel: (count: number) => t('forum', 'Threads'),
         threadsTab: (count: number) => t('forum', 'Threads ({count})', { count }),

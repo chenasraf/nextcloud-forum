@@ -32,6 +32,7 @@ import AppNavigation from '@/components/AppNavigation'
 import InitializationScreen from '@/components/InitializationScreen.vue'
 import { useIsDarkTheme } from '@nextcloud/vue/composables/useIsDarkTheme'
 import { usePublicSettings } from '@/composables/usePublicSettings'
+import { useCategories } from '@/composables/useCategories'
 
 export default defineComponent({
   name: 'ForumApp',
@@ -49,7 +50,8 @@ export default defineComponent({
   setup() {
     const isDarkTheme = useIsDarkTheme()
     const { isInitialized, loaded: settingsLoaded, refresh } = usePublicSettings()
-    return { isDarkTheme, isInitialized, settingsLoaded, refreshSettings: refresh }
+    const { clear: clearCategories } = useCategories()
+    return { isDarkTheme, isInitialized, settingsLoaded, refreshSettings: refresh, clearCategories }
   },
   data() {
     return {
@@ -60,6 +62,7 @@ export default defineComponent({
   },
   methods: {
     async onInitialized() {
+      this.clearCategories()
       await this.refreshSettings()
     },
   },

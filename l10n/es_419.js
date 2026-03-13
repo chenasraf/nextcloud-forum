@@ -43,6 +43,7 @@ OC.L10N.register(
     "Settings saved" : "Se han guardado las configuraciones ",
     "Reset" : "Restaurar",
     "ID" : "ID",
+    "Owner" : "Dueño",
     "Actions" : "Acciones",
     "Joined" : "Se ha unido",
     "Deleted" : "Borrado"

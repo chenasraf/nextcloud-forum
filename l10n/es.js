@@ -176,6 +176,7 @@ OC.L10N.register(
     "Failed to save settings" : "Fallo al guardar ajustes",
     "Reset" : "Restablecer",
     "ID" : "ID",
+    "Owner" : "Propietario",
     "Created" : "Creado",
     "Actions" : "Acciones",
     "No description" : "Sin descripción",

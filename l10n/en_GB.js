@@ -466,6 +466,7 @@ OC.L10N.register(
     "No roles found" : "No roles found",
     "Create your first role to get started" : "Create your first role to get started",
     "ID" : "ID",
+    "Owner" : "Owner",
     "Created" : "Created",
     "Actions" : "Actions",
     "No description" : "No description",

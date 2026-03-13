@@ -466,6 +466,7 @@ OC.L10N.register(
     "No roles found" : "Δεν βρέθηκαν ρόλοι",
     "Create your first role to get started" : "Δημιουργήστε τον πρώτο σας ρόλο για να ξεκινήσετε",
     "ID" : "ID",
+    "Owner" : "Κάτοχος",
     "Created" : "Δημιουργήθηκε",
     "Actions" : "Ενέργειες",
     "No description" : "Χωρίς περιγραφή",

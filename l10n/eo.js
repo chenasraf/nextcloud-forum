@@ -52,6 +52,7 @@ OC.L10N.register(
     "Failed to save settings" : "Konservo de agordoj malsukcesis",
     "Reset" : "Restarigi",
     "ID" : "Identigilo",
+    "Owner" : "Posedanto",
     "Created" : "Kreita",
     "Actions" : "Agoj",
     "Joined" : "Membriĝinta",

@@ -12,8 +12,6 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
-use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 /**
  * @template-extends QBMapper<Category>
@@ -21,9 +19,6 @@ use Psr\Log\LoggerInterface;
 class CategoryMapper extends QBMapper {
 	public function __construct(
 		IDBConnection $db,
-		private IUserSession $userSession,
-		private RoleMapper $roleMapper,
-		private LoggerInterface $logger,
 	) {
 		parent::__construct($db, Application::tableName('forum_categories'), Category::class);
 	}
@@ -60,117 +55,6 @@ class CategoryMapper extends QBMapper {
 		return $this->findEntity($qb);
 	}
 
-	/**
-	 * Check if current user has admin role
-	 *
-	 * @return bool
-	 */
-	private function isCurrentUserAdmin(): bool {
-		$user = $this->userSession->getUser();
-		if (!$user) {
-			return false;
-		}
-
-		$roles = $this->roleMapper->findByUserId($user->getUID());
-		foreach ($roles as $role) {
-			if ($role->getRoleType() === Role::ROLE_TYPE_ADMIN) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Get role IDs for the current user (or guest role if not authenticated)
-	 *
-	 * @return array<int>
-	 */
-	private function getUserRoleIds(): array {
-		$user = $this->userSession->getUser();
-
-		if (!$user) {
-			// User not authenticated - use guest role if available
-			try {
-				$guestRole = $this->roleMapper->findByRoleType(Role::ROLE_TYPE_GUEST);
-				return [$guestRole->getId()];
-			} catch (DoesNotExistException $e) {
-				// No guest role configured - this should never happen after migration
-				$this->logger->error('Guest role not found - guest access will not work. This indicates a migration issue.');
-				return [];
-			}
-		}
-
-		$roles = $this->roleMapper->findByUserId($user->getUID());
-		return array_map(fn ($role) => $role->getId(), $roles);
-	}
-
-	/**
-	 * Filter categories by user permissions
-	 *
-	 * @param array<Category> $categories
-	 * @return array<Category>
-	 */
-	private function filterByPermissions(array $categories): array {
-		if (empty($categories)) {
-			return [];
-		}
-
-		// Admin role has access to all categories - skip filtering
-		if ($this->isCurrentUserAdmin()) {
-			return $categories;
-		}
-
-		$userRoleIds = $this->getUserRoleIds();
-
-		$categoryIds = array_map(fn ($cat) => $cat->getId(), $categories);
-
-		// Get all permissions for these categories
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('category_id', 'target_type', 'target_id', 'can_view')
-			->from(Application::tableName('forum_category_perms'))
-			->where($qb->expr()->in('category_id', $qb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)));
-
-		$result = $qb->executeQuery();
-		$permissions = [];
-		while ($row = $result->fetch()) {
-			$categoryId = (int)$row['category_id'];
-			if (!isset($permissions[$categoryId])) {
-				$permissions[$categoryId] = [];
-			}
-			$permissions[$categoryId][] = [
-				'target_type' => $row['target_type'],
-				'target_id' => $row['target_id'],
-				'can_view' => (bool)$row['can_view'],
-			];
-		}
-		$result->closeCursor();
-
-		$roleIdStrings = array_map('strval', $userRoleIds);
-
-		// Filter categories based on permissions
-		return array_values(array_filter($categories, function ($category) use ($permissions, $roleIdStrings) {
-			$categoryId = $category->getId();
-
-			// If no permissions exist for this category, it's public
-			if (!isset($permissions[$categoryId]) || empty($permissions[$categoryId])) {
-				return true;
-			}
-
-			// Check if user has any role with can_view permission
-			foreach ($permissions[$categoryId] as $perm) {
-				if (!$perm['can_view']) {
-					continue;
-				}
-
-				if ($perm['target_type'] === CategoryPerm::TARGET_TYPE_ROLE
-					&& in_array($perm['target_id'], $roleIdStrings, true)) {
-					return true;
-				}
-			}
-
-			return false;
-		}));
-	}
 
 	/**
 	 * @return array<Category>
@@ -185,8 +69,7 @@ class CategoryMapper extends QBMapper {
 					->eq('header_id', $qb->createNamedParameter($headerId, IQueryBuilder::PARAM_INT))
 			)
 			->orderBy('sort_order', 'ASC');
-		$categories = $this->findEntities($qb);
-		return $this->filterByPermissions($categories);
+		return $this->findEntities($qb);
 	}
 
 	/**
@@ -198,8 +81,7 @@ class CategoryMapper extends QBMapper {
 		$qb->select('*')
 			->from($this->getTableName())
 			->orderBy('sort_order', 'ASC');
-		$categories = $this->findEntities($qb);
-		return $this->filterByPermissions($categories);
+		return $this->findEntities($qb);
 	}
 
 	/**

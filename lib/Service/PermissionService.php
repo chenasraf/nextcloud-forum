@@ -263,23 +263,6 @@ class PermissionService {
 		$accessibleCategoryIds = [];
 
 		try {
-			// Handle guest users (null userId) - use guest role
-			if ($userId === null) {
-				try {
-					$guestRole = $this->roleMapper->findByRoleType(Role::ROLE_TYPE_GUEST);
-					$roles = [$guestRole];
-				} catch (DoesNotExistException $e) {
-					return [];
-				}
-			} else {
-				// Get all user roles using JOIN
-				$roles = $this->roleMapper->findByUserId($userId);
-
-				if (empty($roles)) {
-					return [];
-				}
-			}
-
 			// Get all categories
 			$categories = $this->categoryMapper->findAll();
 
@@ -289,7 +272,6 @@ class PermissionService {
 					$accessibleCategoryIds[] = $category->getId();
 				}
 			}
-
 			return $accessibleCategoryIds;
 		} catch (\Exception $e) {
 			$this->logger->error('Error getting accessible categories: ' . $e->getMessage());
@@ -305,14 +287,32 @@ class PermissionService {
 	 * @param string $getter Getter method name (e.g., 'getCanView')
 	 * @return bool True if user has the permission via a team
 	 */
-	private function hasTeamCategoryPermission(string $userId, int $categoryId, string $getter): bool {
+	/**
+	 * Get circle IDs for a user, with caching to avoid repeated Circles API calls
+	 *
+	 * @param string $userId Nextcloud user ID
+	 * @return array<string>|null Circle IDs, or null if Circles is unavailable
+	 */
+	/**
+	 * Get circle IDs for a user, with caching to avoid repeated Circles API calls
+	 *
+	 * @param string $userId Nextcloud user ID
+	 * @return array<string>|null Circle IDs, or null if Circles is unavailable
+	 */
+	protected function getUserCircleIds(string $userId): ?array {
+		// Cache circle IDs per-request to avoid repeated Circles API calls
+		static $cache = [];
+		if (array_key_exists($userId, $cache)) {
+			return $cache[$userId];
+		}
+
 		try {
 			if (!class_exists(\OCA\Circles\CirclesManager::class)) {
-				return false;
+				$cache[$userId] = null;
+				return null;
 			}
 
 			$circlesManager = \OCP\Server::get(\OCA\Circles\CirclesManager::class);
-
 			$federatedUser = $circlesManager->getFederatedUser($userId, \OCA\Circles\Model\Member::TYPE_USER);
 			$circlesManager->startSession($federatedUser);
 
@@ -325,28 +325,37 @@ class PermissionService {
 					->filterSingleCircles();
 
 				$circles = $circlesManager->getCircles($probe);
-				$circleIds = array_map(fn ($c) => $c->getSingleId(), $circles);
-
-				if (empty($circleIds)) {
-					return false;
-				}
-
-				$teamPerms = $this->categoryPermMapper->findByCategoryAndTeamIds($categoryId, $circleIds);
-				foreach ($teamPerms as $perm) {
-					try {
-						if ($perm->$getter()) {
-							return true;
-						}
-					} catch (\BadMethodCallException $e) {
-						continue;
-					}
-				}
+				$cache[$userId] = array_map(fn ($c) => $c->getSingleId(), $circles);
 			} finally {
 				$circlesManager->stopSession();
 			}
 		} catch (\Exception $e) {
-			// Circles app not available or other error - skip team permission check
-			$this->logger->debug('Team permission check skipped: ' . $e->getMessage());
+			$this->logger->warning('Forum: Failed to get circles for user ' . $userId . ': ' . $e->getMessage());
+			$cache[$userId] = null;
+		}
+
+		return $cache[$userId];
+	}
+
+	private function hasTeamCategoryPermission(string $userId, int $categoryId, string $getter): bool {
+		$circleIds = $this->getUserCircleIds($userId);
+		if ($circleIds === null || empty($circleIds)) {
+			return false;
+		}
+
+		try {
+			$teamPerms = $this->categoryPermMapper->findByCategoryAndTeamIds($categoryId, $circleIds);
+			foreach ($teamPerms as $perm) {
+				try {
+					if ($perm->$getter()) {
+						return true;
+					}
+				} catch (\BadMethodCallException $e) {
+					continue;
+				}
+			}
+		} catch (\Exception $e) {
+			$this->logger->warning('Forum: Team permission check failed for user ' . $userId . ' on category ' . $categoryId . ': ' . $e->getMessage());
 		}
 
 		return false;

@@ -13,7 +13,6 @@ use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
-use OCA\Forum\Db\UserRoleMapper;
 use OCA\Forum\Migration\SeedHelper;
 use OCA\Forum\Service\AdminSettingsService;
 use OCA\Forum\Service\UserRoleService;
@@ -39,7 +38,6 @@ class AdminController extends OCSController {
 		private ThreadMapper $threadMapper,
 		private PostMapper $postMapper,
 		private CategoryMapper $categoryMapper,
-		private UserRoleMapper $userRoleMapper,
 		private RoleMapper $roleMapper,
 		private UserRoleService $userRoleService,
 		private IUserManager $userManager,
@@ -213,25 +211,6 @@ class AdminController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error updating settings: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to update settings'], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * Check if user has admin role
-	 */
-	private function isUserAdmin(string $userId): bool {
-		try {
-			$userRoles = $this->userRoleMapper->findByUserId($userId);
-			foreach ($userRoles as $userRole) {
-				// Role ID 1 is Admin role (from migration)
-				if ($userRole->getRoleId() === 1) {
-					return true;
-				}
-			}
-			return false;
-		} catch (\Exception $e) {
-			$this->logger->warning('Error checking admin role: ' . $e->getMessage());
-			return false;
 		}
 	}
 

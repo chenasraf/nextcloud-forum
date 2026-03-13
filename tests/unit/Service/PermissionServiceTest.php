@@ -710,8 +710,12 @@ class PermissionServiceTest extends TestCase {
 	}
 
 	public function testGetAccessibleCategoriesForGuestUserWithNoGuestRole(): void {
-		$this->roleMapper->expects($this->once())
-			->method('findByRoleType')
+		$category1 = $this->createCategory(1, 'Category 1', 'category-1');
+
+		$this->categoryMapper->method('findAll')
+			->willReturn([$category1]);
+
+		$this->roleMapper->method('findByRoleType')
 			->with(Role::ROLE_TYPE_GUEST)
 			->willThrowException(new DoesNotExistException('Guest role not found'));
 
@@ -722,11 +726,17 @@ class PermissionServiceTest extends TestCase {
 
 	public function testGetAccessibleCategoriesReturnsEmptyWhenUserHasNoRoles(): void {
 		$userId = 'user1';
+		$category1 = $this->createCategory(1, 'Category 1', 'category-1');
 
-		$this->roleMapper->expects($this->once())
-			->method('findByUserId')
+		$this->categoryMapper->method('findAll')
+			->willReturn([$category1]);
+
+		$this->roleMapper->method('findByUserId')
 			->with($userId)
 			->willReturn([]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willThrowException(new DoesNotExistException('Not found'));
 
 		$result = $this->service->getAccessibleCategories($userId);
 
@@ -735,12 +745,6 @@ class PermissionServiceTest extends TestCase {
 
 	public function testGetAccessibleCategoriesReturnsEmptyWhenNoCategoriesExist(): void {
 		$userId = 'user1';
-		$role = $this->createRole(1, 'User', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
-
-		$this->roleMapper->expects($this->once())
-			->method('findByUserId')
-			->with($userId)
-			->willReturn([$role]);
 
 		$this->categoryMapper->expects($this->once())
 			->method('findAll')
@@ -754,9 +758,8 @@ class PermissionServiceTest extends TestCase {
 	public function testGetAccessibleCategoriesHandlesExceptions(): void {
 		$userId = 'user1';
 
-		$this->roleMapper->expects($this->once())
-			->method('findByUserId')
-			->with($userId)
+		$this->categoryMapper->expects($this->once())
+			->method('findAll')
 			->willThrowException(new \Exception('Database error'));
 
 		$result = $this->service->getAccessibleCategories($userId);
@@ -786,12 +789,397 @@ class PermissionServiceTest extends TestCase {
 		return $role;
 	}
 
+	// ---- Team (circle) permission tests ----
+
+	/**
+	 * Create a PermissionService partial mock where getUserCircleIds is overridden
+	 * to return the given circle IDs, allowing team permission paths to be tested
+	 * without the Circles app installed.
+	 *
+	 * @param array<string>|null $circleIds Circle IDs to return, or null for "Circles unavailable"
+	 */
+	private function createServiceWithCircleIds(?array $circleIds): PermissionService {
+		$service = $this->getMockBuilder(PermissionService::class)
+			->setConstructorArgs([
+				$this->userRoleMapper,
+				$this->roleMapper,
+				$this->categoryPermMapper,
+				$this->categoryMapper,
+				$this->threadMapper,
+				$this->postMapper,
+				$this->userManager,
+				$this->logger,
+			])
+			->onlyMethods(['getUserCircleIds'])
+			->getMock();
+
+		$service->method('getUserCircleIds')
+			->willReturn($circleIds);
+
+		return $service;
+	}
+
+	public function testHasCategoryPermissionGrantedByTeamWhenRoleDenies(): void {
+		$userId = 'user1';
+		$categoryId = 3;
+
+		// User role denies view on this category
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+		$rolePerm = $this->createCategoryPerm(1, $categoryId, 3, false, false, false, false);
+
+		// But team grants view
+		$teamPerm = $this->createTeamCategoryPerm(10, $categoryId, 'circle-abc', true, false, false, false);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturn($rolePerm);
+
+		$this->categoryPermMapper->method('findByCategoryAndTeamIds')
+			->with($categoryId, ['circle-abc'])
+			->willReturn([$teamPerm]);
+
+		$service = $this->createServiceWithCircleIds(['circle-abc']);
+
+		$this->assertTrue($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+	}
+
+	public function testHasCategoryPermissionGrantedByTeamWhenNoRolePermEntryExists(): void {
+		$userId = 'user1';
+		$categoryId = 3;
+
+		// User role has no permission entry for this category at all
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+
+		$teamPerm = $this->createTeamCategoryPerm(10, $categoryId, 'circle-abc', true, true, true, false);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willThrowException(new DoesNotExistException('Not found'));
+
+		$this->categoryPermMapper->method('findByCategoryAndTeamIds')
+			->with($categoryId, ['circle-abc'])
+			->willReturn([$teamPerm]);
+
+		$service = $this->createServiceWithCircleIds(['circle-abc']);
+
+		$this->assertTrue($service->hasCategoryPermission($userId, $categoryId, 'canPost'));
+	}
+
+	public function testHasCategoryPermissionDeniedByBothRoleAndTeam(): void {
+		$userId = 'user1';
+		$categoryId = 3;
+
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+		$rolePerm = $this->createCategoryPerm(1, $categoryId, 3, false, false, false, false);
+
+		// Team also denies
+		$teamPerm = $this->createTeamCategoryPerm(10, $categoryId, 'circle-abc', false, false, false, false);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturn($rolePerm);
+
+		$this->categoryPermMapper->method('findByCategoryAndTeamIds')
+			->with($categoryId, ['circle-abc'])
+			->willReturn([$teamPerm]);
+
+		$service = $this->createServiceWithCircleIds(['circle-abc']);
+
+		$this->assertFalse($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+	}
+
+	public function testHasCategoryPermissionTeamNotCheckedForGuestUser(): void {
+		$categoryId = 1;
+
+		$guestRole = $this->createRole(4, 'Guest', false, false, false, true, Role::ROLE_TYPE_GUEST);
+		$rolePerm = $this->createCategoryPerm(1, $categoryId, 4, false, false, false, false);
+
+		$this->roleMapper->method('findByRoleType')
+			->with(Role::ROLE_TYPE_GUEST)
+			->willReturn($guestRole);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturn($rolePerm);
+
+		// Team mapper should never be called for guest users
+		$this->categoryPermMapper->expects($this->never())
+			->method('findByCategoryAndTeamIds');
+
+		$result = $this->service->hasCategoryPermission(null, $categoryId, 'canView');
+
+		$this->assertFalse($result);
+	}
+
+	public function testHasCategoryPermissionTeamNotCheckedWhenCirclesUnavailable(): void {
+		$userId = 'user1';
+		$categoryId = 3;
+
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willThrowException(new DoesNotExistException('Not found'));
+
+		// Circles unavailable → null circle IDs → no team check
+		$this->categoryPermMapper->expects($this->never())
+			->method('findByCategoryAndTeamIds');
+
+		$service = $this->createServiceWithCircleIds(null);
+
+		$this->assertFalse($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+	}
+
+	public function testHasCategoryPermissionTeamNotCheckedWhenUserHasNoCircles(): void {
+		$userId = 'user1';
+		$categoryId = 3;
+
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willThrowException(new DoesNotExistException('Not found'));
+
+		// User is in no circles
+		$this->categoryPermMapper->expects($this->never())
+			->method('findByCategoryAndTeamIds');
+
+		$service = $this->createServiceWithCircleIds([]);
+
+		$this->assertFalse($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+	}
+
+	public function testHasCategoryPermissionMultipleTeamsOneGrants(): void {
+		$userId = 'user1';
+		$categoryId = 3;
+
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willThrowException(new DoesNotExistException('Not found'));
+
+		// User is in two teams; first denies, second grants
+		$teamPerm1 = $this->createTeamCategoryPerm(10, $categoryId, 'circle-aaa', false, false, false, false);
+		$teamPerm2 = $this->createTeamCategoryPerm(11, $categoryId, 'circle-bbb', true, true, false, false);
+
+		$this->categoryPermMapper->method('findByCategoryAndTeamIds')
+			->with($categoryId, ['circle-aaa', 'circle-bbb'])
+			->willReturn([$teamPerm1, $teamPerm2]);
+
+		$service = $this->createServiceWithCircleIds(['circle-aaa', 'circle-bbb']);
+
+		$this->assertTrue($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+	}
+
+	public function testHasCategoryPermissionTeamGrantsSpecificPermissionOnly(): void {
+		$userId = 'user1';
+		$categoryId = 3;
+
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willThrowException(new DoesNotExistException('Not found'));
+
+		// Team grants view but not post
+		$teamPerm = $this->createTeamCategoryPerm(10, $categoryId, 'circle-abc', true, false, false, false);
+
+		$this->categoryPermMapper->method('findByCategoryAndTeamIds')
+			->willReturn([$teamPerm]);
+
+		$service = $this->createServiceWithCircleIds(['circle-abc']);
+
+		$this->assertTrue($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+		$this->assertFalse($service->hasCategoryPermission($userId, $categoryId, 'canPost'));
+	}
+
+	public function testHasCategoryPermissionAdminBypassesTeamCheck(): void {
+		$userId = 'admin1';
+		$categoryId = 3;
+
+		$adminRole = $this->createRole(1, 'Admin', true, true, true, true, Role::ROLE_TYPE_ADMIN);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$adminRole]);
+
+		// Neither role perms nor team perms should be checked
+		$this->categoryPermMapper->expects($this->never())
+			->method('findByCategoryAndRole');
+		$this->categoryPermMapper->expects($this->never())
+			->method('findByCategoryAndTeamIds');
+
+		$service = $this->createServiceWithCircleIds(['circle-abc']);
+
+		$this->assertTrue($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+	}
+
+	public function testHasCategoryPermissionRoleGrantsBeforeTeamCheck(): void {
+		$userId = 'user1';
+		$categoryId = 1;
+
+		// Role already grants the permission
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+		$rolePerm = $this->createCategoryPerm(1, $categoryId, 3, true, true, true, false);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturn($rolePerm);
+
+		// Team mapper should not be called since role already granted
+		$this->categoryPermMapper->expects($this->never())
+			->method('findByCategoryAndTeamIds');
+
+		$service = $this->createServiceWithCircleIds(['circle-abc']);
+
+		$this->assertTrue($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+	}
+
+	public function testGetAccessibleCategoriesIncludesTeamOnlyCategory(): void {
+		$userId = 'user1';
+
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+		$category1 = $this->createCategory(1, 'Role Access', 'role-access');
+		$category2 = $this->createCategory(2, 'Team Only', 'team-only');
+		$category3 = $this->createCategory(3, 'No Access', 'no-access');
+
+		$rolePerm1 = $this->createCategoryPerm(1, 1, 3, true, true, true, false);
+		$teamPerm2 = $this->createTeamCategoryPerm(10, 2, 'circle-abc', true, false, false, false);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryMapper->method('findAll')
+			->willReturn([$category1, $category2, $category3]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturnCallback(function ($catId, $roleId) use ($rolePerm1) {
+				if ($catId === 1 && $roleId === 3) {
+					return $rolePerm1;
+				}
+				throw new DoesNotExistException('Not found');
+			});
+
+		$this->categoryPermMapper->method('findByCategoryAndTeamIds')
+			->willReturnCallback(function ($catId, $teamIds) use ($teamPerm2) {
+				if ($catId === 2) {
+					return [$teamPerm2];
+				}
+				return [];
+			});
+
+		$service = $this->createServiceWithCircleIds(['circle-abc']);
+
+		$result = $service->getAccessibleCategories($userId);
+
+		$this->assertCount(2, $result);
+		$this->assertContains(1, $result);
+		$this->assertContains(2, $result);
+		$this->assertNotContains(3, $result);
+	}
+
+	public function testGetAccessibleCategoriesNoTeamAccessWhenCirclesUnavailable(): void {
+		$userId = 'user1';
+
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+		$category1 = $this->createCategory(1, 'Role Access', 'role-access');
+		$category2 = $this->createCategory(2, 'Team Only', 'team-only');
+
+		$rolePerm1 = $this->createCategoryPerm(1, 1, 3, true, true, true, false);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryMapper->method('findAll')
+			->willReturn([$category1, $category2]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willReturnCallback(function ($catId, $roleId) use ($rolePerm1) {
+				if ($catId === 1 && $roleId === 3) {
+					return $rolePerm1;
+				}
+				throw new DoesNotExistException('Not found');
+			});
+
+		// Circles unavailable
+		$service = $this->createServiceWithCircleIds(null);
+
+		$result = $service->getAccessibleCategories($userId);
+
+		// Only role-granted category, not the team-only one
+		$this->assertCount(1, $result);
+		$this->assertContains(1, $result);
+	}
+
+	public function testHasCategoryPermissionTeamMapperExceptionHandledGracefully(): void {
+		$userId = 'user1';
+		$categoryId = 3;
+
+		$role = $this->createRole(3, 'User', false, false, false, false, Role::ROLE_TYPE_DEFAULT);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->categoryPermMapper->method('findByCategoryAndRole')
+			->willThrowException(new DoesNotExistException('Not found'));
+
+		$this->categoryPermMapper->method('findByCategoryAndTeamIds')
+			->willThrowException(new \Exception('Database error'));
+
+		$service = $this->createServiceWithCircleIds(['circle-abc']);
+
+		// Should return false, not throw
+		$this->assertFalse($service->hasCategoryPermission($userId, $categoryId, 'canView'));
+	}
+
+	// ---- Helper methods ----
+
 	private function createCategoryPerm(int $id, int $categoryId, int $roleId, bool $canView, bool $canPost, bool $canReply, bool $canModerate): CategoryPerm {
 		$perm = new CategoryPerm();
 		$perm->setId($id);
 		$perm->setCategoryId($categoryId);
 		$perm->setTargetType('role');
 		$perm->setTargetId((string)$roleId);
+		$perm->setCanView($canView);
+		$perm->setCanPost($canPost);
+		$perm->setCanReply($canReply);
+		$perm->setCanModerate($canModerate);
+		return $perm;
+	}
+
+	private function createTeamCategoryPerm(int $id, int $categoryId, string $teamId, bool $canView, bool $canPost, bool $canReply, bool $canModerate): CategoryPerm {
+		$perm = new CategoryPerm();
+		$perm->setId($id);
+		$perm->setCategoryId($categoryId);
+		$perm->setTargetType(CategoryPerm::TARGET_TYPE_TEAM);
+		$perm->setTargetId($teamId);
 		$perm->setCanView($canView);
 		$perm->setCanPost($canPost);
 		$perm->setCanReply($canReply);

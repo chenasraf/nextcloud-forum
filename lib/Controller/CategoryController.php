@@ -16,6 +16,7 @@ use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -37,6 +38,7 @@ class CategoryController extends OCSController {
 		private ThreadMapper $threadMapper,
 		private ReadMarkerMapper $readMarkerMapper,
 		private RoleMapper $roleMapper,
+		private PermissionService $permissionService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -60,9 +62,13 @@ class CategoryController extends OCSController {
 			$allCategories = $this->categoryMapper->findAll();
 			$lastActivityMap = $this->threadMapper->getLastActivityByCategories();
 
+			// Filter categories by canView permission
+			$user = $this->userSession->getUser();
+			$userId = $user ? $user->getUID() : null;
+			$accessibleCategoryIds = $this->permissionService->getAccessibleCategories($userId);
+
 			// Fetch category read markers for authenticated users
 			$readMarkerMap = [];
-			$user = $this->userSession->getUser();
 			if ($user) {
 				$markers = $this->readMarkerMapper->findCategoryMarkersByUserId($user->getUID());
 				foreach ($markers as $marker) {
@@ -70,9 +76,12 @@ class CategoryController extends OCSController {
 				}
 			}
 
-			// Group categories by header_id
+			// Group accessible categories by header_id
 			$categoriesByHeader = [];
 			foreach ($allCategories as $category) {
+				if (!in_array($category->getId(), $accessibleCategoryIds, true)) {
+					continue;
+				}
 				$headerId = $category->getHeaderId();
 				if (!isset($categoriesByHeader[$headerId])) {
 					$categoriesByHeader[$headerId] = [];
@@ -83,11 +92,15 @@ class CategoryController extends OCSController {
 				$categoriesByHeader[$headerId][] = $categoryData;
 			}
 
-			// Build result with nested categories
+			// Build result with nested categories (only include headers that have accessible categories)
 			$result = [];
 			foreach ($headers as $header) {
+				$categories = $categoriesByHeader[$header->getId()] ?? [];
+				if (empty($categories)) {
+					continue;
+				}
 				$headerData = $header->jsonSerialize();
-				$headerData['categories'] = $categoriesByHeader[$header->getId()] ?? [];
+				$headerData['categories'] = $categories;
 				$result[] = $headerData;
 			}
 
@@ -111,8 +124,13 @@ class CategoryController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/headers/{headerId}/categories')]
 	public function byHeader(int $headerId): DataResponse {
 		try {
+			$user = $this->userSession->getUser();
+			$userId = $user ? $user->getUID() : null;
+			$accessibleCategoryIds = $this->permissionService->getAccessibleCategories($userId);
+
 			$categories = $this->categoryMapper->findByHeaderId($headerId);
-			return new DataResponse(array_map(fn ($cat) => $cat->jsonSerialize(), $categories));
+			$filtered = array_filter($categories, fn ($cat) => in_array($cat->getId(), $accessibleCategoryIds, true));
+			return new DataResponse(array_values(array_map(fn ($cat) => $cat->jsonSerialize(), $filtered)));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching categories by header: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch categories'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -337,39 +355,12 @@ class CategoryController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}/permissions/{permission}')]
 	public function checkPermission(int $id, string $permission): DataResponse {
 		try {
-			// Get current user
 			$user = $this->userSession->getUser();
-			if (!$user) {
-				return new DataResponse(['hasPermission' => false]);
-			}
+			$userId = $user?->getUID();
 
-			$getter = 'get' . ucfirst($permission);
+			$hasPermission = $this->permissionService->hasCategoryPermission($userId, $id, $permission);
 
-			// Check role-based permissions
-			$roles = $this->roleMapper->findByUserId($user->getUID());
-			$roleIds = array_map(fn ($role) => $role->getId(), $roles);
-
-			if (!empty($roleIds)) {
-				// Admin role has all permissions
-				foreach ($roles as $role) {
-					if ($role->getRoleType() === Role::ROLE_TYPE_ADMIN) {
-						return new DataResponse(['hasPermission' => true]);
-					}
-				}
-
-				$categoryPerms = $this->categoryPermMapper->findByCategoryAndRoles($id, $roleIds);
-				foreach ($categoryPerms as $perm) {
-					try {
-						if ($perm->$getter()) {
-							return new DataResponse(['hasPermission' => true]);
-						}
-					} catch (\BadMethodCallException $e) {
-						break;
-					}
-				}
-			}
-
-			return new DataResponse(['hasPermission' => false]);
+			return new DataResponse(['hasPermission' => $hasPermission]);
 		} catch (\Exception $e) {
 			$this->logger->error("Error checking permission {$permission} for category {$id}: " . $e->getMessage());
 			return new DataResponse(['hasPermission' => false]);

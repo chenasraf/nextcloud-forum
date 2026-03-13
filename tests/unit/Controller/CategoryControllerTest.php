@@ -17,6 +17,7 @@ use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -40,6 +41,8 @@ class CategoryControllerTest extends TestCase {
 	private ReadMarkerMapper $readMarkerMapper;
 	/** @var RoleMapper&MockObject */
 	private RoleMapper $roleMapper;
+	/** @var PermissionService&MockObject */
+	private PermissionService $permissionService;
 	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
 	/** @var LoggerInterface&MockObject */
@@ -55,6 +58,13 @@ class CategoryControllerTest extends TestCase {
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->roleMapper = $this->createMock(RoleMapper::class);
+		$this->permissionService = $this->createMock(PermissionService::class);
+		// By default, grant access to all categories (tests that need filtering can override)
+		$this->permissionService->method('getAccessibleCategories')
+			->willReturnCallback(function () {
+				// Return IDs 1-100 to cover all test categories
+				return range(1, 100);
+			});
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -67,6 +77,7 @@ class CategoryControllerTest extends TestCase {
 			$this->threadMapper,
 			$this->readMarkerMapper,
 			$this->roleMapper,
+			$this->permissionService,
 			$this->userSession,
 			$this->logger
 		);
@@ -592,31 +603,10 @@ class CategoryControllerTest extends TestCase {
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
 
-		// User has a role
-		$role = new Role();
-		$role->setId(1);
-		$role->setName('User');
-
-		$this->roleMapper->expects($this->once())
-			->method('findByUserId')
-			->with($userId)
-			->willReturn([$role]);
-
-		// Category permission allows viewing
-		$categoryPerm = new CategoryPerm();
-		$categoryPerm->setId(1);
-		$categoryPerm->setCategoryId($categoryId);
-		$categoryPerm->setTargetType('role');
-		$categoryPerm->setTargetId('1');
-		$categoryPerm->setCanView(true);
-		$categoryPerm->setCanPost(false);
-		$categoryPerm->setCanReply(false);
-		$categoryPerm->setCanModerate(false);
-
-		$this->categoryPermMapper->expects($this->once())
-			->method('findByCategoryAndRoles')
-			->with($categoryId, [1])
-			->willReturn([$categoryPerm]);
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, $categoryId, $permission)
+			->willReturn(true);
 
 		$response = $this->controller->checkPermission($categoryId, $permission);
 
@@ -634,29 +624,10 @@ class CategoryControllerTest extends TestCase {
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
 
-		$role = new Role();
-		$role->setId(1);
-		$role->setName('User');
-
-		$this->roleMapper->expects($this->once())
-			->method('findByUserId')
-			->willReturn([$role]);
-
-		// Category permission does not allow moderating
-		$categoryPerm = new CategoryPerm();
-		$categoryPerm->setId(1);
-		$categoryPerm->setCategoryId($categoryId);
-		$categoryPerm->setTargetType('role');
-		$categoryPerm->setTargetId('1');
-		$categoryPerm->setCanView(true);
-		$categoryPerm->setCanPost(false);
-		$categoryPerm->setCanReply(false);
-		$categoryPerm->setCanModerate(false);
-
-		$this->categoryPermMapper->expects($this->once())
-			->method('findByCategoryAndRoles')
-			->with($categoryId, [1])
-			->willReturn([$categoryPerm]);
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, $categoryId, $permission)
+			->willReturn(false);
 
 		$response = $this->controller->checkPermission($categoryId, $permission);
 
@@ -674,16 +645,10 @@ class CategoryControllerTest extends TestCase {
 		$user->method('getUID')->willReturn($userId);
 		$this->userSession->method('getUser')->willReturn($user);
 
-		// User has Admin role
-		$adminRole = new Role();
-		$adminRole->setId(1);
-		$adminRole->setName('Admin');
-		$adminRole->setRoleType(Role::ROLE_TYPE_ADMIN);
-
-		$this->roleMapper->expects($this->once())
-			->method('findByUserId')
-			->with($userId)
-			->willReturn([$adminRole]);
+		$this->permissionService->expects($this->once())
+			->method('hasCategoryPermission')
+			->with($userId, $categoryId, $permission)
+			->willReturn(true);
 
 		$response = $this->controller->checkPermission($categoryId, $permission);
 

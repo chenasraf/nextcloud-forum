@@ -360,6 +360,8 @@ class SeedHelper {
 				\OCA\Forum\Db\Role::ROLE_TYPE_ADMIN => [
 					'name' => $l->t('Admin'),
 					'description' => $l->t('Administrator role with full permissions'),
+					'color_light' => '#dc2626',
+					'color_dark' => '#f87171',
 					'can_access_admin_tools' => true,
 					'can_edit_roles' => true,
 					'can_edit_categories' => true,
@@ -369,6 +371,8 @@ class SeedHelper {
 				\OCA\Forum\Db\Role::ROLE_TYPE_MODERATOR => [
 					'name' => $l->t('Moderator'),
 					'description' => $l->t('Moderator role with elevated permissions'),
+					'color_light' => '#2563eb',
+					'color_dark' => '#60a5fa',
 					'can_access_admin_tools' => true,
 					'can_edit_roles' => false,
 					'can_edit_categories' => false,
@@ -378,6 +382,8 @@ class SeedHelper {
 				\OCA\Forum\Db\Role::ROLE_TYPE_DEFAULT => [
 					'name' => $l->t('User'),
 					'description' => $l->t('Default user role with basic permissions'),
+					'color_light' => '#059669',
+					'color_dark' => '#34d399',
 					'can_access_admin_tools' => false,
 					'can_edit_roles' => false,
 					'can_edit_categories' => false,
@@ -387,6 +393,8 @@ class SeedHelper {
 				\OCA\Forum\Db\Role::ROLE_TYPE_GUEST => [
 					'name' => $l->t('Guest'),
 					'description' => $l->t('Guest role for unauthenticated users with read-only access'),
+					'color_light' => '#868e96',
+					'color_dark' => '#adb5bd',
 					'can_access_admin_tools' => false,
 					'can_edit_roles' => false,
 					'can_edit_categories' => false,
@@ -403,6 +411,8 @@ class SeedHelper {
 							->values([
 								'name' => $qb->createNamedParameter($roleData['name']),
 								'description' => $qb->createNamedParameter($roleData['description']),
+								'color_light' => $qb->createNamedParameter($roleData['color_light'] ?? null),
+								'color_dark' => $qb->createNamedParameter($roleData['color_dark'] ?? null),
 								'can_access_admin_tools' => $qb->createNamedParameter($roleData['can_access_admin_tools'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 								'can_edit_roles' => $qb->createNamedParameter($roleData['can_edit_roles'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),
 								'can_edit_categories' => $qb->createNamedParameter($roleData['can_edit_categories'], \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL),

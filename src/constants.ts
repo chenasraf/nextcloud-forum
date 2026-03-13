@@ -70,3 +70,13 @@ export function isGuestRole(role: Role | null | undefined): boolean {
 export function isCustomRole(role: Role | null | undefined): boolean {
   return role?.roleType === RoleType.CUSTOM
 }
+
+/**
+ * Fallback colors for system roles when colorLight/colorDark are null
+ */
+export const systemRoleFallbackColors: Record<string, { light: string; dark: string }> = {
+  [RoleType.ADMIN]: { light: '#dc2626', dark: '#f87171' },
+  [RoleType.MODERATOR]: { light: '#2563eb', dark: '#60a5fa' },
+  [RoleType.DEFAULT]: { light: '#059669', dark: '#34d399' },
+  [RoleType.GUEST]: { light: '#868e96', dark: '#adb5bd' },
+}

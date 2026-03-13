@@ -7,6 +7,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
 import { isDarkTheme } from '@nextcloud/vue/functions/isDarkTheme'
+import { systemRoleFallbackColors } from '@/constants'
 import type { Role } from '@/types'
 
 export default defineComponent({
@@ -36,13 +37,7 @@ export default defineComponent({
       }
 
       // Fallback colors for system roles
-      const fallbackColors: Record<number, { light: string; dark: string }> = {
-        1: { light: '#dc2626', dark: '#f87171' }, // Admin - red
-        2: { light: '#2563eb', dark: '#60a5fa' }, // Moderator - blue
-        3: { light: '#059669', dark: '#34d399' }, // User - emerald
-      }
-
-      const fallback = fallbackColors[this.role.id]
+      const fallback = systemRoleFallbackColors[this.role.roleType]
       if (fallback) {
         return isDark ? fallback.dark : fallback.light
       }

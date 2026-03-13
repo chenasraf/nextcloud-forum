@@ -88,7 +88,10 @@
             <div class="color-group">
               <label>{{ strings.colorLight }}</label>
               <div class="color-picker-row">
-                <NcColorPicker v-model="formData.colorLight" @update:value="onLightColorChange">
+                <NcColorPicker
+                  v-model:value="formData.colorLight"
+                  @update:value="onLightColorChange"
+                >
                   <NcButton>
                     <template #icon>
                       <div
@@ -105,7 +108,7 @@
             <div class="color-group">
               <label>{{ strings.colorDark }}</label>
               <div class="color-picker-row">
-                <NcColorPicker v-model="formData.colorDark" @update:value="onDarkColorChange">
+                <NcColorPicker v-model:value="formData.colorDark" @update:value="onDarkColorChange">
                   <NcButton>
                     <template #icon>
                       <div class="color-preview" :style="{ backgroundColor: formData.colorDark }" />
@@ -223,7 +226,7 @@ import CategoryPermissionsTable, {
 } from '@/components/CategoryPermissionsTable'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
-import { isAdminRole, isGuestRole, isDefaultRole } from '@/constants'
+import { isAdminRole, isGuestRole, isDefaultRole, systemRoleFallbackColors } from '@/constants'
 import { usePublicSettings } from '@/composables/usePublicSettings'
 import type { Role, CategoryHeader } from '@/types'
 
@@ -412,8 +415,9 @@ export default defineComponent({
 
       this.formData.name = this.role.name
       this.formData.description = this.role.description || ''
-      this.formData.colorLight = this.role.colorLight || '#000000'
-      this.formData.colorDark = this.role.colorDark || '#ffffff'
+      const fallback = systemRoleFallbackColors[this.role.roleType]
+      this.formData.colorLight = this.role.colorLight || fallback?.light || '#000000'
+      this.formData.colorDark = this.role.colorDark || fallback?.dark || '#ffffff'
       this.formData.canAccessAdminTools = this.role.canAccessAdminTools || false
       this.formData.canEditRoles = this.role.canEditRoles || false
       this.formData.canEditCategories = this.role.canEditCategories || false

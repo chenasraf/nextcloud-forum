@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.24.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.23.1...v0.24.0) (2026-03-13)
+
+
+### Features
+
+* add nextcloud 34 support ([8178b2f](https://github.com/chenasraf/nextcloud-forum/commit/8178b2f8601a20c5b2aa4a34aa81c79c05a5c796))
+* allow editing can post/reply permissions ([9a33146](https://github.com/chenasraf/nextcloud-forum/commit/9a33146bd894f1c37e7c75bc56ce6da90cd07b04))
+* app initialize screen ([7205dde](https://github.com/chenasraf/nextcloud-forum/commit/7205dded5ab67f39376c539931ee168de630cd97))
+* team-based permissions ([0574535](https://github.com/chenasraf/nextcloud-forum/commit/0574535f53b94e39025cbffe09967a5d0706326d))
+* update various ui depending on granular permissions ([d7ffcb3](https://github.com/chenasraf/nextcloud-forum/commit/d7ffcb3435692eab59905f92ef25660051976f50))
+
+
+### Bug Fixes
+
+* category unread updates logic ([7e60059](https://github.com/chenasraf/nextcloud-forum/commit/7e600592776fe7e11ab64808fd776ddb9a140389))
+* default role colors ([5d82c6a](https://github.com/chenasraf/nextcloud-forum/commit/5d82c6a927a7638dfd90994dac22def0aa2b5fc0))
+* fix permission checks for roles/circles ([09a74a2](https://github.com/chenasraf/nextcloud-forum/commit/09a74a29c44b3188e3d4cd8cb9658d3192f56246))
+* improve role admin/mod permission checks ([495ff9f](https://github.com/chenasraf/nextcloud-forum/commit/495ff9fc5b2c28f0210c23807bda058539159cf9))
+* **l10n:** first activity -&gt; created ([239037a](https://github.com/chenasraf/nextcloud-forum/commit/239037ab356ceb338908cbe2e460817e2d4b9262))
+* **l10n:** Update translations from Transifex ([9deb266](https://github.com/chenasraf/nextcloud-forum/commit/9deb266f7f56a2bc60c4eed8e64efcb85fb28cdf))
+* **l10n:** Update translations from Transifex ([4bffa87](https://github.com/chenasraf/nextcloud-forum/commit/4bffa8706415e828c4d76456e7ca1f88b158217f))
+* **l10n:** Update translations from Transifex ([8098382](https://github.com/chenasraf/nextcloud-forum/commit/809838207bea356440dcefb4f336a54f7f206d7a))
+* **l10n:** Update translations from Transifex ([e1f499f](https://github.com/chenasraf/nextcloud-forum/commit/e1f499f1619746c8dae0cbb11fe31fa88e81803a))
+* **l10n:** Update translations from Transifex ([b8563e9](https://github.com/chenasraf/nextcloud-forum/commit/b8563e905573f5b4c2ef7e04b5bc96c11b264a8f))
+* **l10n:** Update translations from Transifex ([2d21b58](https://github.com/chenasraf/nextcloud-forum/commit/2d21b58424603ed42bc13f9cbb7a1acbf1f50329))
+* **l10n:** Update translations from Transifex ([885e623](https://github.com/chenasraf/nextcloud-forum/commit/885e623ee8f6cfb79c70a9004b10cb34dbd1f001))
+* reload categories after init ([4412bde](https://github.com/chenasraf/nextcloud-forum/commit/4412bde383082530e773cdfadf4907345d198322))
+
 ## [0.23.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.23.0...v0.23.1) (2026-02-24)
 
 

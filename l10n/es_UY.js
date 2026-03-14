@@ -28,6 +28,7 @@ OC.L10N.register(
     "Refresh" : "Actualizar",
     "Retry" : "Reintentar",
     "Error" : "Error",
+    "Created" : "Creado",
     "by" : "por",
     "Subscribe" : "Suscribir",
     "Files" : "Archivo",
@@ -44,7 +45,6 @@ OC.L10N.register(
     "Reset" : "Restablecer",
     "ID" : "ID",
     "Owner" : "Dueño",
-    "Created" : "Creado",
     "Actions" : "Acciones",
     "Joined" : "Se ha unido",
     "Deleted" : "Borrado"

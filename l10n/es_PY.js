@@ -29,6 +29,7 @@ OC.L10N.register(
     "Refresh" : "Actualizar",
     "Retry" : "Reintentar",
     "Error" : "Error",
+    "Created" : "Creado",
     "Back to {category}" : "Volver a {category}",
     "by" : "por",
     "Subscribe" : "Suscribir",
@@ -45,7 +46,6 @@ OC.L10N.register(
     "Settings saved" : "Se han guardado las configuraciones ",
     "Reset" : "Restablecer",
     "ID" : "ID",
-    "Created" : "Creado",
     "Actions" : "Acciones",
     "Joined" : "Se ha unido",
     "Deleted" : "Borrado"

@@ -27,6 +27,7 @@
     "Refresh" : "Actualizar",
     "Retry" : "Reintentar",
     "Error" : "Error",
+    "Created" : "Creado",
     "Back to {category}" : "Volver a {category}",
     "by" : "por",
     "Subscribe" : "Suscribir",
@@ -43,7 +44,6 @@
     "Settings saved" : "Se han guardado las configuraciones ",
     "Reset" : "Restablecer",
     "ID" : "ID",
-    "Created" : "Creado",
     "Actions" : "Acciones",
     "Joined" : "Se ha unido",
     "Deleted" : "Borrado"

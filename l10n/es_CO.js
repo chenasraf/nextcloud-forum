@@ -29,6 +29,7 @@ OC.L10N.register(
     "Unsaved changes" : "Cambios no guardados",
     "Refresh" : "Actualizar",
     "Retry" : "Reintentar",
+    "Created" : "Creado",
     "by" : "por",
     "Subscribe" : "Suscribir",
     "Preferences" : "Preferencias",
@@ -45,7 +46,6 @@ OC.L10N.register(
     "Settings saved" : "Se han guardado las configuraciones ",
     "Reset" : "Reiniciar",
     "ID" : "ID",
-    "Created" : "Creado",
     "Actions" : "Acciones",
     "Joined" : "Se ha unido",
     "Deleted" : "Borrado"

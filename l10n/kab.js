@@ -29,6 +29,7 @@ OC.L10N.register(
     "Refresh" : "Sismeḍ",
     "Retry" : "Ɛreḍ tikkelt-nniḍen",
     "Error" : "Tuccḍa",
+    "Created" : "Yettwarna.",
     "Searching …" : "Anadi …",
     "Back to {category}" : "Uɣal ar {category}",
     "Reply" : "Err",
@@ -42,7 +43,6 @@ OC.L10N.register(
     "Last 7 days" : "7 n wussan yezrin",
     "Appearance" : "Udem",
     "Owner" : "Bab-is",
-    "Created" : "Yettwarna.",
     "Actions" : "Tigawin",
     "Status" : "Addad",
     "Deleted" : "Yettwakkes"

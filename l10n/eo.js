@@ -34,6 +34,7 @@ OC.L10N.register(
     "Refresh" : "Aktualigi",
     "Retry" : "Reprovi",
     "Error" : "Eraro",
+    "Created" : "Kreita",
     "Searching …" : "Serĉado ...",
     "Back to {category}" : "Antaŭen al {category}",
     "by" : "de",
@@ -53,7 +54,6 @@ OC.L10N.register(
     "Reset" : "Restarigi",
     "ID" : "Identigilo",
     "Owner" : "Posedanto",
-    "Created" : "Kreita",
     "Actions" : "Agoj",
     "Joined" : "Membriĝinta",
     "Deleted" : "Forigita"

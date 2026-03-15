@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.25.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.24.0...v0.25.0) (2026-03-15)
+
+
+### Features
+
+* editable category design ([6f3b007](https://github.com/chenasraf/nextcloud-forum/commit/6f3b007f90fae5d361098e66af3b761dd27e4f60))
+* overflow icons into menu button in bbcode toolbar ([3b75ed7](https://github.com/chenasraf/nextcloud-forum/commit/3b75ed7363e6468b548879fabd764ca8749587ae))
+* update admin settings, role/team edit, category edit uis ([10c60c6](https://github.com/chenasraf/nextcloud-forum/commit/10c60c673938c3fa99e75974b34089d2e8b55768))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([33f96db](https://github.com/chenasraf/nextcloud-forum/commit/33f96db4355397a1fbc2cc7917bd525aab371bc3))
+* **l10n:** Update translations from Transifex ([35c536d](https://github.com/chenasraf/nextcloud-forum/commit/35c536dd0a3e7578300756cb4a6e0eb2149d261c))
+
 ## [0.24.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.23.1...v0.24.0) (2026-03-13)
 
 

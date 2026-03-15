@@ -38,6 +38,8 @@
         v-if="category && !loading"
         :title="category.name"
         :subtitle="category.description || undefined"
+        :color="category.color || undefined"
+        :text-color="category.textColor || undefined"
         class="mt-16"
       />
 

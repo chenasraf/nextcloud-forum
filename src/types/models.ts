@@ -10,6 +10,8 @@ export interface Category {
   description: string | null
   slug: string
   sortOrder: number
+  color: string | null
+  textColor: 'light' | 'dark' | null
   threadCount: number
   postCount: number
   createdAt: number

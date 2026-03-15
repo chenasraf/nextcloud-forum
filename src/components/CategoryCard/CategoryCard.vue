@@ -1,5 +1,9 @@
 <template>
-  <div class="category-card" :class="{ unread: isUnread }">
+  <div
+    class="category-card"
+    :class="{ unread: isUnread, colored: !!category.color }"
+    :style="cardStyle"
+  >
     <div class="category-header">
       <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
       <h4 class="category-name">{{ category.name }}</h4>
@@ -37,6 +41,19 @@ export default defineComponent({
       default: false,
     },
   },
+  computed: {
+    cardStyle(): Record<string, string> {
+      const style: Record<string, string> = {}
+      if (this.category.color) {
+        style['--card-bg'] = this.category.color
+        style['--card-border'] = this.category.color
+        style['--card-text'] = this.category.textColor === 'light' ? '#ffffff' : '#1a1a1a'
+        style['--card-text-muted'] =
+          this.category.textColor === 'light' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)'
+      }
+      return style
+    },
+  },
   data() {
     return {
       strings: {
@@ -56,16 +73,43 @@ export default defineComponent({
   border-radius: 8px;
   padding: 16px;
   background: var(--color-main-background);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
   cursor: pointer;
 
   * {
     cursor: inherit;
   }
 
-  &.unread {
+  &.colored {
+    background: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--card-text);
+
+    .category-name,
+    .stat-value {
+      color: var(--card-text);
+    }
+
+    .category-description,
+    .stat-label,
+    .stat-divider {
+      color: var(--card-text-muted);
+    }
+
+    .category-description.muted {
+      color: var(--card-text-muted);
+    }
+  }
+
+  &.unread:not(.colored) {
     border-left: 4px solid var(--color-primary-element);
     background: var(--color-primary-element-light-hover);
+  }
+
+  &.unread.colored {
+    border-left: 4px solid var(--card-text);
   }
 
   &:hover {

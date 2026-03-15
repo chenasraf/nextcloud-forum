@@ -1,5 +1,5 @@
 <template>
-  <div class="page-header">
+  <div class="page-header" :class="{ colored: !!color }" :style="headerStyle">
     <template v-if="loading">
       <Skeleton width="200px" height="1lh" radius="6px" />
       <Skeleton width="350px" height="1lh" radius="4px" class="mt-8" />
@@ -42,6 +42,33 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    /**
+     * Background color (hex)
+     */
+    color: {
+      type: String,
+      default: null,
+    },
+    /**
+     * Text color mode: 'light' or 'dark'
+     */
+    textColor: {
+      type: String as () => 'light' | 'dark' | null,
+      default: null,
+    },
+  },
+  computed: {
+    headerStyle(): Record<string, string> {
+      if (!this.color) return {}
+      const textMain = this.textColor === 'light' ? '#ffffff' : '#1a1a1a'
+      const textMuted = this.textColor === 'light' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)'
+      return {
+        '--header-bg': this.color,
+        '--header-border': this.color,
+        '--header-text': textMain,
+        '--header-text-muted': textMuted,
+      }
+    },
   },
 })
 </script>
@@ -53,6 +80,11 @@ export default defineComponent({
   border-radius: 8px;
   border: 1px solid var(--color-border);
   margin-bottom: 16px;
+
+  &.colored {
+    background: var(--header-bg);
+    border-color: var(--header-border);
+  }
 }
 
 .page-title {
@@ -60,6 +92,10 @@ export default defineComponent({
   font-size: 1.75rem;
   font-weight: 600;
   color: var(--color-main-text);
+
+  .colored & {
+    color: var(--header-text);
+  }
 }
 
 .page-subtitle {
@@ -67,5 +103,9 @@ export default defineComponent({
   font-size: 1rem;
   color: var(--color-text-lighter);
   line-height: 1.5;
+
+  .colored & {
+    color: var(--header-text-muted);
+  }
 }
 </style>

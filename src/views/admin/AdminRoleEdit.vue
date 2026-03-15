@@ -81,41 +81,22 @@
         <!-- Colors Section -->
         <FormSection :title="strings.colors" :subtitle="strings.colorsDesc">
           <div class="colors-grid">
+            <ColorPickerPreset
+              v-model="formData.colorLight"
+              :presets="roleColorPresets"
+              :label="strings.colorLight"
+              @update:model-value="onLightColorChange"
+            />
             <div class="color-group">
-              <label>{{ strings.colorLight }}</label>
-              <div class="color-picker-row">
-                <NcColorPicker
-                  v-model:value="formData.colorLight"
-                  @update:value="onLightColorChange"
-                >
-                  <NcButton>
-                    <template #icon>
-                      <div
-                        class="color-preview"
-                        :style="{ backgroundColor: formData.colorLight }"
-                      />
-                    </template>
-                    {{ formData.colorLight || strings.colorLightPlaceholder }}
-                  </NcButton>
-                </NcColorPicker>
-              </div>
-            </div>
-
-            <div class="color-group">
-              <label>{{ strings.colorDark }}</label>
-              <div class="color-picker-row">
-                <NcColorPicker v-model:value="formData.colorDark" @update:value="onDarkColorChange">
-                  <NcButton>
-                    <template #icon>
-                      <div class="color-preview" :style="{ backgroundColor: formData.colorDark }" />
-                    </template>
-                    {{ formData.colorDark || strings.colorDarkPlaceholder }}
-                  </NcButton>
-                </NcColorPicker>
-                <NcButton @click="resetDarkColor">
-                  {{ strings.reset }}
-                </NcButton>
-              </div>
+              <ColorPickerPreset
+                v-model="formData.colorDark"
+                :presets="roleColorPresets"
+                :label="strings.colorDark"
+                @update:model-value="onDarkColorChange"
+              />
+              <NcButton @click="resetDarkColor">
+                {{ strings.reset }}
+              </NcButton>
             </div>
           </div>
         </FormSection>
@@ -205,7 +186,6 @@
 import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
-import NcColorPicker from '@nextcloud/vue/components/NcColorPicker'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
@@ -216,6 +196,7 @@ import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import AppToolbar from '@/components/AppToolbar'
 import FormSection from '@/components/FormSection'
+import ColorPickerPreset from '@/components/ColorPickerPreset'
 import CategoryPermissionsTable, {
   type CategoryPermission,
 } from '@/components/CategoryPermissionsTable'
@@ -230,8 +211,8 @@ export default defineComponent({
   components: {
     NcButton,
     NcCheckboxRadioSwitch,
-    NcColorPicker,
     NcEmptyContent,
+    ColorPickerPreset,
     NcLoadingIcon,
     NcNoteCard,
     NcTextField,
@@ -344,6 +325,18 @@ export default defineComponent({
     },
     canSubmit(): boolean {
       return this.formData.name.trim().length > 0
+    },
+    roleColorPresets(): string[] {
+      return [
+        '#dc2626',
+        '#ea580c',
+        '#d97706',
+        '#059669',
+        '#2563eb',
+        '#7c3aed',
+        '#db2777',
+        '#868e96',
+      ]
     },
   },
   created() {
@@ -662,27 +655,8 @@ export default defineComponent({
       .color-group {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 12px;
         flex: 0 1 auto;
-
-        label {
-          font-weight: 600;
-          color: var(--color-main-text);
-          font-size: 0.95rem;
-        }
-
-        .color-picker-row {
-          display: flex;
-          gap: 8px;
-          align-items: center;
-        }
-
-        .color-preview {
-          width: 20px;
-          height: 20px;
-          border-radius: 4px;
-          border: 1px solid var(--color-border);
-        }
       }
     }
 

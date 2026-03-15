@@ -28,6 +28,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setThreadCount(int $value)
  * @method int getPostCount()
  * @method void setPostCount(int $value)
+ * @method string|null getColor()
+ * @method void setColor(?string $value)
+ * @method string|null getTextColor()
+ * @method void setTextColor(?string $value)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $value)
  * @method int getUpdatedAt()
@@ -39,6 +43,8 @@ class Category extends Entity implements JsonSerializable {
 	protected $description;
 	protected $slug;
 	protected $sortOrder;
+	protected $color;
+	protected $textColor;
 	protected $threadCount;
 	protected $postCount;
 	protected $createdAt;
@@ -51,6 +57,8 @@ class Category extends Entity implements JsonSerializable {
 		$this->addType('description', 'string');
 		$this->addType('slug', 'string');
 		$this->addType('sortOrder', 'integer');
+		$this->addType('color', 'string');
+		$this->addType('textColor', 'string');
 		$this->addType('threadCount', 'integer');
 		$this->addType('postCount', 'integer');
 		$this->addType('createdAt', 'integer');
@@ -65,6 +73,8 @@ class Category extends Entity implements JsonSerializable {
 			'description' => $this->getDescription(),
 			'slug' => $this->getSlug(),
 			'sortOrder' => $this->getSortOrder(),
+			'color' => $this->getColor(),
+			'textColor' => $this->getTextColor(),
 			'threadCount' => $this->getThreadCount(),
 			'postCount' => $this->getPostCount(),
 			'createdAt' => $this->getCreatedAt(),

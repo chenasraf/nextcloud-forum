@@ -191,6 +191,8 @@ class CategoryController extends OCSController {
 	 * @param string $slug Category slug
 	 * @param string|null $description Category description
 	 * @param int $sortOrder Sort order
+	 * @param string|null $color Category color (hex, e.g. #dc2626)
+	 * @param string|null $textColor Text color mode ('light' or 'dark')
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Category created
@@ -198,7 +200,7 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'POST', url: '/api/categories')]
-	public function create(int $headerId, string $name, string $slug, ?string $description = null, int $sortOrder = 0): DataResponse {
+	public function create(int $headerId, string $name, string $slug, ?string $description = null, int $sortOrder = 0, ?string $color = null, ?string $textColor = null): DataResponse {
 		try {
 			$category = new \OCA\Forum\Db\Category();
 			$category->setHeaderId($headerId);
@@ -206,6 +208,8 @@ class CategoryController extends OCSController {
 			$category->setSlug($slug);
 			$category->setDescription($description);
 			$category->setSortOrder($sortOrder);
+			$category->setColor($color);
+			$category->setTextColor($textColor);
 			$category->setThreadCount(0);
 			$category->setPostCount(0);
 			$category->setCreatedAt(time());
@@ -229,6 +233,8 @@ class CategoryController extends OCSController {
 	 * @param string|null $description Category description
 	 * @param string|null $slug Category slug
 	 * @param int|null $sortOrder Sort order
+	 * @param string|null $color Category color (hex, e.g. #dc2626)
+	 * @param string|null $textColor Text color mode ('light' or 'dark')
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Category updated
@@ -236,7 +242,7 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'PUT', url: '/api/categories/{id}')]
-	public function update(int $id, ?int $headerId = null, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null): DataResponse {
+	public function update(int $id, ?int $headerId = null, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null, ?string $color = '__unset__', ?string $textColor = '__unset__'): DataResponse {
 		try {
 			$category = $this->categoryMapper->find($id);
 
@@ -254,6 +260,12 @@ class CategoryController extends OCSController {
 			}
 			if ($sortOrder !== null) {
 				$category->setSortOrder($sortOrder);
+			}
+			if ($color !== '__unset__') {
+				$category->setColor($color);
+			}
+			if ($textColor !== '__unset__') {
+				$category->setTextColor($textColor);
 			}
 			$category->setUpdatedAt(time());
 

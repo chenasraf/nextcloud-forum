@@ -2593,6 +2593,18 @@
                                         "format": "int64",
                                         "default": 0,
                                         "description": "Sort order"
+                                    },
+                                    "color": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Category color (hex, e.g. #dc2626)"
+                                    },
+                                    "textColor": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Text color mode ('light' or 'dark')"
                                     }
                                 }
                             }
@@ -2880,6 +2892,18 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Sort order"
+                                    },
+                                    "color": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": "__unset__",
+                                        "description": "Category color (hex, e.g. #dc2626)"
+                                    },
+                                    "textColor": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": "__unset__",
+                                        "description": "Text color mode ('light' or 'dark')"
                                     }
                                 }
                             }

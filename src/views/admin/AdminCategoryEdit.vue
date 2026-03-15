@@ -110,6 +110,44 @@
           </div>
         </FormSection>
 
+        <!-- Design Section -->
+        <FormSection :title="strings.design" :subtitle="strings.designDesc">
+          <div class="design-section">
+            <div class="design-controls">
+              <ColorPickerPreset
+                v-model="formData.color"
+                :presets="categoryColorPresets"
+                :label="strings.categoryColor"
+              />
+              <div class="text-color-group">
+                <label>{{ strings.textColor }}</label>
+                <div class="text-color-options">
+                  <NcCheckboxRadioSwitch
+                    v-model="formData.textColor"
+                    value="dark"
+                    name="textColor"
+                    type="radio"
+                  >
+                    {{ strings.darkText }}
+                  </NcCheckboxRadioSwitch>
+                  <NcCheckboxRadioSwitch
+                    v-model="formData.textColor"
+                    value="light"
+                    name="textColor"
+                    type="radio"
+                  >
+                    {{ strings.lightText }}
+                  </NcCheckboxRadioSwitch>
+                </div>
+              </div>
+            </div>
+            <div class="design-preview">
+              <label>{{ strings.preview }}</label>
+              <CategoryCard :category="previewCategory" />
+            </div>
+          </div>
+        </FormSection>
+
         <!-- Permissions Section -->
         <FormSection :title="strings.permissions" :subtitle="strings.permissionsDescription">
           <div class="form-grid">
@@ -206,8 +244,11 @@ import { defineComponent } from 'vue'
 import PageWrapper from '@/components/PageWrapper'
 import AppToolbar from '@/components/AppToolbar'
 import FormSection from '@/components/FormSection'
+import CategoryCard from '@/components/CategoryCard'
+import ColorPickerPreset from '@/components/ColorPickerPreset'
 import HeaderEditDialog from '@/components/HeaderEditDialog'
 import NcButton from '@nextcloud/vue/components/NcButton'
+import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
@@ -227,6 +268,7 @@ export default defineComponent({
   name: 'AdminCategoryEdit',
   components: {
     NcButton,
+    NcCheckboxRadioSwitch,
     NcDialog,
     NcEmptyContent,
     NcLoadingIcon,
@@ -236,6 +278,8 @@ export default defineComponent({
     PageWrapper,
     AppToolbar,
     FormSection,
+    CategoryCard,
+    ColorPickerPreset,
     HeaderEditDialog,
     ArrowLeftIcon,
     PlusIcon,
@@ -267,6 +311,8 @@ export default defineComponent({
         slug: '',
         description: '',
         sortOrder: 0,
+        color: null as string | null,
+        textColor: 'dark' as 'light' | 'dark',
       },
       slugManuallyEdited: false,
       headerDialog: {
@@ -323,6 +369,13 @@ export default defineComponent({
           'Select roles that can moderate (edit/delete) content in this category',
         ),
         selectRoles: t('forum', 'Select roles …'),
+        design: t('forum', 'Design'),
+        designDesc: t('forum', 'Customize the appearance of this category'),
+        categoryColor: t('forum', 'Category color'),
+        textColor: t('forum', 'Text color'),
+        darkText: t('forum', 'Dark text'),
+        lightText: t('forum', 'Light text'),
+        preview: t('forum', 'Preview'),
       },
     }
   },
@@ -378,6 +431,38 @@ export default defineComponent({
           id: role.id,
           label: role.name,
         }))
+    },
+    categoryColorPresets(): string[] {
+      return [
+        '#dc2626',
+        '#ea580c',
+        '#d97706',
+        '#16a34a',
+        '#059669',
+        '#0891b2',
+        '#2563eb',
+        '#7c3aed',
+        '#9333ea',
+        '#db2777',
+        '#4b5563',
+        '#1e3a5f',
+      ]
+    },
+    previewCategory(): Category {
+      return {
+        id: 0,
+        headerId: 0,
+        name: this.formData.name || this.strings.namePlaceholder,
+        description: this.formData.description || this.strings.descriptionPlaceholder,
+        slug: '',
+        sortOrder: 0,
+        color: this.formData.color,
+        textColor: this.formData.color ? this.formData.textColor : null,
+        threadCount: 0,
+        postCount: 0,
+        createdAt: 0,
+        updatedAt: 0,
+      }
     },
   },
   watch: {
@@ -492,6 +577,8 @@ export default defineComponent({
       this.formData.slug = category.slug
       this.formData.description = category.description || ''
       this.formData.sortOrder = category.sortOrder
+      this.formData.color = category.color || null
+      this.formData.textColor = category.textColor || 'dark'
 
       // When editing, don't track manual slug edits (slug is pre-populated from DB)
       this.slugManuallyEdited = false
@@ -568,6 +655,8 @@ export default defineComponent({
           slug: this.formData.slug.trim(),
           description: this.formData.description.trim() || null,
           sortOrder: this.formData.sortOrder,
+          color: this.formData.color || null,
+          textColor: this.formData.color ? this.formData.textColor : null,
         }
 
         let categoryId: number
@@ -731,6 +820,57 @@ export default defineComponent({
 
         .header-select {
           flex: 1;
+        }
+      }
+    }
+
+    .design-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      margin-top: 12px;
+
+      .design-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .text-color-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        > label {
+          font-weight: 600;
+          font-size: 0.9rem;
+          color: var(--color-main-text);
+        }
+
+        .text-color-options {
+          display: flex;
+          gap: 16px;
+        }
+      }
+
+      .design-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+        min-width: 280px;
+
+        > label {
+          font-weight: 600;
+          font-size: 0.9rem;
+          color: var(--color-main-text);
+        }
+
+        .category-card {
+          cursor: default;
+          pointer-events: none;
         }
       }
     }

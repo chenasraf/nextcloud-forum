@@ -23,10 +23,7 @@
 
       <!-- Settings form -->
       <div v-else class="settings-form">
-        <div class="form-section">
-          <h3>{{ strings.appearanceTitle }}</h3>
-          <p class="muted">{{ strings.appearanceDesc }}</p>
-
+        <FormSection :title="strings.appearanceTitle" :subtitle="strings.appearanceDesc">
           <div class="form-group">
             <label for="forum-title">{{ strings.forumTitle }}</label>
             <NcTextField
@@ -49,19 +46,16 @@
             />
             <p class="hint">{{ strings.forumSubtitleHint }}</p>
           </div>
-        </div>
+        </FormSection>
 
-        <div class="form-section">
-          <h3>{{ strings.accessControlTitle }}</h3>
-          <p class="muted">{{ strings.accessControlDesc }}</p>
-
+        <FormSection :title="strings.accessControlTitle" :subtitle="strings.accessControlDesc">
           <div class="form-group">
             <NcCheckboxRadioSwitch v-model="formData.allow_guest_access" type="switch">
               {{ strings.allowGuestAccess }}
             </NcCheckboxRadioSwitch>
             <p class="hint">{{ strings.allowGuestAccessHint }}</p>
           </div>
-        </div>
+        </FormSection>
 
         <!-- Actions -->
         <div class="form-actions">
@@ -97,6 +91,7 @@ import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
+import FormSection from '@/components/FormSection'
 import CheckIcon from '@icons/Check.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -117,6 +112,7 @@ export default defineComponent({
     NcTextField,
     NcTextArea,
     NcCheckboxRadioSwitch,
+    FormSection,
     PageHeader,
     PageWrapper,
     CheckIcon,
@@ -245,25 +241,6 @@ export default defineComponent({
   }
 
   .settings-form {
-    .form-section {
-      margin-bottom: 32px;
-      padding: 24px;
-      background: var(--color-main-background);
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-
-      h3 {
-        margin: 0 0 8px 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-      }
-
-      > p {
-        margin: 0 0 20px 0;
-        font-size: 0.9rem;
-      }
-    }
-
     .form-group {
       margin-bottom: 24px;
 

@@ -39,8 +39,7 @@
 
       <!-- Form -->
       <div v-else class="category-form">
-        <section class="form-section">
-          <h3>{{ strings.basicInfo }}</h3>
+        <FormSection :title="strings.basicInfo">
           <div class="form-grid">
             <div class="form-group">
               <label>{{ strings.categoryHeader }} *</label>
@@ -109,13 +108,10 @@
               <p class="help-text muted">{{ strings.sortOrderHelp }}</p>
             </div>
           </div>
-        </section>
+        </FormSection>
 
         <!-- Permissions Section -->
-        <section class="form-section">
-          <h3>{{ strings.permissions }}</h3>
-          <p class="muted">{{ strings.permissionsDescription }}</p>
-
+        <FormSection :title="strings.permissions" :subtitle="strings.permissionsDescription">
           <div class="form-grid">
             <div class="form-group">
               <label>{{ strings.viewRoles }}</label>
@@ -177,7 +173,7 @@
               <p class="help-text muted">{{ strings.moderateRolesHelp }}</p>
             </div>
           </div>
-        </section>
+        </FormSection>
 
         <!-- Actions -->
         <div class="form-actions">
@@ -209,6 +205,7 @@
 import { defineComponent } from 'vue'
 import PageWrapper from '@/components/PageWrapper'
 import AppToolbar from '@/components/AppToolbar'
+import FormSection from '@/components/FormSection'
 import HeaderEditDialog from '@/components/HeaderEditDialog'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcDialog from '@nextcloud/vue/components/NcDialog'
@@ -238,6 +235,7 @@ export default defineComponent({
     NcTextArea,
     PageWrapper,
     AppToolbar,
+    FormSection,
     HeaderEditDialog,
     ArrowLeftIcon,
     PlusIcon,
@@ -702,15 +700,6 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     gap: 32px;
-
-    .form-section {
-      h3 {
-        margin: 0 0 16px 0;
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--color-main-text);
-      }
-    }
 
     .form-grid {
       display: grid;

@@ -41,15 +41,15 @@
         </NcNoteCard>
 
         <!-- Category Permissions Section -->
-        <section class="form-section">
-          <h3>{{ strings.categoryPermissions }}</h3>
-          <p class="muted">{{ strings.categoryPermissionsDesc }}</p>
-
+        <FormSection
+          :title="strings.categoryPermissions"
+          :subtitle="strings.categoryPermissionsDesc"
+        >
           <CategoryPermissionsTable
             :category-headers="categoryHeaders"
             :permissions="permissions"
           />
-        </section>
+        </FormSection>
 
         <!-- Actions -->
         <div class="form-actions">
@@ -76,6 +76,7 @@ import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import AppToolbar from '@/components/AppToolbar'
+import FormSection from '@/components/FormSection'
 import CategoryPermissionsTable, {
   type CategoryPermission,
 } from '@/components/CategoryPermissionsTable'
@@ -90,6 +91,7 @@ export default defineComponent({
     NcEmptyContent,
     NcLoadingIcon,
     NcNoteCard,
+    FormSection,
     PageHeader,
     ArrowLeftIcon,
     PageWrapper,
@@ -252,15 +254,6 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     gap: 32px;
-
-    .form-section {
-      h3 {
-        margin: 0 0 16px 0;
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--color-main-text);
-      }
-    }
 
     .form-actions {
       display: flex;

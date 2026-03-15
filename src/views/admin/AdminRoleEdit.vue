@@ -53,8 +53,7 @@
         </NcNoteCard>
 
         <!-- Basic Info Section -->
-        <section class="form-section">
-          <h3>{{ strings.basicInfo }}</h3>
+        <FormSection :title="strings.basicInfo">
           <div class="form-grid">
             <div class="form-group">
               <NcTextField
@@ -77,13 +76,10 @@
               />
             </div>
           </div>
-        </section>
+        </FormSection>
 
         <!-- Colors Section -->
-        <section class="form-section">
-          <h3>{{ strings.colors }}</h3>
-          <p class="muted">{{ strings.colorsDesc }}</p>
-
+        <FormSection :title="strings.colors" :subtitle="strings.colorsDesc">
           <div class="colors-grid">
             <div class="color-group">
               <label>{{ strings.colorLight }}</label>
@@ -122,11 +118,10 @@
               </div>
             </div>
           </div>
-        </section>
+        </FormSection>
 
         <!-- Role Permissions Section -->
-        <section class="form-section">
-          <h3>{{ strings.rolePermissions }}</h3>
+        <FormSection :title="strings.rolePermissions">
           <NcNoteCard v-if="isAdmin" type="info">
             {{ strings.adminAllRolePermissions }}
           </NcNoteCard>
@@ -163,11 +158,10 @@
               </NcCheckboxRadioSwitch>
             </div>
           </div>
-        </section>
+        </FormSection>
 
         <!-- Category Permissions Section -->
-        <section class="form-section">
-          <h3>{{ strings.categoryPermissions }}</h3>
+        <FormSection :title="strings.categoryPermissions">
           <NcNoteCard v-if="isAdmin" type="info">
             {{ strings.adminFullAccess }}
           </NcNoteCard>
@@ -190,7 +184,7 @@
             :disable-reply="isAdmin"
             :disable-moderate="isAdmin || isGuest || isDefault"
           />
-        </section>
+        </FormSection>
 
         <!-- Actions -->
         <div class="form-actions">
@@ -221,6 +215,7 @@ import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import AppToolbar from '@/components/AppToolbar'
+import FormSection from '@/components/FormSection'
 import CategoryPermissionsTable, {
   type CategoryPermission,
 } from '@/components/CategoryPermissionsTable'
@@ -241,6 +236,7 @@ export default defineComponent({
     NcNoteCard,
     NcTextField,
     NcTextArea,
+    FormSection,
     PageHeader,
     ArrowLeftIcon,
     PageWrapper,
@@ -637,15 +633,6 @@ export default defineComponent({
 
       p:last-child {
         margin: 0;
-      }
-    }
-
-    .form-section {
-      h3 {
-        margin: 0 0 16px 0;
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--color-main-text);
       }
     }
 

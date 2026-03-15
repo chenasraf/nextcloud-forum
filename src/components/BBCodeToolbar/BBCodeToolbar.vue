@@ -1,7 +1,7 @@
 <template>
-  <div class="bbcode-toolbar">
+  <div ref="toolbarRef" class="bbcode-toolbar">
     <NcButton
-      v-for="button in bbcodeButtons"
+      v-for="button in visibleButtons"
       :key="button.tag"
       variant="tertiary"
       :aria-label="button.label"
@@ -13,6 +13,26 @@
         <component :is="button.icon" :size="20" />
       </template>
     </NcButton>
+
+    <NcActions
+      v-if="overflowButtons.length > 0"
+      :aria-label="strings.moreActions"
+      class="bbcode-trigger-button"
+    >
+      <template #icon>
+        <DotsHorizontalIcon :size="20" />
+      </template>
+      <NcActionButton
+        v-for="button in overflowButtons"
+        :key="button.tag"
+        @click="insertBBCode(button)"
+      >
+        <template #icon>
+          <component :is="button.icon" :size="20" />
+        </template>
+        {{ button.label }}
+      </NcActionButton>
+    </NcActions>
 
     <LazyEmojiPicker @select="handleEmojiSelect">
       <NcButton
@@ -130,6 +150,7 @@ import PaperclipIcon from '@icons/Paperclip.vue'
 import UploadIcon from '@icons/Upload.vue'
 import EmoticonIcon from '@icons/Emoticon.vue'
 import HelpCircleIcon from '@icons/HelpCircle.vue'
+import DotsHorizontalIcon from '@icons/DotsHorizontal.vue'
 import BBCodeHelpDialog from '@/components/BBCodeHelpDialog'
 import { t } from '@nextcloud/l10n'
 import { webDav, ocs } from '@/axios'
@@ -160,6 +181,7 @@ export default defineComponent({
     UploadIcon,
     EmoticonIcon,
     HelpCircleIcon,
+    DotsHorizontalIcon,
   },
   props: {
     textareaRef: {
@@ -179,6 +201,8 @@ export default defineComponent({
       uploadProgress: 0,
       uploadFileName: '',
       uploadError: null as string | null,
+      visibleCount: 18,
+      resizeObserver: null as ResizeObserver | null,
       strings: {
         helpLabel: t('forum', 'BBCode help'),
         emojiLabel: t('forum', 'Insert emoji'),
@@ -188,10 +212,17 @@ export default defineComponent({
         uploadingFile: t('forum', 'Uploading file …'),
         uploadError: t('forum', 'Upload failed'),
         close: t('forum', 'Close'),
+        moreActions: t('forum', 'More formatting options'),
       },
     }
   },
   computed: {
+    visibleButtons(): BBCodeButton[] {
+      return this.bbcodeButtons.slice(0, this.visibleCount)
+    },
+    overflowButtons(): BBCodeButton[] {
+      return this.bbcodeButtons.slice(this.visibleCount)
+    },
     bbcodeButtons(): BBCodeButton[] {
       return [
         {
@@ -325,7 +356,51 @@ export default defineComponent({
       ]
     },
   },
+  mounted() {
+    this.resizeObserver = new ResizeObserver(() => {
+      this.calculateVisibleButtons()
+    })
+    this.$nextTick(() => {
+      const el = this.$refs.toolbarRef as HTMLElement | undefined
+      if (el) {
+        this.resizeObserver!.observe(el)
+        this.calculateVisibleButtons()
+      }
+    })
+  },
+  beforeUnmount() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = null
+    }
+  },
   methods: {
+    calculateVisibleButtons(): void {
+      const el = this.$refs.toolbarRef as HTMLElement | undefined
+      if (!el) {
+        return
+      }
+
+      const containerWidth = el.clientWidth
+      const buttonWidth = 30
+      const gap = 4
+      const totalButtons = this.bbcodeButtons.length
+      // Fixed elements: emoji + attachment + help buttons + spacer min + gaps
+      const fixedWidth = 3 * (buttonWidth + gap) + 8
+      const overflowTriggerWidth = buttonWidth + gap
+
+      const availableForBBCode = containerWidth - fixedWidth
+      const allBBCodeWidth = totalButtons * (buttonWidth + gap)
+
+      if (allBBCodeWidth <= availableForBBCode) {
+        this.visibleCount = totalButtons
+      } else {
+        const availableWithOverflow = availableForBBCode - overflowTriggerWidth
+        const maxVisible = Math.max(0, Math.floor(availableWithOverflow / (buttonWidth + gap)))
+        this.visibleCount = maxVisible
+      }
+    },
+
     async insertBBCode(button: BBCodeButton): Promise<void> {
       // If button has a custom handler, use it instead
       if (button.handler) {
@@ -601,8 +676,9 @@ export default defineComponent({
 <style scoped lang="scss">
 .bbcode-toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4px;
+  overflow: hidden;
 }
 
 .toolbar-spacer {

@@ -25,6 +25,7 @@ vi.mock('@icons/Paperclip.vue', () => createIconMock('PaperclipIcon'))
 vi.mock('@icons/Upload.vue', () => createIconMock('UploadIcon'))
 vi.mock('@icons/Emoticon.vue', () => createIconMock('EmoticonIcon'))
 vi.mock('@icons/HelpCircle.vue', () => createIconMock('HelpCircleIcon'))
+vi.mock('@icons/DotsHorizontal.vue', () => createIconMock('DotsHorizontalIcon'))
 
 // Mock child components
 vi.mock('@/components/LazyEmojiPicker', () =>
@@ -103,6 +104,14 @@ describe('BBCodeToolbar', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubGlobal('prompt', vi.fn())
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    )
   })
 
   const createWrapper = (props = {}) => {
@@ -141,6 +150,49 @@ describe('BBCodeToolbar', () => {
     it('renders attachment actions', () => {
       const wrapper = createWrapper()
       expect(wrapper.find('.nc-actions-mock').exists()).toBe(true)
+    })
+  })
+
+  describe('overflow menu', () => {
+    it('does not render overflow menu when all buttons fit', () => {
+      const wrapper = createWrapper()
+      // Default visibleCount is 18 (all buttons), so no overflow
+      const actionsElements = wrapper.findAll('.nc-actions-mock')
+      // Only the attachment NcActions should exist, not an overflow one
+      expect(actionsElements.length).toBe(1)
+    })
+
+    it('renders overflow menu when visibleCount is less than total buttons', async () => {
+      const wrapper = createWrapper()
+      const vm = wrapper.vm as unknown as { visibleCount: number }
+      vm.visibleCount = 5
+      await flushPromises()
+
+      const actionsElements = wrapper.findAll('.nc-actions-mock')
+      // Should have 2: overflow menu + attachment menu
+      expect(actionsElements.length).toBe(2)
+    })
+
+    it('clicking overflow button emits insert event', async () => {
+      const textarea = document.createElement('textarea')
+      textarea.value = 'Hello world'
+      textarea.selectionStart = 0
+      textarea.selectionEnd = 5
+
+      const wrapper = createWrapper({ textareaRef: textarea })
+      const vm = wrapper.vm as unknown as { visibleCount: number }
+      vm.visibleCount = 5
+      await flushPromises()
+
+      // Find the overflow action buttons (they are nc-action-button-mock inside the overflow NcActions)
+      const overflowActionButtons = wrapper.findAll('.nc-action-button-mock')
+      // The first 2 are attachment menu buttons (pick file, upload file)
+      // The rest are overflow bbcode buttons
+      const firstOverflowButton = overflowActionButtons[2]
+      expect(firstOverflowButton).toBeDefined()
+      await firstOverflowButton!.trigger('click')
+
+      expect(wrapper.emitted('insert')).toBeTruthy()
     })
   })
 

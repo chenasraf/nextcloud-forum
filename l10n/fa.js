@@ -72,6 +72,7 @@ OC.L10N.register(
     "Name" : "نام",
     "New" : "جدید",
     "Permissions" : "مجوزها",
+    "Preview" : "پیش‌نمایش",
     "Move up" : "حرکت به بالا",
     "Move down" : "حرکت به پایین",
     "Last 7 days" : "۷ روز گذشته.",

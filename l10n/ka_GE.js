@@ -40,6 +40,7 @@ OC.L10N.register(
     "Name" : "სახელი",
     "New" : "ახალი",
     "Permissions" : "უფლებები",
+    "Preview" : "წინასწარი ჩვენება",
     "General settings" : "მთავარი პარამეტრები",
     "Access control" : "დაშვების კონტროლი",
     "Settings saved" : "პარამეტრები შენახულია",

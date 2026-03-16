@@ -62,6 +62,7 @@ OC.L10N.register(
     "Enabled" : "Đá kích hoạt",
     "Name" : "Tên",
     "New" : "Tạo mới",
+    "Preview" : "Xem trước",
     "Move up" : "Di chuyển lên",
     "Move down" : "Di chuyển xuống",
     "Last 7 days" : "7 ngày trước",

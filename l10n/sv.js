@@ -86,6 +86,7 @@ OC.L10N.register(
     "Name" : "Namn",
     "New" : "Ny",
     "Permissions" : "Behörigheter",
+    "Preview" : "Förhandsgranskning",
     "Move up" : "Flytta upp",
     "Move down" : "Flytta ner",
     "Last 7 days" : "Senaste 7 dagarna",

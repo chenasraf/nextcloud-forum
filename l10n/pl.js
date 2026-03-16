@@ -86,6 +86,7 @@ OC.L10N.register(
     "Name" : "Nazwa",
     "New" : "Nowy",
     "Permissions" : "Uprawnienia",
+    "Preview" : "Podgląd",
     "Move up" : "Przenieś wyżej",
     "Move down" : "Przenieś niżej",
     "Last 7 days" : "Ostatnie 7 dni",

@@ -32,6 +32,7 @@ OC.L10N.register(
     "Threads" : "Niti",
     "Category" : "Kategorija",
     "Allow" : "Dopusti",
+    "Pick a color" : "Odaberite boju",
     "Cancel" : "Cancel",
     "Create" : "Stvori",
     "Update" : "Ažuriraj",

@@ -67,6 +67,7 @@ OC.L10N.register(
     "Name" : "Heiti",
     "New" : "Nýtt",
     "Permissions" : "Heimildir",
+    "Preview" : "Forskoðun",
     "Move up" : "Færa upp",
     "Move down" : "Færa niður",
     "Last 7 days" : "Síðustu 7 daga",

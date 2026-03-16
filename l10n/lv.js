@@ -64,6 +64,7 @@ OC.L10N.register(
     "Name" : "Nosaukums",
     "New" : "Jauns",
     "Permissions" : "Atļaujas",
+    "Preview" : "Priekšskatīt",
     "All time" : "Visu laiku",
     "General settings" : "Vispārīgi iestatījumi",
     "Appearance" : "Izskats",

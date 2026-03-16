@@ -64,6 +64,7 @@ OC.L10N.register(
     "Name" : "სახელი",
     "New" : "ახალი",
     "Permissions" : "Permissions",
+    "Preview" : "Preview",
     "Move up" : "Move up",
     "Move down" : "Move down",
     "Last 7 days" : "Last 7 days",

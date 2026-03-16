@@ -49,6 +49,7 @@ OC.L10N.register(
     "Description" : "Tavsif",
     "Name" : "Nomi",
     "New" : "Yangi",
+    "Preview" : "Ko‘rib chiqish",
     "Last 7 days" : "Oxirgi 7 kun",
     "Appearance" : "Tashqi ko'rinish",
     "Access control" : "Kirishni boshqarish",

@@ -60,6 +60,7 @@ OC.L10N.register(
     "Name" : "Nume",
     "New" : "Nou",
     "Permissions" : "Permisiuni",
+    "Preview" : "Previzualizare",
     "Move up" : "Mută înainte",
     "Move down" : "Mută în jos",
     "Last 7 days" : "Ultimele 7 zile",

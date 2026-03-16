@@ -25,6 +25,7 @@ OC.L10N.register(
     "Description" : "Description",
     "Enabled" : "Activate",
     "New" : "Nove",
+    "Preview" : "Previsualisar",
     "Settings saved" : "Configurationes salveguardate",
     "Reset" : "Re-fixar",
     "Actions" : "Actiones",

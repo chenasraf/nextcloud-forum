@@ -39,6 +39,7 @@ OC.L10N.register(
     "Enabled" : "เปิดใช้งาน",
     "Name" : "ชื่อ",
     "New" : "ใหม่",
+    "Preview" : "ตัวอย่าง",
     "Last 7 days" : "ภายใน 7 วัน",
     "Appearance" : "ลักษณะที่ปรากฏ",
     "Settings saved" : "บันทึกการตั้งค่าแล้ว",

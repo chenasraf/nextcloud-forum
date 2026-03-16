@@ -48,6 +48,7 @@ OC.L10N.register(
     "Name" : "Emër",
     "New" : "I ri",
     "Permissions" : "Lejet",
+    "Preview" : "Parapamje ",
     "All time" : "Gjithë kohës",
     "General settings" : "Opsjonet e Pergjithshme",
     "Access control" : "Kontrolli i aksesit",

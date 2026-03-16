@@ -40,6 +40,7 @@ OC.L10N.register(
     "Name" : "Nombre",
     "New" : "Nuevo",
     "Permissions" : "Permisos",
+    "Preview" : "Previsualizar",
     "General settings" : "Configuraciones generales",
     "Access control" : "Control de acceso",
     "Settings saved" : "Se han guardado las configuraciones ",

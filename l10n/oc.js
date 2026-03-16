@@ -54,6 +54,7 @@ OC.L10N.register(
     "Name" : "Nom",
     "New" : "Nòu",
     "Permissions" : "Autorizacions",
+    "Preview" : "Apercebut",
     "General settings" : "Paramètres generals",
     "Appearance" : "Aparéncia",
     "Settings saved" : "Paramètres salvats",

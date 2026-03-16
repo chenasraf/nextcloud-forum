@@ -85,6 +85,7 @@ OC.L10N.register(
     "Name" : "Naam",
     "New" : "Nieuw",
     "Permissions" : "Rechten",
+    "Preview" : "Voorbeeld",
     "Move up" : "Verplaats naar boven",
     "Move down" : "Lager zetten",
     "Last 7 days" : "Laatste 7 dagen",

@@ -73,6 +73,7 @@ OC.L10N.register(
     "Name" : "Pavadinimas",
     "New" : "Nauja",
     "Permissions" : "Leidimai",
+    "Preview" : "Peržiūra",
     "Move up" : "Pakelti",
     "Move down" : "Nuleisti",
     "Last 7 days" : "Paskutinės 7 dienos",

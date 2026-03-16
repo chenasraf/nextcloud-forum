@@ -17,6 +17,7 @@ OC.L10N.register(
     "Close" : "Mdel",
     "Category" : "Taggayt",
     "Allow" : "Sireg",
+    "Pick a color" : "Fren ini",
     "Cancel" : "Semmet",
     "Create" : "Snulfu-d",
     "Move" : "Senkez",

@@ -77,6 +77,7 @@ OC.L10N.register(
     "Name" : "Ime podpisnika",
     "New" : "Novo",
     "Permissions" : "Dovoljenja",
+    "Preview" : "Predogled",
     "Move up" : "Premakni navzgor",
     "Move down" : "Premakni navzdol",
     "Last 7 days" : "Zadnjih 7 dni",

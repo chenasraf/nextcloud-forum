@@ -84,6 +84,7 @@ OC.L10N.register(
     "Name" : "Názov",
     "New" : "Nový",
     "Permissions" : "Oprávnenia",
+    "Preview" : "Náhľad",
     "Move up" : "Presunúť hore",
     "Move down" : "Presunúť dole",
     "Last 7 days" : "Posledných 7 dní",

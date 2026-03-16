@@ -262,6 +262,7 @@ OC.L10N.register(
     "Name" : "שם",
     "New" : "חדש",
     "Permissions" : "הרשאות",
+    "Preview" : "תצוגה מקדימה",
     "Move down" : "להוריד למטה",
     "General settings" : "הגדרות כלליות",
     "Appearance" : "מראה",

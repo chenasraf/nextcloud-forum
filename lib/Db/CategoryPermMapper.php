@@ -250,6 +250,21 @@ class CategoryPermMapper extends QBMapper {
 	}
 
 	/**
+	 * Delete all permissions for a category filtered by target type
+	 */
+	public function deleteByCategoryIdAndTargetType(int $categoryId, string $targetType): void {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where(
+				$qb->expr()->eq('category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
+			)
+			->andWhere(
+				$qb->expr()->eq('target_type', $qb->createNamedParameter($targetType, IQueryBuilder::PARAM_STR))
+			);
+		$qb->executeStatement();
+	}
+
+	/**
 	 * Delete all permissions for a category
 	 */
 	public function deleteByCategoryId(int $categoryId): void {

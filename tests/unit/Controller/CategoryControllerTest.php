@@ -712,9 +712,9 @@ class CategoryControllerTest extends TestCase {
 			->with($categoryId)
 			->willReturn($category);
 
-		$this->categoryPermMapper->expects($this->once())
-			->method('deleteByCategoryId')
-			->with($categoryId);
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('deleteByCategoryIdAndTargetType')
+			->with($categoryId, $this->anything());
 
 		$this->roleMapper->expects($this->exactly(4))
 			->method('find')
@@ -795,9 +795,9 @@ class CategoryControllerTest extends TestCase {
 				[3, $userRole],
 			]);
 
-		$this->categoryPermMapper->expects($this->once())
-			->method('deleteByCategoryId')
-			->with($categoryId);
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('deleteByCategoryIdAndTargetType')
+			->with($categoryId, $this->anything());
 
 		// Should only insert 2 permissions (Admin role ID 1 is filtered out)
 		$this->categoryPermMapper->expects($this->exactly(2))
@@ -881,9 +881,9 @@ class CategoryControllerTest extends TestCase {
 			->with($categoryId)
 			->willReturn($category);
 
-		$this->categoryPermMapper->expects($this->once())
-			->method('deleteByCategoryId')
-			->with($categoryId);
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('deleteByCategoryIdAndTargetType')
+			->with($categoryId, $this->anything());
 
 		// roleMapper->find() is called twice:
 		// - Once during filtering phase
@@ -931,9 +931,9 @@ class CategoryControllerTest extends TestCase {
 			->with($categoryId)
 			->willReturn($category);
 
-		$this->categoryPermMapper->expects($this->once())
-			->method('deleteByCategoryId')
-			->with($categoryId);
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('deleteByCategoryIdAndTargetType')
+			->with($categoryId, $this->anything());
 
 		// roleMapper->find() is called twice:
 		// - Once during filtering phase
@@ -981,9 +981,9 @@ class CategoryControllerTest extends TestCase {
 			->with($categoryId)
 			->willReturn($category);
 
-		$this->categoryPermMapper->expects($this->once())
-			->method('deleteByCategoryId')
-			->with($categoryId);
+		$this->categoryPermMapper->expects($this->exactly(2))
+			->method('deleteByCategoryIdAndTargetType')
+			->with($categoryId, $this->anything());
 
 		// roleMapper->find() is called twice:
 		// - Once during filtering phase

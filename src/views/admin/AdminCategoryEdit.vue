@@ -262,7 +262,9 @@ import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { isAdminRole, isModeratorRole, isDefaultRole, isGuestRole } from '@/constants'
 import { useCategories } from '@/composables/useCategories'
-import type { Category, CategoryPerm, CatHeader, Role } from '@/types'
+import type { Category, CategoryPerm, CatHeader, Role, Team } from '@/types'
+
+type PermTarget = { id: string; label: string; type: 'role' | 'team' }
 
 export default defineComponent({
   name: 'AdminCategoryEdit',
@@ -301,10 +303,11 @@ export default defineComponent({
       headers: [] as CatHeader[],
       roles: [] as Role[],
       selectedHeader: null as { id: number; label: string } | null,
-      selectedViewTargets: [] as Array<{ id: number; label: string }>,
-      selectedPostTargets: [] as Array<{ id: number; label: string }>,
-      selectedReplyTargets: [] as Array<{ id: number; label: string }>,
-      selectedModerateTargets: [] as Array<{ id: number; label: string }>,
+      teams: [] as Team[],
+      selectedViewTargets: [] as PermTarget[],
+      selectedPostTargets: [] as PermTarget[],
+      selectedReplyTargets: [] as PermTarget[],
+      selectedModerateTargets: [] as PermTarget[],
       formData: {
         headerId: null as number | null,
         name: '',
@@ -355,20 +358,29 @@ export default defineComponent({
         permissions: t('forum', 'Permissions'),
         permissionsDescription: t(
           'forum',
-          'Control which roles can access and moderate this category',
+          'Control which roles and teams can access and moderate this category',
         ),
         viewRoles: t('forum', 'Can view'),
-        viewRolesHelp: t('forum', 'Select roles that can view this category and its threads'),
+        viewRolesHelp: t(
+          'forum',
+          'Select roles or teams that can view this category and its threads',
+        ),
         postRoles: t('forum', 'Can post'),
-        postRolesHelp: t('forum', 'Select roles that can create new threads in this category'),
+        postRolesHelp: t(
+          'forum',
+          'Select roles or teams that can create new threads in this category',
+        ),
         replyRoles: t('forum', 'Can reply'),
-        replyRolesHelp: t('forum', 'Select roles that can reply to threads in this category'),
+        replyRolesHelp: t(
+          'forum',
+          'Select roles or teams that can reply to threads in this category',
+        ),
         moderateRoles: t('forum', 'Can moderate'),
         moderateRolesHelp: t(
           'forum',
-          'Select roles that can moderate (edit/delete) content in this category',
+          'Select roles or teams that can moderate (edit/delete) content in this category',
         ),
-        selectRoles: t('forum', 'Select roles …'),
+        selectRoles: t('forum', 'Select roles or teams …'),
         design: t('forum', 'Design'),
         designDesc: t('forum', 'Customize the appearance of this category'),
         categoryColor: t('forum', 'Category color'),
@@ -399,38 +411,53 @@ export default defineComponent({
         label: header.name,
       }))
     },
-    viewTargetOptions(): Array<{ id: number; label: string }> {
-      return this.roles
+    teamOptions(): PermTarget[] {
+      return this.teams.map((team) => ({
+        id: `team:${team.id}`,
+        label: `Team: ${team.displayName}`,
+        type: 'team' as const,
+      }))
+    },
+    viewTargetOptions(): PermTarget[] {
+      const roleOptions: PermTarget[] = this.roles
         .filter((role) => !isAdminRole(role))
         .map((role) => ({
-          id: role.id,
+          id: `role:${role.id}`,
           label: role.name,
+          type: 'role' as const,
         }))
+      return [...roleOptions, ...this.teamOptions]
     },
-    postTargetOptions(): Array<{ id: number; label: string }> {
-      return this.roles
+    postTargetOptions(): PermTarget[] {
+      const roleOptions: PermTarget[] = this.roles
         .filter((role) => !isAdminRole(role))
         .map((role) => ({
-          id: role.id,
+          id: `role:${role.id}`,
           label: role.name,
+          type: 'role' as const,
         }))
+      return [...roleOptions, ...this.teamOptions]
     },
-    replyTargetOptions(): Array<{ id: number; label: string }> {
-      return this.roles
+    replyTargetOptions(): PermTarget[] {
+      const roleOptions: PermTarget[] = this.roles
         .filter((role) => !isAdminRole(role))
         .map((role) => ({
-          id: role.id,
+          id: `role:${role.id}`,
           label: role.name,
+          type: 'role' as const,
         }))
+      return [...roleOptions, ...this.teamOptions]
     },
-    moderateTargetOptions(): Array<{ id: number; label: string }> {
+    moderateTargetOptions(): PermTarget[] {
       // Filter out Admin, Guest, and Default roles for moderation
-      return this.roles
+      const roleOptions: PermTarget[] = this.roles
         .filter((role) => !isAdminRole(role) && !isGuestRole(role) && !isDefaultRole(role))
         .map((role) => ({
-          id: role.id,
+          id: `role:${role.id}`,
           label: role.name,
+          type: 'role' as const,
         }))
+      return [...roleOptions, ...this.teamOptions]
     },
     categoryColorPresets(): string[] {
       return [
@@ -522,9 +549,13 @@ export default defineComponent({
           createdAt: header.createdAt,
         }))
 
-        // Load roles
-        const rolesResponse = await ocs.get<Role[]>('/roles')
+        // Load roles and teams in parallel
+        const [rolesResponse, teamsResponse] = await Promise.all([
+          ocs.get<Role[]>('/roles'),
+          ocs.get<Team[]>('/teams').catch(() => ({ data: [] as Team[] })),
+        ])
         this.roles = rolesResponse.data || []
+        this.teams = teamsResponse.data || []
 
         // If editing, load category data and permissions
         if (this.isEditing && this.categoryId) {
@@ -535,7 +566,11 @@ export default defineComponent({
           // View, Post, Reply: Default user role
           const memberRole = this.roles.find(isDefaultRole)
           if (memberRole) {
-            const memberOption = { id: memberRole.id, label: memberRole.name }
+            const memberOption: PermTarget = {
+              id: `role:${memberRole.id}`,
+              label: memberRole.name,
+              type: 'role',
+            }
             this.selectedViewTargets = [memberOption]
             this.selectedPostTargets = [memberOption]
             this.selectedReplyTargets = [memberOption]
@@ -547,14 +582,16 @@ export default defineComponent({
           this.selectedModerateTargets = []
           if (adminRole) {
             this.selectedModerateTargets.push({
-              id: adminRole.id,
+              id: `role:${adminRole.id}`,
               label: adminRole.name,
+              type: 'role',
             })
           }
           if (moderatorRole) {
             this.selectedModerateTargets.push({
-              id: moderatorRole.id,
+              id: `role:${moderatorRole.id}`,
               label: moderatorRole.name,
+              type: 'role',
             })
           }
         }
@@ -603,41 +640,48 @@ export default defineComponent({
 
         const perms = permsResponse.data || []
 
-        // Only handle role-type permissions
         const rolePerms = perms.filter((p) => p.targetType === 'role')
+        const teamPerms = perms.filter((p) => p.targetType === 'team')
 
-        this.selectedViewTargets = rolePerms
-          .filter((p) => p.canView)
-          .map((p) => {
-            const role = this.roles.find((r) => String(r.id) === p.targetId)
-            return role ? { id: role.id, label: role.name } : null
-          })
-          .filter((o): o is { id: number; label: string } => o !== null)
+        // Map role permissions to PermTarget
+        const mapRolePerm = (p: CategoryPerm): PermTarget | null => {
+          const role = this.roles.find((r) => String(r.id) === p.targetId)
+          return role ? { id: `role:${role.id}`, label: role.name, type: 'role' } : null
+        }
 
-        this.selectedPostTargets = rolePerms
-          .filter((p) => p.canPost)
-          .map((p) => {
-            const role = this.roles.find((r) => String(r.id) === p.targetId)
-            return role ? { id: role.id, label: role.name } : null
-          })
-          .filter((o): o is { id: number; label: string } => o !== null)
+        // Map team permissions to PermTarget
+        const mapTeamPerm = (p: CategoryPerm): PermTarget | null => {
+          const team = this.teams.find((t) => t.id === p.targetId)
+          return team
+            ? { id: `team:${team.id}`, label: `Team: ${team.displayName}`, type: 'team' }
+            : null
+        }
 
-        this.selectedReplyTargets = rolePerms
-          .filter((p) => p.canReply)
-          .map((p) => {
-            const role = this.roles.find((r) => String(r.id) === p.targetId)
-            return role ? { id: role.id, label: role.name } : null
-          })
-          .filter((o): o is { id: number; label: string } => o !== null)
+        this.selectedViewTargets = [
+          ...rolePerms.filter((p) => p.canView).map(mapRolePerm),
+          ...teamPerms.filter((p) => p.canView).map(mapTeamPerm),
+        ].filter((o): o is PermTarget => o !== null)
 
-        this.selectedModerateTargets = rolePerms
-          .filter((p) => p.canModerate)
-          .map((p) => {
-            const role = this.roles.find((r) => String(r.id) === p.targetId)
-            if (!role || isGuestRole(role) || isDefaultRole(role)) return null
-            return { id: role.id, label: role.name }
-          })
-          .filter((o): o is { id: number; label: string } => o !== null)
+        this.selectedPostTargets = [
+          ...rolePerms.filter((p) => p.canPost).map(mapRolePerm),
+          ...teamPerms.filter((p) => p.canPost).map(mapTeamPerm),
+        ].filter((o): o is PermTarget => o !== null)
+
+        this.selectedReplyTargets = [
+          ...rolePerms.filter((p) => p.canReply).map(mapRolePerm),
+          ...teamPerms.filter((p) => p.canReply).map(mapTeamPerm),
+        ].filter((o): o is PermTarget => o !== null)
+
+        this.selectedModerateTargets = [
+          ...rolePerms
+            .filter((p) => p.canModerate)
+            .map((p) => {
+              const role = this.roles.find((r) => String(r.id) === p.targetId)
+              if (!role || isGuestRole(role) || isDefaultRole(role)) return null
+              return { id: `role:${role.id}`, label: role.name, type: 'role' } as PermTarget
+            }),
+          ...teamPerms.filter((p) => p.canModerate).map(mapTeamPerm),
+        ].filter((o): o is PermTarget => o !== null)
       } catch (e) {
         console.error('Failed to load category permissions', e)
       }
@@ -688,12 +732,15 @@ export default defineComponent({
     },
 
     async updatePermissions(categoryId: number): Promise<void> {
-      const viewRoleIds = new Set(this.selectedViewTargets.map((t) => t.id))
-      const postRoleIds = new Set(this.selectedPostTargets.map((t) => t.id))
-      const replyRoleIds = new Set(this.selectedReplyTargets.map((t) => t.id))
-      const moderateRoleIds = new Set(this.selectedModerateTargets.map((t) => t.id))
+      const filterByType = (targets: PermTarget[], type: 'role' | 'team') =>
+        new Set(targets.filter((t) => t.type === type).map((t) => t.id.split(':')[1]))
 
-      // Collect all unique role IDs
+      // Role permissions
+      const viewRoleIds = filterByType(this.selectedViewTargets, 'role')
+      const postRoleIds = filterByType(this.selectedPostTargets, 'role')
+      const replyRoleIds = filterByType(this.selectedReplyTargets, 'role')
+      const moderateRoleIds = filterByType(this.selectedModerateTargets, 'role')
+
       const allRoleIds = new Set([
         ...viewRoleIds,
         ...postRoleIds,
@@ -711,7 +758,7 @@ export default defineComponent({
 
       for (const roleId of allRoleIds) {
         permissions.push({
-          roleId,
+          roleId: parseInt(roleId),
           canView: viewRoleIds.has(roleId),
           canPost: postRoleIds.has(roleId),
           canReply: replyRoleIds.has(roleId),
@@ -719,8 +766,40 @@ export default defineComponent({
         })
       }
 
+      // Team permissions
+      const viewTeamIds = filterByType(this.selectedViewTargets, 'team')
+      const postTeamIds = filterByType(this.selectedPostTargets, 'team')
+      const replyTeamIds = filterByType(this.selectedReplyTargets, 'team')
+      const moderateTeamIds = filterByType(this.selectedModerateTargets, 'team')
+
+      const allTeamIds = new Set([
+        ...viewTeamIds,
+        ...postTeamIds,
+        ...replyTeamIds,
+        ...moderateTeamIds,
+      ])
+
+      const teamPermissions: Array<{
+        teamId: string
+        canView: boolean
+        canPost: boolean
+        canReply: boolean
+        canModerate: boolean
+      }> = []
+
+      for (const teamId of allTeamIds) {
+        teamPermissions.push({
+          teamId,
+          canView: viewTeamIds.has(teamId),
+          canPost: postTeamIds.has(teamId),
+          canReply: replyTeamIds.has(teamId),
+          canModerate: moderateTeamIds.has(teamId),
+        })
+      }
+
       await ocs.post(`/categories/${categoryId}/permissions`, {
         permissions,
+        teamPermissions,
       })
     },
 

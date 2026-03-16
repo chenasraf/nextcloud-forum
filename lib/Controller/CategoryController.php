@@ -406,6 +406,7 @@ class CategoryController extends OCSController {
 	 *
 	 * @param int $id Category ID
 	 * @param list<array{roleId: int, canView: bool, canPost: bool, canReply: bool, canModerate: bool}> $permissions Role permissions array
+	 * @param list<array{teamId: string, canView: bool, canPost: bool, canReply: bool, canModerate: bool}> $teamPermissions Team permissions array
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Permissions updated
@@ -413,13 +414,13 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'POST', url: '/api/categories/{id}/permissions')]
-	public function updatePermissions(int $id, array $permissions): DataResponse {
+	public function updatePermissions(int $id, array $permissions, array $teamPermissions = []): DataResponse {
 		try {
 			// Verify category exists
 			$this->categoryMapper->find($id);
 
-			// Delete existing permissions for this category
-			$this->categoryPermMapper->deleteByCategoryId($id);
+			// Delete existing role permissions for this category
+			$this->categoryPermMapper->deleteByCategoryIdAndTargetType($id, CategoryPerm::TARGET_TYPE_ROLE);
 
 			// Filter out Admin role - it has hardcoded full access
 			$filteredPermissions = array_filter($permissions, function ($perm) {
@@ -454,6 +455,26 @@ class CategoryController extends OCSController {
 					$categoryPerm->setCanModerate(false);
 				}
 
+				$this->categoryPermMapper->insert($categoryPerm);
+			}
+
+			// Delete existing team permissions for this category and re-insert
+			$this->categoryPermMapper->deleteByCategoryIdAndTargetType($id, CategoryPerm::TARGET_TYPE_TEAM);
+
+			foreach ($teamPermissions as $perm) {
+				$teamId = $perm['teamId'] ?? null;
+				if ($teamId === null) {
+					continue;
+				}
+
+				$categoryPerm = new CategoryPerm();
+				$categoryPerm->setCategoryId($id);
+				$categoryPerm->setTargetType(CategoryPerm::TARGET_TYPE_TEAM);
+				$categoryPerm->setTargetId((string)$teamId);
+				$categoryPerm->setCanView($perm['canView'] ?? false);
+				$categoryPerm->setCanPost($perm['canPost'] ?? false);
+				$categoryPerm->setCanReply($perm['canReply'] ?? false);
+				$categoryPerm->setCanModerate($perm['canModerate'] ?? false);
 				$this->categoryPermMapper->insert($categoryPerm);
 			}
 

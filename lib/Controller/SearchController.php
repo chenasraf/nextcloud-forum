@@ -46,7 +46,7 @@ class SearchController extends OCSController {
 	 * @param bool $searchThreads Include threads in search (title + first post content)
 	 * @param bool $searchPosts Include reply posts in search
 	 * @param int|null $categoryId Optional category ID filter
-	 * @param int $limit Maximum results per type
+	 * @param int<1, 200> $limit Maximum results per type
 	 * @param int $offset Results offset per type
 	 * @return DataResponse<Http::STATUS_OK, array{threads: array<string, mixed>, posts: array<string, mixed>, threadCount: int, postCount: int, query: string}, array{}>
 	 *

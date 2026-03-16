@@ -35,6 +35,8 @@ class RoleController extends OCSController {
 	/**
 	 * Get all roles
 	 *
+	 * @param int<1, 100> $limit Maximum number of roles to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Roles returned
@@ -42,9 +44,9 @@ class RoleController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles')]
-	public function index(): DataResponse {
+	public function index(int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			$roles = $this->roleMapper->findAll();
+			$roles = array_slice($this->roleMapper->findAll(), $offset, $limit);
 			return new DataResponse(array_map(fn ($role) => $role->jsonSerialize(), $roles));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching roles: ' . $e->getMessage());
@@ -236,6 +238,8 @@ class RoleController extends OCSController {
 	 * Get permissions for a role
 	 *
 	 * @param int $id Role ID
+	 * @param int<1, 100> $limit Maximum number of permissions to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Permissions returned
@@ -243,9 +247,9 @@ class RoleController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}/permissions')]
-	public function getPermissions(int $id): DataResponse {
+	public function getPermissions(int $id, int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			$permissions = $this->categoryPermMapper->findByRoleId($id);
+			$permissions = array_slice($this->categoryPermMapper->findByRoleId($id), $offset, $limit);
 			return new DataResponse(array_map(fn ($perm) => $perm->jsonSerialize(), $permissions));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching role permissions: ' . $e->getMessage());

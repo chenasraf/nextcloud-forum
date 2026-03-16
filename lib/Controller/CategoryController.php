@@ -48,6 +48,8 @@ class CategoryController extends OCSController {
 	/**
 	 * Get all category headers with nested categories
 	 *
+	 * @param int<1, 100> $limit Maximum number of category headers to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Category headers with nested categories returned
@@ -55,7 +57,7 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/categories')]
-	public function index(): DataResponse {
+	public function index(int $limit = 100, int $offset = 0): DataResponse {
 		try {
 			// Fetch all headers, categories, and last activity timestamps
 			$headers = $this->catHeaderMapper->findAll();
@@ -104,7 +106,7 @@ class CategoryController extends OCSController {
 				$result[] = $headerData;
 			}
 
-			return new DataResponse($result);
+			return new DataResponse(array_slice($result, $offset, $limit));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching categories: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch categories'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -115,6 +117,8 @@ class CategoryController extends OCSController {
 	 * Get categories by header ID
 	 *
 	 * @param int $headerId Category header ID
+	 * @param int<1, 100> $limit Maximum number of categories to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Categories returned
@@ -122,7 +126,7 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/headers/{headerId}/categories')]
-	public function byHeader(int $headerId): DataResponse {
+	public function byHeader(int $headerId, int $limit = 100, int $offset = 0): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			$userId = $user ? $user->getUID() : null;
@@ -130,7 +134,7 @@ class CategoryController extends OCSController {
 
 			$categories = $this->categoryMapper->findByHeaderId($headerId);
 			$filtered = array_filter($categories, fn ($cat) => in_array($cat->getId(), $accessibleCategoryIds, true));
-			return new DataResponse(array_values(array_map(fn ($cat) => $cat->jsonSerialize(), $filtered)));
+			return new DataResponse(array_slice(array_values(array_map(fn ($cat) => $cat->jsonSerialize(), $filtered)), $offset, $limit));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching categories by header: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch categories'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -383,6 +387,8 @@ class CategoryController extends OCSController {
 	 * Get permissions for a category
 	 *
 	 * @param int $id Category ID
+	 * @param int<1, 100> $limit Maximum number of permissions to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Permissions returned
@@ -390,10 +396,10 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/categories/{id}/permissions')]
-	public function getPermissions(int $id): DataResponse {
+	public function getPermissions(int $id, int $limit = 100, int $offset = 0): DataResponse {
 		try {
 			// Exclude Admin role - it has hardcoded full access to all categories
-			$permissions = $this->categoryPermMapper->findByCategoryIdExcludingAdmin($id);
+			$permissions = array_slice($this->categoryPermMapper->findByCategoryIdExcludingAdmin($id), $offset, $limit);
 			return new DataResponse(array_map(fn ($perm) => $perm->jsonSerialize(), $permissions));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching category permissions: ' . $e->getMessage());

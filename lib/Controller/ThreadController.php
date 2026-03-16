@@ -58,6 +58,8 @@ class ThreadController extends OCSController {
 	/**
 	 * Get all threads
 	 *
+	 * @param int<1, 200> $limit Maximum number of threads to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Threads returned
@@ -65,9 +67,9 @@ class ThreadController extends OCSController {
 	#[NoAdminRequired]
 	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/threads')]
-	public function index(): DataResponse {
+	public function index(int $limit = 200, int $offset = 0): DataResponse {
 		try {
-			$threads = $this->threadMapper->findAll();
+			$threads = array_slice($this->threadMapper->findAll(), $offset, $limit);
 
 			// Extract unique author IDs
 			$authorIds = array_unique(array_map(fn ($t) => $t->getAuthorId(), $threads));
@@ -89,7 +91,7 @@ class ThreadController extends OCSController {
 	 * Get threads by category
 	 *
 	 * @param int $categoryId Category ID
-	 * @param int $limit Maximum number of threads to return
+	 * @param int<1, 200> $limit Maximum number of threads to return
 	 * @param int $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
@@ -176,7 +178,7 @@ class ThreadController extends OCSController {
 	 * Get threads by author
 	 *
 	 * @param string $authorId Author user ID
-	 * @param int $limit Maximum number of threads to return
+	 * @param int<1, 200> $limit Maximum number of threads to return
 	 * @param int $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *

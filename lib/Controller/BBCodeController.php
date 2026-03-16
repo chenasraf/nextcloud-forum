@@ -31,6 +31,8 @@ class BBCodeController extends OCSController {
 	/**
 	 * Get all BBCodes (excludes builtin codes)
 	 *
+	 * @param int<1, 100> $limit Maximum number of BBCodes to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: BBCodes returned
@@ -38,9 +40,9 @@ class BBCodeController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes')]
-	public function index(): DataResponse {
+	public function index(int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			$bbcodes = $this->bbCodeMapper->findAllNonBuiltin();
+			$bbcodes = array_slice($this->bbCodeMapper->findAllNonBuiltin(), $offset, $limit);
 			return new DataResponse(array_map(fn ($b) => $b->jsonSerialize(), $bbcodes));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching BBCodes: ' . $e->getMessage());
@@ -51,15 +53,17 @@ class BBCodeController extends OCSController {
 	/**
 	 * Get enabled BBCodes
 	 *
+	 * @param int<1, 100> $limit Maximum number of BBCodes to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Enabled BBCodes returned
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes/enabled')]
-	public function enabled(): DataResponse {
+	public function enabled(int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			$bbcodes = $this->bbCodeMapper->findAllEnabled();
+			$bbcodes = array_slice($this->bbCodeMapper->findAllEnabled(), $offset, $limit);
 			return new DataResponse(array_map(fn ($b) => $b->jsonSerialize(), $bbcodes));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching enabled BBCodes: ' . $e->getMessage());
@@ -70,15 +74,17 @@ class BBCodeController extends OCSController {
 	/**
 	 * Get builtin BBCodes (for help dialog)
 	 *
+	 * @param int<1, 100> $limit Maximum number of BBCodes to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Builtin BBCodes returned
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes/builtin')]
-	public function builtin(): DataResponse {
+	public function builtin(int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			$bbcodes = $this->bbCodeMapper->findAllBuiltin();
+			$bbcodes = array_slice($this->bbCodeMapper->findAllBuiltin(), $offset, $limit);
 			return new DataResponse(array_map(fn ($b) => $b->jsonSerialize(), $bbcodes));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching builtin BBCodes: ' . $e->getMessage());

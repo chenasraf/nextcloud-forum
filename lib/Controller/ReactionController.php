@@ -33,15 +33,17 @@ class ReactionController extends OCSController {
 	 * Get reactions by post
 	 *
 	 * @param int $postId Post ID
+	 * @param int<1, 200> $limit Maximum number of reactions to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Reactions returned
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/posts/{postId}/reactions')]
-	public function byPost(int $postId): DataResponse {
+	public function byPost(int $postId, int $limit = 200, int $offset = 0): DataResponse {
 		try {
-			$reactions = $this->reactionMapper->findByPostId($postId);
+			$reactions = array_slice($this->reactionMapper->findByPostId($postId), $offset, $limit);
 			return new DataResponse(array_map(fn ($r) => $r->jsonSerialize(), $reactions));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching reactions by post: ' . $e->getMessage());
@@ -53,15 +55,17 @@ class ReactionController extends OCSController {
 	 * Get reactions for multiple posts (for performance)
 	 *
 	 * @param list<int> $postIds Array of post IDs
+	 * @param int<1, 1000> $limit Maximum number of reactions to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Reactions returned
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/reactions/by-posts')]
-	public function byPosts(array $postIds): DataResponse {
+	public function byPosts(array $postIds, int $limit = 1000, int $offset = 0): DataResponse {
 		try {
-			$reactions = $this->reactionMapper->findByPostIds($postIds);
+			$reactions = array_slice($this->reactionMapper->findByPostIds($postIds), $offset, $limit);
 			return new DataResponse(array_map(fn ($r) => $r->jsonSerialize(), $reactions));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching reactions by posts: ' . $e->getMessage());

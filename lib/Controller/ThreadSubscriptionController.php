@@ -109,20 +109,22 @@ class ThreadSubscriptionController extends OCSController {
 	/**
 	 * Get all threads the current user is subscribed to
 	 *
+	 * @param int<1, 200> $limit Maximum number of subscriptions to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Thread subscriptions returned
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/thread-subscriptions')]
-	public function getUserSubscriptions(): DataResponse {
+	public function getUserSubscriptions(int $limit = 200, int $offset = 0): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 			if (!$user) {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
-			$subscriptions = $this->subscriptionMapper->findByUserId($user->getUID());
+			$subscriptions = array_slice($this->subscriptionMapper->findByUserId($user->getUID()), $offset, $limit);
 			return new DataResponse(array_map(fn ($r) => $r->jsonSerialize(), $subscriptions));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching user thread subscriptions: ' . $e->getMessage());

@@ -38,6 +38,8 @@ class UserRoleController extends OCSController {
 	 * Returns Role objects enriched with userRoleId for managing role assignments.
 	 *
 	 * @param string $userId Nextcloud user ID
+	 * @param int<1, 100> $limit Maximum number of role assignments to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: User role assignments returned
@@ -45,7 +47,7 @@ class UserRoleController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/users/{userId}/roles')]
-	public function byUser(string $userId): DataResponse {
+	public function byUser(string $userId, int $limit = 100, int $offset = 0): DataResponse {
 		try {
 			// Get UserRole entities to get the userRoleId for delete operations
 			$userRoles = $this->userRoleMapper->findByUserId($userId);
@@ -64,7 +66,7 @@ class UserRoleController extends OCSController {
 				}
 			}
 
-			return new DataResponse($result);
+			return new DataResponse(array_slice($result, $offset, $limit));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching user roles: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch user roles'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -75,6 +77,8 @@ class UserRoleController extends OCSController {
 	 * Get users with a specific role
 	 *
 	 * @param int $roleId Role ID
+	 * @param int<1, 200> $limit Maximum number of users to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: User roles returned
@@ -82,9 +86,9 @@ class UserRoleController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{roleId}/users')]
-	public function byRole(int $roleId): DataResponse {
+	public function byRole(int $roleId, int $limit = 200, int $offset = 0): DataResponse {
 		try {
-			$userRoles = $this->userRoleMapper->findByRoleId($roleId);
+			$userRoles = array_slice($this->userRoleMapper->findByRoleId($roleId), $offset, $limit);
 			return new DataResponse(array_map(fn ($ur) => $ur->jsonSerialize(), $userRoles));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching users by role: ' . $e->getMessage());

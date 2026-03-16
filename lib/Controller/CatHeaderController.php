@@ -34,6 +34,8 @@ class CatHeaderController extends OCSController {
 	/**
 	 * Get all category headers
 	 *
+	 * @param int<1, 100> $limit Maximum number of headers to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Category headers returned
@@ -41,9 +43,9 @@ class CatHeaderController extends OCSController {
 	#[NoAdminRequired]
 	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/headers')]
-	public function index(): DataResponse {
+	public function index(int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			$headers = $this->catHeaderMapper->findAll();
+			$headers = array_slice($this->catHeaderMapper->findAll(), $offset, $limit);
 			return new DataResponse(array_map(fn ($h) => $h->jsonSerialize(), $headers));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching category headers: ' . $e->getMessage());

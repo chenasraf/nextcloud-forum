@@ -34,12 +34,14 @@ class InitController extends OCSController {
 	/**
 	 * Get Nextcloud admin users for initialization
 	 *
+	 * @param int<1, 100> $limit Maximum number of admin users to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array{id: string, displayName: string}>, array{}>
 	 *
 	 * 200: Admin users retrieved successfully
 	 */
 	#[ApiRoute(verb: 'GET', url: '/api/init/admin-users')]
-	public function getAdminUsers(): DataResponse {
+	public function getAdminUsers(int $limit = 100, int $offset = 0): DataResponse {
 		$users = [];
 
 		$this->userManager->callForAllUsers(function ($user) use (&$users) {
@@ -52,7 +54,7 @@ class InitController extends OCSController {
 			}
 		});
 
-		return new DataResponse($users);
+		return new DataResponse(array_slice($users, $offset, $limit));
 	}
 
 	/**

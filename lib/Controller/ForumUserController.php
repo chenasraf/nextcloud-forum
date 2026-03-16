@@ -39,6 +39,8 @@ class ForumUserController extends OCSController {
 	/**
 	 * Get all forum users
 	 *
+	 * @param int<1, 200> $limit Maximum number of users to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Forum users returned
@@ -46,9 +48,9 @@ class ForumUserController extends OCSController {
 	#[NoAdminRequired]
 	#[PublicPage]
 	#[ApiRoute(verb: 'GET', url: '/api/users')]
-	public function index(): DataResponse {
+	public function index(int $limit = 200, int $offset = 0): DataResponse {
 		try {
-			$users = $this->forumUserMapper->findAll();
+			$users = array_slice($this->forumUserMapper->findAll(), $offset, $limit);
 			return new DataResponse(array_map(fn ($u) => $u->jsonSerialize(), $users));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching forum users: ' . $e->getMessage());
@@ -62,7 +64,7 @@ class ForumUserController extends OCSController {
 	 * Excludes the current user from results (users cannot mention themselves)
 	 *
 	 * @param string $search Search query (matches against user ID and display name)
-	 * @param int $limit Maximum number of results to return
+	 * @param int<1, 100> $limit Maximum number of results to return
 	 * @return DataResponse<Http::STATUS_OK, list<array{id: string, label: string, icon: string, source: string}>, array{}>
 	 *
 	 * 200: Users returned

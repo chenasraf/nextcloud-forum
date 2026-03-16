@@ -46,6 +46,8 @@ class TeamController extends OCSController {
 	/**
 	 * List all available teams (circles)
 	 *
+	 * @param int<1, 100> $limit Maximum number of teams to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array{id: string, displayName: string, owner: string, ownerDisplayName: string, memberCount: int}>, array{}>
 	 *
 	 * 200: Teams returned
@@ -53,7 +55,7 @@ class TeamController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/teams')]
-	public function index(): DataResponse {
+	public function index(int $limit = 100, int $offset = 0): DataResponse {
 		$circlesManager = $this->getCirclesManager();
 		if ($circlesManager === null) {
 			return new DataResponse(['error' => 'Teams app is not available'], Http::STATUS_SERVICE_UNAVAILABLE);
@@ -95,7 +97,7 @@ class TeamController extends OCSController {
 				return strcasecmp($a['displayName'], $b['displayName']);
 			});
 
-			return new DataResponse(array_values($result));
+			return new DataResponse(array_slice(array_values($result), $offset, $limit));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching teams: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch teams'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -108,6 +110,8 @@ class TeamController extends OCSController {
 	 * Get category permissions for a team (circle)
 	 *
 	 * @param string $id Team/circle single ID
+	 * @param int<1, 100> $limit Maximum number of permissions to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Permissions returned
@@ -115,9 +119,9 @@ class TeamController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'GET', url: '/api/teams/{id}/permissions')]
-	public function getPermissions(string $id): DataResponse {
+	public function getPermissions(string $id, int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			$permissions = $this->categoryPermMapper->findByTeamId($id);
+			$permissions = array_slice($this->categoryPermMapper->findByTeamId($id), $offset, $limit);
 			return new DataResponse(array_map(fn ($perm) => $perm->jsonSerialize(), $permissions));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching team permissions: ' . $e->getMessage());

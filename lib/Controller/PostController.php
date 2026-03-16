@@ -63,7 +63,7 @@ class PostController extends OCSController {
 	 * Get posts by thread
 	 *
 	 * @param int $threadId Thread ID
-	 * @param int $limit Maximum number of posts to return
+	 * @param int<1, 200> $limit Maximum number of posts to return
 	 * @param int $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
@@ -244,7 +244,7 @@ class PostController extends OCSController {
 	 * Get posts by author
 	 *
 	 * @param string $authorId Author user ID
-	 * @param int $limit Maximum number of posts to return
+	 * @param int<1, 200> $limit Maximum number of posts to return
 	 * @param int $offset Offset for pagination
 	 * @param string $excludeFirstPosts Whether to exclude first posts (1 or 0)
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.26.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.25.0...v0.26.0) (2026-03-16)
+
+
+### Features
+
+* add id+members count+icon to teams table ([6fb4e4f](https://github.com/chenasraf/nextcloud-forum/commit/6fb4e4fd54cf65baf76cd6890b4751cdb90b016e))
+
+
+### Bug Fixes
+
+* add api list limits ([f13be97](https://github.com/chenasraf/nextcloud-forum/commit/f13be9786b8ba77fdaa41e0399360b024a4a4f47))
+* category edit team permissions ([27f5e7b](https://github.com/chenasraf/nextcloud-forum/commit/27f5e7b04408d5bc485a6d2171849e4e39c09a7e))
+* category read status after thread creation ([e226861](https://github.com/chenasraf/nextcloud-forum/commit/e226861a3fab0b0903fca8b11078425fd8db791a))
+* **l10n:** Update translations from Transifex ([0fb78f7](https://github.com/chenasraf/nextcloud-forum/commit/0fb78f7d76e964d8d683cc03ded24aa56c100b34))
+
 ## [0.25.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.24.0...v0.25.0) (2026-03-15)
 
 

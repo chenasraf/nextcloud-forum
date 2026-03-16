@@ -46,7 +46,7 @@ class TeamController extends OCSController {
 	/**
 	 * List all available teams (circles)
 	 *
-	 * @return DataResponse<Http::STATUS_OK, list<array{id: string, displayName: string, owner: string, ownerDisplayName: string}>, array{}>
+	 * @return DataResponse<Http::STATUS_OK, list<array{id: string, displayName: string, owner: string, ownerDisplayName: string, memberCount: int}>, array{}>
 	 *
 	 * 200: Teams returned
 	 */
@@ -82,6 +82,7 @@ class TeamController extends OCSController {
 					'displayName' => $circle->getDisplayName() ?: $circle->getName(),
 					'owner' => $owner,
 					'ownerDisplayName' => $ownerDisplayName,
+					'memberCount' => $circle->getPopulation(),
 				];
 			}, $circles);
 

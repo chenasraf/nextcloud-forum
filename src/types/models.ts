@@ -213,4 +213,5 @@ export interface Team {
   displayName: string
   owner: string
   ownerDisplayName: string
+  memberCount: number
 }

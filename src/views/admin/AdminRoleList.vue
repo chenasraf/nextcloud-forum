@@ -125,8 +125,19 @@
         :has-actions="true"
         :actions-label="strings.actions"
       >
+        <template #cell-id="{ row }">
+          <span class="team-id" :title="row.id">{{ row.id }}</span>
+        </template>
+
         <template #cell-displayName="{ row }">
-          <span>{{ row.displayName }}</span>
+          <span class="team-name">
+            <AccountGroupIcon :size="20" class="team-icon" />
+            {{ row.displayName }}
+          </span>
+        </template>
+
+        <template #cell-memberCount="{ row }">
+          <span>{{ row.memberCount }}</span>
         </template>
 
         <template #cell-ownerDisplayName="{ row }">
@@ -169,6 +180,7 @@ import RoleBadge from '@/components/RoleBadge'
 import PlusIcon from '@icons/Plus.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
+import AccountGroupIcon from '@icons/AccountGroup.vue'
 import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import AppToolbar from '@/components/AppToolbar'
@@ -190,6 +202,7 @@ export default defineComponent({
     PlusIcon,
     PencilIcon,
     DeleteIcon,
+    AccountGroupIcon,
     PageWrapper,
     PageHeader,
     AppToolbar,
@@ -234,6 +247,7 @@ export default defineComponent({
         loadingTeams: t('forum', 'Loading teams …'),
         teamsErrorTitle: t('forum', 'Error loading teams'),
         teamsEmptyTitle: t('forum', 'No teams found'),
+        memberCount: t('forum', 'Members'),
         teamsEmptyDesc: t('forum', 'No Nextcloud Teams are available'),
       },
     }
@@ -249,8 +263,20 @@ export default defineComponent({
     },
     teamTableColumns(): TableColumn[] {
       return [
+        { key: 'id', label: this.strings.id, minWidth: '150px' },
         { key: 'displayName', label: this.strings.displayName, minWidth: '200px' },
-        { key: 'ownerDisplayName', label: this.strings.owner, minWidth: '150px' },
+        {
+          key: 'memberCount',
+          label: this.strings.memberCount,
+          minWidth: '100px',
+          maxWidth: '150px',
+        },
+        {
+          key: 'ownerDisplayName',
+          label: this.strings.owner,
+          minWidth: '100px',
+          maxWidth: '200px',
+        },
       ]
     },
   },
@@ -361,6 +387,28 @@ export default defineComponent({
   :deep(.role-description) {
     color: var(--color-text-lighter);
     font-size: 0.9rem;
+  }
+
+  :deep(.team-id) {
+    font-weight: 600;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--color-text-maxcontrast);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  :deep(.team-name) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .team-icon {
+      color: var(--color-primary-element);
+      flex-shrink: 0;
+    }
   }
 }
 </style>

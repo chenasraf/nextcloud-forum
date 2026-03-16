@@ -13,6 +13,8 @@ use OCA\Forum\Db\ForumUser;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Db\ReadMarker;
+use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
@@ -51,6 +53,9 @@ class ThreadControllerTest extends TestCase {
 	/** @var DraftMapper&MockObject */
 	private DraftMapper $draftMapper;
 
+	/** @var ReadMarkerMapper&MockObject */
+	private ReadMarkerMapper $readMarkerMapper;
+
 	/** @var ThreadEnrichmentService&MockObject */
 	private ThreadEnrichmentService $threadEnrichmentService;
 
@@ -83,6 +88,7 @@ class ThreadControllerTest extends TestCase {
 		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
 		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
 		$this->draftMapper = $this->createMock(DraftMapper::class);
+		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->threadEnrichmentService = $this->createMock(ThreadEnrichmentService::class);
 		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
 		$this->userService = $this->createMock(UserService::class);
@@ -111,6 +117,7 @@ class ThreadControllerTest extends TestCase {
 			$this->forumUserMapper,
 			$this->threadSubscriptionMapper,
 			$this->draftMapper,
+			$this->readMarkerMapper,
 			$this->threadEnrichmentService,
 			$this->userPreferencesService,
 			$this->userService,
@@ -1241,6 +1248,176 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals(1, $data['pagination']['page']);
 		$this->assertEquals(1, $data['pagination']['totalPages']);
 		$this->assertEquals(0, $data['pagination']['total']);
+	}
+
+	public function testCreateThreadUpdatesCategoryReadMarkerWhenCategoryWasRead(): void {
+		$categoryId = 1;
+		$title = 'New Thread';
+		$content = 'Content';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->userPreferencesService->method('getPreference')->willReturn(false);
+
+		// Category had activity at time 1000, user read it at 1000 — category was read
+		$this->threadMapper->method('getLastActivityForCategory')
+			->with($categoryId)
+			->willReturn(1000);
+
+		$categoryMarker = new ReadMarker();
+		$categoryMarker->setReadAt(1000);
+		$this->readMarkerMapper->method('findByUserAndCategory')
+			->with($userId, $categoryId)
+			->willReturn($categoryMarker);
+
+		// Expect category read marker to be updated
+		$this->readMarkerMapper->expects($this->once())
+			->method('createOrUpdateCategoryMarker')
+			->with($userId, $categoryId);
+
+		// Standard create mocks
+		$this->threadMapper->method('findBySlug')->willThrowException(new DoesNotExistException(''));
+		$thread = $this->createMockThread(1, $categoryId, $userId, $title);
+		$this->threadMapper->method('insert')->willReturn($thread);
+		$post = new Post();
+		$post->setId(1);
+		$this->postMapper->method('insert')->willReturn($post);
+		$this->threadMapper->method('update')->willReturn($thread);
+		$category = new Category();
+		$category->setThreadCount(0);
+		$category->setPostCount(0);
+		$this->categoryMapper->method('find')->willReturn($category);
+		$this->categoryMapper->method('update')->willReturn($category);
+
+		$response = $this->controller->create($categoryId, $title, $content);
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
+	}
+
+	public function testCreateThreadDoesNotUpdateCategoryReadMarkerWhenCategoryWasUnread(): void {
+		$categoryId = 1;
+		$title = 'New Thread';
+		$content = 'Content';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->userPreferencesService->method('getPreference')->willReturn(false);
+
+		// Category had activity at time 2000, user read it at 1000 — category was unread
+		$this->threadMapper->method('getLastActivityForCategory')
+			->with($categoryId)
+			->willReturn(2000);
+
+		$categoryMarker = new ReadMarker();
+		$categoryMarker->setReadAt(1000);
+		$this->readMarkerMapper->method('findByUserAndCategory')
+			->with($userId, $categoryId)
+			->willReturn($categoryMarker);
+
+		// Should NOT update category read marker
+		$this->readMarkerMapper->expects($this->never())
+			->method('createOrUpdateCategoryMarker');
+
+		// Standard create mocks
+		$this->threadMapper->method('findBySlug')->willThrowException(new DoesNotExistException(''));
+		$thread = $this->createMockThread(1, $categoryId, $userId, $title);
+		$this->threadMapper->method('insert')->willReturn($thread);
+		$post = new Post();
+		$post->setId(1);
+		$this->postMapper->method('insert')->willReturn($post);
+		$this->threadMapper->method('update')->willReturn($thread);
+		$category = new Category();
+		$category->setThreadCount(0);
+		$category->setPostCount(0);
+		$this->categoryMapper->method('find')->willReturn($category);
+		$this->categoryMapper->method('update')->willReturn($category);
+
+		$response = $this->controller->create($categoryId, $title, $content);
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
+	}
+
+	public function testCreateThreadDoesNotUpdateCategoryReadMarkerWhenNoMarkerExists(): void {
+		$categoryId = 1;
+		$title = 'New Thread';
+		$content = 'Content';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->userPreferencesService->method('getPreference')->willReturn(false);
+
+		// Category has activity but user has no read marker — category is unread
+		$this->threadMapper->method('getLastActivityForCategory')
+			->with($categoryId)
+			->willReturn(1000);
+
+		$this->readMarkerMapper->method('findByUserAndCategory')
+			->with($userId, $categoryId)
+			->willThrowException(new DoesNotExistException(''));
+
+		// Should NOT update category read marker
+		$this->readMarkerMapper->expects($this->never())
+			->method('createOrUpdateCategoryMarker');
+
+		// Standard create mocks
+		$this->threadMapper->method('findBySlug')->willThrowException(new DoesNotExistException(''));
+		$thread = $this->createMockThread(1, $categoryId, $userId, $title);
+		$this->threadMapper->method('insert')->willReturn($thread);
+		$post = new Post();
+		$post->setId(1);
+		$this->postMapper->method('insert')->willReturn($post);
+		$this->threadMapper->method('update')->willReturn($thread);
+		$category = new Category();
+		$category->setThreadCount(0);
+		$category->setPostCount(0);
+		$this->categoryMapper->method('find')->willReturn($category);
+		$this->categoryMapper->method('update')->willReturn($category);
+
+		$response = $this->controller->create($categoryId, $title, $content);
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
+	}
+
+	public function testCreateThreadUpdatesCategoryReadMarkerWhenCategoryHadNoActivity(): void {
+		$categoryId = 1;
+		$title = 'New Thread';
+		$content = 'Content';
+		$userId = 'user1';
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->userPreferencesService->method('getPreference')->willReturn(false);
+
+		// No prior activity in category
+		$this->threadMapper->method('getLastActivityForCategory')
+			->with($categoryId)
+			->willReturn(null);
+
+		// Should update category read marker (empty category stays read)
+		$this->readMarkerMapper->expects($this->once())
+			->method('createOrUpdateCategoryMarker')
+			->with($userId, $categoryId);
+
+		// Standard create mocks
+		$this->threadMapper->method('findBySlug')->willThrowException(new DoesNotExistException(''));
+		$thread = $this->createMockThread(1, $categoryId, $userId, $title);
+		$this->threadMapper->method('insert')->willReturn($thread);
+		$post = new Post();
+		$post->setId(1);
+		$this->postMapper->method('insert')->willReturn($post);
+		$this->threadMapper->method('update')->willReturn($thread);
+		$category = new Category();
+		$category->setThreadCount(0);
+		$category->setPostCount(0);
+		$this->categoryMapper->method('find')->willReturn($category);
+		$this->categoryMapper->method('update')->willReturn($category);
+
+		$response = $this->controller->create($categoryId, $title, $content);
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
 	}
 
 	private function createMockThread(int $id, int $categoryId, string $authorId, string $title): Thread {

@@ -13,6 +13,7 @@ use OCA\Forum\Db\DraftMapper;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
@@ -42,6 +43,7 @@ class ThreadController extends OCSController {
 		private ForumUserMapper $forumUserMapper,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
 		private DraftMapper $draftMapper,
+		private ReadMarkerMapper $readMarkerMapper,
 		private ThreadEnrichmentService $threadEnrichmentService,
 		private UserPreferencesService $userPreferencesService,
 		private UserService $userService,
@@ -285,6 +287,23 @@ class ThreadController extends OCSController {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
+			// Check if the category was already read before creating the thread
+			// (used later to decide whether to update the category read marker)
+			$wasCategoryRead = false;
+			try {
+				$lastActivity = $this->threadMapper->getLastActivityForCategory($categoryId);
+				if ($lastActivity === null) {
+					$wasCategoryRead = true;
+				} else {
+					$marker = $this->readMarkerMapper->findByUserAndCategory($user->getUID(), $categoryId);
+					$wasCategoryRead = $marker->getReadAt() >= $lastActivity;
+				}
+			} catch (DoesNotExistException $e) {
+				// No read marker means the category is unread
+			} catch (\Exception $e) {
+				$this->logger->warning('Failed to check category read state: ' . $e->getMessage());
+			}
+
 			// Generate slug from title
 			$slug = $this->generateSlug($title);
 
@@ -367,6 +386,16 @@ class ThreadController extends OCSController {
 				);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
+			}
+
+			// Update category read marker so the category stays read,
+			// but only if it was not already unread before this thread was created
+			if ($wasCategoryRead) {
+				try {
+					$this->readMarkerMapper->createOrUpdateCategoryMarker($user->getUID(), $categoryId);
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to update category read marker: ' . $e->getMessage());
+				}
 			}
 
 			// Delete any draft for this category now that the thread is created

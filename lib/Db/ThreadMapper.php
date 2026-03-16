@@ -250,6 +250,30 @@ class ThreadMapper extends QBMapper {
 	}
 
 	/**
+	 * Get the last activity timestamp for a single category
+	 *
+	 * @return int|null The timestamp of the last post, or null if no activity
+	 */
+	public function getLastActivityForCategory(int $categoryId): ?int {
+		$postsTable = Application::tableName('forum_posts');
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->selectAlias($qb->func()->max('p.created_at'), 'last_activity')
+			->from($this->getTableName(), 't')
+			->innerJoin('t', $postsTable, 'p', $qb->expr()->eq('p.thread_id', 't.id'))
+			->where($qb->expr()->eq('t.category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('t.deleted_at'))
+			->andWhere($qb->expr()->isNull('p.deleted_at'))
+			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
+
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+
+		return $row && $row['last_activity'] !== null ? (int)$row['last_activity'] : null;
+	}
+
+	/**
 	 * Find recent threads in specified categories
 	 *
 	 * @param array<int> $categoryIds Category IDs to filter by

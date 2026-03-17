@@ -76,6 +76,7 @@ OC.L10N.register(
     "Name" : "Име",
     "New" : "Нов",
     "Permissions" : "Права",
+    "Preview" : "Визуализация",
     "Move up" : "Преместване нагоре",
     "Move down" : "Преместване  надолу",
     "Last 7 days" : "Последните 7 дни",

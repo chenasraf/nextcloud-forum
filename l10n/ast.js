@@ -65,6 +65,7 @@ OC.L10N.register(
     "Name" : "Nome",
     "New" : "Nuevu",
     "Permissions" : "Permisos",
+    "Preview" : "Previsualizar",
     "Move up" : "Xubir",
     "Move down" : "Baxar",
     "Last 7 days" : "Los últimos 7 díes",

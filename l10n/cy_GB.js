@@ -36,6 +36,7 @@ OC.L10N.register(
     "Description" : "Disgrifiad",
     "Name" : "Enw",
     "New" : "Newydd",
+    "Preview" : "Rhagolwg",
     "ID" : "ID",
     "Owner" : "Perchennog",
     "Actions" : "Gweithredoedd",

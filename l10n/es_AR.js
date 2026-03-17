@@ -45,6 +45,7 @@ OC.L10N.register(
     "Name" : "Nombre",
     "New" : "Nuevo",
     "Permissions" : "Permisos",
+    "Preview" : "Vista previa",
     "All time" : "Tiempo total",
     "General settings" : "Configuraciones generales",
     "Access control" : "Control de acceso",

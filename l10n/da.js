@@ -78,6 +78,7 @@ OC.L10N.register(
     "Name" : "Navn",
     "New" : "Nyt",
     "Permissions" : "Rettigheder",
+    "Preview" : "Forhåndsvisning",
     "Move up" : "Flyt op",
     "Move down" : "Flyt ned",
     "Last 7 days" : "Sidste 7 dage",

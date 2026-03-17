@@ -82,6 +82,7 @@ OC.L10N.register(
     "Name" : "Nom",
     "New" : "Crea",
     "Permissions" : "Permisos",
+    "Preview" : "Previsualitza",
     "Move up" : "Mou amunt",
     "Move down" : "Mou avall",
     "Last 7 days" : "Darrers 7 dies",

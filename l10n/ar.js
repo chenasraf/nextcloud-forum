@@ -76,6 +76,7 @@ OC.L10N.register(
     "Name" : "الاسم",
     "New" : "جديد",
     "Permissions" : "الصلاحيّات",
+    "Preview" : "معاينة",
     "Move up" : "نقلٌ للأعلي",
     "Move down" : "نقلٌ للأسفل",
     "Last 7 days" : "آخر 7 أيام",

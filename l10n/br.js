@@ -37,6 +37,7 @@ OC.L10N.register(
     "Description" : "Deskrivadur",
     "Name" : "Anv",
     "New" : "Nevez",
+    "Preview" : "Ragwell",
     "General settings" : "Stummoù hollek",
     "Access control" : "Kontrol tremen",
     "Settings saved" : "Stummoù enrollet",

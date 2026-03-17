@@ -46,6 +46,7 @@ OC.L10N.register(
     "Description" : "Priskribo",
     "Name" : "Nomo",
     "New" : "Nova",
+    "Preview" : "Antaŭvidi",
     "Move down" : "Movi malsupren",
     "Last 7 days" : "Lastaj 7 tagoj",
     "Access control" : "Alirkontrolo",

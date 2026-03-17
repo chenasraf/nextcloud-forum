@@ -7,7 +7,7 @@ import UserInfo from './UserInfo.vue'
 vi.mock('@/components/UserAvatar', () =>
   createComponentMock('UserAvatar', {
     template: '<div class="user-avatar-mock" :data-user-id="userId"></div>',
-    props: ['userId', 'displayName', 'size', 'isDeleted', 'clickable'],
+    props: ['userId', 'displayName', 'size', 'isDeleted', 'isGuest', 'clickable'],
   }),
 )
 
@@ -112,6 +112,49 @@ describe('UserInfo', () => {
       expect(wrapper.find('.role-badge-mock').exists()).toBe(false)
     })
 
+    it('should display moderator role', () => {
+      const modRole = createMockRole({ id: 2, name: 'Moderator', roleType: 'moderator' })
+      const wrapper = mount(UserInfo, {
+        props: { userId: 'testuser', roles: [modRole] },
+        global: { mocks: { $router: { push: mockPush } } },
+      })
+      expect(wrapper.find('.role-badge-mock').exists()).toBe(true)
+      expect(wrapper.find('.role-badge-mock').text()).toBe('Moderator')
+    })
+
+    it('should display admin role over moderator when both present', () => {
+      const adminRole = createMockRole({ id: 1, name: 'Admin', roleType: 'admin' })
+      const modRole = createMockRole({ id: 2, name: 'Moderator', roleType: 'moderator' })
+      const wrapper = mount(UserInfo, {
+        props: { userId: 'testuser', roles: [modRole, adminRole] },
+        global: { mocks: { $router: { push: mockPush } } },
+      })
+      const badges = wrapper.findAll('.role-badge-mock')
+      expect(badges).toHaveLength(1)
+      expect(badges[0].text()).toBe('Admin')
+    })
+
+    it('should display admin role with custom roles', () => {
+      const adminRole = createMockRole({ id: 1, name: 'Admin', roleType: 'admin' })
+      const customRole = createMockRole({ id: 10, name: 'VIP', roleType: 'custom' })
+      const wrapper = mount(UserInfo, {
+        props: { userId: 'testuser', roles: [adminRole, customRole] },
+        global: { mocks: { $router: { push: mockPush } } },
+      })
+      const badges = wrapper.findAll('.role-badge-mock')
+      expect(badges).toHaveLength(2)
+      expect(badges[0].text()).toBe('Admin')
+      expect(badges[1].text()).toBe('VIP')
+    })
+
+    it('should not display any badges when roles array is empty', () => {
+      const wrapper = mount(UserInfo, {
+        props: { userId: 'testuser', roles: [] },
+        global: { mocks: { $router: { push: mockPush } } },
+      })
+      expect(wrapper.find('.role-badges').exists()).toBe(false)
+    })
+
     it('should not display default role', () => {
       const defaultRole = createMockRole({ id: 3, name: 'User', roleType: 'default' })
       const wrapper = mount(UserInfo, {
@@ -119,6 +162,46 @@ describe('UserInfo', () => {
         global: { mocks: { $router: { push: mockPush } } },
       })
       expect(wrapper.find('.role-badge-mock').exists()).toBe(false)
+    })
+
+    it('should not display guest role for non-guest users', () => {
+      const guestRole = createMockRole({ id: 4, name: 'Guest', roleType: 'guest' })
+      const wrapper = mount(UserInfo, {
+        props: { userId: 'testuser', roles: [guestRole], isGuest: false },
+        global: { mocks: { $router: { push: mockPush } } },
+      })
+      expect(wrapper.find('.role-badge-mock').exists()).toBe(false)
+    })
+
+    it('should display guest role badge when isGuest is true', () => {
+      const guestRole = createMockRole({ id: 4, name: 'Guest', roleType: 'guest' })
+      const wrapper = mount(UserInfo, {
+        props: { userId: 'guest:abc123', roles: [guestRole], isGuest: true },
+        global: { mocks: { $router: { push: mockPush } } },
+      })
+      expect(wrapper.find('.role-badge-mock').exists()).toBe(true)
+      expect(wrapper.find('.role-badge-mock').text()).toBe('Guest')
+    })
+
+    it('should display guest role alongside custom roles for guests', () => {
+      const guestRole = createMockRole({ id: 4, name: 'Guest', roleType: 'guest' })
+      const customRole = createMockRole({ id: 10, name: 'VIP', roleType: 'custom' })
+      const wrapper = mount(UserInfo, {
+        props: { userId: 'guest:abc123', roles: [guestRole, customRole], isGuest: true },
+        global: { mocks: { $router: { push: mockPush } } },
+      })
+      const badges = wrapper.findAll('.role-badge-mock')
+      expect(badges).toHaveLength(2)
+      expect(badges[0].text()).toBe('Guest')
+      expect(badges[1].text()).toBe('VIP')
+    })
+
+    it('should not be clickable when isGuest is true', () => {
+      const wrapper = mount(UserInfo, {
+        props: { userId: 'guest:abc123', isGuest: true, clickable: true },
+        global: { mocks: { $router: { push: mockPush } } },
+      })
+      expect(wrapper.find('.user-name').classes()).not.toContain('clickable')
     })
   })
 

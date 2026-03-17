@@ -9,6 +9,7 @@ namespace OCA\Forum\Service;
 
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\ForumUserMapper;
+use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -27,6 +28,7 @@ class UserService {
 		private UserRoleMapper $userRoleMapper,
 		private BBCodeMapper $bbCodeMapper,
 		private BBCodeService $bbCodeService,
+		private GuestService $guestService,
 		private IL10N $l10n,
 	) {
 	}
@@ -75,6 +77,26 @@ class UserService {
 	 * @return array{userId: string, displayName: string, isDeleted: bool, roles: array, signature: ?string, signatureRaw: ?string}
 	 */
 	public function enrichUserData(string $userId, ?array $roles = null, ?array $bbcodes = null): array {
+		// Handle guest authors
+		if (GuestService::isGuestAuthor($userId)) {
+			$guestDisplayName = $this->guestService->getGuestDisplayName($userId) ?? $this->l10n->t('Guest');
+			try {
+				$guestRole = $this->roleMapper->findByRoleType(Role::ROLE_TYPE_GUEST);
+				$guestRoles = [$guestRole->jsonSerialize()];
+			} catch (\Exception $e) {
+				$guestRoles = [];
+			}
+			return [
+				'userId' => $userId,
+				'displayName' => $guestDisplayName,
+				'isDeleted' => false,
+				'isGuest' => true,
+				'roles' => $guestRoles,
+				'signature' => null,
+				'signatureRaw' => null,
+			];
+		}
+
 		$isDeleted = $this->isUserDeleted($userId);
 		$displayName = $this->getUserDisplayName($userId);
 
@@ -130,38 +152,77 @@ class UserService {
 	public function enrichMultipleUsers(array $userIds, ?array $rolesMap = null, ?array $bbcodes = null): array {
 		$result = [];
 
-		// If roles not provided, fetch them all at once
-		if ($rolesMap === null) {
-			$rolesMap = $this->fetchRolesForUsers($userIds);
-		}
-
-		// Fetch all forum users at once for signatures
-		$signaturesMap = $this->fetchSignaturesForUsers($userIds);
-
-		// Fetch BBCodes once for parsing all signatures (if not provided)
-		if ($bbcodes === null) {
-			$bbcodes = $this->bbCodeMapper->findAllEnabled();
-		}
-
+		// Separate guest and real user IDs
+		$guestIds = [];
+		$realUserIds = [];
 		foreach ($userIds as $userId) {
-			$isDeleted = $this->isUserDeleted($userId);
-			$displayName = $this->getUserDisplayName($userId);
+			if (GuestService::isGuestAuthor($userId)) {
+				$guestIds[] = $userId;
+			} else {
+				$realUserIds[] = $userId;
+			}
+		}
 
-			$signatureRaw = $signaturesMap[$userId] ?? null;
-			$signature = null;
-			if ($signatureRaw !== null && $signatureRaw !== '') {
-				$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
+		// Handle guest users
+		if (!empty($guestIds)) {
+			$guestRoles = [];
+			try {
+				$guestRole = $this->roleMapper->findByRoleType(Role::ROLE_TYPE_GUEST);
+				$guestRoles = [$guestRole->jsonSerialize()];
+			} catch (\Exception $e) {
+				// Guest role not found
 			}
 
-			$result[$userId] = [
-				'userId' => $userId,
-				'displayName' => $displayName,
-				'isDeleted' => $isDeleted,
-				'roles' => $rolesMap[$userId] ?? [],
-				'signature' => $signature,
-				'signatureRaw' => $signatureRaw,
-			];
+			foreach ($guestIds as $guestId) {
+				$guestDisplayName = $this->guestService->getGuestDisplayName($guestId) ?? $this->l10n->t('Guest');
+				$result[$guestId] = [
+					'userId' => $guestId,
+					'displayName' => $guestDisplayName,
+					'isDeleted' => false,
+					'isGuest' => true,
+					'roles' => $guestRoles,
+					'signature' => null,
+					'signatureRaw' => null,
+				];
+			}
 		}
+
+		// Handle real users
+		if (!empty($realUserIds)) {
+			// If roles not provided, fetch them all at once
+			if ($rolesMap === null) {
+				$rolesMap = $this->fetchRolesForUsers($realUserIds);
+			}
+
+			// Fetch all forum users at once for signatures
+			$signaturesMap = $this->fetchSignaturesForUsers($realUserIds);
+
+			// Fetch BBCodes once for parsing all signatures (if not provided)
+			if ($bbcodes === null) {
+				$bbcodes = $this->bbCodeMapper->findAllEnabled();
+			}
+
+			foreach ($realUserIds as $userId) {
+				$isDeleted = $this->isUserDeleted($userId);
+				$displayName = $this->getUserDisplayName($userId);
+
+				$signatureRaw = $signaturesMap[$userId] ?? null;
+				$signature = null;
+				if ($signatureRaw !== null && $signatureRaw !== '') {
+					$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
+				}
+
+				$result[$userId] = [
+					'userId' => $userId,
+					'displayName' => $displayName,
+					'isDeleted' => $isDeleted,
+					'roles' => $rolesMap[$userId] ?? [],
+					'signature' => $signature,
+					'signatureRaw' => $signatureRaw,
+				];
+			}
+		}
+
 		return $result;
 	}
 

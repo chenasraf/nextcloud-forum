@@ -7,6 +7,7 @@
           :user-id="post.author?.userId || post.authorId"
           :display-name="post.author?.displayName || post.authorId"
           :is-deleted="post.author?.isDeleted || false"
+          :is-guest="post.author?.isGuest || false"
           :avatar-size="32"
           :roles="post.author?.roles || []"
         >

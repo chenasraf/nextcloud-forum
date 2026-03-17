@@ -56,7 +56,7 @@ class PermissionMiddleware extends Middleware {
 		// If user is not authenticated
 		if (!$user) {
 			// Allow unauthenticated access for public pages or when guest access is enabled for read-only
-			$allowUnauthenticated = $isPublicPage || ($guestAccessEnabled && $isReadOnlyMethod);
+			$allowUnauthenticated = $isPublicPage || $guestAccessEnabled;
 
 			if ($allowUnauthenticated) {
 				// Check if there are permission requirements - if so, check guest permissions

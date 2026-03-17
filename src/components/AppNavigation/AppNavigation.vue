@@ -188,6 +188,20 @@
       <div v-if="!isLoading && userId" class="sidebar-footer">
         <UserInfo :user-id="userId" :display-name="displayName" :avatar-size="32" />
       </div>
+      <div v-else-if="!isLoading && isGuest && guestDisplayName" class="sidebar-footer">
+        <UserInfo
+          :user-id="'guest'"
+          :display-name="guestDisplayName"
+          :avatar-size="32"
+          :is-guest="true"
+          :clickable="false"
+          layout="inline"
+        >
+          <template #meta>
+            <span class="guest-label">{{ strings.guestLabel }}</span>
+          </template>
+        </UserInfo>
+      </div>
     </template>
   </NcAppNavigation>
 </template>
@@ -219,6 +233,7 @@ import { useCategories } from '@/composables/useCategories'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useUserRole } from '@/composables/useUserRole'
 import { useCurrentThread } from '@/composables/useCurrentThread'
+import { useGuestSession } from '@/composables/useGuestSession'
 import type { Category } from '@/types'
 
 export default defineComponent({
@@ -250,6 +265,7 @@ export default defineComponent({
     const { userId, displayName, fetchCurrentUser } = useCurrentUser()
     const { canAccessAdmin, canEditRoles, canEditCategories, fetchUserRoles } = useUserRole()
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
+    const { isGuest, guestDisplayName, fetchGuestIdentity } = useGuestSession()
 
     return {
       categoryHeaders,
@@ -264,6 +280,9 @@ export default defineComponent({
       currentThreadCategoryId,
       fetchThread,
       clearThread,
+      isGuest,
+      guestDisplayName,
+      fetchGuestIdentity,
     }
   },
   data() {
@@ -289,6 +308,7 @@ export default defineComponent({
         navAdminBBCodes: t('forum', 'BBCodes'),
         expand: t('forum', 'Expand'),
         collapse: t('forum', 'Collapse'),
+        guestLabel: t('forum', '(Guest)'),
       },
     }
   },
@@ -309,6 +329,11 @@ export default defineComponent({
         // Wait for roles to load before showing the sidebar
         await this.fetchUserRoles(userResult.value.userId).catch((e) => {
           console.error('Failed to load user roles:', e)
+        })
+      } else if (this.isGuest) {
+        // Fetch guest identity for sidebar display
+        await this.fetchGuestIdentity().catch((e) => {
+          console.error('Failed to load guest identity:', e)
         })
       }
 

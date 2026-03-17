@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { ref, computed } from 'vue'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import PostReplyForm from './PostReplyForm.vue'
 
@@ -24,7 +25,7 @@ vi.mock('@/components/BBCodeEditor', () =>
 vi.mock('@/components/UserInfo', () =>
   createComponentMock('UserInfo', {
     template: '<div class="user-info-mock" :data-user-id="userId">{{ displayName }}</div>',
-    props: ['userId', 'displayName', 'avatarSize', 'clickable'],
+    props: ['userId', 'displayName', 'avatarSize', 'clickable', 'isGuest'],
   }),
 )
 
@@ -44,6 +45,14 @@ vi.mock('@/composables/useCurrentUser', () => ({
   useCurrentUser: () => ({
     userId: 'testuser',
     displayName: 'Test User',
+  }),
+}))
+
+// Mock useGuestSession composable
+vi.mock('@/composables/useGuestSession', () => ({
+  useGuestSession: () => ({
+    isGuest: computed(() => false),
+    guestDisplayName: ref(null),
   }),
 }))
 

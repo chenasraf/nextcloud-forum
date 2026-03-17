@@ -139,6 +139,42 @@ class PermissionMiddlewareTest extends TestCase {
 		$this->middleware->beforeController($this->controller, 'methodWithoutPermissions');
 	}
 
+	public function testUnauthenticatedUserWithGuestAccessDisabledAndPostMethodIsDenied(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+		$this->request->method('getMethod')->willReturn('POST');
+
+		$this->expectException(OCSForbiddenException::class);
+		$this->expectExceptionMessage('User not authenticated');
+		$this->middleware->beforeController($this->controller, 'methodWithoutPermissions');
+	}
+
+	public function testUnauthenticatedUserWithGuestAccessDisabledAndPutMethodIsDenied(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+		$this->request->method('getMethod')->willReturn('PUT');
+
+		$this->expectException(OCSForbiddenException::class);
+		$this->expectExceptionMessage('User not authenticated');
+		$this->middleware->beforeController($this->controller, 'methodWithoutPermissions');
+	}
+
+	public function testUnauthenticatedUserWithGuestAccessDisabledAndDeleteMethodIsDenied(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+		$this->request->method('getMethod')->willReturn('DELETE');
+
+		$this->expectException(OCSForbiddenException::class);
+		$this->expectExceptionMessage('User not authenticated');
+		$this->middleware->beforeController($this->controller, 'methodWithoutPermissions');
+	}
+
 	public function testUnauthenticatedUserWithGuestAccessEnabledAndGetMethodIsAllowed(): void {
 		$this->userSession->method('getUser')->willReturn(null);
 		$this->config->method('getAppValueBool')
@@ -175,40 +211,40 @@ class PermissionMiddlewareTest extends TestCase {
 		$this->assertTrue(true);
 	}
 
-	public function testUnauthenticatedUserWithGuestAccessEnabledAndPostMethodIsDenied(): void {
+	public function testUnauthenticatedUserWithGuestAccessEnabledAndPostMethodIsAllowed(): void {
 		$this->userSession->method('getUser')->willReturn(null);
 		$this->config->method('getAppValueBool')
 			->with('allow_guest_access', false, true)
 			->willReturn(true);
 		$this->request->method('getMethod')->willReturn('POST');
 
-		$this->expectException(OCSForbiddenException::class);
-		$this->expectExceptionMessage('User not authenticated');
+		// Guest access enabled allows all HTTP methods (permission checks handle authorization)
 		$this->middleware->beforeController($this->controller, 'methodWithoutPermissions');
+		$this->assertTrue(true);
 	}
 
-	public function testUnauthenticatedUserWithGuestAccessEnabledAndPutMethodIsDenied(): void {
+	public function testUnauthenticatedUserWithGuestAccessEnabledAndPutMethodIsAllowed(): void {
 		$this->userSession->method('getUser')->willReturn(null);
 		$this->config->method('getAppValueBool')
 			->with('allow_guest_access', false, true)
 			->willReturn(true);
 		$this->request->method('getMethod')->willReturn('PUT');
 
-		$this->expectException(OCSForbiddenException::class);
-		$this->expectExceptionMessage('User not authenticated');
+		// Guest access enabled allows all HTTP methods (permission checks handle authorization)
 		$this->middleware->beforeController($this->controller, 'methodWithoutPermissions');
+		$this->assertTrue(true);
 	}
 
-	public function testUnauthenticatedUserWithGuestAccessEnabledAndDeleteMethodIsDenied(): void {
+	public function testUnauthenticatedUserWithGuestAccessEnabledAndDeleteMethodIsAllowed(): void {
 		$this->userSession->method('getUser')->willReturn(null);
 		$this->config->method('getAppValueBool')
 			->with('allow_guest_access', false, true)
 			->willReturn(true);
 		$this->request->method('getMethod')->willReturn('DELETE');
 
-		$this->expectException(OCSForbiddenException::class);
-		$this->expectExceptionMessage('User not authenticated');
+		// Guest access enabled allows all HTTP methods (permission checks handle authorization)
 		$this->middleware->beforeController($this->controller, 'methodWithoutPermissions');
+		$this->assertTrue(true);
 	}
 
 	public function testGuestUserWithGlobalPermissionCheckUsesNullUserId(): void {

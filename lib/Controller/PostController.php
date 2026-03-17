@@ -17,6 +17,7 @@ use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Service\BBCodeService;
+use OCA\Forum\Service\GuestService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostEnrichmentService;
@@ -27,6 +28,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
@@ -53,6 +55,7 @@ class PostController extends OCSController {
 		private UserService $userService,
 		private UserPreferencesService $userPreferencesService,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
+		private GuestService $guestService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -319,23 +322,36 @@ class PostController extends OCSController {
 	 *
 	 * @param int $threadId Thread ID
 	 * @param string $content Post content
+	 * @param string $guestToken Guest session token (32-char hex, for unauthenticated users)
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Post created
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
+	#[NoCSRFRequired]
 	#[RequirePermission('canReply', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
 	#[ApiRoute(verb: 'POST', url: '/api/posts')]
-	public function create(int $threadId, string $content): DataResponse {
+	public function create(int $threadId, string $content, string $guestToken = ''): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
-			if (!$user) {
+
+			// Resolve author identity
+			if ($user) {
+				$authorId = $user->getUID();
+			} elseif ($guestToken !== '') {
+				try {
+					$authorId = $this->guestService->resolveGuestIdentity($guestToken);
+				} catch (\InvalidArgumentException $e) {
+					return new DataResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+				}
+			} else {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
 			$post = new \OCA\Forum\Db\Post();
 			$post->setThreadId($threadId);
-			$post->setAuthorId($user->getUID());
+			$post->setAuthorId($authorId);
 			$post->setContent($content);
 			$post->setIsEdited(false);
 			$post->setIsFirstPost(false);
@@ -345,16 +361,39 @@ class PostController extends OCSController {
 			/** @var \OCA\Forum\Db\Post */
 			$createdPost = $this->postMapper->insert($post);
 
-			// Mark thread as read up to and including the new post
-			try {
-				$this->readMarkerMapper->createOrUpdate(
-					$user->getUID(),
-					$threadId,
-					$createdPost->getId()
-				);
-			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update read marker after creating post: ' . $e->getMessage());
-				// Don't fail the request if read marker update fails
+			// User-only operations (read markers, forum user stats, auto-subscribe)
+			if ($user) {
+				// Mark thread as read up to and including the new post
+				try {
+					$this->readMarkerMapper->createOrUpdate(
+						$user->getUID(),
+						$threadId,
+						$createdPost->getId()
+					);
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to update read marker after creating post: ' . $e->getMessage());
+				}
+
+				// Update forum user post count (auto-creates forum user if needed)
+				try {
+					$this->forumUserMapper->incrementPostCount($user->getUID());
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to update forum user post count: ' . $e->getMessage());
+				}
+
+				// Auto-subscribe the user to the thread if preference is enabled and not already subscribed
+				try {
+					$autoSubscribe = $this->userPreferencesService->getPreference(
+						$user->getUID(),
+						UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS
+					);
+
+					if ($autoSubscribe && !$this->threadSubscriptionMapper->isUserSubscribed($user->getUID(), $threadId)) {
+						$this->threadSubscriptionMapper->subscribe($user->getUID(), $threadId);
+					}
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to auto-subscribe user to thread: ' . $e->getMessage());
+				}
 			}
 
 			// Update the thread's post count and timestamps
@@ -366,15 +405,6 @@ class PostController extends OCSController {
 				$this->threadMapper->update($thread);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update thread post count: ' . $e->getMessage());
-				// Don't fail the request if thread update fails
-			}
-
-			// Update forum user post count (auto-creates forum user if needed)
-			try {
-				$this->forumUserMapper->incrementPostCount($user->getUID());
-			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update forum user post count: ' . $e->getMessage());
-				// Don't fail the request if forum user update fails
 			}
 
 			// Update the category's post count
@@ -384,39 +414,21 @@ class PostController extends OCSController {
 				$this->categoryMapper->update($category);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update category post count: ' . $e->getMessage());
-				// Don't fail the request if category update fails
 			}
 
 			// Notify registered users about the new post
 			try {
-				$this->notificationService->notifyThreadSubscribers($threadId, $createdPost->getId(), $user->getUID());
+				$this->notificationService->notifyThreadSubscribers($threadId, $createdPost->getId(), $authorId);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to send notifications for new post: ' . $e->getMessage());
-				// Don't fail the request if notification sending fails
 			}
 
 			// Notify mentioned users
 			try {
 				$mentionedUsers = $this->notificationService->extractMentions($content);
-				$this->notificationService->notifyMentionedUsers($createdPost->getId(), $threadId, $user->getUID(), $mentionedUsers);
+				$this->notificationService->notifyMentionedUsers($createdPost->getId(), $threadId, $authorId, $mentionedUsers);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
-				// Don't fail the request if mention notification sending fails
-			}
-
-			// Auto-subscribe the user to the thread if preference is enabled and not already subscribed
-			try {
-				$autoSubscribe = $this->userPreferencesService->getPreference(
-					$user->getUID(),
-					UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS
-				);
-
-				if ($autoSubscribe && !$this->threadSubscriptionMapper->isUserSubscribed($user->getUID(), $threadId)) {
-					$this->threadSubscriptionMapper->subscribe($user->getUID(), $threadId);
-				}
-			} catch (\Exception $e) {
-				$this->logger->warning('Failed to auto-subscribe user to thread: ' . $e->getMessage());
-				// Don't fail the request if auto-subscribe fails
 			}
 
 			return new DataResponse($this->postEnrichmentService->enrichPost($createdPost), Http::STATUS_CREATED);

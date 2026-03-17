@@ -295,8 +295,12 @@
         <p>{{ strings.noReplyPermission }}</p>
       </NcNoteCard>
 
-      <!-- Guest user message -->
-      <NcNoteCard v-if="!loading && !error && thread && userId === null" type="info" class="mt-16">
+      <!-- Guest user message (only when guest cannot reply) -->
+      <NcNoteCard
+        v-if="!loading && !error && thread && userId === null && !canReply"
+        type="info"
+        class="mt-16"
+      >
         <p>{{ strings.guestMessage }}</p>
         <template #action>
           <NcButton @click="replyToThread" variant="primary">
@@ -305,13 +309,13 @@
         </template>
       </NcNoteCard>
 
-      <!-- Reply form (authenticated users only, with canReply permission, moderators can reply even when locked) -->
+      <!-- Reply form (authenticated users or guests with canReply permission, moderators can reply even when locked) -->
       <PostReplyForm
         v-if="
           !loading &&
           !error &&
           thread &&
-          userId !== null &&
+          (userId !== null || isGuest) &&
           canReply &&
           (!thread.isLocked || canModerate)
         "
@@ -371,6 +375,7 @@ import { showError, showSuccess } from '@nextcloud/dialogs'
 import { useCurrentThread } from '@/composables/useCurrentThread'
 import { usePermissions } from '@/composables/usePermissions'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useGuestSession } from '@/composables/useGuestSession'
 
 export default defineComponent({
   name: 'ThreadView',
@@ -408,12 +413,15 @@ export default defineComponent({
     const { currentThread: thread, fetchThread } = useCurrentThread()
     const { checkCategoryPermission } = usePermissions()
     const { userId } = useCurrentUser()
+    const { isGuest, fetchGuestIdentity } = useGuestSession()
 
     return {
       thread,
       fetchThread,
       checkCategoryPermission,
       userId,
+      isGuest,
+      fetchGuestIdentity,
     }
   },
   data() {
@@ -552,6 +560,11 @@ export default defineComponent({
         // Check if thread was found
         if (!threadData) {
           throw new Error(t('forum', 'Thread not found'))
+        }
+
+        // Fetch guest identity if guest
+        if (this.isGuest) {
+          await this.fetchGuestIdentity()
         }
 
         // Fetch posts - use page from query param if present
@@ -828,8 +841,8 @@ export default defineComponent({
     },
 
     replyToThread(): void {
-      // Redirect guests to login
-      if (this.userId === null) {
+      // Redirect guests to login (only if they cannot reply)
+      if (this.userId === null && !this.canReply) {
         const returnUrl = generateUrl(`/apps/forum/t/${this.thread?.slug}`)
         window.location.href = generateUrl(`/login?redirect_url=${encodeURIComponent(returnUrl)}`)
         return

@@ -5,6 +5,7 @@
       :display-name="displayName"
       :size="avatarSize"
       :is-deleted="isDeleted"
+      :is-guest="isGuest"
       :clickable="clickable"
     />
     <div class="user-details" :class="{ 'details-inline': layout === 'inline' }">
@@ -40,7 +41,7 @@ import { defineComponent, type PropType } from 'vue'
 import UserAvatar from '@/components/UserAvatar'
 import RoleBadge from '@/components/RoleBadge'
 import type { Role } from '@/types'
-import { isAdminRole, isModeratorRole, isCustomRole } from '@/constants'
+import { isAdminRole, isModeratorRole, isGuestRole, isCustomRole } from '@/constants'
 
 export default defineComponent({
   name: 'UserInfo',
@@ -65,6 +66,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    isGuest: {
+      type: Boolean,
+      default: false,
+    },
     clickable: {
       type: Boolean,
       default: true,
@@ -85,7 +90,7 @@ export default defineComponent({
   },
   computed: {
     isClickable(): boolean {
-      return this.clickable && !this.isDeleted
+      return this.clickable && !this.isDeleted && !this.isGuest
     },
 
     displayRoles(): Role[] {
@@ -96,13 +101,14 @@ export default defineComponent({
       // Find the highest priority system role (admin > moderator, mutually exclusive)
       const adminRole = this.roles.find((role) => isAdminRole(role))
       const moderatorRole = this.roles.find((role) => isModeratorRole(role))
-      const primaryRole = adminRole ?? moderatorRole
+      const guestRole = this.isGuest ? this.roles.find((role) => isGuestRole(role)) : undefined
+      const primaryRole = adminRole ?? moderatorRole ?? guestRole
 
       // Get custom roles (shown after the primary role)
       const customRoles = this.roles.filter((role) => isCustomRole(role))
 
       // Build the display list: primary system role (if any) + custom roles
-      // Note: "default" (user) and "guest" roles are intentionally excluded
+      // Note: "default" (user) role is intentionally excluded
       return primaryRole ? [primaryRole, ...customRoles] : customRoles
     },
   },

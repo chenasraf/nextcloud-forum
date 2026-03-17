@@ -22,6 +22,7 @@ use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Service\BBCodeService;
+use OCA\Forum\Service\GuestService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostEnrichmentService;
@@ -69,6 +70,8 @@ class PostControllerTest extends TestCase {
 	private UserPreferencesService $userPreferencesService;
 	/** @var ThreadSubscriptionMapper&MockObject */
 	private ThreadSubscriptionMapper $threadSubscriptionMapper;
+	/** @var GuestService&MockObject */
+	private GuestService $guestService;
 	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
 	/** @var LoggerInterface&MockObject */
@@ -93,6 +96,7 @@ class PostControllerTest extends TestCase {
 		$this->userService = $this->createMock(UserService::class);
 		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
 		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
+		$this->guestService = $this->createMock(GuestService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -123,6 +127,7 @@ class PostControllerTest extends TestCase {
 			$this->userService,
 			$this->userPreferencesService,
 			$this->threadSubscriptionMapper,
+			$this->guestService,
 			$this->userSession,
 			$this->logger
 		);

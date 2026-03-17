@@ -33,9 +33,16 @@ export interface User {
   userId: string
   displayName: string
   isDeleted: boolean
+  isGuest?: boolean
   roles: Role[]
   signature: string | null
   signatureRaw: string | null
+}
+
+export interface GuestIdentity {
+  displayName: string
+  guestToken: string
+  isGuest: true
 }
 
 export interface Thread {

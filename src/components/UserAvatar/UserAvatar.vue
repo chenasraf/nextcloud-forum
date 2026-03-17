@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="!isDeleted"
+    v-if="!isDeleted && !isGuest"
     class="user-avatar"
     :style="{ height: size + 'px' }"
     :class="{ clickable: isClickable }"
@@ -9,7 +9,7 @@
     <NcAvatar :user="userId" :size="size" />
   </div>
   <div v-else class="user-avatar">
-    <NcAvatar :display-name="displayName" :size="size" />
+    <NcAvatar :display-name="avatarDisplayName" :size="size" />
   </div>
 </template>
 
@@ -39,6 +39,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    isGuest: {
+      type: Boolean,
+      default: false,
+    },
     clickable: {
       type: Boolean,
       default: true,
@@ -47,7 +51,15 @@ export default defineComponent({
   emits: ['click'],
   computed: {
     isClickable(): boolean {
-      return this.clickable && !this.isDeleted
+      return this.clickable && !this.isDeleted && !this.isGuest
+    },
+    avatarDisplayName(): string {
+      if (!this.isGuest || !this.displayName) {
+        return this.displayName
+      }
+      // Split CamelCase into words so NcAvatar generates 2-letter initials
+      // e.g. "BrightMountain42" → "Bright Mountain"
+      return this.displayName.replace(/[0-9]+$/, '').replace(/([a-z])([A-Z])/g, '$1 $2')
     },
   },
   methods: {

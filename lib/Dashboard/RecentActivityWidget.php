@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Dashboard;
 
 use OCA\Forum\AppInfo\Application;
+use OCA\Forum\Service\UserService;
 use OCP\Dashboard\IAPIWidgetV2;
 use OCP\Dashboard\IButtonWidget;
 use OCP\Dashboard\IIconWidget;
@@ -22,6 +23,7 @@ class RecentActivityWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget {
 		private IL10N $l,
 		private IURLGenerator $urlGenerator,
 		private WidgetService $widgetService,
+		private UserService $userService,
 	) {
 	}
 
@@ -66,6 +68,18 @@ class RecentActivityWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget {
 	public function getItemsV2(string $userId, ?string $since = null, int $limit = 7): WidgetItems {
 		$activity = $this->widgetService->getRecentActivity($userId, $limit);
 
+		// Collect all author IDs and resolve display names in batch
+		$authorIds = [];
+		foreach ($activity as $entry) {
+			if ($entry['type'] === 'thread' && $entry['thread'] !== null) {
+				$authorIds[] = $entry['thread']->getAuthorId();
+			} elseif ($entry['type'] === 'reply') {
+				$authorIds[] = $entry['item']->getAuthorId();
+			}
+		}
+		$authorIds = array_unique($authorIds);
+		$enrichedAuthors = !empty($authorIds) ? $this->userService->enrichMultipleUsers($authorIds) : [];
+
 		$items = [];
 		foreach ($activity as $entry) {
 			$thread = $entry['thread'];
@@ -78,10 +92,22 @@ class RecentActivityWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget {
 			$sinceId = (string)$entry['createdAt'];
 
 			if ($entry['type'] === 'thread') {
-				$subtitle = $this->l->t('New thread by %1$s', [$thread->getAuthorId()]);
+				$authorId = $thread->getAuthorId();
+				$authorData = $enrichedAuthors[$authorId] ?? null;
+				$displayName = $authorData['displayName'] ?? $authorId;
+				if (!empty($authorData['isGuest'])) {
+					$displayName = $this->l->t('%1$s (Guest)', [$displayName]);
+				}
+				$subtitle = $this->l->t('New thread by %1$s', [$displayName]);
 			} else {
 				$post = $entry['item'];
-				$subtitle = $this->l->t('Reply by %1$s', [$post->getAuthorId()]);
+				$authorId = $post->getAuthorId();
+				$authorData = $enrichedAuthors[$authorId] ?? null;
+				$displayName = $authorData['displayName'] ?? $authorId;
+				if (!empty($authorData['isGuest'])) {
+					$displayName = $this->l->t('%1$s (Guest)', [$displayName]);
+				}
+				$subtitle = $this->l->t('Reply by %1$s', [$displayName]);
 			}
 
 			$items[] = new WidgetItem(

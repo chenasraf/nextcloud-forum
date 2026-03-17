@@ -267,6 +267,9 @@ export default defineComponent({
       justify-content: flex-end;
       gap: 12px;
       align-items: center;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--color-border);
     }
 
     .success-message {

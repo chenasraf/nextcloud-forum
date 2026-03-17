@@ -372,8 +372,8 @@ export default defineComponent({
     },
 
     createThread() {
-      // Redirect guests to login
-      if (this.userId === null) {
+      // Redirect guests to login only if they cannot post
+      if (this.userId === null && !this.canPost) {
         const returnUrl = generateUrl(
           `/apps/forum/c/${this.category?.slug || this.category?.id}/new`,
         )

@@ -4840,6 +4840,96 @@
                 }
             }
         },
+        "/ocs/v2.php/apps/forum/api/guest/me": {
+            "get": {
+                "operationId": "guest-me",
+                "summary": "Get or create a guest identity",
+                "tags": [
+                    "guest"
+                ],
+                "security": [
+                    {},
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "guestToken",
+                        "in": "query",
+                        "description": "32-character hex token",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Guest identity returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "displayName",
+                                                        "guestToken",
+                                                        "isGuest"
+                                                    ],
+                                                    "properties": {
+                                                        "displayName": {
+                                                            "type": "string"
+                                                        },
+                                                        "guestToken": {
+                                                            "type": "string"
+                                                        },
+                                                        "isGuest": {
+                                                            "type": "boolean",
+                                                            "enum": [
+                                                                true
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ocs/v2.php/apps/forum/api/threads/{threadId}/posts": {
             "get": {
                 "operationId": "post-by-thread",
@@ -5561,6 +5651,7 @@
                     "post"
                 ],
                 "security": [
+                    {},
                     {
                         "bearer_auth": []
                     },
@@ -5587,6 +5678,11 @@
                                     "content": {
                                         "type": "string",
                                         "description": "Post content"
+                                    },
+                                    "guestToken": {
+                                        "type": "string",
+                                        "default": "",
+                                        "description": "Guest session token (32-char hex, for unauthenticated users)"
                                     }
                                 }
                             }
@@ -5632,34 +5728,6 @@
                                                         "type": "object"
                                                     }
                                                 }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Current user is not logged in",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
                                             }
                                         }
                                     }
@@ -8651,6 +8719,7 @@
                     "thread"
                 ],
                 "security": [
+                    {},
                     {
                         "bearer_auth": []
                     },
@@ -8682,6 +8751,11 @@
                                     "content": {
                                         "type": "string",
                                         "description": "Initial post content"
+                                    },
+                                    "guestToken": {
+                                        "type": "string",
+                                        "default": "",
+                                        "description": "Guest session token (32-char hex, for unauthenticated users)"
                                     }
                                 }
                             }
@@ -8727,34 +8801,6 @@
                                                         "type": "object"
                                                     }
                                                 }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Current user is not logged in",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
                                             }
                                         }
                                     }

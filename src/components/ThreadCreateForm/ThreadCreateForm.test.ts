@@ -11,6 +11,14 @@ vi.mock('@/composables/useCurrentUser', () => ({
   }),
 }))
 
+// Mock useGuestSession composable
+vi.mock('@/composables/useGuestSession', () => ({
+  useGuestSession: () => ({
+    isGuest: computed(() => false),
+    guestDisplayName: ref(null),
+  }),
+}))
+
 // Mock icons
 vi.mock('@icons/Check.vue', () => createIconMock('CheckIcon'))
 vi.mock('@icons/ContentSave.vue', () => createIconMock('ContentSaveIcon'))
@@ -21,7 +29,7 @@ vi.mock('@icons/ContentSaveAlert.vue', () => createIconMock('ContentSaveAlertIco
 vi.mock('@/components/UserInfo', () =>
   createComponentMock('UserInfo', {
     template: '<div class="user-info-mock">{{ displayName }}</div>',
-    props: ['userId', 'displayName', 'avatarSize', 'clickable'],
+    props: ['userId', 'displayName', 'avatarSize', 'clickable', 'isGuest'],
   }),
 )
 

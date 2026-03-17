@@ -17,6 +17,7 @@ use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
+use OCA\Forum\Service\GuestService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\ThreadEnrichmentService;
@@ -26,6 +27,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
@@ -49,6 +51,7 @@ class ThreadController extends OCSController {
 		private UserService $userService,
 		private PermissionService $permissionService,
 		private NotificationService $notificationService,
+		private GuestService $guestService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -275,35 +278,50 @@ class ThreadController extends OCSController {
 	 * @param int $categoryId Category ID
 	 * @param string $title Thread title
 	 * @param string $content Initial post content
+	 * @param string $guestToken Guest session token (32-char hex, for unauthenticated users)
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Thread created
 	 */
 	#[NoAdminRequired]
+	#[PublicPage]
+	#[NoCSRFRequired]
 	#[RequirePermission('canPost', resourceType: 'category', resourceIdBody: 'categoryId')]
 	#[ApiRoute(verb: 'POST', url: '/api/threads')]
-	public function create(int $categoryId, string $title, string $content): DataResponse {
+	public function create(int $categoryId, string $title, string $content, string $guestToken = ''): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
-			if (!$user) {
+
+			// Resolve author identity
+			if ($user) {
+				$authorId = $user->getUID();
+			} elseif ($guestToken !== '') {
+				try {
+					$authorId = $this->guestService->resolveGuestIdentity($guestToken);
+				} catch (\InvalidArgumentException $e) {
+					return new DataResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+				}
+			} else {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
 			// Check if the category was already read before creating the thread
 			// (used later to decide whether to update the category read marker)
 			$wasCategoryRead = false;
-			try {
-				$lastActivity = $this->threadMapper->getLastActivityForCategory($categoryId);
-				if ($lastActivity === null) {
-					$wasCategoryRead = true;
-				} else {
-					$marker = $this->readMarkerMapper->findByUserAndCategory($user->getUID(), $categoryId);
-					$wasCategoryRead = $marker->getReadAt() >= $lastActivity;
+			if ($user) {
+				try {
+					$lastActivity = $this->threadMapper->getLastActivityForCategory($categoryId);
+					if ($lastActivity === null) {
+						$wasCategoryRead = true;
+					} else {
+						$marker = $this->readMarkerMapper->findByUserAndCategory($user->getUID(), $categoryId);
+						$wasCategoryRead = $marker->getReadAt() >= $lastActivity;
+					}
+				} catch (DoesNotExistException $e) {
+					// No read marker means the category is unread
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to check category read state: ' . $e->getMessage());
 				}
-			} catch (DoesNotExistException $e) {
-				// No read marker means the category is unread
-			} catch (\Exception $e) {
-				$this->logger->warning('Failed to check category read state: ' . $e->getMessage());
 			}
 
 			// Generate slug from title
@@ -314,7 +332,7 @@ class ThreadController extends OCSController {
 
 			$thread = new \OCA\Forum\Db\Thread();
 			$thread->setCategoryId($categoryId);
-			$thread->setAuthorId($user->getUID());
+			$thread->setAuthorId($authorId);
 			$thread->setTitle($title);
 			$thread->setSlug($slug);
 			$thread->setViewCount(0);
@@ -331,7 +349,7 @@ class ThreadController extends OCSController {
 			// Create the initial post
 			$post = new \OCA\Forum\Db\Post();
 			$post->setThreadId($createdThread->getId());
-			$post->setAuthorId($user->getUID());
+			$post->setAuthorId($authorId);
 			$post->setContent($content);
 			$post->setIsEdited(false);
 			$post->setIsFirstPost(true);
@@ -356,55 +374,58 @@ class ThreadController extends OCSController {
 				$this->logger->warning('Failed to update category counts: ' . $e->getMessage());
 			}
 
-			// Update forum user (thread count only, first post doesn't count)
-			try {
-				$this->forumUserMapper->incrementThreadCount($user->getUID());
-			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update forum user: ' . $e->getMessage());
-			}
-
-			// Auto-subscribe the thread creator to receive notifications (if preference is enabled)
-			try {
-				$autoSubscribe = $this->userPreferencesService->getPreference(
-					$user->getUID(),
-					UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS
-				);
-
-				if ($autoSubscribe) {
-					$this->threadSubscriptionMapper->subscribe($user->getUID(), $createdThread->getId());
+			// User-only operations (forum user stats, subscriptions, read markers, drafts)
+			if ($user) {
+				// Update forum user (thread count only, first post doesn't count)
+				try {
+					$this->forumUserMapper->incrementThreadCount($user->getUID());
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to update forum user: ' . $e->getMessage());
 				}
-			} catch (\Exception $e) {
-				$this->logger->warning('Failed to subscribe thread creator: ' . $e->getMessage());
+
+				// Auto-subscribe the thread creator to receive notifications (if preference is enabled)
+				try {
+					$autoSubscribe = $this->userPreferencesService->getPreference(
+						$user->getUID(),
+						UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS
+					);
+
+					if ($autoSubscribe) {
+						$this->threadSubscriptionMapper->subscribe($user->getUID(), $createdThread->getId());
+					}
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to subscribe thread creator: ' . $e->getMessage());
+				}
+
+				// Update category read marker so the category stays read,
+				// but only if it was not already unread before this thread was created
+				if ($wasCategoryRead) {
+					try {
+						$this->readMarkerMapper->createOrUpdateCategoryMarker($user->getUID(), $categoryId);
+					} catch (\Exception $e) {
+						$this->logger->warning('Failed to update category read marker: ' . $e->getMessage());
+					}
+				}
+
+				// Delete any draft for this category now that the thread is created
+				try {
+					$this->draftMapper->deleteThreadDraft($user->getUID(), $categoryId);
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to delete thread draft: ' . $e->getMessage());
+				}
 			}
 
-			// Notify mentioned users in the initial post
+			// Notify mentioned users in the initial post (works for both guest and authenticated posts)
 			try {
 				$mentionedUsers = $this->notificationService->extractMentions($content);
 				$this->notificationService->notifyMentionedUsers(
 					$createdPost->getId(),
 					$createdThread->getId(),
-					$user->getUID(),
+					$authorId,
 					$mentionedUsers
 				);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
-			}
-
-			// Update category read marker so the category stays read,
-			// but only if it was not already unread before this thread was created
-			if ($wasCategoryRead) {
-				try {
-					$this->readMarkerMapper->createOrUpdateCategoryMarker($user->getUID(), $categoryId);
-				} catch (\Exception $e) {
-					$this->logger->warning('Failed to update category read marker: ' . $e->getMessage());
-				}
-			}
-
-			// Delete any draft for this category now that the thread is created
-			try {
-				$this->draftMapper->deleteThreadDraft($user->getUID(), $categoryId);
-			} catch (\Exception $e) {
-				$this->logger->warning('Failed to delete thread draft: ' . $e->getMessage());
 			}
 
 			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);

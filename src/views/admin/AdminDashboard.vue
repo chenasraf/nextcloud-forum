@@ -121,7 +121,9 @@
                   <div class="contributor-rank">{{ index + 1 }}</div>
                   <UserInfo
                     :user-id="contributor.userId"
-                    :display-name="contributor.userId"
+                    :display-name="contributor.displayName || contributor.userId"
+                    :is-guest="contributor.isGuest || false"
+                    :roles="contributor.roles || []"
                     :avatar-size="40"
                   >
                     <template #meta>
@@ -148,7 +150,9 @@
                   <div class="contributor-rank">{{ index + 1 }}</div>
                   <UserInfo
                     :user-id="contributor.userId"
-                    :display-name="contributor.userId"
+                    :display-name="contributor.displayName || contributor.userId"
+                    :is-guest="contributor.isGuest || false"
+                    :roles="contributor.roles || []"
                     :avatar-size="40"
                   >
                     <template #meta>
@@ -182,6 +186,7 @@ import AccountPlusIcon from '@icons/AccountPlus.vue'
 import ForumIcon from '@icons/Forum.vue'
 import MessageTextIcon from '@icons/MessageText.vue'
 import FolderIcon from '@icons/Folder.vue'
+import type { Role } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 
@@ -199,11 +204,17 @@ interface DashboardStats {
   }
   topContributorsAllTime: Array<{
     userId: string
+    displayName: string
+    isGuest: boolean
+    roles: Role[]
     postCount: number
     threadCount: number
   }>
   topContributorsRecent: Array<{
     userId: string
+    displayName: string
+    isGuest: boolean
+    roles: Role[]
     postCount: number
     threadCount: number
   }>

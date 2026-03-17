@@ -1,11 +1,12 @@
 <template>
   <div class="thread-create-form">
-    <div v-if="userId" class="form-header">
+    <div v-if="userId || isGuest" class="form-header">
       <UserInfo
-        :user-id="userId"
-        :display-name="displayName"
+        :user-id="userId || 'guest'"
+        :display-name="userId ? displayName : guestDisplayName || ''"
         :avatar-size="40"
         :clickable="false"
+        :is-guest="isGuest"
       />
     </div>
 
@@ -65,6 +66,7 @@ import UserInfo from '@/components/UserInfo'
 import BBCodeEditor from '@/components/BBCodeEditor'
 import { t } from '@nextcloud/l10n'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useGuestSession } from '@/composables/useGuestSession'
 
 export type DraftStatus = 'saving' | 'saved' | 'dirty' | null
 
@@ -90,10 +92,13 @@ export default defineComponent({
   },
   setup() {
     const { userId, displayName } = useCurrentUser()
+    const { isGuest, guestDisplayName } = useGuestSession()
 
     return {
       userId,
       displayName,
+      isGuest,
+      guestDisplayName,
     }
   },
   data() {

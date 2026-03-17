@@ -81,6 +81,23 @@ class AdminController extends OCSController {
 			$topContributorsAllTime = $this->forumUserMapper->getTopContributors(5);
 			$topContributorsRecent = $this->forumUserMapper->getTopContributorsSince($weekAgo, 5);
 
+			// Enrich contributors with display names
+			$allContributorIds = array_unique(array_merge(
+				array_map(fn ($c) => $c['userId'], $topContributorsAllTime),
+				array_map(fn ($c) => $c['userId'], $topContributorsRecent),
+			));
+			$enrichedUsers = $this->userService->enrichMultipleUsers($allContributorIds);
+
+			$enrichContributors = function (array $contributors) use ($enrichedUsers): array {
+				return array_map(function ($c) use ($enrichedUsers) {
+					$userData = $enrichedUsers[$c['userId']] ?? null;
+					$c['displayName'] = $userData['displayName'] ?? $c['userId'];
+					$c['isGuest'] = $userData['isGuest'] ?? false;
+					$c['roles'] = $userData['roles'] ?? [];
+					return $c;
+				}, $contributors);
+			};
+
 			return new DataResponse([
 				'totals' => [
 					'users' => $totalUsers,
@@ -93,8 +110,8 @@ class AdminController extends OCSController {
 					'threads' => $recentThreads,
 					'posts' => $recentPosts,
 				],
-				'topContributorsAllTime' => $topContributorsAllTime,
-				'topContributorsRecent' => $topContributorsRecent,
+				'topContributorsAllTime' => $enrichContributors($topContributorsAllTime),
+				'topContributorsRecent' => $enrichContributors($topContributorsRecent),
 			]);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching dashboard stats: ' . $e->getMessage());

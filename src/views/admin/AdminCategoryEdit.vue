@@ -576,17 +576,9 @@ export default defineComponent({
             this.selectedReplyTargets = [memberOption]
           }
 
-          // Moderate: Admin and Moderator
-          const adminRole = this.roles.find(isAdminRole)
+          // Moderate: Moderator only (admin has hardcoded full access)
           const moderatorRole = this.roles.find(isModeratorRole)
           this.selectedModerateTargets = []
-          if (adminRole) {
-            this.selectedModerateTargets.push({
-              id: `role:${adminRole.id}`,
-              label: adminRole.name,
-              type: 'role',
-            })
-          }
           if (moderatorRole) {
             this.selectedModerateTargets.push({
               id: `role:${moderatorRole.id}`,
@@ -643,10 +635,11 @@ export default defineComponent({
         const rolePerms = perms.filter((p) => p.targetType === 'role')
         const teamPerms = perms.filter((p) => p.targetType === 'team')
 
-        // Map role permissions to PermTarget
+        // Map role permissions to PermTarget (skip admin - has hardcoded full access)
         const mapRolePerm = (p: CategoryPerm): PermTarget | null => {
           const role = this.roles.find((r) => String(r.id) === p.targetId)
-          return role ? { id: `role:${role.id}`, label: role.name, type: 'role' } : null
+          if (!role || isAdminRole(role)) return null
+          return { id: `role:${role.id}`, label: role.name, type: 'role' }
         }
 
         // Map team permissions to PermTarget
@@ -677,7 +670,8 @@ export default defineComponent({
             .filter((p) => p.canModerate)
             .map((p) => {
               const role = this.roles.find((r) => String(r.id) === p.targetId)
-              if (!role || isGuestRole(role) || isDefaultRole(role)) return null
+              if (!role || isAdminRole(role) || isGuestRole(role) || isDefaultRole(role))
+                return null
               return { id: `role:${role.id}`, label: role.name, type: 'role' } as PermTarget
             }),
           ...teamPerms.filter((p) => p.canModerate).map(mapTeamPerm),

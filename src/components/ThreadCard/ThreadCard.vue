@@ -22,6 +22,7 @@
             :user-id="thread.author?.userId || thread.authorId"
             :display-name="thread.author?.displayName || thread.authorId"
             :is-deleted="thread.author?.isDeleted || false"
+            :is-guest="thread.author?.isGuest || false"
             :avatar-size="32"
             :roles="thread.author?.roles || []"
             :show-roles="false"
@@ -106,7 +107,10 @@ export default defineComponent({
   border-radius: 8px;
   padding: 16px;
   background: var(--color-main-background);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
   cursor: pointer;
 
   * {

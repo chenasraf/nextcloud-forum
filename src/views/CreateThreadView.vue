@@ -74,6 +74,8 @@ import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { showError, showSuccess } from '@nextcloud/dialogs'
 import { usePermissions } from '@/composables/usePermissions'
+import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useGuestSession } from '@/composables/useGuestSession'
 
 const DRAFT_DEBOUNCE_DELAY = 1500 // 1.5 seconds
 
@@ -81,7 +83,9 @@ export default defineComponent({
   name: 'CreateThreadView',
   setup() {
     const { checkCategoryPermission } = usePermissions()
-    return { checkCategoryPermission }
+    const { userId } = useCurrentUser()
+    const { isGuest, fetchGuestIdentity } = useGuestSession()
+    return { checkCategoryPermission, userId, isGuest, fetchGuestIdentity }
   },
   components: {
     NcButton,
@@ -154,6 +158,11 @@ export default defineComponent({
         }
         this.category = resp!.data
 
+        // Fetch guest identity if guest
+        if (this.isGuest) {
+          await this.fetchGuestIdentity()
+        }
+
         // Check canPost permission
         const canPost = await this.checkCategoryPermission(this.category.id, 'canPost')
         if (!canPost) {
@@ -161,8 +170,10 @@ export default defineComponent({
           return
         }
 
-        // After loading category, fetch any existing draft
-        await this.fetchDraft()
+        // After loading category, fetch any existing draft (authenticated users only)
+        if (this.userId !== null) {
+          await this.fetchDraft()
+        }
       } catch (e) {
         console.error('Failed to fetch category', e)
         this.error = t('forum', 'Category not found')
@@ -222,6 +233,11 @@ export default defineComponent({
     },
 
     scheduleDraftSave() {
+      // Guests cannot save drafts
+      if (this.userId === null) {
+        return
+      }
+
       // Clear any existing timer
       if (this.draftDebounceTimer) {
         clearTimeout(this.draftDebounceTimer)

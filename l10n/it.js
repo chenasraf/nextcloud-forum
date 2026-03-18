@@ -103,6 +103,7 @@ OC.L10N.register(
     "Owner" : "Proprietario",
     "Actions" : "Azioni",
     "No teams found" : "Nessun  team trovato",
+    "Members" : "Partecipanti",
     "User management" : "Gestione degli utenti",
     "Loading users …" : "Caricamento utenti …",
     "No users found" : "Nessun utente trovato",

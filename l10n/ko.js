@@ -83,6 +83,7 @@ OC.L10N.register(
     "Owner" : "소유자",
     "Actions" : "동작",
     "No description" : "설명 없음",
+    "Members" : "구성원",
     "User management" : "사용자 관리",
     "Loading users …" : "사용자 불러오는 중 ...",
     "No users found" : "사용자 없음",

@@ -102,6 +102,7 @@ OC.L10N.register(
     "Actions" : "Funktioner",
     "No description" : "Ingen beskrivning",
     "No teams found" : "Inga team hittades",
+    "Members" : "Medlemmar",
     "User management" : "Användarhantering",
     "Loading users …" : "Laddar användare …",
     "No users found" : "Inga användare hittades",

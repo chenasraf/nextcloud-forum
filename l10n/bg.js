@@ -90,6 +90,7 @@ OC.L10N.register(
     "Owner" : "Създател",
     "Actions" : "Действия",
     "No description" : "Без описание",
+    "Members" : "Членове",
     "No users found" : "Няма намерени потребители",
     "Joined" : "Присъединен",
     "Status" : "Състояние",

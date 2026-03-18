@@ -98,6 +98,7 @@ OC.L10N.register(
     "Owner" : "Vlastník",
     "Actions" : "Akcie",
     "No teams found" : "Žiadne tímy sa nenašli",
+    "Members" : "Členovia",
     "User management" : "Správa užívateľov",
     "Loading users …" : "Načítavanie užívateľov ...",
     "No users found" : "Žiadni používatelia nenájdení",

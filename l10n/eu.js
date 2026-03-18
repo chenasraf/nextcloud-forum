@@ -96,6 +96,7 @@ OC.L10N.register(
     "Actions" : "Ekintzak",
     "No description" : "Deskribapenik ez",
     "No teams found" : "Ez da lantalderik aurkitu",
+    "Members" : "Partaideak",
     "User management" : "Erabiltzaileen kudeaketa",
     "Loading users …" : "Erabiltzaileak kargatzen ...",
     "No users found" : "Ez da erabiltzailerik aurkitu",

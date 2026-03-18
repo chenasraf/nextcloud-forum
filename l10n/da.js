@@ -92,6 +92,7 @@ OC.L10N.register(
     "Owner" : "Ejer",
     "Actions" : "Handlinger",
     "No teams found" : "Ingen teams fundet",
+    "Members" : "Medlemmer",
     "Loading users …" : "Henter brugere ...",
     "No users found" : "Ingen brugere fundet",
     "Joined" : "Forbind",

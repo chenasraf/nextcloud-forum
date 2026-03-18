@@ -87,6 +87,7 @@ OC.L10N.register(
     "Actions" : "کنش‌ها",
     "No description" : "No description",
     "No teams found" : "هیچ تیمی یافت نشد",
+    "Members" : "اعضا",
     "Loading users …" : "Loading users …",
     "No users found" : "No users found",
     "Joined" : "پیوستن",

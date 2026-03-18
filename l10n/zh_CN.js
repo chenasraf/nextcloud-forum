@@ -98,6 +98,7 @@ OC.L10N.register(
     "Actions" : "操作",
     "No description" : "没有描述",
     "No teams found" : "未找到任何团队",
+    "Members" : "成员",
     "User management" : "用户管理",
     "Loading users …" : "正在加载用户 ...",
     "No users found" : "未找到用户",

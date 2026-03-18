@@ -94,6 +94,7 @@ OC.L10N.register(
     "Actions" : "Handlinger",
     "No description" : "Ingen beskrivelse",
     "No teams found" : "Ingen lag funnet",
+    "Members" : "Medlemmer",
     "User management" : "Brukeradministrasjon",
     "Loading users …" : "Laster brukere...",
     "No users found" : "Ingen brukere funnet",

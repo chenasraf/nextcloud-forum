@@ -74,6 +74,7 @@ OC.L10N.register(
     "Owner" : "Сопственик",
     "Actions" : "Акции",
     "No teams found" : "Не се пронајдени тимови",
+    "Members" : "Членови",
     "Loading users …" : "Вчитување корисници ...",
     "Joined" : "Приклучен",
     "Status" : "Статус",

@@ -452,6 +452,7 @@ OC.L10N.register(
     "Are you sure you want to delete the role \"{name}\"? This action cannot be undone." : "Apakah Anda yakin ingin menghapus peran \"{name}\"? Tindakan ini tidak dapat dibatalkan.",
     "System roles cannot be deleted" : "Peran sistem tidak dapat dihapus",
     "No teams found" : "Tidak ada tim yang ditemukan",
+    "Members" : "Anggota",
     "User management" : "Pengelolaan pengguna",
     "Manage forum users, roles and permissions" : "Kelola pengguna forum, peran, dan izin",
     "Loading users …" : "Memuat pengguna …",

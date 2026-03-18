@@ -99,6 +99,7 @@ OC.L10N.register(
     "Actions" : "ການດຳເນີນການ",
     "No description" : "ບໍ່ມີຄຳອະທິບາຍ",
     "No teams found" : "No teams found",
+    "Members" : "ສະມາຊິກ",
     "Status" : "ສະຖານະ",
     "Active" : "ກຳລັງໃຊ້ງານ",
     "Deleted" : "ລຶບແລ້ວ"

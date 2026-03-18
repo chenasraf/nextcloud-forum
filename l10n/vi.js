@@ -75,6 +75,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Owner" : "Người sở hữu",
     "Actions" : "Hành động",
+    "Members" : "Thành viên",
     "Loading users …" : "Đang tải người dùng…",
     "Joined" : "Đã tham gia",
     "Active" : "Hoạt động",

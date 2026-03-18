@@ -95,6 +95,7 @@ OC.L10N.register(
     "Owner" : "Vlasnik",
     "Actions" : "Radnje",
     "No teams found" : "Nema pronađenih timova",
+    "Members" : "Članovi",
     "No users found" : "Nije pronađen nijedan korisnik",
     "Joined" : "Pridružen",
     "Status" : "Status",

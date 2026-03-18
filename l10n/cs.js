@@ -469,6 +469,7 @@ OC.L10N.register(
     "Are you sure you want to delete the role \"{name}\"? This action cannot be undone." : "Opravdu chcete roli „{name}“ smazat? Tuto akci nepůjde vzít zpět.",
     "System roles cannot be deleted" : "Systémové role není možné smazat",
     "No teams found" : "Nenalezeny žádné týmy",
+    "Members" : "Členové",
     "User management" : "Správa uživatelů",
     "Manage forum users, roles and permissions" : "Spravovat uživatele fóra, role a oprávnění",
     "Loading users …" : "Načítání uživatelů …",

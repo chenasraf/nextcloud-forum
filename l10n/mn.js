@@ -91,6 +91,7 @@ OC.L10N.register(
     "Owner" : "–≠–∑—ç–º—à–∏–≥—á",
     "Actions" : "Үйл ажиллагаа",
     "No teams found" : "Баг олдсонгүй",
+    "Members" : "–ì–∏—à“Ø“Ø–¥",
     "Joined" : "нэгдсэн",
     "Status" : "Төлөв",
     "Active" : "Идэвхтэй",

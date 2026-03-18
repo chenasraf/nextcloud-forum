@@ -470,6 +470,7 @@ OC.L10N.register(
     "Are you sure you want to delete the role \"{name}\"? This action cannot be undone." : "Είστε σίγουροι ότι θέλετε να διαγράψετε τον ρόλο \"{name}\"; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
     "System roles cannot be deleted" : "Οι ρόλοι συστήματος δεν μπορούν να διαγραφούν",
     "No teams found" : "Δεν βρέθηκαν ομάδες",
+    "Members" : "Μέλη",
     "User management" : "Διαχείριση χρηστών",
     "Manage forum users, roles and permissions" : "Διαχείριση χρηστών, ρόλων και δικαιωμάτων του φόρουμ",
     "Loading users …" : "Φόρτωση χρηστών …",

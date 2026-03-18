@@ -500,6 +500,7 @@ OC.L10N.register(
     "Loading teams …" : "Takımlar yükleniyor…",
     "Error loading teams" : "Takımlar yüklenirken sorun çıktı",
     "No teams found" : "Herhangi bir takım bulunamadı",
+    "Members" : "Üyeler",
     "No Nextcloud Teams are available" : "Kullanılabilecek bir Nextcloud Takımları bulunamadı",
     "Edit team" : "Takımı düzenle",
     "Configure category permissions for this team" : "Bu takım için kategori izinlerini yapılandırın",

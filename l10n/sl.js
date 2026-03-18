@@ -92,6 +92,7 @@ OC.L10N.register(
     "Actions" : "Dejanja",
     "No description" : "Ni opisa",
     "No teams found" : "Ni oblikovanih skupin",
+    "Members" : "Člani",
     "User management" : "Upravljanje uporabnikov",
     "Loading users …" : "Poteka nalaganje uporabnikov ...",
     "No users found" : "Ni najdenih uporabnikov",

@@ -91,6 +91,7 @@ OC.L10N.register(
     "Actions" : "الإجراءات",
     "No description" : "بدون وصف",
     "No teams found" : "لا يوجد أي فريق",
+    "Members" : "الاعضاء",
     "User management" : "إدارة المستخدِمين",
     "Loading users …" : "تحميل المستخدِمين جارٍ ...",
     "No users found" : "لا يوجد مستخدمون",

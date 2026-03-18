@@ -53,6 +53,7 @@ OC.L10N.register(
     "Reset" : "Restablecer",
     "ID" : "ID",
     "Actions" : "Acciones",
+    "Members" : "Miembros",
     "Loading users …" : "Cargando usuarios...",
     "Joined" : "Se ha unido",
     "Deleted" : "Eliminado"

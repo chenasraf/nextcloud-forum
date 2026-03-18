@@ -48,6 +48,7 @@ OC.L10N.register(
     "Reset" : "Reiniciar",
     "ID" : "ID",
     "Actions" : "Acciones",
+    "Members" : "Miembros",
     "Joined" : "Se ha unido",
     "Deleted" : "Borrado"
 },

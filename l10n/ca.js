@@ -97,6 +97,7 @@ OC.L10N.register(
     "Owner" : "Propietat",
     "Actions" : "Accions",
     "No teams found" : "No s'ha trobat cap equip",
+    "Members" : "Membres",
     "User management" : "Gestió d'usuaris",
     "Loading users …" : "S'estan carregant usuaris …",
     "No users found" : "No s'ha trobat cap usuari",

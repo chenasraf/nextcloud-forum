@@ -74,6 +74,7 @@ OC.L10N.register(
     "Reset" : "Riprìstinu",
     "ID" : "ID",
     "Actions" : "Atziones",
+    "Members" : "Membros",
     "No users found" : "Peruna utèntzia agatada",
     "Joined" : "As atzèdidu",
     "Status" : "Status",

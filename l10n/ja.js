@@ -93,6 +93,7 @@ OC.L10N.register(
     "Owner" : "作成者",
     "Actions" : "アクション",
     "No teams found" : "チームは見つかりませんでした",
+    "Members" : "メンバー",
     "User management" : "ユーザー管理",
     "Loading users …" : "Loading users …",
     "No users found" : "ユーザーが見つかりません",

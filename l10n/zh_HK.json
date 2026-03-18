@@ -491,6 +491,7 @@
     "Loading teams …" : "正在加載團隊 …",
     "Error loading teams" : "載入團隊時發生錯誤",
     "No teams found" : "找不到團隊",
+    "Members" : "成員",
     "No Nextcloud Teams are available" : "無可用 NextCloud 團隊",
     "Edit team" : "編輯團隊",
     "Configure category permissions for this team" : "為此團隊設定分類權限",

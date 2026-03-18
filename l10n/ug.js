@@ -445,6 +445,7 @@ OC.L10N.register(
     "Are you sure you want to delete the role \"{name}\"? This action cannot be undone." : "«{name}» رولىنى راستىنلا ئۆچۈرمەكچىمۇ؟ بۇ ھەرىكەتنى ئەسلىگە كەلتۈرگىلى بولمايدۇ.",
     "System roles cannot be deleted" : "سىستېما روللىرىنى ئۆچۈرگىلى بولمايدۇ",
     "No teams found" : "ھېچقانداق كوماندا تېپىلمىدى",
+    "Members" : "ئەزالار",
     "User management" : "ئىشلەتكۈچى باشقۇرۇش",
     "Manage forum users, roles and permissions" : "مۇنبەر ئىشلەتكۈچىلىرى، روللىرى ۋە ئىجازەتلىرىنى باشقۇرۇش",
     "Loading users …" : "ئىشلەتكۈچىلەر يۈكلەۋاتىدۇ…",

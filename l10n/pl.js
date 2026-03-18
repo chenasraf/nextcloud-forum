@@ -102,6 +102,7 @@ OC.L10N.register(
     "Actions" : "Akcje",
     "No description" : "Brak opisu",
     "No teams found" : "Nie znaleziono żadnych zespołów",
+    "Members" : "Członkowie",
     "User management" : "Zarządzanie użytkownikiem",
     "Loading users …" : "Wczytywanie użytkowników ...",
     "No users found" : "Nie znaleziono użytkowników",

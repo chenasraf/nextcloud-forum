@@ -48,6 +48,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Owner" : "Dueño",
     "Actions" : "Acciones",
+    "Members" : "Miembros",
     "Joined" : "Se ha unido",
     "Deleted" : "Borrado"
 },

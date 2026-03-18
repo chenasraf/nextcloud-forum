@@ -99,6 +99,7 @@ OC.L10N.register(
     "Actions" : "Toiminnot",
     "No description" : "Ei kuvausta",
     "No teams found" : "Tiimejä ei löytynyt",
+    "Members" : "Jäsenet",
     "User management" : "Käyttäjähallinta",
     "Loading users …" : "Ladataan käyttäjiä…",
     "No users found" : "Käyttäjiä ei löytynyt",

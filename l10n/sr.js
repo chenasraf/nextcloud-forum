@@ -99,6 +99,7 @@ OC.L10N.register(
     "Actions" : "Радње",
     "No description" : "Без описа",
     "No teams found" : "Није пронађен ниједан тим",
+    "Members" : "Чланови",
     "User management" : "Управљање корисницима",
     "Loading users …" : "Учитавају се корисници...",
     "No users found" : "Није пронађен ниједан корисник",

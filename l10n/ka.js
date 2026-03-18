@@ -75,6 +75,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Owner" : "Owner",
     "Actions" : "Actions",
+    "Members" : "Members",
     "User management" : "User management",
     "Loading users …" : "Loading users …",
     "No users found" : "No users found",

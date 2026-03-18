@@ -443,6 +443,7 @@ OC.L10N.register(
     "Actions" : "Matendo",
     "No description" : "No description",
     "No teams found" : "Hakuna timu zilizopatikana",
+    "Members" : "Wanachama",
     "No users found" : "Hakuna watumiaji waliopatikana",
     "Roles" : "Majukumu",
     "Status" : "Wadhifa/hadhi/hali",

@@ -102,6 +102,7 @@ OC.L10N.register(
     "Owner" : "Власник",
     "Actions" : "Дії",
     "No teams found" : "Жодної команди не знайдено",
+    "Members" : "Учасники",
     "User management" : "Керування користувачами",
     "Loading users …" : "Завантаження користувачів ...",
     "Status" : "Статус",

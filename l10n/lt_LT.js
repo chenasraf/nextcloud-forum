@@ -86,6 +86,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Owner" : "Savininkas",
     "Actions" : "Veiksmai",
+    "Members" : "Nariai",
     "Loading users …" : "Įkeliami naudotojai…",
     "No users found" : "Nerasta jokių naudotojų",
     "Status" : "Būsena",

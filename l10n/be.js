@@ -103,6 +103,7 @@ OC.L10N.register(
     "Owner" : "Уладальнік",
     "Actions" : "Дзеянні",
     "No teams found" : "Каманд не знойдзена",
+    "Members" : "Удзельнікі",
     "Roles" : "Ролі",
     "Status" : "Статус",
     "Active" : "Актыўны",

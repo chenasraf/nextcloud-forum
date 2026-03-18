@@ -62,6 +62,7 @@ OC.L10N.register(
     "Reset" : "Reïnicializar",
     "ID" : "ID",
     "Actions" : "Accions",
+    "Members" : "Membres",
     "Status" : "Estat",
     "Active" : "Activa",
     "Deleted" : "Suprimit"

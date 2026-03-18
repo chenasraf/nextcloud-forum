@@ -29,6 +29,7 @@ OC.L10N.register(
     "Settings saved" : "Configurationes salveguardate",
     "Reset" : "Re-fixar",
     "Actions" : "Actiones",
+    "Members" : "Membros",
     "Deleted" : "Delite"
 },
 "nplurals=2; plural=(n != 1);");

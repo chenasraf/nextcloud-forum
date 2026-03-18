@@ -96,6 +96,7 @@ OC.L10N.register(
     "Owner" : "Proprietário",
     "Actions" : "Ações",
     "No teams found" : "Nenhum grupo encontrado",
+    "Members" : "Membros",
     "No users found" : "Não foram encontrados utilizadores",
     "Joined" : "Aderiu",
     "Deleted" : "Eliminado"

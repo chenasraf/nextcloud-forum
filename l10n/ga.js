@@ -493,6 +493,7 @@ OC.L10N.register(
     "Loading teams …" : "Ag lódáil foirne …",
     "Error loading teams" : "Earráid ag luchtú foirne",
     "No teams found" : "Níor aimsíodh foirne",
+    "Members" : "Baill",
     "No Nextcloud Teams are available" : "Níl aon Fhoireann Nextcloud ar fáil",
     "Edit team" : "Foireann a chur in eagar",
     "Configure category permissions for this team" : "Cumraigh ceadanna catagóire don fhoireann seo",

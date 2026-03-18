@@ -369,6 +369,7 @@ OC.L10N.register(
     "No description" : "Sin descripción",
     "Are you sure you want to delete the role \"{name}\"? This action cannot be undone." : "¿Estás seguro de que deseas eliminar el rol \"{name}\"? Esta acción no se puede deshacer.",
     "System roles cannot be deleted" : "Los roles del sistema no se pueden eliminar",
+    "Members" : "Miembros",
     "User management" : "Gestión de usuarios",
     "Manage forum users, roles and permissions" : "Gestionar usuarios del foro, roles y permisos",
     "Loading users …" : "Cargando usuarios …",

@@ -493,6 +493,7 @@ OC.L10N.register(
     "Loading teams …" : "Loading teams …",
     "Error loading teams" : "Error loading teams",
     "No teams found" : "No teams found",
+    "Members" : "Members",
     "No Nextcloud Teams are available" : "No Nextcloud Teams are available",
     "Edit team" : "Edit team",
     "Configure category permissions for this team" : "Configure category permissions for this team",

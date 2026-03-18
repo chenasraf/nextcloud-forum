@@ -273,6 +273,7 @@ OC.L10N.register(
     "ID" : "מזהה",
     "Owner" : "בעלות",
     "Actions" : "פעולות",
+    "Members" : "חברים",
     "No users found" : "לא נמצאו משתמשים",
     "Roles" : "תפקידים",
     "Active" : "פעיל",

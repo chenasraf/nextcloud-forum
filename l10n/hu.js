@@ -101,6 +101,7 @@ OC.L10N.register(
     "Actions" : "Műveletek",
     "No description" : "Nincs leírás",
     "No teams found" : "Nem találhatók csapatok",
+    "Members" : "Tagok",
     "Loading users …" : "Felhasználók betöltése…",
     "No users found" : "Nem találhatók felhasználók",
     "Joined" : "Csatlakozott",

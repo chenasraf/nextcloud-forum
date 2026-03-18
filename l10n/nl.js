@@ -101,6 +101,7 @@ OC.L10N.register(
     "Actions" : "Acties",
     "No description" : "Geen beschrijving",
     "No teams found" : "Geen teams gevonden",
+    "Members" : "Leden",
     "User management" : "Gebruikersbeheer",
     "Loading users …" : "Laden gebruikers ...",
     "No users found" : "Geen gebruikers gevonden",

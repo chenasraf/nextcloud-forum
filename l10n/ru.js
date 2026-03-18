@@ -282,6 +282,7 @@ OC.L10N.register(
     "Actions" : "Действия",
     "No description" : "Нет описания",
     "No teams found" : "Группы не найдены",
+    "Members" : "Участники",
     "User management" : "Управление пользователями",
     "Loading users …" : "Загрузка пользователей…",
     "No users found" : "Пользователи не найдены",

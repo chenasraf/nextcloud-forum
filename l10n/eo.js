@@ -56,6 +56,7 @@ OC.L10N.register(
     "ID" : "Identigilo",
     "Owner" : "Posedanto",
     "Actions" : "Agoj",
+    "Members" : "Membroj",
     "Joined" : "Membriĝinta",
     "Deleted" : "Forigita"
 },

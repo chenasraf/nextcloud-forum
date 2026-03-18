@@ -483,6 +483,7 @@ OC.L10N.register(
     "Loading teams …" : "Laadin tiime…",
     "Error loading teams" : "Viga tiimide laadimisel",
     "No teams found" : "Tiime ei leidu",
+    "Members" : "Liikmed",
     "No Nextcloud Teams are available" : "Ühtegi Nextcloud tiimi pole saadaval",
     "Edit team" : "Muuda tiimi",
     "Configure category permissions for this team" : "Seadista selle tiimi õigusi kategooriate kontekstis",

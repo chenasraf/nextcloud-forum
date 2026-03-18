@@ -82,6 +82,7 @@ OC.L10N.register(
     "Owner" : "Eigandi",
     "Actions" : "Aðgerðir",
     "No teams found" : "Engin teymi fundust",
+    "Members" : "Meðlimir",
     "Loading users …" : "Hleð inn notendum …",
     "Joined" : "Gekk inn",
     "Active" : "Virkur",

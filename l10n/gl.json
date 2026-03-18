@@ -468,6 +468,7 @@
     "Are you sure you want to delete the role \"{name}\"? This action cannot be undone." : "Confirma que quere eliminar o rol «{name}»? Esta acción non é posíbel desfacela.",
     "System roles cannot be deleted" : "Non é posíbel eliminar os roles do sistema",
     "No teams found" : "Non se atopou ningún equipo",
+    "Members" : "Membros",
     "User management" : "Xestión de usuarios",
     "Manage forum users, roles and permissions" : "Xestionar usuarios, roles e permisos do foro",
     "Loading users …" : "Cargando usuarios…",

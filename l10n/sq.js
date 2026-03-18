@@ -56,6 +56,7 @@ OC.L10N.register(
     "Reset" : "Rivendos",
     "ID" : "ID",
     "Actions" : "Veprimet",
+    "Members" : "Anëtar",
     "Joined" : "I lidhur",
     "Status" : "Statusi",
     "Deleted" : "E fshirë"

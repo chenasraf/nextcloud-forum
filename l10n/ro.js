@@ -71,6 +71,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Owner" : "Proprietar",
     "Actions" : "Acțiuni",
+    "Members" : "Membri",
     "No users found" : "Nu au fost găsiți utilizatori",
     "Joined" : "Alăturat",
     "Active" : "Activ",

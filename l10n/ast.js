@@ -80,6 +80,7 @@ OC.L10N.register(
     "Owner" : "Propietariu",
     "Actions" : "Aiciones",
     "No teams found" : "Nun s'atopó nengún equipu",
+    "Members" : "Miembros",
     "User management" : "Xestión d'usuarios",
     "Loading users …" : "Cargando los usuarios…",
     "No users found" : "Nun s'atopó nengún usuariu",

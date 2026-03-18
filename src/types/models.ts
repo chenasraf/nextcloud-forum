@@ -222,3 +222,14 @@ export interface Team {
   ownerDisplayName: string
   memberCount: number
 }
+
+export interface Template {
+  id: number
+  userId: string
+  name: string
+  content: string
+  visibility: 'threads' | 'replies' | 'both' | 'neither'
+  sortOrder: number
+  createdAt: number
+  updatedAt: number
+}

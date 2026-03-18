@@ -1,4 +1,4 @@
-import type { Category, Post, Role, Thread, User } from '@/types'
+import type { Category, Post, Role, Template, Thread, User } from '@/types'
 
 // ============================================================================
 // MODEL FACTORIES - Safe to use in tests (not in vi.mock factories)
@@ -122,6 +122,28 @@ export function createMockCategory(overrides: Partial<Category> = {}): Category 
     sortOrder: 0,
     threadCount: 10,
     postCount: 50,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    ...overrides,
+  }
+}
+
+/**
+ * Create a mock Template object with sensible defaults.
+ *
+ * @param overrides - Partial Template object to override defaults
+ *
+ * @example
+ * const template = createMockTemplate({ name: 'Welcome', visibility: 'threads' })
+ */
+export function createMockTemplate(overrides: Partial<Template> = {}): Template {
+  return {
+    id: 1,
+    userId: 'testuser',
+    name: 'Test Template',
+    content: '[b]Hello[/b] world',
+    visibility: 'both',
+    sortOrder: 0,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     ...overrides,

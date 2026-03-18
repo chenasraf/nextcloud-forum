@@ -65,6 +65,19 @@
       </NcActionButton>
     </NcActions>
 
+    <NcButton
+      v-if="!isGuest"
+      variant="tertiary"
+      :aria-label="strings.templateLabel"
+      :title="strings.templateLabel"
+      @click="showTemplates = true"
+      class="bbcode-button"
+    >
+      <template #icon>
+        <TextBoxIcon :size="20" />
+      </template>
+    </NcButton>
+
     <div class="toolbar-spacer"></div>
 
     <NcButton
@@ -81,6 +94,13 @@
 
     <!-- BBCode Help Dialog -->
     <BBCodeHelpDialog v-model:open="showHelp" />
+
+    <!-- Template Modal -->
+    <TemplateModal
+      v-model:open="showTemplates"
+      :editor-context="editorContext"
+      @insert="handleTemplateInsert"
+    />
 
     <!-- Upload Progress Dialog -->
     <NcDialog
@@ -111,6 +131,8 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue'
+import TemplateModal from '@/components/TemplateModal'
+import TextBoxIcon from '@icons/TextBox.vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
@@ -177,6 +199,8 @@ export default defineComponent({
     NcProgressBar,
     LazyEmojiPicker,
     BBCodeHelpDialog,
+    TemplateModal,
+    TextBoxIcon,
     PaperclipIcon,
     UploadIcon,
     EmoticonIcon,
@@ -192,11 +216,16 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    editorContext: {
+      type: String as PropType<'thread' | 'reply' | null>,
+      default: null,
+    },
   },
   emits: ['insert'],
   data() {
     return {
       showHelp: false,
+      showTemplates: false,
       uploadDialog: false,
       uploadProgress: 0,
       uploadFileName: '',
@@ -213,6 +242,7 @@ export default defineComponent({
         uploadError: t('forum', 'Upload failed'),
         close: t('forum', 'Close'),
         moreActions: t('forum', 'More formatting options'),
+        templateLabel: t('forum', 'Insert template'),
       },
     }
   },
@@ -388,8 +418,8 @@ export default defineComponent({
       const buttonWidth = 30
       const gap = 4
       const totalButtons = this.bbcodeButtons.length
-      // Fixed elements: emoji + attachment + help buttons + spacer min + gaps
-      const fixedWidth = 3 * (buttonWidth + gap) + 8
+      // Fixed elements: emoji + attachment + template + help buttons + spacer min + gaps
+      const fixedWidth = 4 * (buttonWidth + gap) + 8
       const overflowTriggerWidth = buttonWidth + gap
 
       const availableForBBCode = containerWidth - fixedWidth
@@ -664,6 +694,27 @@ export default defineComponent({
         // Ignore errors - directory might already exist
         // We'll find out when we try to upload the file
       }
+    },
+
+    handleTemplateInsert(content: string): void {
+      const state = getEditorState(this.textareaRef, this.modelValue)
+      if (!state || !this.textareaRef) {
+        return
+      }
+
+      const result = insertTextAtSelection(editorStateToSelection(state), content)
+
+      this.$emit('insert', {
+        text: result.text,
+        cursorPos: result.cursorPosition,
+        selectedText: '',
+      })
+
+      const editorRef = this.textareaRef
+      this.$nextTick(() => {
+        editorRef.focus()
+        setCursorPosition(editorRef, result.cursorPosition)
+      })
     },
 
     closeUploadDialog(): void {

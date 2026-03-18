@@ -47,7 +47,7 @@
       </NcButton>
     </LazyEmojiPicker>
 
-    <NcActions :aria-label="strings.attachmentLabel" class="bbcode-trigger-button">
+    <NcActions v-if="!isGuest" :aria-label="strings.attachmentLabel" class="bbcode-trigger-button">
       <template #icon>
         <PaperclipIcon :size="20" />
       </template>
@@ -222,6 +222,9 @@ export default defineComponent({
     },
     overflowButtons(): BBCodeButton[] {
       return this.bbcodeButtons.slice(this.visibleCount)
+    },
+    isGuest(): boolean {
+      return getCurrentUser() === null
     },
     bbcodeButtons(): BBCodeButton[] {
       return [

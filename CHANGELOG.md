@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.27.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.26.0...v0.27.0) (2026-03-18)
+
+
+### Features
+
+* allow guests to post/reply when given permissions ([477e9e3](https://github.com/chenasraf/nextcloud-forum/commit/477e9e3dfd75d1c13b624e1a15a9a933c8c72522))
+* editable templates ([c0aa22a](https://github.com/chenasraf/nextcloud-forum/commit/c0aa22adb095192fb8a6b888df65f327cfbe0ab5))
+
+
+### Bug Fixes
+
+* hide attachments bbcode button from guests ([699585a](https://github.com/chenasraf/nextcloud-forum/commit/699585aba0663da4379e4911d0a33cb8db1185f4))
+* **l10n:** Update translations from Transifex ([53d789d](https://github.com/chenasraf/nextcloud-forum/commit/53d789d1c7063795d0d14f2b907b97db8711f74b))
+* **l10n:** Update translations from Transifex ([520ccea](https://github.com/chenasraf/nextcloud-forum/commit/520cceab9b8e78aee6b4aa1e19854b22d26eb023))
+
 ## [0.26.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.25.0...v0.26.0) (2026-03-16)
 
 

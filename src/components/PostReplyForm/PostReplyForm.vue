@@ -17,6 +17,7 @@
         :rows="4"
         :disabled="submitting"
         min-height="6.125rem"
+        editor-context="reply"
         @keydown.ctrl.enter="submitReply"
         @keydown.meta.enter="submitReply"
         ref="editor"

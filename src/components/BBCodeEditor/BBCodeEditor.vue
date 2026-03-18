@@ -10,6 +10,7 @@
       ref="toolbar"
       :textarea-ref="contenteditableElement"
       :model-value="modelValue"
+      :editor-context="editorContext"
       @insert="handleBBCodeInsert"
     />
     <NcRichContenteditable
@@ -47,6 +48,8 @@ import BBCodeToolbar from '@/components/BBCodeToolbar'
 import UploadIcon from '@icons/Upload.vue'
 import { t } from '@nextcloud/l10n'
 import { ocs } from '@/axios'
+
+type EditorContext = 'thread' | 'reply' | null
 
 interface AutocompleteUser {
   id: string
@@ -92,6 +95,10 @@ export default defineComponent({
     minHeight: {
       type: String,
       default: '9.1875rem',
+    },
+    editorContext: {
+      type: String as PropType<'thread' | 'reply' | null>,
+      default: null,
     },
   },
   emits: ['update:modelValue', 'keydown'],

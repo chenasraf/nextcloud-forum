@@ -6,6 +6,7 @@
       :rows="6"
       :disabled="submitting"
       min-height="8rem"
+      editor-context="reply"
       @keydown.ctrl.enter="submitEdit"
       @keydown.meta.enter="submitEdit"
       ref="editor"

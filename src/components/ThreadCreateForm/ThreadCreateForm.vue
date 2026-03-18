@@ -26,6 +26,7 @@
         :rows="6"
         :disabled="submitting"
         min-height="8rem"
+        editor-context="thread"
         @keydown.ctrl.enter="submitThread"
         @keydown.meta.enter="submitThread"
         ref="editor"

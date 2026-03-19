@@ -17,6 +17,7 @@ OC.L10N.register(
     "Delete" : "நீக்குக",
     "Save" : "சேமிக்க ",
     "Current version" : "தற்போதைய பதிப்பு",
+    "Name" : "பெயர்",
     "Title" : "தலைப்பு",
     "Refresh" : "மீள் ஏற்றுக",
     "Error" : "வழு",
@@ -24,7 +25,6 @@ OC.L10N.register(
     "Enable" : "இயலுமைப்படுத்துக",
     "Disable" : "இயலுமைப்ப",
     "Description" : "விவரிப்பு",
-    "Name" : "பெயர்",
     "New" : "புதிய",
     "Owner" : "Owner",
     "Actions" : "செயல்கள்"

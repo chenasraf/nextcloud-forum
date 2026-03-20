@@ -1,6 +1,7 @@
 OC.L10N.register(
     "forum",
     {
+    "%1$s (Guest)" : "%1$s (госць)",
     "Admin" : "Адміністратар",
     "Moderator" : "Мадэратар",
     "User" : "Карыстальнік",
@@ -26,6 +27,7 @@ OC.L10N.register(
     "Categories" : "Катэгорыі",
     "Expand" : "Разгарнуць",
     "Collapse" : "Згарнуць",
+    "(Guest)" : "(Госць)",
     "Hello world!" : "Hello world!",
     "Code" : "Код",
     "Font size" : "Памер шрыфта",
@@ -64,7 +66,12 @@ OC.L10N.register(
     "Add reaction" : "Дадаць рэакцыю",
     "React with {emoji}" : "Адрэагаваць з {emoji}",
     "_%n reply_::_%n replies_" : ["%n адказ","%n адказы","%n адказаў","%n адказаў"],
+    "Templates" : "Шаблоны",
     "Name" : "Назва",
+    "Template name" : "Назва шаблона",
+    "Content" : "Змест",
+    "Both" : "Абодва",
+    "Insert" : "Уставіць",
     "Title" : "Загаловак",
     "Saving draft …" : "Захаванне чарнавіка …",
     "Draft saved" : "Чарнавік захаваны",

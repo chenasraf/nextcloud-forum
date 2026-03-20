@@ -625,6 +625,20 @@ export default defineComponent({
           this.lastReadPostId = data.pagination.lastReadPostId
         }
 
+        // Determine which post to scroll to on initial load (page=0 auto-navigation)
+        // Do this before markAsRead so lastReadPostId still reflects the old value
+        let scrollTargetPostId: number | null = null
+        if (page === 0 && !this.postFromQuery && this.lastReadPostId !== null) {
+          const firstUnreadReply = this.replies.find((r) => r.id > this.lastReadPostId!)
+          if (firstUnreadReply) {
+            // Scroll to first unread post
+            scrollTargetPostId = firstUnreadReply.id
+          } else if (this.replies.length > 0) {
+            // All posts read — scroll to last post
+            scrollTargetPostId = this.replies[this.replies.length - 1].id
+          }
+        }
+
         // Mark thread as read up to the last post in the current view
         const allPosts = this.getAllPosts()
         if (allPosts.length > 0) {
@@ -635,6 +649,12 @@ export default defineComponent({
         await this.$nextTick()
         if (this.postFromQuery) {
           this.scrollToPostFromQuery()
+        } else if (scrollTargetPostId !== null) {
+          this.scrollToPost(scrollTargetPostId)
+          // Retry in case refs aren't ready yet
+          setTimeout(() => {
+            this.scrollToPost(scrollTargetPostId!)
+          }, 100)
         }
       } catch (e) {
         console.error('Failed to fetch posts', e)

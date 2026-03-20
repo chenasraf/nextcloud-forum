@@ -104,12 +104,13 @@ class ThreadControllerTest extends TestCase {
 
 		// Mock thread enrichment service to return serialized thread with mock data
 		$this->threadEnrichmentService->method('enrichThread')
-			->willReturnCallback(function ($thread) {
+			->willReturnCallback(function ($thread, $author = null, $lastReply = null) {
 				$data = is_array($thread) ? $thread : $thread->jsonSerialize();
-				$data['author'] = ['userId' => $data['authorId'], 'displayName' => 'Test User'];
+				$data['author'] = $author ?? ['userId' => $data['authorId'], 'displayName' => 'Test User'];
 				$data['categorySlug'] = 'test-category';
 				$data['categoryName'] = 'Test Category';
 				$data['isSubscribed'] = false;
+				$data['lastReply'] = $lastReply;
 				return $data;
 			});
 
@@ -1254,6 +1255,79 @@ class ThreadControllerTest extends TestCase {
 		$this->assertEquals(1, $data['pagination']['page']);
 		$this->assertEquals(1, $data['pagination']['totalPages']);
 		$this->assertEquals(0, $data['pagination']['total']);
+	}
+
+	public function testByCategoryPaginatedEnrichesLastReplyData(): void {
+		$categoryId = 1;
+		$page = 1;
+		$perPage = 20;
+
+		$thread = $this->createMockThread(1, $categoryId, 'user1', 'Thread With Reply');
+		$thread->setLastPostId(10);
+		$thread->setLastReplyAuthorId('user2');
+		$thread->setLastReplyAt(1700000000);
+
+		$this->threadMapper->expects($this->once())
+			->method('countByCategoryId')
+			->with($categoryId)
+			->willReturn(1);
+
+		$this->threadMapper->expects($this->once())
+			->method('findByCategoryId')
+			->with($categoryId, $perPage, 0)
+			->willReturn([$thread]);
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn([
+				'user1' => ['userId' => 'user1', 'displayName' => 'User 1'],
+				'user2' => ['userId' => 'user2', 'displayName' => 'User 2'],
+			]);
+
+		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertCount(1, $data['threads']);
+
+		$enrichedThread = $data['threads'][0];
+		$this->assertNotNull($enrichedThread['lastReply']);
+		$this->assertEquals(10, $enrichedThread['lastReply']['postId']);
+		$this->assertEquals('user2', $enrichedThread['lastReply']['author']['userId']);
+		$this->assertEquals(1700000000, $enrichedThread['lastReply']['createdAt']);
+	}
+
+	public function testByCategoryPaginatedOmitsLastReplyWhenNoReplies(): void {
+		$categoryId = 1;
+		$page = 1;
+		$perPage = 20;
+
+		// Thread with no replies (lastReplyAuthorId is null)
+		$thread = $this->createMockThread(1, $categoryId, 'user1', 'Thread Without Reply');
+		$thread->setLastPostId(1);
+
+		$this->threadMapper->expects($this->once())
+			->method('countByCategoryId')
+			->with($categoryId)
+			->willReturn(1);
+
+		$this->threadMapper->expects($this->once())
+			->method('findByCategoryId')
+			->with($categoryId, $perPage, 0)
+			->willReturn([$thread]);
+
+		$this->userService->expects($this->once())
+			->method('enrichMultipleUsers')
+			->willReturn([
+				'user1' => ['userId' => 'user1', 'displayName' => 'User 1'],
+			]);
+
+		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$enrichedThread = $data['threads'][0];
+		$this->assertNull($enrichedThread['lastReply']);
 	}
 
 	public function testCreateThreadUpdatesCategoryReadMarkerWhenCategoryWasRead(): void {

@@ -497,10 +497,15 @@ export default defineComponent({
       // Allow if user is the author, or has moderation permissions
       return this.thread?.authorId === this.userId || this.canModerate
     },
+    // Whether ?page=last was requested
+    isLastPageRequested(): boolean {
+      return this.$route.query.page === 'last'
+    },
     // Get page from query param
     pageFromQuery(): number | null {
       const page = this.$route.query.page
       if (page) {
+        if (page === 'last') return null // handled separately
         const parsed = parseInt(page as string)
         return isNaN(parsed) ? null : parsed
       }
@@ -568,7 +573,8 @@ export default defineComponent({
         }
 
         // Fetch posts - use page from query param if present
-        const initialPage = this.pageFromQuery || 0
+        // page=last → use a high number so backend clamps to last page
+        const initialPage = this.isLastPageRequested ? 999999 : this.pageFromQuery || 0
         await this.fetchPosts(initialPage)
         // Check permissions
         await this.checkPermissions()

@@ -401,6 +401,8 @@ class PostController extends OCSController {
 				$thread = $this->threadMapper->find($threadId);
 				$thread->setPostCount($thread->getPostCount() + 1);
 				$thread->setLastPostId($createdPost->getId());
+				$thread->setLastReplyAuthorId($createdPost->getAuthorId());
+				$thread->setLastReplyAt($createdPost->getCreatedAt());
 				$thread->setUpdatedAt(time());
 				$this->threadMapper->update($thread);
 			} catch (\Exception $e) {
@@ -561,9 +563,19 @@ class PostController extends OCSController {
 					$latestPost = $this->postMapper->findLatestByThreadId($thread->getId(), $post->getId());
 					if ($latestPost) {
 						$thread->setLastPostId($latestPost->getId());
+						if (!$latestPost->getIsFirstPost()) {
+							$thread->setLastReplyAuthorId($latestPost->getAuthorId());
+							$thread->setLastReplyAt($latestPost->getCreatedAt());
+						} else {
+							// Only the first post remains — no replies
+							$thread->setLastReplyAuthorId(null);
+							$thread->setLastReplyAt(null);
+						}
 					} else {
 						// No other posts in thread, set to null (or keep first post ID)
 						$thread->setLastPostId(null);
+						$thread->setLastReplyAuthorId(null);
+						$thread->setLastReplyAt(null);
 					}
 				}
 

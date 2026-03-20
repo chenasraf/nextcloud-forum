@@ -33,7 +33,7 @@ class ThreadEnrichmentService {
 	 * @param array|null $author Optional pre-loaded author data
 	 * @return array Enriched thread data
 	 */
-	public function enrichThread(mixed $thread, ?array $author = null): array {
+	public function enrichThread(mixed $thread, ?array $author = null, ?array $lastReply = null): array {
 		if (!is_array($thread)) {
 			$thread = $thread->jsonSerialize();
 		}
@@ -44,6 +44,9 @@ class ThreadEnrichmentService {
 		} else {
 			$thread['author'] = $author;
 		}
+
+		// Add last reply info (author + timestamp)
+		$thread['lastReply'] = $lastReply;
 
 		// Add category information (slug and name) for navigation
 		try {

@@ -614,9 +614,12 @@ class PostControllerTest extends TestCase {
 
 		$this->threadMapper->expects($this->once())
 			->method('update')
-			->willReturnCallback(function ($updatedThread) {
+			->willReturnCallback(function ($updatedThread) use ($userId, $createdPost) {
 				// Thread post count should be incremented from 5 to 6
 				$this->assertEquals(6, $updatedThread->getPostCount());
+				// Last reply info should be set
+				$this->assertEquals($userId, $updatedThread->getLastReplyAuthorId());
+				$this->assertEquals($createdPost->getCreatedAt(), $updatedThread->getLastReplyAt());
 				return $updatedThread;
 			});
 
@@ -683,9 +686,12 @@ class PostControllerTest extends TestCase {
 
 		$this->threadMapper->expects($this->once())
 			->method('update')
-			->willReturnCallback(function ($updatedThread) {
+			->willReturnCallback(function ($updatedThread) use ($userId) {
 				// Thread post count should be decremented from 5 to 4
 				$this->assertEquals(4, $updatedThread->getPostCount());
+				// Last reply info should be updated to the new last post
+				$this->assertEquals($userId, $updatedThread->getLastReplyAuthorId());
+				$this->assertNotNull($updatedThread->getLastReplyAt());
 				return $updatedThread;
 			});
 
@@ -783,6 +789,78 @@ class PostControllerTest extends TestCase {
 
 		$this->forumUserMapper->expects($this->never())
 			->method('decrementPostCount');
+
+		$response = $this->controller->destroy($postId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testDestroyLastReplyClearsLastReplyFieldsWhenOnlyFirstPostRemains(): void {
+		$postId = 5;
+		$userId = 'user1';
+		$post = $this->createMockPost($postId, 1, $userId, 'The only reply');
+		$post->setIsFirstPost(false);
+
+		$thread = new Thread();
+		$thread->setId(1);
+		$thread->setCategoryId(1);
+		$thread->setPostCount(1);
+		$thread->setLastPostId($postId);
+		$thread->setLastReplyAuthorId($userId);
+		$thread->setLastReplyAt(1700000000);
+
+		$category = new Category();
+		$category->setId(1);
+		$category->setPostCount(10);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->permissionService->method('getCategoryIdFromPost')->willReturn(1);
+		$this->permissionService->method('hasCategoryPermission')->willReturn(false);
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->willReturn($post);
+
+		$this->postMapper->expects($this->once())
+			->method('update')
+			->willReturn($post);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->willReturn($thread);
+
+		// Only the first post remains after deletion
+		$firstPost = $this->createMockPost(1, 1, $userId, 'First post');
+		$firstPost->setIsFirstPost(true);
+		$this->postMapper->expects($this->once())
+			->method('findLatestByThreadId')
+			->with(1, $postId)
+			->willReturn($firstPost);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) {
+				// Last reply fields should be cleared
+				$this->assertNull($updatedThread->getLastReplyAuthorId());
+				$this->assertNull($updatedThread->getLastReplyAt());
+				$this->assertEquals(1, $updatedThread->getLastPostId()); // Set to first post
+				return $updatedThread;
+			});
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->willReturn($category);
+
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturn($category);
+
+		$this->forumUserMapper->expects($this->once())
+			->method('decrementPostCount')
+			->with($userId);
 
 		$response = $this->controller->destroy($postId);
 

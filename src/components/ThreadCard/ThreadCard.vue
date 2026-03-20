@@ -33,6 +33,21 @@
               <NcDateTime v-if="thread.createdAt" :timestamp="thread.createdAt * 1000" />
             </template>
           </UserInfo>
+          <template v-if="thread.lastReply">
+            <span class="meta-divider">·</span>
+            <a
+              class="last-reply"
+              :href="lastReplyUrl"
+              @click.prevent.stop="$emit('navigate-last-reply', thread)"
+            >
+              {{
+                strings.lastReplyBy(
+                  thread.lastReply.author?.displayName || thread.lastReplyAuthorId || '',
+                )
+              }}
+              <NcDateTime :timestamp="thread.lastReply.createdAt * 1000" />
+            </a>
+          </template>
         </div>
       </div>
 
@@ -87,6 +102,12 @@ export default defineComponent({
       default: false,
     },
   },
+  emits: ['navigate-last-reply'],
+  computed: {
+    lastReplyUrl(): string {
+      return `/apps/forum/t/${this.thread.slug}?page=last&post=${this.thread.lastPostId}`
+    },
+  },
   data() {
     return {
       strings: {
@@ -95,6 +116,7 @@ export default defineComponent({
         pinned: t('forum', 'Pinned thread'),
         locked: t('forum', 'Locked thread'),
         unread: t('forum', 'Unread'),
+        lastReplyBy: (name: string) => t('forum', 'Last reply by {name}', { name }),
       },
     }
   },
@@ -263,6 +285,22 @@ export default defineComponent({
 
     @media (max-width: 768px) {
       font-size: 0.65rem;
+    }
+  }
+
+  .meta-divider {
+    color: var(--color-text-maxcontrast);
+  }
+
+  .last-reply {
+    font-size: 0.8rem;
+    color: var(--color-text-maxcontrast);
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      color: var(--color-primary-element);
+      text-decoration: underline;
     }
   }
 }

@@ -67,6 +67,8 @@ export function createMockThread(overrides: Partial<Thread> = {}): Thread {
     viewCount: 100,
     postCount: 10,
     lastPostId: null,
+    lastReplyAuthorId: null,
+    lastReplyAt: null,
     isLocked: false,
     isPinned: false,
     isHidden: false,

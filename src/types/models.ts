@@ -54,6 +54,8 @@ export interface Thread {
   viewCount: number
   postCount: number
   lastPostId: number | null
+  lastReplyAuthorId: string | null
+  lastReplyAt: number | null
   isLocked: boolean
   isPinned: boolean
   isHidden: boolean
@@ -65,6 +67,11 @@ export interface Thread {
   categoryName?: string | null
   isSubscribed?: boolean
   isBookmarked?: boolean
+  lastReply?: {
+    postId: number
+    author: User | null
+    createdAt: number
+  } | null
 }
 
 export interface Post {

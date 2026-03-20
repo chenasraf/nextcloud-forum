@@ -28,6 +28,10 @@ use OCP\AppFramework\Db\Entity;
  * @method void setPostCount(int $value)
  * @method int|null getLastPostId()
  * @method void setLastPostId(?int $value)
+ * @method string|null getLastReplyAuthorId()
+ * @method void setLastReplyAuthorId(?string $value)
+ * @method int|null getLastReplyAt()
+ * @method void setLastReplyAt(?int $value)
  * @method bool getIsLocked()
  * @method void setIsLocked(bool $value)
  * @method bool getIsPinned()
@@ -49,6 +53,8 @@ class Thread extends Entity implements JsonSerializable {
 	protected $viewCount;
 	protected $postCount;
 	protected $lastPostId;
+	protected $lastReplyAuthorId;
+	protected $lastReplyAt;
 	protected $isLocked;
 	protected $isPinned;
 	protected $isHidden;
@@ -65,6 +71,8 @@ class Thread extends Entity implements JsonSerializable {
 		$this->addType('viewCount', 'integer');
 		$this->addType('postCount', 'integer');
 		$this->addType('lastPostId', 'integer');
+		$this->addType('lastReplyAuthorId', 'string');
+		$this->addType('lastReplyAt', 'integer');
 		$this->addType('isLocked', 'boolean');
 		$this->addType('isPinned', 'boolean');
 		$this->addType('isHidden', 'boolean');
@@ -83,6 +91,8 @@ class Thread extends Entity implements JsonSerializable {
 			'viewCount' => $this->getViewCount(),
 			'postCount' => $this->getPostCount(),
 			'lastPostId' => $this->getLastPostId(),
+			'lastReplyAuthorId' => $this->getLastReplyAuthorId(),
+			'lastReplyAt' => $this->getLastReplyAt(),
 			'isLocked' => $this->getIsLocked(),
 			'isPinned' => $this->getIsPinned(),
 			'isHidden' => $this->getIsHidden(),

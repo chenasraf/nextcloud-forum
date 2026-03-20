@@ -133,4 +133,82 @@ describe('ThreadCard', () => {
       expect(statValues[1]!.text()).toBe('0')
     })
   })
+
+  describe('last reply', () => {
+    it('should show last reply info when thread has a last reply', () => {
+      const thread = createMockThread({
+        lastPostId: 42,
+        lastReplyAuthorId: 'alice',
+        lastReplyAt: 1700000000,
+        lastReply: {
+          postId: 42,
+          author: {
+            userId: 'alice',
+            displayName: 'Alice',
+            isDeleted: false,
+            roles: [],
+            signature: null,
+            signatureRaw: null,
+          },
+          createdAt: 1700000000,
+        },
+      })
+      const wrapper = mount(ThreadCard, {
+        props: { thread },
+      })
+      const lastReply = wrapper.find('.last-reply')
+      expect(lastReply.exists()).toBe(true)
+      expect(lastReply.text()).toContain('Alice')
+    })
+
+    it('should not show last reply when thread has no last reply', () => {
+      const thread = createMockThread({ lastReply: undefined })
+      const wrapper = mount(ThreadCard, {
+        props: { thread },
+      })
+      expect(wrapper.find('.last-reply').exists()).toBe(false)
+    })
+
+    it('should emit navigate-last-reply when last reply link is clicked', async () => {
+      const thread = createMockThread({
+        lastPostId: 42,
+        lastReplyAuthorId: 'alice',
+        lastReplyAt: 1700000000,
+        lastReply: {
+          postId: 42,
+          author: {
+            userId: 'alice',
+            displayName: 'Alice',
+            isDeleted: false,
+            roles: [],
+            signature: null,
+            signatureRaw: null,
+          },
+          createdAt: 1700000000,
+        },
+      })
+      const wrapper = mount(ThreadCard, {
+        props: { thread },
+      })
+      await wrapper.find('.last-reply').trigger('click')
+      expect(wrapper.emitted('navigate-last-reply')).toBeTruthy()
+    })
+
+    it('should fall back to lastReplyAuthorId when author displayName is unavailable', () => {
+      const thread = createMockThread({
+        lastPostId: 42,
+        lastReplyAuthorId: 'bob',
+        lastReplyAt: 1700000000,
+        lastReply: {
+          postId: 42,
+          author: null,
+          createdAt: 1700000000,
+        },
+      })
+      const wrapper = mount(ThreadCard, {
+        props: { thread },
+      })
+      expect(wrapper.find('.last-reply').text()).toContain('bob')
+    })
+  })
 })

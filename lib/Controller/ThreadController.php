@@ -151,15 +151,26 @@ class ThreadController extends OCSController {
 			// Fetch threads for the current page
 			$threads = $this->threadMapper->findByCategoryId($categoryId, $perPage, $offset);
 
-			// Extract unique author IDs
-			$authorIds = array_unique(array_map(fn ($t) => $t->getAuthorId(), $threads));
+			// Extract unique author IDs (thread authors + last reply authors)
+			$authorIds = array_map(fn ($t) => $t->getAuthorId(), $threads);
+			$lastReplyAuthorIds = array_filter(array_map(fn ($t) => $t->getLastReplyAuthorId(), $threads));
+			$allAuthorIds = array_unique(array_merge($authorIds, $lastReplyAuthorIds));
 
 			// Batch fetch author data (includes roles)
-			$authors = $this->userService->enrichMultipleUsers($authorIds);
+			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
 
-			// Enrich threads with pre-fetched author data
+			// Enrich threads with pre-fetched author data and last reply info
 			$enrichedThreads = array_map(function ($t) use ($authors) {
-				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null);
+				$lastReply = null;
+				$lastReplyAuthorId = $t->getLastReplyAuthorId();
+				if ($lastReplyAuthorId !== null) {
+					$lastReply = [
+						'postId' => $t->getLastPostId(),
+						'author' => $authors[$lastReplyAuthorId] ?? null,
+						'createdAt' => $t->getLastReplyAt(),
+					];
+				}
+				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null, $lastReply);
 			}, $threads);
 
 			return new DataResponse([

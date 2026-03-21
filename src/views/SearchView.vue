@@ -108,6 +108,7 @@
               :thread="thread"
               :query="currentQuery"
               @click="navigateToThread(thread)"
+              @navigate-last-reply="navigateToLastReply(thread)"
             />
           </div>
         </section>
@@ -272,6 +273,16 @@ export default defineComponent({
     navigateToThread(thread: Thread): void {
       if (thread.slug) {
         this.$router.push(`/t/${thread.slug}`)
+      }
+    },
+
+    navigateToLastReply(thread: Thread): void {
+      if (thread.slug) {
+        const query: Record<string, string> = { page: 'last' }
+        if (thread.lastPostId) {
+          query.post = String(thread.lastPostId)
+        }
+        this.$router.push({ path: `/t/${thread.slug}`, query })
       }
     },
   },

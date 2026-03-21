@@ -175,17 +175,29 @@ class BookmarkController extends OCSController {
 			// Order threads by bookmark order and enrich them
 			$orderedThreads = [];
 
-			// Extract unique author IDs for batch enrichment
-			$authorIds = array_unique(array_map(fn ($t) => $t->getAuthorId(), $threads));
-			$authors = $this->userService->enrichMultipleUsers($authorIds);
+			// Extract unique author IDs for batch enrichment (thread authors + last reply authors)
+			$authorIds = array_map(fn ($t) => $t->getAuthorId(), $threads);
+			$lastReplyAuthorIds = array_filter(array_map(fn ($t) => $t->getLastReplyAuthorId(), $threads));
+			$allAuthorIds = array_unique(array_merge($authorIds, $lastReplyAuthorIds));
+			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
 
 			foreach ($bookmarks as $bookmark) {
 				$threadId = $bookmark->getEntityId();
 				if (isset($threadMap[$threadId])) {
 					$thread = $threadMap[$threadId];
+					$lastReply = null;
+					$lastReplyAuthorId = $thread->getLastReplyAuthorId();
+					if ($lastReplyAuthorId !== null) {
+						$lastReply = [
+							'postId' => $thread->getLastPostId(),
+							'author' => $authors[$lastReplyAuthorId] ?? null,
+							'createdAt' => $thread->getLastReplyAt(),
+						];
+					}
 					$enriched = $this->threadEnrichmentService->enrichThread(
 						$thread,
-						$authors[$thread->getAuthorId()] ?? null
+						$authors[$thread->getAuthorId()] ?? null,
+						$lastReply
 					);
 					// Add bookmark timestamp
 					$enriched['bookmarkedAt'] = $bookmark->getCreatedAt();

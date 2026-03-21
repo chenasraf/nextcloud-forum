@@ -33,6 +33,18 @@
         <ClockIcon :size="16" />
         <NcDateTime v-if="thread.createdAt" :timestamp="thread.createdAt * 1000" />
       </span>
+      <a
+        v-if="thread.lastReply"
+        class="meta-item last-reply"
+        @click.prevent.stop="$emit('navigate-last-reply', thread)"
+      >
+        {{
+          t('forum', 'Last reply by {name}', {
+            name: thread.lastReply.author?.displayName || thread.lastReplyAuthorId || '',
+          })
+        }}
+        <NcDateTime :timestamp="thread.lastReply.createdAt * 1000" />
+      </a>
     </div>
   </div>
 </template>
@@ -73,7 +85,7 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ['click'],
+  emits: ['click', 'navigate-last-reply'],
   data() {
     return {
       isDarkTheme,
@@ -243,6 +255,16 @@ export default defineComponent({
 
       &.author {
         color: var(--color-main-text);
+      }
+
+      &.last-reply {
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--color-primary-element);
+          text-decoration: underline;
+        }
       }
     }
   }

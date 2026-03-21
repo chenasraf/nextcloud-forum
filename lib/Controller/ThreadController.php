@@ -74,15 +74,26 @@ class ThreadController extends OCSController {
 		try {
 			$threads = array_slice($this->threadMapper->findAll(), $offset, $limit);
 
-			// Extract unique author IDs
-			$authorIds = array_unique(array_map(fn ($t) => $t->getAuthorId(), $threads));
+			// Extract unique author IDs (thread authors + last reply authors)
+			$authorIds = array_map(fn ($t) => $t->getAuthorId(), $threads);
+			$lastReplyAuthorIds = array_filter(array_map(fn ($t) => $t->getLastReplyAuthorId(), $threads));
+			$allAuthorIds = array_unique(array_merge($authorIds, $lastReplyAuthorIds));
 
 			// Batch fetch author data (includes roles)
-			$authors = $this->userService->enrichMultipleUsers($authorIds);
+			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
 
-			// Enrich threads with pre-fetched author data
+			// Enrich threads with pre-fetched author data and last reply info
 			return new DataResponse(array_map(function ($t) use ($authors) {
-				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()]);
+				$lastReply = null;
+				$lastReplyAuthorId = $t->getLastReplyAuthorId();
+				if ($lastReplyAuthorId !== null) {
+					$lastReply = [
+						'postId' => $t->getLastPostId(),
+						'author' => $authors[$lastReplyAuthorId] ?? null,
+						'createdAt' => $t->getLastReplyAt(),
+					];
+				}
+				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null, $lastReply);
 			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads: ' . $e->getMessage());
@@ -108,15 +119,26 @@ class ThreadController extends OCSController {
 		try {
 			$threads = $this->threadMapper->findByCategoryId($categoryId, $limit, $offset);
 
-			// Extract unique author IDs
-			$authorIds = array_unique(array_map(fn ($t) => $t->getAuthorId(), $threads));
+			// Extract unique author IDs (thread authors + last reply authors)
+			$authorIds = array_map(fn ($t) => $t->getAuthorId(), $threads);
+			$lastReplyAuthorIds = array_filter(array_map(fn ($t) => $t->getLastReplyAuthorId(), $threads));
+			$allAuthorIds = array_unique(array_merge($authorIds, $lastReplyAuthorIds));
 
 			// Batch fetch author data (includes roles)
-			$authors = $this->userService->enrichMultipleUsers($authorIds);
+			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
 
-			// Enrich threads with pre-fetched author data
+			// Enrich threads with pre-fetched author data and last reply info
 			return new DataResponse(array_map(function ($t) use ($authors) {
-				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()]);
+				$lastReply = null;
+				$lastReplyAuthorId = $t->getLastReplyAuthorId();
+				if ($lastReplyAuthorId !== null) {
+					$lastReply = [
+						'postId' => $t->getLastPostId(),
+						'author' => $authors[$lastReplyAuthorId] ?? null,
+						'createdAt' => $t->getLastReplyAt(),
+					];
+				}
+				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null, $lastReply);
 			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads by category: ' . $e->getMessage());
@@ -205,12 +227,23 @@ class ThreadController extends OCSController {
 		try {
 			$threads = $this->threadMapper->findByAuthorId($authorId, $limit, $offset);
 
-			// For threads by a single author, we can optimize by fetching author data once
-			$author = $this->userService->enrichUserData($authorId);
+			// Collect author IDs (thread author + last reply authors)
+			$lastReplyAuthorIds = array_filter(array_map(fn ($t) => $t->getLastReplyAuthorId(), $threads));
+			$allAuthorIds = array_unique(array_merge([$authorId], $lastReplyAuthorIds));
+			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
 
-			// Enrich threads with pre-fetched author data
-			return new DataResponse(array_map(function ($t) use ($author) {
-				return $this->threadEnrichmentService->enrichThread($t, $author);
+			// Enrich threads with pre-fetched author data and last reply info
+			return new DataResponse(array_map(function ($t) use ($authors) {
+				$lastReply = null;
+				$lastReplyAuthorId = $t->getLastReplyAuthorId();
+				if ($lastReplyAuthorId !== null) {
+					$lastReply = [
+						'postId' => $t->getLastPostId(),
+						'author' => $authors[$lastReplyAuthorId] ?? null,
+						'createdAt' => $t->getLastReplyAt(),
+					];
+				}
+				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null, $lastReply);
 			}, $threads));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching threads by author: ' . $e->getMessage());

@@ -737,9 +737,10 @@ class ThreadControllerTest extends TestCase {
 			->willReturn($threads);
 
 		$this->userService->expects($this->once())
-			->method('enrichUserData')
-			->with($authorId)
-			->willReturn($enrichedAuthor);
+			->method('enrichMultipleUsers')
+			->willReturn([
+				$authorId => $enrichedAuthor,
+			]);
 
 		$this->threadEnrichmentService->expects($this->exactly(2))
 			->method('enrichThread')

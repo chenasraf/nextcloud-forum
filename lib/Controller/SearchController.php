@@ -93,10 +93,13 @@ class SearchController extends OCSController {
 				$offset
 			);
 
-			// Collect all unique author IDs from both threads and posts
+			// Collect all unique author IDs from threads, last reply authors, and posts
 			$allAuthorIds = [];
 			foreach ($results['threads'] as $thread) {
 				$allAuthorIds[] = $thread->getAuthorId();
+				if ($thread->getLastReplyAuthorId() !== null) {
+					$allAuthorIds[] = $thread->getLastReplyAuthorId();
+				}
 			}
 			foreach ($results['posts'] as $post) {
 				$allAuthorIds[] = $post->getAuthorId();
@@ -106,9 +109,18 @@ class SearchController extends OCSController {
 			// Batch fetch all author data once
 			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
 
-			// Enrich threads with pre-fetched author data
+			// Enrich threads with pre-fetched author data and last reply info
 			$enrichedThreads = array_map(function ($thread) use ($authors) {
-				return $this->threadEnrichmentService->enrichThread($thread, $authors[$thread->getAuthorId()]);
+				$lastReply = null;
+				$lastReplyAuthorId = $thread->getLastReplyAuthorId();
+				if ($lastReplyAuthorId !== null) {
+					$lastReply = [
+						'postId' => $thread->getLastPostId(),
+						'author' => $authors[$lastReplyAuthorId] ?? null,
+						'createdAt' => $thread->getLastReplyAt(),
+					];
+				}
+				return $this->threadEnrichmentService->enrichThread($thread, $authors[$thread->getAuthorId()], $lastReply);
 			}, $results['threads']);
 
 			// Enrich posts with pre-fetched author data and thread context

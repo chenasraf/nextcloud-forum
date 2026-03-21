@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.28.0...v0.28.1) (2026-03-21)
+
+
+### Bug Fixes
+
+* add "last reply by" to all thread cards ([82376fe](https://github.com/chenasraf/nextcloud-forum/commit/82376feb5dc1adee74ddf668e983fb8fd12a7119))
+
 ## [0.28.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.27.0...v0.28.0) (2026-03-21)
 
 

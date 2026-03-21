@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.28.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.27.0...v0.28.0) (2026-03-21)
+
+
+### Features
+
+* add "last reply by" to thread card ([7147d79](https://github.com/chenasraf/nextcloud-forum/commit/7147d79881418497f331eb66aa02684d88b22331))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([9f39f65](https://github.com/chenasraf/nextcloud-forum/commit/9f39f6536f023fc856b77bddd42061504f53424c))
+* **l10n:** Update translations from Transifex ([1ff1b09](https://github.com/chenasraf/nextcloud-forum/commit/1ff1b090d87a7d3b5db3d46c9f87c79744b76046))
+* **l10n:** Update translations from Transifex ([a45e8e4](https://github.com/chenasraf/nextcloud-forum/commit/a45e8e46e7ae4bfd10692678110e01411ab7fe35))
+* scroll to first unread reply on thread ([7f577c2](https://github.com/chenasraf/nextcloud-forum/commit/7f577c2abd93706c7a7852df51e36ffc582f6a92))
+
 ## [0.27.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.26.0...v0.27.0) (2026-03-18)
 
 

@@ -38,7 +38,7 @@
 
       <!-- Template list -->
       <div v-else class="template-list">
-        <div v-for="tpl in templates" :key="tpl.id" class="template-item">
+        <div v-for="tpl in paginatedTemplates" :key="tpl.id" class="template-item">
           <div class="template-item-body">
             <div class="template-item-header">
               <span class="template-name">{{ tpl.name }}</span>
@@ -75,6 +75,12 @@
             </NcButton>
           </div>
         </div>
+
+        <Pagination
+          :current-page="currentPage"
+          :max-pages="totalPages"
+          @update:current-page="currentPage = $event"
+        />
       </div>
     </div>
 
@@ -151,6 +157,7 @@ import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import TextBoxIcon from '@icons/TextBox.vue'
 import ArrowDownIcon from '@icons/ArrowDown.vue'
+import Pagination from '@/components/Pagination'
 import { t } from '@nextcloud/l10n'
 import { ocs } from '@/axios'
 import type { Template } from '@/types'
@@ -165,6 +172,7 @@ export default defineComponent({
     NcLoadingIcon,
     NcTextField,
     NcCheckboxRadioSwitch,
+    Pagination,
     // Async import to break circular dependency: BBCodeToolbar → TemplateModal → BBCodeEditor → BBCodeToolbar
     BBCodeEditor: defineAsyncComponent(() => import('@/components/BBCodeEditor')),
     PlusIcon,
@@ -188,6 +196,8 @@ export default defineComponent({
     return {
       currentView: 'list' as 'list' | 'edit',
       templates: [] as Template[],
+      currentPage: 1,
+      perPage: 10,
       loading: false,
       saving: false,
       error: null as string | null,
@@ -223,6 +233,13 @@ export default defineComponent({
     }
   },
   computed: {
+    totalPages(): number {
+      return Math.max(1, Math.ceil(this.templates.length / this.perPage))
+    },
+    paginatedTemplates(): Template[] {
+      const start = (this.currentPage - 1) * this.perPage
+      return this.templates.slice(start, start + this.perPage)
+    },
     canSave(): boolean {
       return this.form.name.trim().length > 0 && this.form.content.trim().length > 0
     },
@@ -241,6 +258,7 @@ export default defineComponent({
       handler(newValue: boolean) {
         if (newValue) {
           this.currentView = 'list'
+          this.currentPage = 1
           this.fetchTemplates()
         }
       },
@@ -351,6 +369,9 @@ export default defineComponent({
       try {
         await ocs.delete(`/templates/${tpl.id}`)
         await this.fetchTemplates()
+        if (this.currentPage > this.totalPages) {
+          this.currentPage = this.totalPages
+        }
       } catch (e) {
         console.error('Failed to delete template:', e)
       }

@@ -33,15 +33,17 @@ class TemplateController extends OCSController {
 	 * List current user's templates
 	 *
 	 * @param string|null $visibility Optional visibility filter (threads, replies)
+	 * @param int<1, 100> $limit Maximum number of templates to return
+	 * @param int<0, max> $offset Offset for pagination
 	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
 	 *
 	 * 200: Templates returned
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/templates')]
-	public function index(?string $visibility = null): DataResponse {
+	public function index(?string $visibility = null, int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			$templates = $this->templateMapper->findByUserId($this->userId, $visibility);
+			$templates = $this->templateMapper->findByUserId($this->userId, $visibility, $limit, $offset);
 			return new DataResponse(array_map(fn ($t) => $t->jsonSerialize(), $templates));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching templates: ' . $e->getMessage());

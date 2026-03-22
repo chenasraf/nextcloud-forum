@@ -44,7 +44,7 @@ class TemplateMapper extends QBMapper {
 	 * @param string|null $visibility Filter by visibility (threads, replies, both, neither)
 	 * @return array<Template>
 	 */
-	public function findByUserId(string $userId, ?string $visibility = null): array {
+	public function findByUserId(string $userId, ?string $visibility = null, ?int $limit = null, int $offset = 0): array {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from($this->getTableName())
@@ -63,6 +63,13 @@ class TemplateMapper extends QBMapper {
 
 		$qb->orderBy('sort_order', 'ASC')
 			->addOrderBy('name', 'ASC');
+
+		if ($limit !== null) {
+			$qb->setMaxResults($limit);
+		}
+		if ($offset > 0) {
+			$qb->setFirstResult($offset);
+		}
 
 		return $this->findEntities($qb);
 	}

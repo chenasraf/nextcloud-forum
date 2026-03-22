@@ -157,7 +157,7 @@ describe('SearchPostResult', () => {
         },
       })
       await wrapper.find('.search-post-result').trigger('click')
-      expect(mockPush).toHaveBeenCalledWith('/t/my-thread#post-42')
+      expect(mockPush).toHaveBeenCalledWith({ path: '/t/my-thread', query: { post: '42' } })
     })
 
     it('should not navigate when thread slug is missing', async () => {

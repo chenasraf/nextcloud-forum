@@ -283,10 +283,23 @@ class PostController extends OCSController {
 			// For posts by a single author, we can optimize by fetching author data once
 			$author = $this->userService->enrichUserData($authorId);
 
-			// Enrich posts with content, reactions, and pre-fetched author data
-			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $author) {
+			// Enrich posts with content, reactions, pre-fetched author data, and page number
+			$perPage = 20;
+			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $author, $perPage) {
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $author);
+				$enriched = $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $author);
+
+				// Calculate the page number for direct linking
+				if (!$p->getIsFirstPost()) {
+					try {
+						$position = $this->postMapper->getReplyPosition($p->getThreadId(), $p->getId());
+						$enriched['page'] = (int)floor($position / $perPage) + 1;
+					} catch (\Exception $e) {
+						// Fallback - page unknown
+					}
+				}
+
+				return $enriched;
 			}, $posts));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching posts by author: ' . $e->getMessage());

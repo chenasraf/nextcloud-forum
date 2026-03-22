@@ -7,6 +7,7 @@ namespace OCA\Forum\Tests\Controller;
 use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\SearchController;
 use OCA\Forum\Db\Post;
+use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\PostEnrichmentService;
@@ -26,6 +27,8 @@ class SearchControllerTest extends TestCase {
 	private SearchController $controller;
 	/** @var SearchService&MockObject */
 	private SearchService $searchService;
+	/** @var PostMapper&MockObject */
+	private PostMapper $postMapper;
 	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
 	/** @var PostEnrichmentService&MockObject */
@@ -44,6 +47,7 @@ class SearchControllerTest extends TestCase {
 	protected function setUp(): void {
 		$this->request = $this->createMock(IRequest::class);
 		$this->searchService = $this->createMock(SearchService::class);
+		$this->postMapper = $this->createMock(PostMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->postEnrichmentService = $this->createMock(PostEnrichmentService::class);
 		$this->threadEnrichmentService = $this->createMock(ThreadEnrichmentService::class);
@@ -75,6 +79,7 @@ class SearchControllerTest extends TestCase {
 			Application::APP_ID,
 			$this->request,
 			$this->searchService,
+			$this->postMapper,
 			$this->threadMapper,
 			$this->postEnrichmentService,
 			$this->threadEnrichmentService,

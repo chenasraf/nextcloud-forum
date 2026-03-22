@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\Db\Post;
+use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\PostEnrichmentService;
@@ -29,6 +30,7 @@ class SearchController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private SearchService $searchService,
+		private PostMapper $postMapper,
 		private ThreadMapper $threadMapper,
 		private PostEnrichmentService $postEnrichmentService,
 		private ThreadEnrichmentService $threadEnrichmentService,
@@ -124,7 +126,8 @@ class SearchController extends OCSController {
 			}, $results['threads']);
 
 			// Enrich posts with pre-fetched author data and thread context
-			$enrichedPosts = array_map(function ($post) use ($authors) {
+			$perPage = 20;
+			$enrichedPosts = array_map(function ($post) use ($authors, $perPage) {
 				$enriched = $this->postEnrichmentService->enrichPost($post, [], [], null, $authors[$post->getAuthorId()]);
 				// Add thread info for context
 				try {
@@ -135,6 +138,16 @@ class SearchController extends OCSController {
 					// Thread not found (deleted or inaccessible)
 					$enriched['threadTitle'] = null;
 					$enriched['threadSlug'] = null;
+				}
+
+				// Calculate the page number for direct linking
+				if (!$post->getIsFirstPost()) {
+					try {
+						$position = $this->postMapper->getReplyPosition($post->getThreadId(), $post->getId());
+						$enriched['page'] = (int)floor($position / $perPage) + 1;
+					} catch (\Exception $e) {
+						// Fallback - page unknown
+					}
 				}
 
 				return $enriched;

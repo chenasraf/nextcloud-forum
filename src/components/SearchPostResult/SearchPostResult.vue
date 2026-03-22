@@ -3,12 +3,7 @@
     <div class="result-header">
       <div class="thread-context">
         <span class="meta-label">{{ strings.inThread }}:</span>
-        <router-link
-          v-if="post.threadSlug"
-          :to="`/t/${post.threadSlug}#post-${post.id}`"
-          class="thread-link"
-          @click.stop
-        >
+        <router-link v-if="post.threadSlug" :to="postLink" class="thread-link" @click.stop>
           {{ post.threadTitle }}
         </router-link>
         <span v-else class="thread-missing">{{ strings.threadUnavailable }}</span>
@@ -74,6 +69,13 @@ export default defineComponent({
     }
   },
   computed: {
+    postLink(): { path: string; query: Record<string, string> } {
+      const query: Record<string, string> = { post: String(this.post.id) }
+      if ((this.post as any).page) {
+        query.page = String((this.post as any).page)
+      }
+      return { path: `/t/${this.post.threadSlug}`, query }
+    },
     highlightedContent(): string {
       // Strip HTML tags first, then highlight query terms, then truncate
       const text = this.stripHtml(this.post.content)
@@ -84,7 +86,7 @@ export default defineComponent({
   methods: {
     navigateToPost(): void {
       if (this.post.threadSlug) {
-        this.$router.push(`/t/${this.post.threadSlug}#post-${this.post.id}`)
+        this.$router.push(this.postLink)
       }
     },
     stripHtml(html: string): string {

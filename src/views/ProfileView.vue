@@ -364,12 +364,14 @@ export default defineComponent({
       this.$router.push({ path: `/t/${thread.slug}`, query })
     },
 
-    navigateToPost(post: Post) {
-      if (post.threadSlug) {
-        this.$router.push(`/t/${post.threadSlug}#post-${post.id}`)
-      } else {
-        this.$router.push(`/thread/${post.threadId}#post-${post.id}`)
+    navigateToPost(post: Post & { page?: number }) {
+      const slug = post.threadSlug || `thread/${post.threadId}`
+      const path = `/t/${slug}`
+      const query: Record<string, string> = { post: String(post.id) }
+      if (post.page) {
+        query.page = String(post.page)
       }
+      this.$router.push({ path, query })
     },
   },
 })

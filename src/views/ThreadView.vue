@@ -676,6 +676,12 @@ export default defineComponent({
       try {
         this.loadingReplies = true
         this.currentPage = newPage
+
+        // Update URL query param without triggering the watcher
+        const query = { ...this.$route.query, page: String(newPage) }
+        delete query.post
+        this.$router.replace({ query })
+
         await this.fetchPosts(newPage)
 
         // Scroll to the top of the replies section

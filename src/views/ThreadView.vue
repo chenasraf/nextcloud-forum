@@ -1078,7 +1078,7 @@ export default defineComponent({
           element.classList.add('highlight-post')
           setTimeout(() => {
             element.classList.remove('highlight-post')
-          }, 2000)
+          }, 3000)
         })
       }
     },
@@ -1328,11 +1328,12 @@ export default defineComponent({
 
 // Highlight animation for scrolled-to posts
 :deep(.highlight-post) {
-  animation: highlightFade 2s ease-in-out;
+  animation: highlightFade 3s ease-in-out;
 }
 
 @keyframes highlightFade {
-  0% {
+  0%,
+  66% {
     background-color: var(--color-primary-element-light);
     box-shadow: 0 0 0 4px var(--color-primary-element-light);
   }

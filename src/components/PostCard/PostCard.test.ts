@@ -9,6 +9,7 @@ vi.mock('@icons/Reply.vue', () => createIconMock('ReplyIcon'))
 vi.mock('@icons/Pencil.vue', () => createIconMock('PencilIcon'))
 vi.mock('@icons/Delete.vue', () => createIconMock('DeleteIcon'))
 vi.mock('@icons/History.vue', () => createIconMock('HistoryIcon'))
+vi.mock('@icons/LinkVariant.vue', () => createIconMock('LinkVariantIcon'))
 
 // Mock components
 vi.mock('@/components/UserInfo', () =>
@@ -38,6 +39,11 @@ vi.mock('@/components/PostHistoryDialog', () =>
     props: ['open', 'postId'],
   }),
 )
+
+vi.mock('@nextcloud/dialogs', () => ({
+  showSuccess: vi.fn(),
+  showError: vi.fn(),
+}))
 
 // Mock NcActions and NcActionButton
 vi.mock('@nextcloud/vue/components/NcActions', () =>
@@ -341,6 +347,137 @@ describe('PostCard', () => {
 
       expect(wrapper.find('.post-edit-form-mock').exists()).toBe(false)
       expect(wrapper.find('.content-text').exists()).toBe(true)
+    })
+  })
+
+  describe('direct link', () => {
+    it('should always show Direct link button', () => {
+      mockCurrentUser.mockReturnValue(null)
+      const post = createMockPost()
+      const wrapper = mount(PostCard, {
+        props: { post },
+      })
+      const buttons = wrapper.findAll('.nc-action-button')
+      expect(buttons.some((b) => b.text().includes('Direct link'))).toBe(true)
+    })
+
+    it('should copy permalink to clipboard and show notification when clicked', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined)
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText },
+        writable: true,
+        configurable: true,
+      })
+
+      const post = createMockPost({ id: 42 })
+      const wrapper = mount(PostCard, {
+        props: { post, currentPage: 3 },
+        global: {
+          mocks: {
+            $route: { path: '/t/test-thread', query: {} },
+          },
+        },
+      })
+
+      const directLinkButton = wrapper
+        .findAll('.nc-action-button')
+        .find((b) => b.text().includes('Direct link'))
+      await directLinkButton?.trigger('click')
+
+      // Should copy the absolute URL to clipboard (origin + path)
+      expect(writeText).toHaveBeenCalledWith(
+        expect.stringContaining('/apps/forum/t/test-thread?page=3&post=42'),
+      )
+
+      // Should show success notification
+      const { showSuccess } = await import('@nextcloud/dialogs')
+      expect(showSuccess).toHaveBeenCalledWith('Direct link copied to clipboard')
+    })
+
+    it('should use currentPage prop for the page number in the URL', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined)
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText },
+        writable: true,
+        configurable: true,
+      })
+
+      const post = createMockPost({ id: 10 })
+      const wrapper = mount(PostCard, {
+        props: { post, currentPage: 5 },
+        global: {
+          mocks: {
+            $route: { path: '/t/my-thread', query: {} },
+          },
+        },
+      })
+
+      const directLinkButton = wrapper
+        .findAll('.nc-action-button')
+        .find((b) => b.text().includes('Direct link'))
+      await directLinkButton?.trigger('click')
+
+      expect(writeText).toHaveBeenCalledWith(
+        expect.stringContaining('/apps/forum/t/my-thread?page=5&post=10'),
+      )
+    })
+
+    it('should default to page 1 when currentPage prop is not provided', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined)
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText },
+        writable: true,
+        configurable: true,
+      })
+
+      const post = createMockPost({ id: 10 })
+      const wrapper = mount(PostCard, {
+        props: { post },
+        global: {
+          mocks: {
+            $route: { path: '/t/my-thread', query: {} },
+          },
+        },
+      })
+
+      const directLinkButton = wrapper
+        .findAll('.nc-action-button')
+        .find((b) => b.text().includes('Direct link'))
+      await directLinkButton?.trigger('click')
+
+      expect(writeText).toHaveBeenCalledWith(
+        expect.stringContaining('/apps/forum/t/my-thread?page=1&post=10'),
+      )
+    })
+
+    it('should still show notification when clipboard API fails', async () => {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
+        writable: true,
+        configurable: true,
+      })
+
+      // Provide execCommand fallback for jsdom
+      document.execCommand = vi.fn()
+
+      const post = createMockPost({ id: 7 })
+      const wrapper = mount(PostCard, {
+        props: { post, currentPage: 2 },
+        global: {
+          mocks: {
+            $route: { path: '/t/fallback-thread', query: {} },
+          },
+        },
+      })
+
+      const directLinkButton = wrapper
+        .findAll('.nc-action-button')
+        .find((b) => b.text().includes('Direct link'))
+      await directLinkButton?.trigger('click')
+
+      // Should still show success notification even with fallback
+      const { showSuccess } = await import('@nextcloud/dialogs')
+      expect(showSuccess).toHaveBeenCalledWith('Direct link copied to clipboard')
     })
   })
 

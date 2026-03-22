@@ -48,6 +48,12 @@
             </template>
             {{ strings.viewHistory }}
           </NcActionButton>
+          <NcActionButton @click="handleDirectLink">
+            <template #icon>
+              <LinkVariantIcon :size="20" />
+            </template>
+            {{ strings.directLink }}
+          </NcActionButton>
         </NcActions>
       </div>
     </div>
@@ -97,12 +103,15 @@ import ReplyIcon from '@icons/Reply.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import HistoryIcon from '@icons/History.vue'
+import LinkVariantIcon from '@icons/LinkVariant.vue'
 import UserInfo from '@/components/UserInfo'
 import PostReactions from '@/components/PostReactions'
 import PostEditForm from '@/components/PostEditForm'
 import PostHistoryDialog from '@/components/PostHistoryDialog'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
+import { generateUrl } from '@nextcloud/router'
+import { showSuccess } from '@nextcloud/dialogs'
 import type { Post } from '@/types'
 import type { ReactionGroup } from '@/composables/useReactions'
 
@@ -116,6 +125,7 @@ export default defineComponent({
     PencilIcon,
     DeleteIcon,
     HistoryIcon,
+    LinkVariantIcon,
     UserInfo,
     PostReactions,
     PostEditForm,
@@ -142,6 +152,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    currentPage: {
+      type: Number,
+      default: 1,
+    },
   },
   emits: ['reply', 'edit', 'delete', 'update'],
   setup() {
@@ -162,6 +176,8 @@ export default defineComponent({
           'Are you sure you want to delete this post? This action cannot be undone.',
         ),
         unread: t('forum', 'Unread'),
+        directLink: t('forum', 'Direct link'),
+        directLinkCopied: t('forum', 'Direct link copied to clipboard'),
       },
     }
   },
@@ -227,6 +243,33 @@ export default defineComponent({
     handleViewHistory() {
       this.closeActionsMenu()
       this.showHistoryDialog = true
+    },
+
+    async handleDirectLink() {
+      this.closeActionsMenu()
+
+      // Build the direct link URL with current page and post ID
+      const page = this.currentPage
+      const routePath = this.$route.path
+
+      // Build the full absolute URL for clipboard
+      const path = generateUrl(`/apps/forum${routePath}?page=${page}&post=${this.post.id}`)
+      const absoluteUrl = window.location.origin + path
+
+      // Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(absoluteUrl)
+      } catch {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea')
+        textarea.value = absoluteUrl
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+      }
+
+      showSuccess(this.strings.directLinkCopied)
     },
 
     handleReactionsUpdate(reactions: ReactionGroup[]) {

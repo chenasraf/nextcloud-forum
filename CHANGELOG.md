@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.29.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.29.0...v0.29.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* add templates pagination ([5dcfbf4](https://github.com/chenasraf/nextcloud-forum/commit/5dcfbf40b8a0f4f72f374cc07ef32f4fd2c28613))
+* directly link to replies from profile+search pages ([94dc945](https://github.com/chenasraf/nextcloud-forum/commit/94dc945857ca7e778721c708bc0019b513df08e7))
+
 ## [0.29.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.28.1...v0.29.0) (2026-03-22)
 
 

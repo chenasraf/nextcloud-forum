@@ -14,13 +14,6 @@ threads, and posts within their Nextcloud instance.
 
 ![Screenshot](/screenshots/screenshot-01.png)
 
-## ⚠️ Early Development Notice
-
-**This app is in early stages of development.** While functional, you may encounter bugs or
-incomplete features. Please report any issues on
-[GitHub](https://github.com/chenasraf/nextcloud-forum/issues/new/choose) and consider backing up
-your data regularly.
-
 ## Features
 
 - **Category Management**: Organize discussions into categories with headers and custom permissions

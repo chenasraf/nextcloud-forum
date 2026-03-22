@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.29.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.28.1...v0.29.0) (2026-03-22)
+
+
+### Features
+
+* add direct link to posts ([4863610](https://github.com/chenasraf/nextcloud-forum/commit/48636103318a5852f50aefe437f9387e02cdd75e))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([22a4e8e](https://github.com/chenasraf/nextcloud-forum/commit/22a4e8e30e97f83ee727f043a360a7a20bd998a2))
+* longer post highlight ([6257f41](https://github.com/chenasraf/nextcloud-forum/commit/6257f41b5805c243f6416a778152611b863bc146))
+* page navigation url change ([f1140c5](https://github.com/chenasraf/nextcloud-forum/commit/f1140c5a4aaeec9b503942e17c353e06eac188ce))
+
 ## [0.28.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.28.0...v0.28.1) (2026-03-21)
 
 

@@ -409,14 +409,13 @@ class PostController extends OCSController {
 				}
 			}
 
-			// Update the thread's post count and timestamps
+			// Update the thread's post count and last reply info
 			try {
 				$thread = $this->threadMapper->find($threadId);
 				$thread->setPostCount($thread->getPostCount() + 1);
 				$thread->setLastPostId($createdPost->getId());
 				$thread->setLastReplyAuthorId($createdPost->getAuthorId());
 				$thread->setLastReplyAt($createdPost->getCreatedAt());
-				$thread->setUpdatedAt(time());
 				$this->threadMapper->update($thread);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to update thread post count: ' . $e->getMessage());
@@ -568,8 +567,6 @@ class PostController extends OCSController {
 				if (!$post->getIsFirstPost()) {
 					$thread->setPostCount(max(0, $thread->getPostCount() - 1));
 				}
-				$thread->setUpdatedAt(time());
-
 				// If the deleted post was the last post, update lastPostId to the previous non-deleted post
 				if ($thread->getLastPostId() === $post->getId()) {
 					// Find the latest non-deleted post in this thread (excluding the one being deleted)

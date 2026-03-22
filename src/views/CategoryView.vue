@@ -204,13 +204,7 @@ export default defineComponent({
       return (this.$route.params.slug as string) || null
     },
     sortedThreads(): Thread[] {
-      // Sort pinned threads first, then by updatedAt descending
-      return [...this.threads].sort((a, b) => {
-        if (a.isPinned !== b.isPinned) {
-          return a.isPinned ? -1 : 1
-        }
-        return b.updatedAt - a.updatedAt
-      })
+      return this.threads
     },
   },
   created() {

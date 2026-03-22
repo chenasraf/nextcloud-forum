@@ -867,6 +867,117 @@ class PostControllerTest extends TestCase {
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 	}
 
+	public function testCreatePostDoesNotUpdateThreadUpdatedAt(): void {
+		$threadId = 1;
+		$content = 'New reply content';
+		$userId = 'user1';
+		$originalUpdatedAt = 1000000;
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$thread = new Thread();
+		$thread->setId($threadId);
+		$thread->setCategoryId(1);
+		$thread->setPostCount(3);
+		$thread->setCreatedAt(900000);
+		$thread->setUpdatedAt($originalUpdatedAt);
+
+		$category = new Category();
+		$category->setId(1);
+		$category->setPostCount(5);
+
+		$createdPost = $this->createMockPost(10, $threadId, $userId, $content);
+
+		$this->postMapper->expects($this->once())
+			->method('insert')
+			->willReturn($createdPost);
+
+		$this->readMarkerMapper->method('createOrUpdate');
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->willReturn($thread);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) use ($originalUpdatedAt) {
+				// updated_at should NOT be changed when a reply is created
+				$this->assertEquals($originalUpdatedAt, $updatedThread->getUpdatedAt());
+				return $updatedThread;
+			});
+
+		$this->categoryMapper->method('find')->willReturn($category);
+		$this->categoryMapper->method('update')->willReturn($category);
+		$this->forumUserMapper->method('incrementPostCount');
+		$this->notificationService->method('notifyThreadSubscribers');
+
+		$response = $this->controller->create($threadId, $content);
+
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
+	}
+
+	public function testDestroyPostDoesNotUpdateThreadUpdatedAt(): void {
+		$postId = 1;
+		$userId = 'user1';
+		$originalUpdatedAt = 1000000;
+
+		$post = $this->createMockPost($postId, 1, $userId, 'Test content');
+		$post->setIsFirstPost(false);
+
+		$thread = new Thread();
+		$thread->setId(1);
+		$thread->setCategoryId(1);
+		$thread->setPostCount(3);
+		$thread->setLastPostId($postId);
+		$thread->setUpdatedAt($originalUpdatedAt);
+
+		$category = new Category();
+		$category->setId(1);
+		$category->setPostCount(5);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn($userId);
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->permissionService->method('getCategoryIdFromPost')->willReturn(1);
+		$this->permissionService->method('hasCategoryPermission')->willReturn(false);
+
+		$this->postMapper->expects($this->once())
+			->method('find')
+			->willReturn($post);
+
+		$this->postMapper->expects($this->once())
+			->method('update')
+			->willReturn($post);
+
+		$this->threadMapper->expects($this->once())
+			->method('find')
+			->willReturn($thread);
+
+		$lastPost = $this->createMockPost(2, 1, $userId, 'Previous reply');
+		$this->postMapper->expects($this->once())
+			->method('findLatestByThreadId')
+			->willReturn($lastPost);
+
+		$this->threadMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updatedThread) use ($originalUpdatedAt) {
+				// updated_at should NOT be changed when a reply is deleted
+				$this->assertEquals($originalUpdatedAt, $updatedThread->getUpdatedAt());
+				return $updatedThread;
+			});
+
+		$this->categoryMapper->method('find')->willReturn($category);
+		$this->categoryMapper->method('update')->willReturn($category);
+		$this->forumUserMapper->method('decrementPostCount');
+
+		$response = $this->controller->destroy($postId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
+
 	public function testByThreadPaginatedReturnsPostsSuccessfully(): void {
 		$threadId = 1;
 		$page = 1;

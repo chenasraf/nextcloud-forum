@@ -79,7 +79,7 @@ class ThreadMapper extends QBMapper {
 				$qb->expr()->isNull('deleted_at')
 			)
 			->orderBy('is_pinned', 'DESC')
-			->addOrderBy('updated_at', 'DESC')
+			->addOrderBy($qb->createFunction('COALESCE(last_reply_at, created_at)'), 'DESC')
 			->setMaxResults($limit)
 			->setFirstResult($offset);
 		return $this->findEntities($qb);
@@ -97,7 +97,7 @@ class ThreadMapper extends QBMapper {
 				$qb->expr()->isNull('deleted_at')
 			)
 			->orderBy('is_pinned', 'DESC')
-			->addOrderBy('updated_at', 'DESC');
+			->addOrderBy($qb->createFunction('COALESCE(last_reply_at, created_at)'), 'DESC');
 		return $this->findEntities($qb);
 	}
 
@@ -352,7 +352,7 @@ class ThreadMapper extends QBMapper {
 				)
 			)
 			->orderBy('t.is_pinned', 'DESC')
-			->addOrderBy('t.updated_at', 'DESC')
+			->addOrderBy($qb->createFunction('COALESCE(t.last_reply_at, t.created_at)'), 'DESC')
 			->setMaxResults($limit)
 			->setFirstResult($offset);
 

@@ -212,6 +212,7 @@ OC.L10N.register(
     "Pinned thread" : "Angeheftetes Thema",
     "Locked thread" : "Gesperrtes Thema",
     "Uncategorized" : "Ohne Kategorie",
+    "Last reply by {name}" : "Letzte Antwort von {name}",
     "_%n reply_::_%n replies_" : ["%n Antwort","%n Antworten"],
     "Templates" : "Vorlagen",
     "Add template" : "Vorlage hinzufügen",

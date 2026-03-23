@@ -225,7 +225,6 @@ class StatsService {
 		$updateQb->update('forum_categories')
 			->set('thread_count', $updateQb->createNamedParameter($threadCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 			->set('post_count', $updateQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
-			->set('updated_at', $updateQb->createNamedParameter(time(), \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 			->where($updateQb->expr()->eq('id', $updateQb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
 		$updateQb->executeStatement();
 	}
@@ -267,7 +266,7 @@ class StatsService {
 	 * @return void
 	 */
 	public function rebuildThreadStats(int $threadId): void {
-		// Count non-deleted posts in this thread (excluding first post)
+		// Count non-deleted reply posts in this thread (excluding first post)
 		$postQb = $this->db->getQueryBuilder();
 		$postQb->select($postQb->func()->count('*', 'count'))
 			->from('forum_posts')
@@ -278,11 +277,47 @@ class StatsService {
 		$postCount = (int)($postResult->fetchOne() ?? 0);
 		$postResult->closeCursor();
 
+		// Find the latest non-deleted post in this thread (for last_post_id)
+		$lastPostQb = $this->db->getQueryBuilder();
+		$lastPostQb->select('id', 'author_id', 'created_at', 'is_first_post')
+			->from('forum_posts')
+			->where($lastPostQb->expr()->eq('thread_id', $lastPostQb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+			->andWhere($lastPostQb->expr()->isNull('deleted_at'))
+			->orderBy('created_at', 'DESC')
+			->setMaxResults(1);
+		$lastPostResult = $lastPostQb->executeQuery();
+		$lastPost = $lastPostResult->fetch();
+		$lastPostResult->closeCursor();
+
+		// Find the latest non-deleted reply (for last_reply_at and last_reply_author_id)
+		$lastReplyQb = $this->db->getQueryBuilder();
+		$lastReplyQb->select('id', 'author_id', 'created_at')
+			->from('forum_posts')
+			->where($lastReplyQb->expr()->eq('thread_id', $lastReplyQb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+			->andWhere($lastReplyQb->expr()->isNull('deleted_at'))
+			->andWhere($lastReplyQb->expr()->eq('is_first_post', $lastReplyQb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL)))
+			->orderBy('created_at', 'DESC')
+			->setMaxResults(1);
+		$lastReplyResult = $lastReplyQb->executeQuery();
+		$lastReply = $lastReplyResult->fetch();
+		$lastReplyResult->closeCursor();
+
 		// Update thread stats
 		$updateQb = $this->db->getQueryBuilder();
 		$updateQb->update('forum_threads')
 			->set('post_count', $updateQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
-			->set('updated_at', $updateQb->createNamedParameter(time(), \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
+			->set('last_post_id', $updateQb->createNamedParameter(
+				$lastPost ? (int)$lastPost['id'] : null,
+				\OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
+			))
+			->set('last_reply_author_id', $updateQb->createNamedParameter(
+				$lastReply ? $lastReply['author_id'] : null,
+				\OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR
+			))
+			->set('last_reply_at', $updateQb->createNamedParameter(
+				$lastReply ? (int)$lastReply['created_at'] : null,
+				\OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
+			))
 			->where($updateQb->expr()->eq('id', $updateQb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
 		$updateQb->executeStatement();
 	}

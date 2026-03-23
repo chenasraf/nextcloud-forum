@@ -37,6 +37,8 @@ OC.L10N.register(
     "Edit" : "편집",
     "Delete" : "삭제",
     "Unread" : "읽지 않음",
+    "Direct link" : "직접 링크",
+    "Direct link copied to clipboard" : "직접 링크가 클립보드에 복사됨",
     "Save" : "저장",
     "Current version" : "현재 버전",
     "React with {emoji}" : "{emoji}(으)로 반응",

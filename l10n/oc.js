@@ -30,6 +30,7 @@ OC.L10N.register(
     "Page not found" : "Pagina pas trobada",
     "Edit" : "Modificar",
     "Delete" : "Suprimir",
+    "Direct link" : "Ligam dirèct",
     "Save" : "Enregistrar",
     "React with {emoji}" : "Reagir amb {emoji}",
     "Uncategorized" : "Desorganizadas",

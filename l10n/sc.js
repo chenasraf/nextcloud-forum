@@ -33,6 +33,7 @@ OC.L10N.register(
     "Edit" : "Modìfica",
     "Delete" : "Cantzella",
     "Unread" : "De lèghere",
+    "Direct link" : "Ligòngiu deretu",
     "Save" : "Sarva",
     "Current version" : "Versione atuale",
     "Templates" : "Modellos",

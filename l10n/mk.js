@@ -32,6 +32,8 @@ OC.L10N.register(
     "Edit" : "Уреди",
     "Delete" : "Избриши",
     "Unread" : "Непрочитана",
+    "Direct link" : "Директен линк",
+    "Direct link copied to clipboard" : "Линкот е копиран во клипборд",
     "Save" : "Сними",
     "Current version" : "Моментална верзија",
     "React with {emoji}" : "Реагирај со {emoji}",

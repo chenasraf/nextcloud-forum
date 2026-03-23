@@ -23,6 +23,7 @@ OC.L10N.register(
     "Page not found" : "Página no encontrada",
     "Edit" : "Editar",
     "Delete" : "Borrar",
+    "Direct link" : "Liga directa",
     "Save" : "Guardar",
     "Uncategorized" : "Sin categoría",
     "Name" : "Nombre",

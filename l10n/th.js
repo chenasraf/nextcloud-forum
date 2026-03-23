@@ -24,6 +24,7 @@ OC.L10N.register(
     "Page not found" : "ไม่พบหน้า",
     "Edit" : "แก้ไข",
     "Delete" : "ลบ",
+    "Direct link" : "ลิงก์โดยตรง",
     "Save" : "บันทึก",
     "Uncategorized" : "ไม่ได้จัดหมวดหมู่",
     "Templates" : "เทมเพลต",

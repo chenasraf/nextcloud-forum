@@ -33,6 +33,8 @@ OC.L10N.register(
     "Back" : "Trở lại",
     "Edit" : "Chỉnh sửa",
     "Delete" : "Xóa",
+    "Direct link" : "Liên kết trực tiêp",
+    "Direct link copied to clipboard" : "URL đã được sao chép vào bộ nhớ tạm",
     "Save" : "Lưu",
     "Current version" : "Phiên bản hiện tại",
     "Uncategorized" : "Chưa phân loại",

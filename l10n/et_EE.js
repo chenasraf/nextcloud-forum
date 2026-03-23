@@ -175,6 +175,8 @@ OC.L10N.register(
     "View edit history" : "Vaata muudatuste ajalugu",
     "Are you sure you want to delete this post? This action cannot be undone." : "Kas sa oled kindel, et soovid selle postituse kustutada? Seda tegevust ei saa tagasi pöörata.",
     "Unread" : "Lugemata",
+    "Direct link" : "Otselink",
+    "Direct link copied to clipboard" : "Otselink on lõikelauale kopeeritud",
     "Edit your reply …" : "Muuda oma vastust…",
     "Save" : "Salvesta",
     "Are you sure you want to discard your changes?" : "Kas sa oled kindel, et soovid oma muudatustest loobuda?",

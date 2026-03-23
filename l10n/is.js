@@ -37,6 +37,8 @@ OC.L10N.register(
     "Edit" : "Breyta",
     "Delete" : "Eyða",
     "Unread" : "Ólesið",
+    "Direct link" : "Beinn tengill",
+    "Direct link copied to clipboard" : "Beinn tengill afritaður á klippispjald",
     "Save" : "Vista",
     "Current version" : "Fyrirliggjandi útgáfa",
     "Uncategorized" : "Óflokkað",

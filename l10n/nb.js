@@ -45,6 +45,8 @@ OC.L10N.register(
     "Edit" : "Rediger",
     "Delete" : "Slett",
     "Unread" : "Ulest",
+    "Direct link" : "Direkte lenke",
+    "Direct link copied to clipboard" : "Direkte lenke kopiert til utklippstavlen",
     "Save" : "Lagre",
     "Current version" : "Nåværende versjon",
     "React with {emoji}" : "Reager med {emoji}",

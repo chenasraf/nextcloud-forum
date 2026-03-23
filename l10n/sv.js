@@ -47,6 +47,8 @@ OC.L10N.register(
     "Edit" : "Redigera",
     "Delete" : "Ta bort",
     "Unread" : "Oläst",
+    "Direct link" : "Direktlänk",
+    "Direct link copied to clipboard" : "Direktlänk kopierad till urklipp",
     "Save" : "Spara",
     "Current version" : "Aktuell version",
     "Add reaction" : "Lägg till reaktion",

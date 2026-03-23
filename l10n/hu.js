@@ -47,6 +47,8 @@ OC.L10N.register(
     "Edit" : "Szerkesztés",
     "Delete" : "Törlés",
     "Unread" : "Olvasatlan",
+    "Direct link" : "Közvetlen hivatkozás",
+    "Direct link copied to clipboard" : "Közvetlen hivatkozás a vágólapra másolva",
     "Save" : "Mentés",
     "Current version" : "Jelenlegi verzió",
     "React with {emoji}" : "Reagálás ezzel: {emoji}",

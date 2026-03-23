@@ -43,6 +43,7 @@ OC.L10N.register(
     "Edit" : "Промяна",
     "Delete" : "Изтриване",
     "Unread" : "Непрочетено",
+    "Direct link copied to clipboard" : "Директният адрес е копиран в клипборда",
     "Save" : "Запиши",
     "Current version" : "Текуща версия",
     "React with {emoji}" : "Реагирайте с {emoji}",

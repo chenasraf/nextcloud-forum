@@ -38,6 +38,8 @@ OC.L10N.register(
     "Back" : "Atgal",
     "Edit" : "Taisyti",
     "Delete" : "Ištrinti",
+    "Direct link" : "Tiesioginė nuoroda",
+    "Direct link copied to clipboard" : "Tiesioginė nuoroda nukopijuota į iškarpinę",
     "Save" : "Įrašyti",
     "Current version" : "Dabartinė versija",
     "React with {emoji}" : "Reaguoti naudojant {emoji}",

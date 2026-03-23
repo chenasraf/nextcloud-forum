@@ -48,6 +48,8 @@ OC.L10N.register(
     "Edit" : "Редагувати",
     "Delete" : "Видалити",
     "Unread" : "Непрочитане",
+    "Direct link" : "Пряме посилання",
+    "Direct link copied to clipboard" : "Посилання прямого доступу скопійовано до буфера обміну",
     "Save" : "Зберегти",
     "Current version" : "Поточна версія",
     "Add reaction" : "Додати реакцію",

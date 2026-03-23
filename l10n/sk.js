@@ -46,6 +46,8 @@ OC.L10N.register(
     "Edit" : "Upraviť",
     "Delete" : "Vymazať",
     "Unread" : "Neprečítané",
+    "Direct link" : "Priamy odkaz",
+    "Direct link copied to clipboard" : "Priamy odkaz bol skopírovný do schránky",
     "Save" : "Uložiť",
     "Current version" : "Aktuálna verzia",
     "React with {emoji}" : "Reagovať s {emoji}",

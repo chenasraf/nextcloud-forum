@@ -47,6 +47,8 @@ OC.L10N.register(
     "Edit" : "Muokkaa",
     "Delete" : "Poista",
     "Unread" : "Lukematon",
+    "Direct link" : "Suora linkki",
+    "Direct link copied to clipboard" : "Suora linkki kopioitu työpöydälle",
     "Save" : "Tallenna",
     "Current version" : "Nykyinen versio",
     "Add reaction" : "Lisää reaktio",

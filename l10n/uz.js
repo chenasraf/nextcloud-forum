@@ -26,6 +26,7 @@ OC.L10N.register(
     "Back" : "Orqaga",
     "Edit" : "Tahrirlash",
     "Delete" : "Oʻchirish",
+    "Direct link copied to clipboard" : "Klipbordga nusxa olish",
     "Save" : "Saqlash",
     "Uncategorized" : "Kategoriyasiz",
     "Name" : "Nomi",

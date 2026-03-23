@@ -23,6 +23,7 @@ OC.L10N.register(
     "Page not found" : "გვერდი არაა ნაპოვნი",
     "Edit" : "შეცვლა",
     "Delete" : "წაშლა",
+    "Direct link" : "პირდაპირი ბმული",
     "Save" : "შენახვა",
     "Uncategorized" : "არაკატეგორიზირებული",
     "Name" : "სახელი",

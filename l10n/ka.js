@@ -34,6 +34,7 @@ OC.L10N.register(
     "Edit" : "Edit",
     "Delete" : "წაშლა",
     "Unread" : "Unread",
+    "Direct link" : "Direct link",
     "Save" : "დამახსოვრება",
     "Current version" : "Current version",
     "React with {emoji}" : "React with {emoji}",

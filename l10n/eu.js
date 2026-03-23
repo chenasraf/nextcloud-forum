@@ -45,6 +45,8 @@ OC.L10N.register(
     "Edit" : "Editatu",
     "Delete" : "Ezabatu",
     "Unread" : "Irakurri gabe",
+    "Direct link" : "Esteka zuzena",
+    "Direct link copied to clipboard" : "Esteka zuzena arbelera kopiatuta",
     "Save" : "Gorde",
     "Current version" : "Uneko bertsioa",
     "React with {emoji}" : "Erreakzionatu {emoji}-(r)ekin",

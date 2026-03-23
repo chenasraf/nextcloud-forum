@@ -31,6 +31,7 @@ OC.L10N.register(
     "Edit" : "Editează",
     "Delete" : "Șterge",
     "Unread" : "Necitit",
+    "Direct link" : "Legătură directă",
     "Save" : "Salvează",
     "React with {emoji}" : "Reacționează cu {emoji}",
     "Templates" : "Șabloane",

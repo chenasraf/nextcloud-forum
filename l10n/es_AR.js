@@ -26,6 +26,7 @@ OC.L10N.register(
     "Back" : "Volver",
     "Edit" : "Editar",
     "Delete" : "Eliminar",
+    "Direct link" : "Link directa",
     "Save" : "Guardar",
     "Name" : "Nombre",
     "Refresh" : "Recargar",

@@ -42,6 +42,8 @@ OC.L10N.register(
     "Edit" : "Redigér",
     "Delete" : "Slet",
     "Unread" : "Ulæst",
+    "Direct link" : "Direkte link",
+    "Direct link copied to clipboard" : "Direkte link kopieret til udklipsholder",
     "Save" : "Gem",
     "Current version" : "Nuværende version",
     "Uncategorized" : "Udenfor kategori",

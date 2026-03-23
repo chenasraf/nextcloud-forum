@@ -15,6 +15,7 @@ OC.L10N.register(
     "Move" : "Verschieben",
     "Edit" : "Änneren",
     "Delete" : "Läschen",
+    "Direct link" : "Direkte Link",
     "Save" : "Späicheren",
     "Name" : "Numm",
     "Refresh" : "Opfrëschen",

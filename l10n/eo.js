@@ -25,6 +25,7 @@ OC.L10N.register(
     "Page not found" : "Paĝo ne trovita",
     "Edit" : "Modifi",
     "Delete" : "Forigi",
+    "Direct link" : "Direkta ligilo",
     "Save" : "Konservi",
     "Current version" : "Nuna versio",
     "Uncategorized" : "Senkategoria",

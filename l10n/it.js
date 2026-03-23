@@ -49,6 +49,8 @@ OC.L10N.register(
     "Edit" : "Modifica",
     "Delete" : "Elimina",
     "Unread" : "Da leggere",
+    "Direct link" : "Collegamento diretto",
+    "Direct link copied to clipboard" : "Collegamento diretto copiato negli appunti",
     "Save" : "Salva",
     "Current version" : "Versione corrente",
     "React with {emoji}" : "Reagisci con {emoji}",

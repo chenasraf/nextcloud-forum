@@ -40,6 +40,8 @@ OC.L10N.register(
     "Edit" : "ویرایش",
     "Delete" : "حذف",
     "Unread" : "Unread",
+    "Direct link" : "لینک مستقیم",
+    "Direct link copied to clipboard" : "لینک مستقیم در کلیپ‌بورد کپی شد.",
     "Save" : "ذخیره",
     "Current version" : "نسخه فعلی",
     "React with {emoji}" : "React with {emoji}",

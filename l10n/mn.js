@@ -41,6 +41,7 @@ OC.L10N.register(
     "Edit" : "Өөрчлөх",
     "Delete" : "Устгах",
     "Unread" : "Уншаагүй",
+    "Direct link" : "Шууд холбоос",
     "Save" : "Хадгалах",
     "Current version" : "Одоогийн хувилбар",
     "Version {index}" : "Хувилбар {index}",

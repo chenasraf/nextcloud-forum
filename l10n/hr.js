@@ -42,6 +42,8 @@ OC.L10N.register(
     "Edit" : "Uredi",
     "Delete" : "Izbriši",
     "Unread" : "Nepročitano",
+    "Direct link" : "Izravna poveznica",
+    "Direct link copied to clipboard" : "Direktna poveznica kopirana je u međuspremnik.",
     "Save" : "Spremi",
     "Current version" : "Trenutna verzija",
     "Version {index}" : "Verzija {index}",

@@ -127,6 +127,8 @@ OC.L10N.register(
     "Edit" : "Editar",
     "Delete" : "Eliminar",
     "Unread" : "No leído",
+    "Direct link" : "Enlace directo",
+    "Direct link copied to clipboard" : "Enlace directo copiado al portapapeles",
     "Save" : "Guardar",
     "Current version" : "Versión actual",
     "Add reaction" : "Añadir reacción",

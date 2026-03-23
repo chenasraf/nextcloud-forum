@@ -21,6 +21,7 @@ OC.L10N.register(
     "Page not found" : "Fann ikkje sida",
     "Edit" : "Rediger",
     "Delete" : "Slett",
+    "Direct link" : "Direktelenkje",
     "Save" : "Lagre",
     "Name" : "Namn",
     "Refresh" : "Last inn på nytt",

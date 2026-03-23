@@ -46,6 +46,8 @@ OC.L10N.register(
     "Edit" : "ແກ້ໄຂ",
     "Delete" : "ລຶບ",
     "Unread" : "Unread",
+    "Direct link" : "ລິງໂດຍກົງ",
+    "Direct link copied to clipboard" : "Direct link copied to clipboard",
     "Save" : "ບັນທຶກ",
     "Current version" : "Current version",
     "React with {emoji}" : "React with {emoji}",

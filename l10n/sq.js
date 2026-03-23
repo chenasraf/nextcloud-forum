@@ -27,6 +27,7 @@ OC.L10N.register(
     "Back" : "Mbrapsht",
     "Edit" : "Përpuno",
     "Delete" : "Fshi",
+    "Direct link" : "Lidhje e drejtpërdrejtë",
     "Save" : "Ruaje",
     "Uncategorized" : "Të pakategorizuara",
     "Name" : "Emër",

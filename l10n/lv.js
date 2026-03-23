@@ -40,6 +40,7 @@ OC.L10N.register(
     "Page not found" : "Lapa nav atrasta",
     "Edit" : "Labot",
     "Delete" : "Izdzēst",
+    "Direct link" : "Tiešā saite",
     "Save" : "Saglabāt",
     "Current version" : "Pašreizējā versija",
     "Uncategorized" : "Bez kategorijas",

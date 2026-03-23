@@ -41,6 +41,8 @@ OC.L10N.register(
     "Edit" : "編集",
     "Delete" : "削除",
     "Unread" : "未読",
+    "Direct link" : "リンク",
+    "Direct link copied to clipboard" : "クリップボードにコピーされた直接リンク",
     "Save" : "保存する",
     "Current version" : "現在のバージョン",
     "React with {emoji}" : "{emoji} で反応する",

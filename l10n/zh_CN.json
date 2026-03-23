@@ -41,6 +41,8 @@
     "Edit" : "编辑",
     "Delete" : "删除",
     "Unread" : "未读",
+    "Direct link" : "直链",
+    "Direct link copied to clipboard" : "直链已复制至粘贴板",
     "Save" : "保存",
     "Current version" : "当前版本",
     "React with {emoji}" : "使用{emoji}回应",

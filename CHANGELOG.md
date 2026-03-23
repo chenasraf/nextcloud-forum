@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.29.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.29.1...v0.29.2) (2026-03-23)
+
+
+### Bug Fixes
+
+* stats rebuild task ([d73d99c](https://github.com/chenasraf/nextcloud-forum/commit/d73d99c5966017261450071bf183b6d67d517fbb))
+* thread sorting ([96ecf51](https://github.com/chenasraf/nextcloud-forum/commit/96ecf511623939641ed09e4eb48be0568b60fbb1))
+
 ## [0.29.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.29.0...v0.29.1) (2026-03-22)
 
 

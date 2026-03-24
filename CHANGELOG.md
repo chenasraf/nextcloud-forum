@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.30.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.29.3...v0.30.0) (2026-03-24)
+
+
+### Features
+
+* edit history visibility settings ([a93f1fe](https://github.com/chenasraf/nextcloud-forum/commit/a93f1fee1e3a9201d7a7bbcd691297fbc02a0cef))
+
 ## [0.29.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.29.2...v0.29.3) (2026-03-24)
 
 

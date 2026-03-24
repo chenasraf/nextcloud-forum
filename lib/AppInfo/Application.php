@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\AppInfo;
 
+use OCA\Forum\Config\ConfigLexicon;
 use OCA\Forum\Dashboard\RecentActivityWidget;
 use OCA\Forum\Dashboard\TopActivityWidget;
 use OCA\Forum\Dashboard\TopCategoriesWidget;
@@ -31,6 +32,11 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function register(IRegistrationContext $context): void {
+		// Register config lexicon (available since Nextcloud 32)
+		if (method_exists($context, 'registerConfigLexicon')) {
+			$context->registerConfigLexicon(ConfigLexicon::class);
+		}
+
 		// Register middleware for permission checks
 		$context->registerMiddleware(PermissionMiddleware::class);
 

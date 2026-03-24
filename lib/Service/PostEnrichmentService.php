@@ -17,6 +17,7 @@ class PostEnrichmentService {
 		private BBCodeService $bbCodeService,
 		private BBCodeMapper $bbCodeMapper,
 		private UserService $userService,
+		private EditHistoryVisibilityService $editHistoryVisibilityService,
 	) {
 	}
 
@@ -28,6 +29,7 @@ class PostEnrichmentService {
 	 * @param array $reactions Post reactions
 	 * @param string|null $currentUserId Current user ID for reaction status
 	 * @param array|null $author Optional pre-loaded author data
+	 * @param int|null $categoryId Category ID for permission checks
 	 * @return array Enriched post data
 	 */
 	public function enrichPost(
@@ -36,6 +38,7 @@ class PostEnrichmentService {
 		array $reactions = [],
 		?string $currentUserId = null,
 		?array $author = null,
+		?int $categoryId = null,
 	): array {
 		if (!is_array($post)) {
 			$post = $post->jsonSerialize();
@@ -56,6 +59,17 @@ class PostEnrichmentService {
 
 		// Add reactions (grouped by emoji)
 		$post['reactions'] = $this->groupReactions($reactions, $currentUserId);
+
+		// Add canViewHistory flag
+		if ($categoryId !== null && !empty($post['isEdited'])) {
+			$post['canViewHistory'] = $this->editHistoryVisibilityService->canViewEditHistory(
+				$currentUserId,
+				$post['authorId'],
+				$categoryId,
+			);
+		} else {
+			$post['canViewHistory'] = false;
+		}
 
 		return $post;
 	}

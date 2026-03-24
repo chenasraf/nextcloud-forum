@@ -26,12 +26,16 @@ class UserPreferencesService {
 	/** Preference key for user signature (stored in forum_users table) */
 	public const PREF_SIGNATURE = 'signature';
 
+	/** Preference key for hiding edit history from others */
+	public const PREF_HIDE_EDIT_HISTORY = 'hide_edit_history';
+
 	/** @var array<string, mixed> Default preference values */
 	private const DEFAULTS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => true,
 		self::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS => false,
 		self::PREF_UPLOAD_DIRECTORY => 'Forum',
 		self::PREF_SIGNATURE => '',
+		self::PREF_HIDE_EDIT_HISTORY => false,
 	];
 
 	/** @var array<string> List of valid preference keys */
@@ -40,6 +44,7 @@ class UserPreferencesService {
 		self::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS,
 		self::PREF_UPLOAD_DIRECTORY,
 		self::PREF_SIGNATURE,
+		self::PREF_HIDE_EDIT_HISTORY,
 	];
 
 	/** @var array<string> Keys stored in forum_users table instead of config */

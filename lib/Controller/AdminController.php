@@ -201,6 +201,8 @@ class AdminController extends OCSController {
 	 * @param string|null $title Forum title
 	 * @param string|null $subtitle Forum subtitle
 	 * @param bool|null $allow_guest_access Allow unauthenticated users to view forum content
+	 * @param bool|null $public_edit_history Whether all users can view edit history of posts
+	 * @param bool|null $allow_edit_history_user_override Whether users can hide their own edit history from others
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Settings updated
@@ -208,7 +210,7 @@ class AdminController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'PUT', url: '/api/admin/settings')]
-	public function updateSettings(?string $title = null, ?string $subtitle = null, ?bool $allow_guest_access = null): DataResponse {
+	public function updateSettings(?string $title = null, ?string $subtitle = null, ?bool $allow_guest_access = null, ?bool $public_edit_history = null, ?bool $allow_edit_history_user_override = null): DataResponse {
 		try {
 			// Build settings array with only non-null values
 			$settingsToUpdate = [];
@@ -220,6 +222,12 @@ class AdminController extends OCSController {
 			}
 			if ($allow_guest_access !== null) {
 				$settingsToUpdate[AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS] = $allow_guest_access;
+			}
+			if ($public_edit_history !== null) {
+				$settingsToUpdate[AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY] = $public_edit_history;
+			}
+			if ($allow_edit_history_user_override !== null) {
+				$settingsToUpdate[AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE] = $allow_edit_history_user_override;
 			}
 
 			// Update settings and return all settings

@@ -90,6 +90,7 @@ export interface Post {
   // Thread context (added by SearchController for search results)
   threadTitle?: string
   threadSlug?: string
+  canViewHistory?: boolean
   // Client-side enrichment
   reactions?: Array<{
     emoji: string

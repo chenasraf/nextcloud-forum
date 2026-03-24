@@ -97,6 +97,19 @@
           </div>
         </div>
 
+        <!-- Privacy Section -->
+        <div v-if="showPrivacySection" class="form-section">
+          <h3>{{ strings.privacyTitle }}</h3>
+          <p class="section-description muted">{{ strings.privacyDesc }}</p>
+
+          <div class="preference-item">
+            <NcCheckboxRadioSwitch v-model="formData.hide_edit_history">
+              {{ strings.hideEditHistory }}
+            </NcCheckboxRadioSwitch>
+            <p class="preference-hint">{{ strings.hideEditHistoryHint }}</p>
+          </div>
+        </div>
+
         <!-- Actions -->
         <div class="form-actions">
           <NcButton :disabled="saving || !hasChanges" @click="resetForm">
@@ -138,12 +151,14 @@ import FolderIcon from '@icons/Folder.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { getFilePickerBuilder, FilePickerType } from '@nextcloud/dialogs'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 
 interface UserPreferences {
   auto_subscribe_created_threads: boolean
   auto_subscribe_replied_threads: boolean
   upload_directory: string
   signature: string
+  hide_edit_history: boolean
 }
 
 export default defineComponent({
@@ -162,6 +177,14 @@ export default defineComponent({
     CheckIcon,
     FolderIcon,
   },
+  setup() {
+    const { settings: publicSettings, fetchPublicSettings } = usePublicSettings()
+    fetchPublicSettings()
+
+    return {
+      publicSettings,
+    }
+  },
   data() {
     return {
       loading: false,
@@ -173,12 +196,14 @@ export default defineComponent({
         auto_subscribe_replied_threads: false,
         upload_directory: 'Forum',
         signature: '',
+        hide_edit_history: false,
       } as UserPreferences,
       formData: {
         auto_subscribe_created_threads: true,
         auto_subscribe_replied_threads: false,
         upload_directory: 'Forum',
         signature: '',
+        hide_edit_history: false,
       } as UserPreferences,
 
       strings: {
@@ -219,6 +244,13 @@ export default defineComponent({
         signatureLabel: t('forum', 'Signature'),
         signatureHint: t('forum', 'You can use BBCode formatting in your signature'),
         signaturePlaceholder: t('forum', 'Enter your signature …'),
+        privacyTitle: t('forum', 'Privacy'),
+        privacyDesc: t('forum', 'Control the visibility of your activity'),
+        hideEditHistory: t('forum', 'Hide my edit history from other accounts'),
+        hideEditHistoryHint: t(
+          'forum',
+          'When enabled, other accounts cannot view the edit history of your posts. Administration and moderators can always view edit history.',
+        ),
       },
     }
   },
@@ -230,7 +262,14 @@ export default defineComponent({
         this.formData.auto_subscribe_replied_threads !==
           this.originalData.auto_subscribe_replied_threads ||
         this.formData.upload_directory !== this.originalData.upload_directory ||
-        this.formData.signature !== this.originalData.signature
+        this.formData.signature !== this.originalData.signature ||
+        this.formData.hide_edit_history !== this.originalData.hide_edit_history
+      )
+    },
+    showPrivacySection(): boolean {
+      return (
+        !!this.publicSettings?.public_edit_history &&
+        !!this.publicSettings?.allow_edit_history_user_override
       )
     },
   },

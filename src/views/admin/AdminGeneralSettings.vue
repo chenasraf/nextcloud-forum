@@ -57,6 +57,25 @@
           </div>
         </FormSection>
 
+        <FormSection :title="strings.editHistoryTitle" :subtitle="strings.editHistoryDesc">
+          <div class="form-group">
+            <NcCheckboxRadioSwitch v-model="formData.public_edit_history" type="switch">
+              {{ strings.publicEditHistory }}
+            </NcCheckboxRadioSwitch>
+            <p class="hint">{{ strings.publicEditHistoryHint }}</p>
+          </div>
+
+          <div v-if="formData.public_edit_history" class="form-group">
+            <NcCheckboxRadioSwitch
+              v-model="formData.allow_edit_history_user_override"
+              type="switch"
+            >
+              {{ strings.allowEditHistoryUserOverride }}
+            </NcCheckboxRadioSwitch>
+            <p class="hint">{{ strings.allowEditHistoryUserOverrideHint }}</p>
+          </div>
+        </FormSection>
+
         <!-- Actions -->
         <div class="form-actions">
           <NcButton :disabled="saving || !hasChanges" @click="resetForm">
@@ -101,6 +120,8 @@ interface Settings {
   title: string
   subtitle: string
   allow_guest_access: boolean
+  public_edit_history: boolean
+  allow_edit_history_user_override: boolean
 }
 
 export default defineComponent({
@@ -134,11 +155,15 @@ export default defineComponent({
         title: '',
         subtitle: '',
         allow_guest_access: false,
+        public_edit_history: true,
+        allow_edit_history_user_override: false,
       } as Settings,
       formData: {
         title: '',
         subtitle: '',
         allow_guest_access: false,
+        public_edit_history: true,
+        allow_edit_history_user_override: false,
       } as Settings,
 
       strings: {
@@ -162,6 +187,18 @@ export default defineComponent({
           'forum',
           'When enabled, unauthenticated users can view forum content in read-only mode',
         ),
+        editHistoryTitle: t('forum', 'Edit history'),
+        editHistoryDesc: t('forum', 'Control who can view the edit history of posts'),
+        publicEditHistory: t('forum', 'Allow all accounts to view edit history'),
+        publicEditHistoryHint: t(
+          'forum',
+          'When enabled, any account can view the edit history of any post. When disabled, only post owners can view their own edit history. Administration and moderators can always view edit history.',
+        ),
+        allowEditHistoryUserOverride: t('forum', 'Allow accounts to hide their own edit history'),
+        allowEditHistoryUserOverrideHint: t(
+          'forum',
+          'When enabled, accounts can choose to hide their edit history from other accounts in their preferences.',
+        ),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
         saveSuccess: t('forum', 'Settings saved'),
@@ -173,7 +210,10 @@ export default defineComponent({
       return (
         this.formData.title !== this.originalData.title ||
         this.formData.subtitle !== this.originalData.subtitle ||
-        this.formData.allow_guest_access !== this.originalData.allow_guest_access
+        this.formData.allow_guest_access !== this.originalData.allow_guest_access ||
+        this.formData.public_edit_history !== this.originalData.public_edit_history ||
+        this.formData.allow_edit_history_user_override !==
+          this.originalData.allow_edit_history_user_override
       )
     },
   },

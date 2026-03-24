@@ -13,5 +13,5 @@ module.exports = {
     }
     return commands
   },
-  '*Controller.php': [() => 'make openapi', () => 'git add openapi.json'],
+  '*Controller.php': [() => 'make openapi', () => 'git add openapi-*.json'],
 }

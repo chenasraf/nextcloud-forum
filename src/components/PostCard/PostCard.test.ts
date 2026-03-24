@@ -223,8 +223,8 @@ describe('PostCard', () => {
       expect(buttons.some((b) => b.text().includes('Edit'))).toBe(false)
     })
 
-    it('should show view history button when post is edited', () => {
-      const post = createMockPost({ isEdited: true })
+    it('should show view history button when canViewHistory is true', () => {
+      const post = createMockPost({ isEdited: true, canViewHistory: true })
       const wrapper = mount(PostCard, {
         props: { post },
       })
@@ -232,8 +232,17 @@ describe('PostCard', () => {
       expect(buttons.some((b) => b.text().includes('View edit history'))).toBe(true)
     })
 
+    it('should not show view history button when canViewHistory is false', () => {
+      const post = createMockPost({ isEdited: true, canViewHistory: false })
+      const wrapper = mount(PostCard, {
+        props: { post },
+      })
+      const buttons = wrapper.findAll('.nc-action-button')
+      expect(buttons.some((b) => b.text().includes('View edit history'))).toBe(false)
+    })
+
     it('should not show view history button when post is not edited', () => {
-      const post = createMockPost({ isEdited: false })
+      const post = createMockPost({ isEdited: false, canViewHistory: false })
       const wrapper = mount(PostCard, {
         props: { post },
       })

@@ -106,10 +106,13 @@ class PostController extends OCSController {
 			// Batch fetch author data (includes roles)
 			$authors = $this->userService->enrichMultipleUsers($authorIds);
 
+			// Get category ID for permission checks
+			$categoryId = $this->permissionService->getCategoryIdFromThread($threadId);
+
 			// Enrich posts with content, reactions, and pre-fetched author data
-			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors) {
+			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors, $categoryId) {
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()]);
+				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()], $categoryId);
 			}, $posts));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
@@ -206,6 +209,9 @@ class PostController extends OCSController {
 			// Batch fetch author data (includes roles)
 			$authors = $this->userService->enrichMultipleUsers($authorIds);
 
+			// Get category ID for permission checks
+			$categoryId = $this->permissionService->getCategoryIdFromThread($threadId);
+
 			// Enrich first post
 			$enrichedFirstPost = null;
 			if ($firstPost !== null) {
@@ -215,14 +221,15 @@ class PostController extends OCSController {
 					$bbcodes,
 					$firstPostReactions,
 					$currentUserId,
-					$authors[$firstPost->getAuthorId()] ?? null
+					$authors[$firstPost->getAuthorId()] ?? null,
+					$categoryId,
 				);
 			}
 
 			// Enrich replies
-			$enrichedReplies = array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors) {
+			$enrichedReplies = array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors, $categoryId) {
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()] ?? null);
+				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()] ?? null, $categoryId);
 			}, $replies);
 
 			return new DataResponse([
@@ -283,11 +290,23 @@ class PostController extends OCSController {
 			// For posts by a single author, we can optimize by fetching author data once
 			$author = $this->userService->enrichUserData($authorId);
 
+			// Resolve category IDs for each post's thread (for edit history visibility)
+			$threadIds = array_unique(array_map(fn ($p) => $p->getThreadId(), $posts));
+			$categoryByThread = [];
+			foreach ($threadIds as $tid) {
+				try {
+					$categoryByThread[$tid] = $this->permissionService->getCategoryIdFromThread($tid);
+				} catch (\Exception $e) {
+					// Skip if thread not found
+				}
+			}
+
 			// Enrich posts with content, reactions, pre-fetched author data, and page number
 			$perPage = 20;
-			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $author, $perPage) {
+			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $author, $perPage, $categoryByThread) {
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				$enriched = $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $author);
+				$categoryId = $categoryByThread[$p->getThreadId()] ?? null;
+				$enriched = $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $author, $categoryId);
 
 				// Calculate the page number for direct linking
 				if (!$p->getIsFirstPost()) {
@@ -321,7 +340,9 @@ class PostController extends OCSController {
 	public function show(int $id): DataResponse {
 		try {
 			$post = $this->postMapper->find($id);
-			return new DataResponse($this->postEnrichmentService->enrichPost($post));
+			$currentUserId = $this->userSession->getUser()?->getUID();
+			$categoryId = $this->permissionService->getCategoryIdFromPost($id);
+			return new DataResponse($this->postEnrichmentService->enrichPost($post, [], [], $currentUserId, null, $categoryId));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -445,7 +466,9 @@ class PostController extends OCSController {
 				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
 			}
 
-			return new DataResponse($this->postEnrichmentService->enrichPost($createdPost), Http::STATUS_CREATED);
+			$currentUserId = $user?->getUID();
+			$categoryId = $this->permissionService->getCategoryIdFromThread($threadId);
+			return new DataResponse($this->postEnrichmentService->enrichPost($createdPost, [], [], $currentUserId, null, $categoryId), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating post: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create post'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -517,7 +540,7 @@ class PostController extends OCSController {
 				}
 			}
 
-			return new DataResponse($this->postEnrichmentService->enrichPost($updatedPost));
+			return new DataResponse($this->postEnrichmentService->enrichPost($updatedPost, [], [], $user->getUID(), null, $categoryId));
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

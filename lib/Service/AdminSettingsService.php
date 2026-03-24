@@ -24,12 +24,20 @@ class AdminSettingsService {
 	/** Setting key for initialization status */
 	public const SETTING_IS_INITIALIZED = 'is_initialized';
 
+	/** Setting key for public edit history */
+	public const SETTING_PUBLIC_EDIT_HISTORY = 'public_edit_history';
+
+	/** Setting key for allowing user override of edit history visibility */
+	public const SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE = 'allow_edit_history_user_override';
+
 	/** @var array<string> List of valid setting keys */
 	private const VALID_KEYS = [
 		self::SETTING_TITLE,
 		self::SETTING_SUBTITLE,
 		self::SETTING_ALLOW_GUEST_ACCESS,
 		self::SETTING_IS_INITIALIZED,
+		self::SETTING_PUBLIC_EDIT_HISTORY,
+		self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE,
 	];
 
 	public function __construct(
@@ -51,6 +59,8 @@ class AdminSettingsService {
 			self::SETTING_SUBTITLE => $this->l10n->t('Welcome to the forum!'),
 			self::SETTING_ALLOW_GUEST_ACCESS => false,
 			self::SETTING_IS_INITIALIZED => false,
+			self::SETTING_PUBLIC_EDIT_HISTORY => true,
+			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => false,
 			default => null,
 		};
 	}
@@ -86,7 +96,9 @@ class AdminSettingsService {
 
 		return match ($key) {
 			self::SETTING_ALLOW_GUEST_ACCESS,
-			self::SETTING_IS_INITIALIZED => $this->config->getAppValueBool($key, $default, true),
+			self::SETTING_IS_INITIALIZED,
+			self::SETTING_PUBLIC_EDIT_HISTORY,
+			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => $this->config->getAppValueBool($key, $default, true),
 			default => $this->config->getAppValueString($key, $default, true),
 		};
 	}
@@ -127,7 +139,8 @@ class AdminSettingsService {
 			throw new \InvalidArgumentException("Invalid setting key: $key");
 		}
 
-		if ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED) {
+		if ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED
+			|| $key === self::SETTING_PUBLIC_EDIT_HISTORY || $key === self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE) {
 			$this->config->setAppValueBool($key, (bool)$value, true);
 		} else {
 			$this->config->setAppValueString($key, (string)$value, true);

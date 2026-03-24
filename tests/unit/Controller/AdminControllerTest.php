@@ -81,6 +81,93 @@ class AdminControllerTest extends TestCase {
 		);
 	}
 
+	// ── Settings tests ───────────────────────────────────────────────
+
+	public function testGetSettingsReturnsAllSettings(): void {
+		$allSettings = [
+			'title' => 'My Forum',
+			'subtitle' => 'Welcome!',
+			'allow_guest_access' => false,
+			'is_initialized' => true,
+			'public_edit_history' => true,
+			'allow_edit_history_user_override' => false,
+		];
+
+		$this->settingsService->expects($this->once())
+			->method('getAllSettings')
+			->willReturn($allSettings);
+
+		$response = $this->controller->getSettings();
+
+		$this->assertEquals(200, $response->getStatus());
+		$this->assertEquals($allSettings, $response->getData());
+	}
+
+	public function testUpdateSettingsPassesAllFieldsToService(): void {
+		$expectedUpdate = [
+			AdminSettingsService::SETTING_TITLE => 'New Title',
+			AdminSettingsService::SETTING_SUBTITLE => 'New Subtitle',
+			AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS => true,
+			AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY => false,
+			AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => true,
+		];
+
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($expectedUpdate)
+			->willReturn(array_merge($expectedUpdate, ['is_initialized' => true]));
+
+		$response = $this->controller->updateSettings(
+			'New Title',
+			'New Subtitle',
+			true,
+			false,
+			true,
+		);
+
+		$this->assertEquals(200, $response->getStatus());
+	}
+
+	public function testUpdateSettingsOmitsNullValues(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->with($this->callback(function (array $settings) {
+				// Only public_edit_history and allow_edit_history_user_override should be present
+				return count($settings) === 2
+					&& array_key_exists(AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY, $settings)
+					&& array_key_exists(AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE, $settings)
+					&& $settings[AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY] === true
+					&& $settings[AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE] === true;
+			}))
+			->willReturn([]);
+
+		$response = $this->controller->updateSettings(
+			null,
+			null,
+			null,
+			true,
+			true,
+		);
+
+		$this->assertEquals(200, $response->getStatus());
+	}
+
+	public function testUpdateSettingsHandlesException(): void {
+		$this->settingsService->expects($this->once())
+			->method('updateSettings')
+			->willThrowException(new \Exception('DB error'));
+
+		$this->logger->expects($this->once())
+			->method('error')
+			->with($this->stringContains('Error updating settings'));
+
+		$response = $this->controller->updateSettings('Title');
+
+		$this->assertEquals(500, $response->getStatus());
+	}
+
+	// ── Dashboard tests ─────────────────────────────────────────────
+
 	public function testDashboardEnrichesContributorsWithDisplayNames(): void {
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('admin');

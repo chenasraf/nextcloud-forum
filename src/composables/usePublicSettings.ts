@@ -13,6 +13,10 @@ export interface PublicSettings {
   allow_guest_access: boolean
   /** Whether the forum has been initialized */
   is_initialized: boolean
+  /** Whether all users can view edit history of posts */
+  public_edit_history: boolean
+  /** Whether users can hide their own edit history from others */
+  allow_edit_history_user_override: boolean
 }
 
 const settings = ref<PublicSettings | null>(null)

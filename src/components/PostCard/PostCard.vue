@@ -42,7 +42,7 @@
             </template>
             {{ strings.delete }}
           </NcActionButton>
-          <NcActionButton v-if="post.isEdited" @click="handleViewHistory">
+          <NcActionButton v-if="post.canViewHistory" @click="handleViewHistory">
             <template #icon>
               <HistoryIcon :size="20" />
             </template>

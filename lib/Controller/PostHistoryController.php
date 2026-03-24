@@ -8,6 +8,9 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\Attribute\RequirePermission;
+use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Service\EditHistoryVisibilityService;
+use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostHistoryService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -23,7 +26,11 @@ class PostHistoryController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private PostHistoryService $postHistoryService,
+		private PostMapper $postMapper,
+		private PermissionService $permissionService,
+		private EditHistoryVisibilityService $editHistoryVisibilityService,
 		private LoggerInterface $logger,
+		private ?string $userId,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -44,6 +51,13 @@ class PostHistoryController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/posts/{postId}/history')]
 	public function getHistory(int $postId): DataResponse {
 		try {
+			$post = $this->postMapper->find($postId);
+			$categoryId = $this->permissionService->getCategoryIdFromPost($postId);
+
+			if (!$this->editHistoryVisibilityService->canViewEditHistory($this->userId, $post->getAuthorId(), $categoryId)) {
+				return new DataResponse(['error' => 'Insufficient permissions to view edit history'], Http::STATUS_FORBIDDEN);
+			}
+
 			$history = $this->postHistoryService->getPostHistory($postId);
 			return new DataResponse($history);
 		} catch (DoesNotExistException $e) {

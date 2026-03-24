@@ -6,6 +6,10 @@ namespace OCA\Forum\Tests\Controller;
 
 use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\PostHistoryController;
+use OCA\Forum\Db\Post;
+use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Service\EditHistoryVisibilityService;
+use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostHistoryService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -18,6 +22,12 @@ class PostHistoryControllerTest extends TestCase {
 	private PostHistoryController $controller;
 	/** @var PostHistoryService&MockObject */
 	private PostHistoryService $postHistoryService;
+	/** @var PostMapper&MockObject */
+	private PostMapper $postMapper;
+	/** @var PermissionService&MockObject */
+	private PermissionService $permissionService;
+	/** @var EditHistoryVisibilityService&MockObject */
+	private EditHistoryVisibilityService $editHistoryVisibilityService;
 	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 	/** @var IRequest&MockObject */
@@ -26,18 +36,37 @@ class PostHistoryControllerTest extends TestCase {
 	protected function setUp(): void {
 		$this->request = $this->createMock(IRequest::class);
 		$this->postHistoryService = $this->createMock(PostHistoryService::class);
+		$this->postMapper = $this->createMock(PostMapper::class);
+		$this->permissionService = $this->createMock(PermissionService::class);
+		$this->editHistoryVisibilityService = $this->createMock(EditHistoryVisibilityService::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->controller = new PostHistoryController(
 			Application::APP_ID,
 			$this->request,
 			$this->postHistoryService,
-			$this->logger
+			$this->postMapper,
+			$this->permissionService,
+			$this->editHistoryVisibilityService,
+			$this->logger,
+			'user1',
 		);
+	}
+
+	private function setUpPermissionCheck(int $postId, string $authorId, int $categoryId, bool $canView): void {
+		$post = new Post();
+		$post->setId($postId);
+		$post->setAuthorId($authorId);
+		$this->postMapper->method('find')->with($postId)->willReturn($post);
+		$this->permissionService->method('getCategoryIdFromPost')->with($postId)->willReturn($categoryId);
+		$this->editHistoryVisibilityService->method('canViewEditHistory')
+			->with('user1', $authorId, $categoryId)
+			->willReturn($canView);
 	}
 
 	public function testGetHistoryReturnsHistorySuccessfully(): void {
 		$postId = 1;
+		$this->setUpPermissionCheck($postId, 'user1', 10, true);
 
 		$historyData = [
 			'current' => [
@@ -83,11 +112,19 @@ class PostHistoryControllerTest extends TestCase {
 		$this->assertCount(2, $data['history']);
 	}
 
+	public function testGetHistoryReturnsForbiddenWhenNotAllowed(): void {
+		$postId = 1;
+		$this->setUpPermissionCheck($postId, 'other_user', 10, false);
+
+		$response = $this->controller->getHistory($postId);
+
+		$this->assertEquals(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
+
 	public function testGetHistoryReturnsNotFoundWhenPostDoesNotExist(): void {
 		$postId = 999;
 
-		$this->postHistoryService->expects($this->once())
-			->method('getPostHistory')
+		$this->postMapper->method('find')
 			->with($postId)
 			->willThrowException(new DoesNotExistException('Post not found'));
 
@@ -99,6 +136,7 @@ class PostHistoryControllerTest extends TestCase {
 
 	public function testGetHistoryReturnsEmptyHistoryForNeverEditedPost(): void {
 		$postId = 1;
+		$this->setUpPermissionCheck($postId, 'user1', 10, true);
 
 		$historyData = [
 			'current' => [
@@ -127,6 +165,7 @@ class PostHistoryControllerTest extends TestCase {
 
 	public function testGetHistoryHandlesException(): void {
 		$postId = 1;
+		$this->setUpPermissionCheck($postId, 'user1', 10, true);
 
 		$this->postHistoryService->expects($this->once())
 			->method('getPostHistory')
@@ -145,6 +184,7 @@ class PostHistoryControllerTest extends TestCase {
 
 	public function testGetHistoryShowsModeratorEdits(): void {
 		$postId = 1;
+		$this->setUpPermissionCheck($postId, 'user1', 10, true);
 
 		$historyData = [
 			'current' => [

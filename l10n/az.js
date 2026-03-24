@@ -19,6 +19,7 @@ OC.L10N.register(
     "Back" : "Geri",
     "Edit" : "Dəyişiklik et",
     "Delete" : "Sil",
+    "Direct link" : "Birbaşa link",
     "Save" : "Saxla",
     "Name" : "Ad",
     "Refresh" : "Yenilə",

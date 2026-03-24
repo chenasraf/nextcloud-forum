@@ -41,6 +41,8 @@ OC.L10N.register(
     "Edit" : "تحرير",
     "Delete" : "حذف",
     "Unread" : "غير مقروء",
+    "Direct link" : "رابط مباشر",
+    "Direct link copied to clipboard" : "تمّ نسخ الرابط المباشر إلى الحافظة",
     "Save" : "حفظ",
     "Current version" : "النسخة الحالية",
     "React with {emoji}" : "تفاعل باستخدام {emoji}",

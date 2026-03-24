@@ -58,6 +58,8 @@
     "Delete" : "Выдаліць",
     "Are you sure you want to delete this post? This action cannot be undone." : "Вы ўпэўнены, што хочаце выдаліць гэты допіс? Гэта дзеянне нельга адрабіць.",
     "Unread" : "Непрачытанае",
+    "Direct link" : "Прамая спасылка",
+    "Direct link copied to clipboard" : "Прамая спасылка скапіявана ў буфер абмену",
     "Save" : "Захаваць",
     "Current version" : "Бягучая версія",
     "Version {index}" : "Версія {index}",

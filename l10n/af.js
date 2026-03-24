@@ -16,6 +16,7 @@ OC.L10N.register(
     "Move" : "Skuif",
     "Page not found" : "Blad nie gevind nie",
     "Delete" : "Skrap",
+    "Direct link" : "Direkte skakel",
     "Save" : "Stoor",
     "Unsaved changes" : "Onbewaarde veranderinge",
     "Retry" : "Herprobeer",

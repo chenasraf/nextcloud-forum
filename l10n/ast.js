@@ -36,6 +36,7 @@ OC.L10N.register(
     "Edit" : "Editar",
     "Delete" : "Desaniciar",
     "Unread" : "Ensin lleer",
+    "Direct link" : "Enllaz direutu",
     "Save" : "Guardar",
     "Current version" : "Versión actual",
     "Uncategorized" : "Ensin categoría",

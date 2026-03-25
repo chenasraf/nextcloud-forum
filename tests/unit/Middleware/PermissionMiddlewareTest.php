@@ -47,6 +47,17 @@ class TestPermissionController extends Controller {
 	#[RequirePermission('canView', resourceType: 'invalid', resourceIdParam: 'id')]
 	public function methodWithInvalidResource(): void {
 	}
+
+	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canEditRoles', orGroup: 'access')]
+	public function methodWithOrGroup(): void {
+	}
+
+	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canEditRoles', orGroup: 'access')]
+	#[RequirePermission('canEditCategories')]
+	public function methodWithOrGroupAndUngrouped(): void {
+	}
 }
 
 class PermissionMiddlewareTest extends TestCase {
@@ -425,6 +436,99 @@ class PermissionMiddlewareTest extends TestCase {
 		);
 		$this->middleware->beforeController($this->controller, 'methodWithoutPermissions');
 
+		$this->assertTrue(true);
+	}
+
+	public function testOrGroupAllowsAccessWhenFirstPermissionPasses(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->method('hasGlobalPermission')
+			->willReturnMap([
+				['user1', 'canAccessAdminTools', true],
+			]);
+
+		$this->middleware->beforeController($this->controller, 'methodWithOrGroup');
+		$this->assertTrue(true);
+	}
+
+	public function testOrGroupAllowsAccessWhenSecondPermissionPasses(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->method('hasGlobalPermission')
+			->willReturnMap([
+				['user1', 'canAccessAdminTools', false],
+				['user1', 'canEditRoles', true],
+			]);
+
+		$this->middleware->beforeController($this->controller, 'methodWithOrGroup');
+		$this->assertTrue(true);
+	}
+
+	public function testOrGroupDeniesAccessWhenNoPermissionPasses(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->method('hasGlobalPermission')
+			->willReturnMap([
+				['user1', 'canAccessAdminTools', false],
+				['user1', 'canEditRoles', false],
+			]);
+
+		$this->expectException(OCSForbiddenException::class);
+		$this->middleware->beforeController($this->controller, 'methodWithOrGroup');
+	}
+
+	public function testOrGroupWithUngroupedRequiresBoth(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		// OR group passes (canEditRoles), but ungrouped (canEditCategories) fails
+		$this->permissionService->method('hasGlobalPermission')
+			->willReturnMap([
+				['user1', 'canAccessAdminTools', false],
+				['user1', 'canEditRoles', true],
+				['user1', 'canEditCategories', false],
+			]);
+
+		$this->expectException(OCSForbiddenException::class);
+		$this->middleware->beforeController($this->controller, 'methodWithOrGroupAndUngrouped');
+	}
+
+	public function testOrGroupWithUngroupedAllowsWhenBothPass(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		// OR group passes (canEditRoles) AND ungrouped (canEditCategories) passes
+		$this->permissionService->method('hasGlobalPermission')
+			->willReturnMap([
+				['user1', 'canAccessAdminTools', false],
+				['user1', 'canEditRoles', true],
+				['user1', 'canEditCategories', true],
+			]);
+
+		$this->middleware->beforeController($this->controller, 'methodWithOrGroupAndUngrouped');
 		$this->assertTrue(true);
 	}
 

@@ -65,11 +65,7 @@ class PermissionMiddleware extends Middleware {
 				if (!empty($permissionAttrs)) {
 					// Check permissions using guest role (null userId)
 					$this->logger->debug('Checking permissions for unauthenticated user (public page or guest access)');
-					foreach ($permissionAttrs as $attr) {
-						/** @var RequirePermission $permission */
-						$permission = $attr->newInstance();
-						$this->checkPermission(null, $permission);
-					}
+					$this->checkPermissions(null, $permissionAttrs);
 				}
 				return;
 			}
@@ -87,11 +83,56 @@ class PermissionMiddleware extends Middleware {
 			return;
 		}
 
-		// Check each permission requirement
+		$this->checkPermissions($userId, $permissionAttrs);
+	}
+
+	/**
+	 * Check all permission attributes, respecting OR groups.
+	 *
+	 * Attributes with the same orGroup are OR'd (any one must pass).
+	 * Attributes with no orGroup, or with different orGroups, are AND'd together.
+	 *
+	 * @param string|null $userId
+	 * @param \ReflectionAttribute[] $permissionAttrs
+	 * @throws OCSForbiddenException
+	 */
+	private function checkPermissions(?string $userId, array $permissionAttrs): void {
+		// Separate into OR groups and ungrouped
+		$orGroups = [];
+		$ungrouped = [];
+
 		foreach ($permissionAttrs as $attr) {
 			/** @var RequirePermission $permission */
 			$permission = $attr->newInstance();
+			$group = $permission->getOrGroup();
+			if ($group !== null) {
+				$orGroups[$group][] = $permission;
+			} else {
+				$ungrouped[] = $permission;
+			}
+		}
+
+		// Ungrouped attributes: all must pass (AND)
+		foreach ($ungrouped as $permission) {
 			$this->checkPermission($userId, $permission);
+		}
+
+		// OR groups: at least one in each group must pass
+		foreach ($orGroups as $group => $permissions) {
+			$lastException = null;
+			$passed = false;
+			foreach ($permissions as $permission) {
+				try {
+					$this->checkPermission($userId, $permission);
+					$passed = true;
+					break;
+				} catch (OCSForbiddenException $e) {
+					$lastException = $e;
+				}
+			}
+			if (!$passed && $lastException !== null) {
+				throw $lastException;
+			}
 		}
 	}
 

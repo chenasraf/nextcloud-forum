@@ -40,8 +40,12 @@ export function useUserRole() {
     return userRoles.value.some(isModeratorRole)
   })
 
-  const canAccessAdmin = computed<boolean>(() => {
+  const canAccessAdminTools = computed<boolean>(() => {
     return userRoles.value.some((role) => role.canAccessAdminTools)
+  })
+
+  const canAccessAdmin = computed<boolean>(() => {
+    return canAccessAdminTools.value || canEditRoles.value || canEditCategories.value
   })
 
   const canEditRoles = computed<boolean>(() => {
@@ -74,6 +78,7 @@ export function useUserRole() {
     isAdmin,
     isModerator,
     canAccessAdmin,
+    canAccessAdminTools,
     canEditRoles,
     canEditCategories,
     fetchUserRoles,

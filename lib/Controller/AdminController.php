@@ -129,7 +129,8 @@ class AdminController extends OCSController {
 	 * 200: Users list returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canEditRoles', orGroup: 'access')]
 	#[ApiRoute(verb: 'GET', url: '/api/admin/users')]
 	public function users(): DataResponse {
 		try {
@@ -305,8 +306,6 @@ class AdminController extends OCSController {
 	 *
 	 * 200: Stats rebuilt successfully
 	 */
-	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'POST', url: '/api/admin/rebuild-stats')]
 	public function rebuildStats(): DataResponse {
 		try {
@@ -353,6 +352,9 @@ class AdminController extends OCSController {
 	 *
 	 * 200: Roles list returned
 	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canEditRoles', orGroup: 'access')]
 	#[ApiRoute(verb: 'GET', url: '/api/admin/roles')]
 	public function getRoles(): DataResponse {
 		try {
@@ -378,6 +380,8 @@ class AdminController extends OCSController {
 	 *
 	 * 200: Role assigned successfully
 	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'POST', url: '/api/admin/users/{userId}/roles')]
 	public function assignRole(string $userId, int $roleId): DataResponse {
 		try {
@@ -435,7 +439,7 @@ class AdminController extends OCSController {
 	 * 200: Role removed successfully
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/admin/users/{userId}/roles/{roleId}')]
 	public function removeRole(string $userId, int $roleId): DataResponse {
 		try {

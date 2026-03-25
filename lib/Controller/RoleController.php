@@ -42,7 +42,8 @@ class RoleController extends OCSController {
 	 * 200: Roles returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canEditRoles', orGroup: 'access')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles')]
 	public function index(int $limit = 100, int $offset = 0): DataResponse {
 		try {
@@ -63,7 +64,8 @@ class RoleController extends OCSController {
 	 * 200: Role returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canEditRoles', orGroup: 'access')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -245,7 +247,8 @@ class RoleController extends OCSController {
 	 * 200: Permissions returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canEditRoles', orGroup: 'access')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}/permissions')]
 	public function getPermissions(int $id, int $limit = 100, int $offset = 0): DataResponse {
 		try {

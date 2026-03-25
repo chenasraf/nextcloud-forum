@@ -118,6 +118,7 @@
           <!-- Admin sub-items -->
           <template v-if="isAdminOpen">
             <NcAppNavigationItem
+              v-if="canAccessAdminTools"
               :name="strings.navAdminDashboard"
               :to="{ path: '/admin' }"
               :active="isPathActive('/admin')"
@@ -128,6 +129,7 @@
             </NcAppNavigationItem>
 
             <NcAppNavigationItem
+              v-if="canAccessAdminTools"
               :name="strings.navAdminSettings"
               :to="{ path: '/admin/settings' }"
               :active="isPathActive('/admin/settings')"
@@ -171,6 +173,7 @@
             </NcAppNavigationItem>
 
             <NcAppNavigationItem
+              v-if="canAccessAdminTools"
               :name="strings.navAdminBBCodes"
               :to="{ path: '/admin/bbcodes' }"
               :active="isPathActive('/admin/bbcodes', true)"
@@ -263,7 +266,8 @@ export default defineComponent({
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
     const { userId, displayName, fetchCurrentUser } = useCurrentUser()
-    const { canAccessAdmin, canEditRoles, canEditCategories, fetchUserRoles } = useUserRole()
+    const { canAccessAdmin, canAccessAdminTools, canEditRoles, canEditCategories, fetchUserRoles } =
+      useUserRole()
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
     const { isGuest, guestDisplayName, fetchGuestIdentity } = useGuestSession()
 
@@ -275,6 +279,7 @@ export default defineComponent({
       userId,
       displayName,
       canAccessAdmin,
+      canAccessAdminTools,
       canEditRoles,
       canEditCategories,
       currentThreadCategoryId,
@@ -457,8 +462,14 @@ export default defineComponent({
         this.saveNavigationState()
       }
 
-      // Navigate to admin dashboard (first admin item)
-      this.$router.push({ path: '/admin' })
+      // Navigate to the first available management item
+      if (this.canAccessAdminTools) {
+        this.$router.push({ path: '/admin' })
+      } else if (this.canEditRoles) {
+        this.$router.push({ path: '/admin/users' })
+      } else if (this.canEditCategories) {
+        this.$router.push({ path: '/admin/categories' })
+      }
     },
 
     isCategoryActive(category: Category): boolean {

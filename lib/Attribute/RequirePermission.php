@@ -38,6 +38,9 @@ class RequirePermission {
 		private ?string $resourceIdFromThreadId = null,
 		// Derive category ID from post ID parameter
 		private ?string $resourceIdFromPostId = null,
+		// OR group name: attributes with the same group are OR'd together (any must pass),
+		// while attributes with different groups or no group are AND'd
+		private ?string $orGroup = null,
 	) {
 	}
 
@@ -63,5 +66,9 @@ class RequirePermission {
 
 	public function getResourceIdFromPostId(): ?string {
 		return $this->resourceIdFromPostId;
+	}
+
+	public function getOrGroup(): ?string {
+		return $this->orGroup;
 	}
 }

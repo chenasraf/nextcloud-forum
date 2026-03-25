@@ -314,6 +314,7 @@ OC.L10N.register(
     "Your signature appears at the bottom of your threads or replies" : "Tanda tangan Anda muncul di bagian bawah utas atau balasan Anda",
     "You can use BBCode formatting in your signature" : "Anda dapat menggunakan pemformatan BBCode di tanda tangan Anda",
     "Enter your signature …" : "Masukkan tanda tangan Anda …",
+    "Privacy" : "Privasi",
     "Failed to save preferences" : "Gagal menyimpan preferensi",
     "Select upload directory" : "Pilih direktori unggah",
     "BBCode management" : "Pengelolaan BBCode",

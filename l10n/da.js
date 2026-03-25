@@ -77,6 +77,7 @@ OC.L10N.register(
     "Notifications" : "Påmindelser",
     "Files" : "Filer",
     "Signature" : "Underskrift",
+    "Privacy" : "Privatliv",
     "Enable" : "Aktiver",
     "Disable" : "Deaktiver",
     "This action cannot be undone." : "Denne handling kan ikke fortrydes.",

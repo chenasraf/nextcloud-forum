@@ -76,6 +76,7 @@ OC.L10N.register(
     "Files" : "Datoteke",
     "Browse" : "Prebrskaj",
     "Signature" : "Podpis",
+    "Privacy" : "Zasebnost",
     "Enable" : "Omogoči",
     "Disable" : "Onemogoči",
     "Tag" : "Oznaka",

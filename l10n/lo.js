@@ -83,6 +83,7 @@ OC.L10N.register(
     "Files" : "ໄຟລ໌ຕ່າງໆ",
     "Browse" : "Browse",
     "Signature" : "ລາຍເຊັນ",
+    "Privacy" : "ຄວາມເປັນສ່ວນຕົວ",
     "Enable" : "ເປີດໃຊ້ງານ",
     "Disable" : "ປິດໃຊ້ງານ",
     "Tag" : "Tag",

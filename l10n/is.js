@@ -68,6 +68,7 @@ OC.L10N.register(
     "Preferences" : "Kjörstillingar",
     "Files" : "Skráaforrit",
     "Signature" : "Undirskrift",
+    "Privacy" : "Meðferð persónuupplýsinga",
     "Disable" : "Gera óvirkt",
     "Tag" : "Merki",
     "Description" : "Lýsing",

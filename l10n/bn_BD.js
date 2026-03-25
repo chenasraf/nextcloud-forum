@@ -16,6 +16,7 @@ OC.L10N.register(
     "Move" : "Move",
     "Edit" : "সম্পাদনা",
     "Delete" : "মুছে",
+    "Direct link" : "সরাসরি লিঙ্ক",
     "Save" : "সংরক্ষণ",
     "Name" : "নাম",
     "Refresh" : "নবোদ্যম",

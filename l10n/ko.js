@@ -70,6 +70,7 @@ OC.L10N.register(
     "Preferences" : "환경 설정",
     "Files" : "파일",
     "Signature" : "서명",
+    "Privacy" : "프라이버시",
     "Enable" : "활성화",
     "Disable" : "사용 안함",
     "Description" : "설명",

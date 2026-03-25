@@ -264,6 +264,7 @@ OC.L10N.register(
     "Browse" : "Выбрать",
     "Preferences saved" : "Настройки сохранены",
     "Signature" : "Подпись",
+    "Privacy" : "Конфиденциальность",
     "Enable" : "Включить",
     "Disable" : "Отключить",
     "Tag" : "Метка",

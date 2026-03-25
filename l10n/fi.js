@@ -83,6 +83,7 @@ OC.L10N.register(
     "Notifications" : "Ilmoitukset",
     "Files" : "Tiedostot",
     "Signature" : "Allekirjoitus",
+    "Privacy" : "Yksityisyys",
     "Enable" : "Käytä",
     "Disable" : "Poista käytöstä",
     "This action cannot be undone." : "Tätä toimintoa ei voi perua.",

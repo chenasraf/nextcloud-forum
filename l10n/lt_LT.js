@@ -71,6 +71,7 @@ OC.L10N.register(
     "Files" : "Failai",
     "Browse" : "Naršyti",
     "Signature" : "Parašas",
+    "Privacy" : "Privatumas",
     "Enable" : "Įjungti",
     "Disable" : "Išjungti",
     "Tag" : "Žymė",

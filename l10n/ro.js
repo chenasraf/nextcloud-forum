@@ -56,6 +56,7 @@ OC.L10N.register(
     "Preferences" : "Preferințe",
     "Notifications" : "Notificări",
     "Signature" : "Semnătură",
+    "Privacy" : "Confidențialitate",
     "Enable" : "Activare",
     "Disable" : "Dezactivează",
     "Description" : "Descriere",

@@ -367,6 +367,7 @@ OC.L10N.register(
     "Your signature appears at the bottom of your threads or replies" : "您的簽名會出現在您的討論串或回覆底部",
     "You can use BBCode formatting in your signature" : "您可以使用 BBCode 格式化您的簽名",
     "Enter your signature …" : "輸入您的簽名 …",
+    "Privacy" : "私隱",
     "Failed to save preferences" : "儲存偏好設定失敗",
     "Select upload directory" : "選擇上載目錄",
     "BBCode management" : "BBCode 管理",

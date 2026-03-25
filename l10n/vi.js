@@ -60,6 +60,7 @@ OC.L10N.register(
     "Notifications" : "Thông báo",
     "Files" : "Tệp Tin",
     "Signature" : "Chữ ký",
+    "Privacy" : "Bảo mật",
     "Enable" : "Bật",
     "Disable" : "Tắt",
     "Description" : "Mô tả",

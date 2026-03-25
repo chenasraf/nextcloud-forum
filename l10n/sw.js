@@ -305,6 +305,7 @@ OC.L10N.register(
     "Your signature appears at the bottom of your threads or replies" : "Your signature appears at the bottom of your threads or replies",
     "You can use BBCode formatting in your signature" : "You can use BBCode formatting in your signature",
     "Enter your signature …" : "Enter your signature …",
+    "Privacy" : "Faragha",
     "Failed to save preferences" : "Failed to save preferences",
     "Select upload directory" : "Select upload directory",
     "BBCode management" : "BBCode management",

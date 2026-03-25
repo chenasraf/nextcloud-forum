@@ -45,6 +45,7 @@ OC.L10N.register(
     "Edit" : "Edició",
     "Delete" : "Suprimir",
     "Unread" : "Per llegir",
+    "Direct link" : "Enllaç directe",
     "Direct link copied to clipboard" : "Enllaç directe copiat al porta-retalls",
     "Save" : "Desar",
     "Current version" : "Versió actual",

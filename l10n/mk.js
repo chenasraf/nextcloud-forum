@@ -58,6 +58,7 @@ OC.L10N.register(
     "Preferences" : "Перформанси",
     "Files" : "Датотеки",
     "Signature" : "Потпис",
+    "Privacy" : "Приватност",
     "Enable" : "Овозможи",
     "Disable" : "Оневозможи",
     "Description" : "Опис",

@@ -79,6 +79,7 @@ OC.L10N.register(
     "Notifications" : "Varsel",
     "Files" : "Filer",
     "Signature" : "Signatur",
+    "Privacy" : "Personvern",
     "Enable" : "Aktiver",
     "Disable" : "Deaktiver",
     "Description" : "Beskrivelse",

@@ -83,6 +83,7 @@ OC.L10N.register(
     "Files" : "Фајлови",
     "Browse" : "Прегледај",
     "Signature" : "Потпис",
+    "Privacy" : "Приватност",
     "Enable" : "Укључи",
     "Disable" : "Искључи",
     "This action cannot be undone." : "Ова радња не може да се поништи.",

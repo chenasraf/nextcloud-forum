@@ -86,6 +86,7 @@ OC.L10N.register(
     "Files" : "Файли",
     "Browse" : "Переглянути",
     "Signature" : "Підпис",
+    "Privacy" : "Конфіденційність",
     "Enable" : "Увімкнути",
     "Disable" : "Вимкнути",
     "This action cannot be undone." : "Цю дію не можна скасувати.",

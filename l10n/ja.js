@@ -78,6 +78,7 @@ OC.L10N.register(
     "Notifications" : "通知",
     "Files" : "ファイル",
     "Signature" : "署名",
+    "Privacy" : "プライバシー",
     "Enable" : "有効にする",
     "Disable" : "無効",
     "This action cannot be undone." : "これは取り消すことができません",

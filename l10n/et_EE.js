@@ -342,6 +342,7 @@ OC.L10N.register(
     "Your signature appears at the bottom of your threads or replies" : "Sinu allkiri on nähtav sinu jutulõngade või vastuste lõpus",
     "You can use BBCode formatting in your signature" : "Oma allkirja koostamisel võid vormindamisel kasutada BBCode'i",
     "Enter your signature …" : "Sisesta oma allkiri…",
+    "Privacy" : "Privaatsus",
     "Failed to save preferences" : "Eelistuste salvestamine ei õnnestunud",
     "Select upload directory" : "Vali kaust, kust tahad üles laadida",
     "BBCode management" : "BBCode'i haldus",

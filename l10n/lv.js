@@ -59,6 +59,7 @@ OC.L10N.register(
     "Bookmark" : "Grāmatzīme",
     "Files" : "Datnes",
     "Signature" : "Paraksts",
+    "Privacy" : "Privātums",
     "Enable" : "Iespējot",
     "Disable" : "Deaktivēt",
     "Tag" : "Birkas",

@@ -73,6 +73,7 @@ OC.L10N.register(
     "Notifications" : "هشدارها",
     "Files" : "پرونده‌ها",
     "Signature" : "امضا",
+    "Privacy" : "محرمانگی",
     "Enable" : "فعالسازی",
     "Disable" : "غیرفعال کردن",
     "Description" : "شرح",

@@ -365,6 +365,7 @@ OC.L10N.register(
     "Your signature appears at the bottom of your threads or replies" : "İmzanız konularınızın ya da yanıtlarınızın altında görüntülenir",
     "You can use BBCode formatting in your signature" : "İmzanızda BBCode kodlarını kullanabilirsiniz",
     "Enter your signature …" : "İmzanızı yazın…",
+    "Privacy" : "Gizlilik",
     "Failed to save preferences" : "Tercihler kaydedilemedi",
     "Select upload directory" : "Yükleme klasörünü seçin",
     "BBCode management" : "BBCode kodları yönetimi",

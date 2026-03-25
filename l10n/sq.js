@@ -44,6 +44,7 @@ OC.L10N.register(
     "Notifications" : "Njoftime",
     "Files" : "Skedarë",
     "Signature" : "Nënshkrimi",
+    "Privacy" : "Privatësi",
     "Enable" : "Aktivizoje",
     "Disable" : "Çaktivizoje",
     "Description" : "Përshkrim",

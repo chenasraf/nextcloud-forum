@@ -51,6 +51,7 @@ OC.L10N.register(
     "Edit title" : "Modificar lo títol",
     "Notifications" : "Notificacions",
     "Signature" : "Signatura",
+    "Privacy" : "Confidencialitat",
     "Enable" : "Activar",
     "Disable" : "Desactivar",
     "Description" : "Descripcion",

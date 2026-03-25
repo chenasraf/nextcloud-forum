@@ -86,6 +86,7 @@ OC.L10N.register(
     "Files" : "Pliki",
     "Browse" : "Przeglądaj",
     "Signature" : "Podpis",
+    "Privacy" : "Prywatność",
     "Enable" : "Włącz",
     "Disable" : "Wyłącz",
     "Tag" : "Etykieta",

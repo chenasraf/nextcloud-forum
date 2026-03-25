@@ -61,6 +61,7 @@ OC.L10N.register(
     "Preferences" : "Preferences",
     "Notifications" : "შეტყობინებები",
     "Signature" : "Signature",
+    "Privacy" : "Privacy",
     "Enable" : "Enable",
     "Disable" : "Disable",
     "Description" : "Description",

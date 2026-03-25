@@ -307,6 +307,7 @@ OC.L10N.register(
     "Your signature appears at the bottom of your threads or replies" : "ئىمزاڭىز تېمىلار ياكى جاۋابلىرىڭىزنىڭ ئاستىدا كۆرۈنىدۇ",
     "You can use BBCode formatting in your signature" : "ئىمزاڭىزدا BBCode فورماتىنى ئىشلەتسىڭىز بولىدۇ",
     "Enter your signature …" : "ئىمزاڭىزنى كىرگۈزۈڭ …",
+    "Privacy" : "مەخپىيەتلىك",
     "Failed to save preferences" : "تەڭشەكلەرنى ساقلاش مەغلۇپ بولدى",
     "Select upload directory" : "يۈكلەش دېرىكتورىيەسىنى تاللاڭ",
     "BBCode management" : "BBCode باشقۇرۇش",

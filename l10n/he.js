@@ -325,6 +325,7 @@ OC.L10N.register(
     "Notifications" : "התראות",
     "Files" : "קבצים",
     "Signature" : "חתימה",
+    "Privacy" : "פרטיות",
     "Disable" : "השבתה",
     "Tag" : "תגית",
     "Description" : "תיאור",

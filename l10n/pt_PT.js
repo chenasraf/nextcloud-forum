@@ -75,6 +75,7 @@ OC.L10N.register(
     "Preferences" : "Preferências",
     "Files" : "Ficheiros",
     "Signature" : "Assinatura",
+    "Privacy" : "Privacidade",
     "Enable" : "Ativar",
     "Disable" : "Desativar",
     "These BBCode tags are currently active" : "Estas etiquetas BBCode estão atualmente ativas.",

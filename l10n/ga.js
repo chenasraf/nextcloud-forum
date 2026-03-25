@@ -366,6 +366,7 @@ OC.L10N.register(
     "Your signature appears at the bottom of your threads or replies" : "Feictear do shíniú ag bun do shnáitheanna nó do fhreagraí",
     "You can use BBCode formatting in your signature" : "Is féidir leat formáidiú BBCode a úsáid i do shíniú",
     "Enter your signature …" : "Cuir isteach do shíniú …",
+    "Privacy" : "Príobháideacht",
     "Failed to save preferences" : "Theip ar na roghanna a shábháil",
     "Select upload directory" : "Roghnaigh eolaire uaslódála",
     "BBCode management" : "Bainistíocht BBCode",

@@ -367,6 +367,7 @@ OC.L10N.register(
     "Your signature appears at the bottom of your threads or replies" : "Deine Signatur erscheint am Ende deiner Themen oder Antworten",
     "You can use BBCode formatting in your signature" : "Du kannst die BBCode-Formatierung in deiner Signatur verwenden",
     "Enter your signature …" : "Gebe deine Signatur ein …",
+    "Privacy" : "Datenschutz",
     "Failed to save preferences" : "Einstellungen konnten nicht gespeichert werden",
     "Select upload directory" : "Hochladeverzeichnis auswählen",
     "BBCode management" : "BBCode-Verwaltung",

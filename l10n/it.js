@@ -88,6 +88,7 @@ OC.L10N.register(
     "Files" : "File",
     "Browse" : "Sfoglia",
     "Signature" : "Firma",
+    "Privacy" : "Riservatezza",
     "Enable" : "Abilita",
     "Disable" : "Disabilita",
     "Tag" : "Etichetta",

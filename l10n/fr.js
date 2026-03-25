@@ -92,6 +92,7 @@ OC.L10N.register(
     "Files" : "Fichiers",
     "Browse" : "Parcourir",
     "Signature" : "Signature",
+    "Privacy" : "Confidentialité",
     "Enable" : "Activer",
     "Disable" : "Désactiver",
     "This action cannot be undone." : "Cette action ne peut pas être annulée",

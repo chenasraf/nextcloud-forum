@@ -188,6 +188,7 @@ OC.L10N.register(
     "View edit history" : "Zobrazit historii úprav",
     "Are you sure you want to delete this post? This action cannot be undone." : "Opravdu chcete tento příspěvek smazat? Tuto akci nepůjde vzít zpět.",
     "Unread" : "Nastavit jako nepřečtené",
+    "Direct link" : "Přímý odkaz",
     "Direct link copied to clipboard" : "Přímý odkaz zkopírován do schránky",
     "Edit your reply …" : "Upravit vaši odpověď …",
     "Save" : "Uložit",

@@ -37,6 +37,7 @@ OC.L10N.register(
     "Subscribe" : "สมัครรับข้อมูล",
     "Preferences" : "การกำหนดลักษณะ",
     "Signature" : "ลายเซ็น",
+    "Privacy" : "ความเป็นส่วนตัว",
     "Disable" : "ปิดใช้งาน",
     "Description" : "คำอธิบาย",
     "Enabled" : "เปิดใช้งาน",

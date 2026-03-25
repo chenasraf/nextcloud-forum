@@ -31,6 +31,7 @@ OC.L10N.register(
     "by" : "av",
     "Notifications" : "Varsel",
     "Signature" : "Signatur",
+    "Privacy" : "Personvern",
     "Enable" : "SLå på",
     "Disable" : "Slå av",
     "Description" : "Skildring",

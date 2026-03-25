@@ -86,6 +86,7 @@ OC.L10N.register(
     "Files" : "Filer",
     "Browse" : "Bläddra",
     "Signature" : "Signatur",
+    "Privacy" : "Integritet",
     "Enable" : "Aktivera",
     "Disable" : "Inaktivera",
     "Tag" : "Tagg",

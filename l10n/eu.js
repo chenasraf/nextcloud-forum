@@ -81,6 +81,7 @@ OC.L10N.register(
     "Files" : "Fitxategiak",
     "Browse" : "Arakatu",
     "Signature" : "Sinadura",
+    "Privacy" : "Pribatutasuna",
     "Enable" : "Aktibatu",
     "Disable" : "Desaktibatu",
     "Tag" : "Etiketa",

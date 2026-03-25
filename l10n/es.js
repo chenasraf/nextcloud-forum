@@ -166,6 +166,7 @@ OC.L10N.register(
     "Files" : "Archivos",
     "Browse" : "Explorar",
     "Signature" : "Firma",
+    "Privacy" : "Privacidad",
     "Enable" : "Activar",
     "Disable" : "Deshabilitar",
     "This action cannot be undone." : "Esta acción no se puede deshacer.",

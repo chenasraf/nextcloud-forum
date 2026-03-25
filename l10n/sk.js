@@ -84,6 +84,7 @@ OC.L10N.register(
     "Files" : "Súbory",
     "Browse" : "Prechádzať",
     "Signature" : "Podpis",
+    "Privacy" : "Súkromie",
     "Enable" : "Povoliť",
     "Disable" : "Zakázať",
     "Tag" : "Štítok",

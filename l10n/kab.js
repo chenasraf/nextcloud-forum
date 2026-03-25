@@ -39,6 +39,7 @@ OC.L10N.register(
     "Reply" : "Err",
     "Preferences" : "Tiwelhiwin",
     "Notifications" : "Ilɣa",
+    "Privacy" : "Vie privée",
     "Disable" : "Sens",
     "Description" : "Aglam",
     "Enabled" : "Yermed",

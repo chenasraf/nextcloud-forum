@@ -64,6 +64,7 @@ OC.L10N.register(
     "Preferences" : "Preferencias",
     "Files" : "Archivo",
     "Signature" : "Firma",
+    "Privacy" : "Privacidad",
     "Enable" : "Activar",
     "Disable" : "Deshabilitar",
     "Description" : "Descripción",

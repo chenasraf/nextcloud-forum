@@ -6,6 +6,9 @@ SPDX-License-Identifier: CC0-1.0
 # Nextcloud Forum
 
 [![GitHub Release](https://img.shields.io/github/v/release/chenasraf/nextcloud-forum?color=blue)](https://github.com/chenasraf/nextcloud-forum/releases/latest)
+[![Build NPM](https://github.com/chenasraf/nextcloud-forum/actions/workflows/build-npm.yml/badge.svg)](https://github.com/chenasraf/nextcloud-forum/actions/workflows/build-npm.yml)
+[![Lint PHP](https://github.com/chenasraf/nextcloud-forum/actions/workflows/lint-php.yml/badge.svg)](https://github.com/chenasraf/nextcloud-forum/actions/workflows/lint-php.yml)
+[![Frontend Tests](https://github.com/chenasraf/nextcloud-forum/actions/workflows/vitest.yml/badge.svg)](https://github.com/chenasraf/nextcloud-forum/actions/workflows/vitest.yml)
 [![PHPUnit MySQL](https://github.com/chenasraf/nextcloud-forum/actions/workflows/phpunit-mysql.yml/badge.svg)](https://github.com/chenasraf/nextcloud-forum/actions/workflows/phpunit-mysql.yml)
 [![PHPUnit PostgreSQL](https://github.com/chenasraf/nextcloud-forum/actions/workflows/phpunit-pgsql.yml/badge.svg)](https://github.com/chenasraf/nextcloud-forum/actions/workflows/phpunit-pgsql.yml)
 

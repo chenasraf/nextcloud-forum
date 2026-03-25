@@ -112,32 +112,32 @@
           <p v-else class="muted">{{ strings.rolePermissionsDesc }}</p>
 
           <div class="permissions-checkboxes">
-            <div class="checkbox-group">
-              <NcCheckboxRadioSwitch
-                v-model="formData.canAccessAdminTools"
-                :disabled="isAdmin || isGuest"
-              >
-                <strong>{{ strings.canAccessAdminTools }}</strong>
-                <span class="checkbox-desc muted">{{ strings.canAccessAdminToolsDesc }}</span>
-              </NcCheckboxRadioSwitch>
-            </div>
+            <NcCheckboxRadioSwitch
+              v-model="formData.canAccessAdminTools"
+              :disabled="isAdmin || isGuest"
+              class="permission-switch"
+            >
+              <strong>{{ strings.canAccessAdminTools }}</strong>
+              <span class="checkbox-desc muted">{{ strings.canAccessAdminToolsDesc }}</span>
+            </NcCheckboxRadioSwitch>
 
-            <div class="checkbox-group">
-              <NcCheckboxRadioSwitch v-model="formData.canEditRoles" :disabled="isAdmin || isGuest">
-                <strong>{{ strings.canEditRoles }}</strong>
-                <span class="checkbox-desc muted">{{ strings.canEditRolesDesc }}</span>
-              </NcCheckboxRadioSwitch>
-            </div>
+            <NcCheckboxRadioSwitch
+              v-model="formData.canEditRoles"
+              :disabled="isAdmin || isGuest"
+              class="permission-switch"
+            >
+              <strong>{{ strings.canEditRoles }}</strong>
+              <span class="checkbox-desc muted">{{ strings.canEditRolesDesc }}</span>
+            </NcCheckboxRadioSwitch>
 
-            <div class="checkbox-group">
-              <NcCheckboxRadioSwitch
-                v-model="formData.canEditCategories"
-                :disabled="isAdmin || isGuest"
-              >
-                <strong>{{ strings.canEditCategories }}</strong>
-                <span class="checkbox-desc muted">{{ strings.canEditCategoriesDesc }}</span>
-              </NcCheckboxRadioSwitch>
-            </div>
+            <NcCheckboxRadioSwitch
+              v-model="formData.canEditCategories"
+              :disabled="isAdmin || isGuest"
+              class="permission-switch"
+            >
+              <strong>{{ strings.canEditCategories }}</strong>
+              <span class="checkbox-desc muted">{{ strings.canEditCategoriesDesc }}</span>
+            </NcCheckboxRadioSwitch>
           </div>
         </FormSection>
 
@@ -669,14 +669,19 @@ export default defineComponent({
       gap: 16px;
       margin-top: 12px;
 
-      .checkbox-group {
-        padding: 12px;
-        border: 1px solid var(--color-border);
-        border-radius: 6px;
-        background: var(--color-background-hover);
+      .permission-switch {
+        :deep(.checkbox-radio-switch__content) {
+          max-width: unset;
+          padding: 12px !important;
+          border: 1px solid var(--color-border);
+          border-radius: 6px;
+          background: var(--color-background-hover);
+          width: 100%;
+          min-height: unset !important;
 
-        &:hover {
-          background: var(--color-background-dark);
+          &:hover {
+            background: var(--color-background-dark);
+          }
         }
 
         strong {

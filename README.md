@@ -19,15 +19,33 @@ threads, and posts within their Nextcloud instance.
 
 ## Features
 
-- **Category Management**: Organize discussions into categories with headers and custom permissions
-- **Threaded Discussions**: Create and participate in threaded conversations
-- **BBCode Support**: Rich text formatting with built-in and custom BBCode tags
-- **File Attachments**: Attach files from Nextcloud to posts with secure permission-based access
+- **Category Management**: Organize discussions with headers, categories, customizable colors, and
+  drag-and-drop reordering
+- **Threaded Discussions**: Create and reply to organized discussion threads with pagination
+- **BBCode Formatting**: Rich text with built-in and custom BBCode tags, toolbar with overflow menu
+- **File Attachments**: Attach files from Nextcloud storage or upload via drag-and-drop
+- **Notifications**: Subscribe to threads, get notified on replies and @mentions
 - **Reactions**: React to posts with emoji reactions
-- **User Roles & Permissions**: Fine-grained permission system for moderators and administrators
-- **Guest Access**: Optional public access for unauthenticated users with configurable permissions
-- **Read Markers**: Track unread posts and threads
-- **Search**: Full-text search across threads and posts
+- **Roles & Teams**: Fine-grained permissions per role or Nextcloud Team, per category (view, post,
+  reply, moderate)
+- **Granular Management Permissions**: Separate controls for dashboard, account management, roles,
+  categories, and BBCodes
+- **Guest Access**: Optional public access for unauthenticated visitors with configurable
+  permissions
+- **Edit History**: View post revision history with configurable visibility and per-account privacy
+  controls
+- **Read Markers**: Track unread posts at thread and category level
+- **Bookmarks**: Save threads for quick access
+- **Search**: Advanced search with boolean operators and category filtering
+- **Reusable Templates**: Save and insert frequently used content snippets
+- **Signatures**: BBCode-formatted signatures on posts
+- **Thread Drafts**: Auto-saved drafts per category
+- **User Profiles**: Post history, statistics, and role badges
+- **Dashboard Widgets**: Recent activity, top threads, and top categories on the Nextcloud dashboard
+- **Direct Post Links**: Link directly to a specific post within a thread
+- **Moderation Tools**: Lock, pin, hide, and move threads
+- **Server Administration**: Repair seeds, rebuild statistics, and assign roles from the Nextcloud
+  admin panel
 - **Modern UI**: Built with Vue 3 and Nextcloud Vue components
 
 ## Documentation
@@ -72,9 +90,9 @@ For a complete list of available commands, usage examples, and detailed document
 
 ## Troubleshooting
 
-### Cannot access administrator features
+### Cannot access management features
 
-If you are a Nextcloud administrator but cannot access Forum admin features (e.g., managing
+If you are a Nextcloud administrator but cannot access Forum management features (e.g., managing
 categories, roles, or settings), this is likely due to missing database seeds or role assignments.
 
 **Option 1: Using OCC commands**
@@ -85,18 +103,18 @@ Run the following commands from your Nextcloud installation directory:
 # Repair database seeds (creates default roles and permissions if missing)
 php occ forum:repair-seeds
 
-# Assign administrator role to a user
+# Assign administrator role to an account
 php occ forum:set-role <username> admin
 ```
 
-**Option 2: Using the Admin UI**
+**Option 2: Using the server administration panel**
 
 1. Log in to Nextcloud as an administrator
 2. Go to **Administration Settings** (click your profile picture → Administration Settings)
 3. Navigate to **Forum** in the left sidebar under the Administration section
 4. Use the **Repair Seeds** button to restore default roles and permissions
-5. If the seeds are already in plac, use the **User Roles** section to assign the administrator role
-   to users
+5. If the seeds are already in place, use the **Assign Roles** section to assign the administrator
+   role to accounts
 
 ## Contributing
 

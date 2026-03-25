@@ -8,21 +8,30 @@
 	<name>Forum</name>
 	<summary>A community-driven forum built right into your Nextcloud instance</summary>
 	<description><![CDATA[
-Create discussions, share ideas and collaborate with your community directly in Nextcloud.
+Create discussions, share ideas, and collaborate with your community directly in Nextcloud.
 
 **Key features:**
-- **Thread-based Discussions** - Create and reply to organized discussion threads
-- **Category Organization** - Structure your forum with customizable categories and headers
-- **Rich Text Formatting** - Use BBCode for formatting posts with bold, italic, links, images, code blocks and more
-- **File Attachments** - Attach files from your Nextcloud storage to posts
+- **Threaded Discussions** - Create and reply to organized discussion threads with pagination
+- **Category Organization** - Structure your forum with customizable categories, headers, colors, and drag-and-drop reordering
+- **Rich Text Formatting** - BBCode formatting with built-in and custom tags, toolbar with overflow menu
+- **File Attachments** - Attach files from your Nextcloud storage or upload via drag-and-drop
+- **Notifications** - Subscribe to threads and get notified on replies and @mentions
 - **Post Reactions** - React to posts with emoji reactions
-- **Read/Unread Tracking** - Keep track of which threads you've read
-- **Search** - Find discussions quickly with built-in search
-- **User Profiles** - View user post history and statistics
-- **Role-Based Permissions** - Control access and moderation with flexible roles
-- **Guest Access**: Optional public access for unauthenticated users with configurable permissions
-- **Admin Tools** - Manage categories, roles, BBCodes and forum settings
-- **Moderation Tools** - Pin, lock and manage threads and posts
+- **Read/Unread Tracking** - Track unread posts at thread and category level
+- **Bookmarks** - Save threads for quick access
+- **Search** - Advanced search with boolean operators and category filtering
+- **User Profiles** - View post history, statistics, and role badges
+- **Roles and Teams** - Fine-grained permissions per role or Nextcloud Team, per category
+- **Guest Access** - Optional public access for unauthenticated visitors with configurable permissions
+- **Edit History** - View post revision history with configurable visibility and per-account privacy controls
+- **Reusable Templates** - Save and insert frequently used content snippets
+- **Signatures** - BBCode-formatted signatures on posts
+- **Thread Drafts** - Auto-saved drafts per category
+- **Dashboard Widgets** - Recent activity, top threads, and top categories on the Nextcloud dashboard
+- **Direct Post Links** - Link directly to a specific post within a thread
+- **Moderation Tools** - Pin, lock, hide, and move threads
+- **Management Tools** - Manage categories, roles, BBCodes, and forum settings with granular permissions
+- **Server Administration** - Repair seeds, rebuild statistics, and assign roles from the Nextcloud admin panel
 
 **Perfect for:**
 - Team discussions and collaboration
@@ -32,7 +41,7 @@ Create discussions, share ideas and collaborate with your community directly in 
 - Project discussions
 - Internal communication
 
-The forum integrates seamlessly with your Nextcloud instance, using your existing users and groups for authentication and access control.
+The forum integrates seamlessly with your Nextcloud instance, using your existing accounts and teams for authentication and access control.
 ]]></description>
 	<version>0.32.0</version>
 	<licence>agpl</licence>

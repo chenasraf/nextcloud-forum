@@ -164,12 +164,12 @@ export default {
 
       strings: {
         title: t('forum', 'Forum'),
-        repairSeedsHeader: t('forum', 'Repair Database Initial Data'),
+        repairSeedsHeader: t('forum', 'Database Initial Data'),
         repairSeedsHelp: t(
           'forum',
-          'Run the repair database initial data command to restore default forum data (roles, categories, permissions, BBCodes). This is safe to run multiple times as it will skip data that already exists.',
+          'Restore default forum data (roles, categories, permissions, BBCodes). This is safe to run multiple times as it will skip data that already exists.',
         ),
-        runRepairSeeds: t('forum', 'Run Repair Database Initial Data'),
+        runRepairSeeds: t('forum', 'Repair Database Initial Data'),
         rebuildStatsHeader: t('forum', 'Rebuild Statistics'),
         rebuildStatsHelp: t(
           'forum',

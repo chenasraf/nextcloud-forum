@@ -281,6 +281,10 @@ export default defineComponent({
   }
 
   .settings-form {
+    .form-section {
+      margin-bottom: 32px;
+    }
+
     .form-group {
       margin-bottom: 24px;
 

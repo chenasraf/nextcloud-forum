@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.31.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.30.0...v0.31.0) (2026-03-25)
+
+
+### Features
+
+* nc admin page rebuild task ([6e84cb2](https://github.com/chenasraf/nextcloud-forum/commit/6e84cb2ceb881f4621d0ab93330c2de8f0512a70))
+
+
+### Bug Fixes
+
+* **admin:** correctly handle nav sections access ([7fc7778](https://github.com/chenasraf/nextcloud-forum/commit/7fc7778f4524a464a1c60280485c374c9a58ade6))
+* **admin:** separate forum admin and server admin endpoints ([28a0cd8](https://github.com/chenasraf/nextcloud-forum/commit/28a0cd8153eb54e98593dab910a47da880f0c176))
+* **l10n:** update admin ui texts ([7350a15](https://github.com/chenasraf/nextcloud-forum/commit/7350a1502ecddc487a6efabe7600bc84432fe195))
+* **l10n:** update admin/management terminology ([e26a07a](https://github.com/chenasraf/nextcloud-forum/commit/e26a07a8830e77eb53d72e2299e6be653184515f))
+* **l10n:** Update translations from Transifex ([4b68b88](https://github.com/chenasraf/nextcloud-forum/commit/4b68b88e79f13d7097d39aabcc8d517f4a337d89))
+* **ui:** spacing between sections in admin settings ([026dd21](https://github.com/chenasraf/nextcloud-forum/commit/026dd21d8502940d44df439c2df0ad112b69c7da))
+
 ## [0.30.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.29.3...v0.30.0) (2026-03-24)
 
 

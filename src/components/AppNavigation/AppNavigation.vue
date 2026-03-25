@@ -140,6 +140,17 @@
             </NcAppNavigationItem>
 
             <NcAppNavigationItem
+              v-if="canAccessModeration"
+              :name="strings.navAdminModeration"
+              :to="{ path: '/admin/moderation' }"
+              :active="isPathActive('/admin/moderation', true)"
+            >
+              <template #icon>
+                <ShieldAlertIcon :size="20" />
+              </template>
+            </NcAppNavigationItem>
+
+            <NcAppNavigationItem
               v-if="canManageUsers"
               :name="strings.navAdminUsers"
               :to="{ path: '/admin/users' }"
@@ -230,6 +241,7 @@ import ShieldAccountIcon from '@icons/ShieldAccount.vue'
 import ChartLineIcon from '@icons/ChartLine.vue'
 import AccountMultipleIcon from '@icons/AccountMultiple.vue'
 import CodeBracketsIcon from '@icons/CodeBrackets.vue'
+import ShieldAlertIcon from '@icons/ShieldAlert.vue'
 import CogIcon from '@icons/Cog.vue'
 import AccountCogIcon from '@icons/AccountCog.vue'
 import { useCategories } from '@/composables/useCategories'
@@ -260,6 +272,7 @@ export default defineComponent({
     ChartLineIcon,
     AccountMultipleIcon,
     CodeBracketsIcon,
+    ShieldAlertIcon,
     CogIcon,
     AccountCogIcon,
   },
@@ -273,6 +286,7 @@ export default defineComponent({
       canEditRoles,
       canEditCategories,
       canEditBbcodes,
+      canAccessModeration,
     } = useUserRole()
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
     const { isGuest, guestDisplayName, fetchGuestIdentity } = useGuestSession()
@@ -289,6 +303,7 @@ export default defineComponent({
       canEditRoles,
       canEditCategories,
       canEditBbcodes,
+      canAccessModeration,
       currentThreadCategoryId,
       fetchThread,
       clearThread,
@@ -318,6 +333,7 @@ export default defineComponent({
         navAdminRoles: t('forum', 'Roles & Teams'),
         navAdminCategories: t('forum', 'Categories'),
         navAdminBBCodes: t('forum', 'BBCodes'),
+        navAdminModeration: t('forum', 'Moderation'),
         expand: t('forum', 'Expand'),
         collapse: t('forum', 'Collapse'),
         guestLabel: t('forum', '(Guest)'),
@@ -467,6 +483,8 @@ export default defineComponent({
       // Navigate to the first available management item
       if (this.canAccessAdminTools) {
         this.$router.push({ path: '/admin' })
+      } else if (this.canAccessModeration) {
+        this.$router.push({ path: '/admin/moderation' })
       } else if (this.canManageUsers) {
         this.$router.push({ path: '/admin/users' })
       } else if (this.canEditRoles) {

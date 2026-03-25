@@ -69,6 +69,7 @@ class Post extends Entity implements JsonSerializable {
 			'editedAt' => $this->getEditedAt(),
 			'createdAt' => $this->getCreatedAt(),
 			'updatedAt' => $this->getUpdatedAt(),
+			'deletedAt' => $this->getDeletedAt(),
 		];
 	}
 }

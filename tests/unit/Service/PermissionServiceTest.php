@@ -813,7 +813,7 @@ class PermissionServiceTest extends TestCase {
 		return $userRole;
 	}
 
-	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM, bool $canManageUsers = false, bool $canEditBbcodes = false): Role {
+	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM, bool $canManageUsers = false, bool $canEditBbcodes = false, bool $canAccessModeration = false): Role {
 		$role = new Role();
 		$role->setId($id);
 		$role->setName($name);
@@ -822,6 +822,7 @@ class PermissionServiceTest extends TestCase {
 		$role->setCanEditRoles($canEditRoles);
 		$role->setCanEditCategories($canEditCategories);
 		$role->setCanEditBbcodes($canEditBbcodes);
+		$role->setCanAccessModeration($canAccessModeration);
 		$role->setIsSystemRole($isSystemRole);
 		$role->setRoleType($roleType);
 		$role->setCreatedAt(time());

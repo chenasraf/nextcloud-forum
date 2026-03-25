@@ -114,7 +114,7 @@
           <div class="permissions-checkboxes">
             <NcCheckboxRadioSwitch
               v-model="formData.canAccessAdminTools"
-              :disabled="isAdmin || isGuest"
+              :disabled="isAdmin || isGuest || isDefault"
               class="permission-switch"
             >
               <strong>{{ strings.canAccessAdminTools }}</strong>
@@ -123,7 +123,7 @@
 
             <NcCheckboxRadioSwitch
               v-model="formData.canManageUsers"
-              :disabled="isAdmin || isGuest"
+              :disabled="isAdmin || isGuest || isDefault"
               class="permission-switch"
             >
               <strong>{{ strings.canManageUsers }}</strong>
@@ -132,7 +132,7 @@
 
             <NcCheckboxRadioSwitch
               v-model="formData.canEditRoles"
-              :disabled="isAdmin || isGuest"
+              :disabled="isAdmin || isGuest || isDefault"
               class="permission-switch"
             >
               <strong>{{ strings.canEditRoles }}</strong>
@@ -141,7 +141,7 @@
 
             <NcCheckboxRadioSwitch
               v-model="formData.canEditCategories"
-              :disabled="isAdmin || isGuest"
+              :disabled="isAdmin || isGuest || isDefault"
               class="permission-switch"
             >
               <strong>{{ strings.canEditCategories }}</strong>
@@ -150,11 +150,20 @@
 
             <NcCheckboxRadioSwitch
               v-model="formData.canEditBbcodes"
-              :disabled="isAdmin || isGuest"
+              :disabled="isAdmin || isGuest || isDefault"
               class="permission-switch"
             >
               <strong>{{ strings.canEditBbcodes }}</strong>
               <span class="checkbox-desc muted">{{ strings.canEditBbcodesDesc }}</span>
+            </NcCheckboxRadioSwitch>
+
+            <NcCheckboxRadioSwitch
+              v-model="formData.canAccessModeration"
+              :disabled="isAdmin || isGuest || isDefault"
+              class="permission-switch"
+            >
+              <strong>{{ strings.canAccessModeration }}</strong>
+              <span class="checkbox-desc muted">{{ strings.canAccessModerationDesc }}</span>
             </NcCheckboxRadioSwitch>
           </div>
         </FormSection>
@@ -267,6 +276,7 @@ export default defineComponent({
         canEditRoles: false,
         canEditCategories: false,
         canEditBbcodes: false,
+        canAccessModeration: false,
       },
       darkColorModified: false,
       permissions: {} as Record<number, CategoryPermission>,
@@ -310,6 +320,11 @@ export default defineComponent({
         canEditCategoriesDesc: t('forum', 'Allow creating, editing and deleting categories'),
         canEditBbcodes: t('forum', 'BBCode management'),
         canEditBbcodesDesc: t('forum', 'Allow creating, editing and deleting custom BBCodes'),
+        canAccessModeration: t('forum', 'Moderation'),
+        canAccessModerationDesc: t(
+          'forum',
+          'Allow access to the moderation page to review and restore deleted content',
+        ),
         categoryPermissions: t('forum', 'Category permissions'),
         categoryPermissionsDesc: t('forum', 'Set which categories this role can access'),
         adminAllRolePermissions: t('forum', 'Admin role must have all permissions enabled'),
@@ -442,6 +457,7 @@ export default defineComponent({
       this.formData.canEditRoles = this.role.canEditRoles || false
       this.formData.canEditCategories = this.role.canEditCategories || false
       this.formData.canEditBbcodes = this.role.canEditBbcodes || false
+      this.formData.canAccessModeration = this.role.canAccessModeration || false
 
       // Admin role always has all permissions
       if (this.isAdmin) {
@@ -450,6 +466,7 @@ export default defineComponent({
         this.formData.canEditRoles = true
         this.formData.canEditCategories = true
         this.formData.canEditBbcodes = true
+        this.formData.canAccessModeration = true
       }
 
       // Guest role never has management permissions
@@ -459,6 +476,7 @@ export default defineComponent({
         this.formData.canEditRoles = false
         this.formData.canEditCategories = false
         this.formData.canEditBbcodes = false
+        this.formData.canAccessModeration = false
       }
 
       // Default role never has management permissions (same as guest)
@@ -468,6 +486,7 @@ export default defineComponent({
         this.formData.canEditRoles = false
         this.formData.canEditCategories = false
         this.formData.canEditBbcodes = false
+        this.formData.canAccessModeration = false
       }
 
       // If colors are different, mark dark as modified
@@ -568,6 +587,7 @@ export default defineComponent({
           canEditRoles: perm(this.formData.canEditRoles),
           canEditCategories: perm(this.formData.canEditCategories),
           canEditBbcodes: perm(this.formData.canEditBbcodes),
+          canAccessModeration: perm(this.formData.canAccessModeration),
         }
 
         let roleId: number

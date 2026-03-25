@@ -36,6 +36,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/admin/AdminCategoryEdit.vue'),
   },
   { path: '/admin/bbcodes', component: () => import('@/views/admin/AdminBBCodeList.vue') },
+  { path: '/admin/moderation', component: () => import('@/views/admin/AdminModerationView.vue') },
   // Catch-all route - must be last
   { path: '/:pathMatch(.*)*', component: () => import('@/views/GenericNotFound.vue') },
 ]

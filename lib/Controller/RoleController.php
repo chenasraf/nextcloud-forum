@@ -91,6 +91,7 @@ class RoleController extends OCSController {
 	 * @param bool $canEditRoles Can edit roles
 	 * @param bool $canEditCategories Can edit categories
 	 * @param bool $canEditBbcodes Can edit BBCodes
+	 * @param bool $canAccessModeration Can access moderation tools
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Role created
@@ -108,6 +109,7 @@ class RoleController extends OCSController {
 		bool $canEditRoles = false,
 		bool $canEditCategories = false,
 		bool $canEditBbcodes = false,
+		bool $canAccessModeration = false,
 	): DataResponse {
 		try {
 			$role = new \OCA\Forum\Db\Role();
@@ -120,6 +122,7 @@ class RoleController extends OCSController {
 			$role->setCanEditRoles($canEditRoles);
 			$role->setCanEditCategories($canEditCategories);
 			$role->setCanEditBbcodes($canEditBbcodes);
+			$role->setCanAccessModeration($canAccessModeration);
 			$role->setCreatedAt(time());
 
 			/** @var \OCA\Forum\Db\Role */
@@ -144,6 +147,7 @@ class RoleController extends OCSController {
 	 * @param bool|null $canEditRoles Can edit roles
 	 * @param bool|null $canEditCategories Can edit categories
 	 * @param bool|null $canEditBbcodes Can edit BBCodes
+	 * @param bool|null $canAccessModeration Can access moderation tools
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Role updated
@@ -162,6 +166,7 @@ class RoleController extends OCSController {
 		?bool $canEditRoles = null,
 		?bool $canEditCategories = null,
 		?bool $canEditBbcodes = null,
+		?bool $canAccessModeration = null,
 	): DataResponse {
 		try {
 			$role = $this->roleMapper->find($id);
@@ -179,35 +184,29 @@ class RoleController extends OCSController {
 				$role->setColorDark($colorDark);
 			}
 
-			// Admin role always has all permissions — cannot be changed
-			if ($role->getRoleType() === Role::ROLE_TYPE_ADMIN) {
-				$role->setCanAccessAdminTools(true);
-				$role->setCanManageUsers(true);
-				$role->setCanEditRoles(true);
-				$role->setCanEditCategories(true);
-				$role->setCanEditBbcodes(true);
-			} elseif ($role->getRoleType() === Role::ROLE_TYPE_GUEST) {
-				// Guest role never has management permissions — cannot be changed
-				$role->setCanAccessAdminTools(false);
-				$role->setCanManageUsers(false);
-				$role->setCanEditRoles(false);
-				$role->setCanEditCategories(false);
-				$role->setCanEditBbcodes(false);
-			} else {
-				if ($canAccessAdminTools !== null) {
-					$role->setCanAccessAdminTools($canAccessAdminTools);
-				}
-				if ($canManageUsers !== null) {
-					$role->setCanManageUsers($canManageUsers);
-				}
-				if ($canEditRoles !== null) {
-					$role->setCanEditRoles($canEditRoles);
-				}
-				if ($canEditCategories !== null) {
-					$role->setCanEditCategories($canEditCategories);
-				}
-				if ($canEditBbcodes !== null) {
-					$role->setCanEditBbcodes($canEditBbcodes);
+			// Coerced permission values per role type (overrides any input)
+			$coercedPermissions = match ($role->getRoleType()) {
+				Role::ROLE_TYPE_ADMIN => true,    // Admin: all permissions forced to true
+				Role::ROLE_TYPE_GUEST,
+				Role::ROLE_TYPE_DEFAULT => false, // Guest/Default: all permissions forced to false
+				default => null,                  // Others: use provided values
+			};
+
+			$permissionFields = [
+				'canAccessAdminTools' => $canAccessAdminTools,
+				'canManageUsers' => $canManageUsers,
+				'canEditRoles' => $canEditRoles,
+				'canEditCategories' => $canEditCategories,
+				'canEditBbcodes' => $canEditBbcodes,
+				'canAccessModeration' => $canAccessModeration,
+			];
+
+			foreach ($permissionFields as $field => $value) {
+				$setter = 'set' . ucfirst($field);
+				if ($coercedPermissions !== null) {
+					$role->$setter($coercedPermissions);
+				} elseif ($value !== null) {
+					$role->$setter($value);
 				}
 			}
 

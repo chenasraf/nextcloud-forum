@@ -66,6 +66,10 @@ class TestPermissionController extends Controller {
 	#[RequirePermission('canEditBbcodes')]
 	public function methodWithEditBBCodesPermission(): void {
 	}
+
+	#[RequirePermission('canAccessModeration')]
+	public function methodWithAccessModerationPermission(): void {
+	}
 }
 
 class PermissionMiddlewareTest extends TestCase {
@@ -606,6 +610,40 @@ class PermissionMiddlewareTest extends TestCase {
 
 		$this->expectException(OCSForbiddenException::class);
 		$this->middleware->beforeController($this->controller, 'methodWithEditBBCodesPermission');
+	}
+
+	public function testCanAccessModerationPermissionAllowsAccess(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->expects($this->once())
+			->method('hasGlobalPermission')
+			->with('user1', 'canAccessModeration')
+			->willReturn(true);
+
+		$this->middleware->beforeController($this->controller, 'methodWithAccessModerationPermission');
+		$this->assertTrue(true);
+	}
+
+	public function testCanAccessModerationPermissionDeniesAccess(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->expects($this->once())
+			->method('hasGlobalPermission')
+			->with('user1', 'canAccessModeration')
+			->willReturn(false);
+
+		$this->expectException(OCSForbiddenException::class);
+		$this->middleware->beforeController($this->controller, 'methodWithAccessModerationPermission');
 	}
 
 	public function testAuthenticatedUserBypassesGuestRestrictions(): void {

@@ -32,6 +32,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setCanEditCategories(bool $value)
  * @method bool getCanEditBbcodes()
  * @method void setCanEditBbcodes(bool $value)
+ * @method bool getCanAccessModeration()
+ * @method void setCanAccessModeration(bool $value)
  * @method bool getIsSystemRole()
  * @method void setIsSystemRole(bool $value)
  * @method string getRoleType()
@@ -56,6 +58,7 @@ class Role extends Entity implements JsonSerializable {
 	protected $canEditRoles;
 	protected $canEditCategories;
 	protected $canEditBbcodes;
+	protected $canAccessModeration;
 	protected $isSystemRole;
 	protected $roleType;
 	protected $createdAt;
@@ -71,6 +74,7 @@ class Role extends Entity implements JsonSerializable {
 		$this->addType('canEditRoles', 'boolean');
 		$this->addType('canEditCategories', 'boolean');
 		$this->addType('canEditBbcodes', 'boolean');
+		$this->addType('canAccessModeration', 'boolean');
 		$this->addType('isSystemRole', 'boolean');
 		$this->addType('roleType', 'string');
 		$this->addType('createdAt', 'integer');
@@ -99,6 +103,7 @@ class Role extends Entity implements JsonSerializable {
 			'canEditRoles' => $this->getCanEditRoles(),
 			'canEditCategories' => $this->getCanEditCategories(),
 			'canEditBbcodes' => $this->getCanEditBbcodes(),
+			'canAccessModeration' => $this->getCanAccessModeration(),
 			'isSystemRole' => $this->getIsSystemRole(),
 			'roleType' => $this->getRoleType(),
 			'createdAt' => $this->getCreatedAt(),

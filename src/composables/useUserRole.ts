@@ -46,13 +46,18 @@ export function useUserRole() {
     return userRoles.value.some((role) => role.canEditBbcodes)
   })
 
+  const canAccessModeration = computed<boolean>(() => {
+    return userRoles.value.some((role) => role.canAccessModeration)
+  })
+
   const canAccessAdmin = computed<boolean>(() => {
     return (
       canAccessAdminTools.value ||
       canManageUsers.value ||
       canEditRoles.value ||
       canEditCategories.value ||
-      canEditBbcodes.value
+      canEditBbcodes.value ||
+      canAccessModeration.value
     )
   })
 
@@ -76,6 +81,7 @@ export function useUserRole() {
     canEditRoles,
     canEditCategories,
     canEditBbcodes,
+    canAccessModeration,
     setRoles,
     clear,
   }

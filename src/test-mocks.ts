@@ -24,6 +24,7 @@ export function createMockRole(overrides: Partial<Role> = {}): Role {
     canEditRoles: false,
     canEditCategories: false,
     canEditBbcodes: false,
+    canAccessModeration: false,
     isSystemRole: false,
     roleType: 'custom',
     createdAt: Date.now(),

@@ -358,4 +358,59 @@ class ThreadMapper extends QBMapper {
 
 		return $this->findEntities($qb);
 	}
+
+	/**
+	 * Find a thread by ID including soft-deleted threads
+	 *
+	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
+	 * @throws DoesNotExistException
+	 */
+	public function findIncludingDeleted(int $id): Thread {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
+		return $this->findEntity($qb);
+	}
+
+	/**
+	 * Find soft-deleted threads with pagination, search, and sorting
+	 *
+	 * @return array<Thread>
+	 */
+	public function findDeleted(int $limit = 20, int $offset = 0, string $search = '', string $sort = 'newest'): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->isNotNull('deleted_at'));
+
+		if ($search !== '') {
+			$qb->andWhere($qb->expr()->iLike('title', $qb->createNamedParameter('%' . $this->db->escapeLikeParameter($search) . '%')));
+		}
+
+		$qb->orderBy('deleted_at', $sort === 'oldest' ? 'ASC' : 'DESC')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
+
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Count soft-deleted threads
+	 */
+	public function countDeleted(string $search = ''): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb->expr()->isNotNull('deleted_at'));
+
+		if ($search !== '') {
+			$qb->andWhere($qb->expr()->iLike('title', $qb->createNamedParameter('%' . $this->db->escapeLikeParameter($search) . '%')));
+		}
+
+		$result = $qb->executeQuery();
+		$count = (int)($result->fetchOne() ?? 0);
+		$result->closeCursor();
+		return $count;
+	}
 }

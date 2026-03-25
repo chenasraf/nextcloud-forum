@@ -143,6 +143,7 @@ export interface Role {
   canEditRoles: boolean
   canEditCategories: boolean
   canEditBbcodes: boolean
+  canAccessModeration: boolean
   isSystemRole: boolean
   roleType: 'admin' | 'moderator' | 'default' | 'guest' | 'custom'
   createdAt: number

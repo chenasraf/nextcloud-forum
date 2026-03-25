@@ -61,6 +61,7 @@ class RoleControllerTest extends TestCase {
 				$this->assertTrue($role->getCanEditRoles());
 				$this->assertTrue($role->getCanEditCategories());
 				$this->assertTrue($role->getCanEditBbcodes());
+				$this->assertTrue($role->getCanAccessModeration());
 				return $role;
 			});
 
@@ -76,6 +77,7 @@ class RoleControllerTest extends TestCase {
 			false,  // Try to disable - should be forced to true
 			false,  // Try to disable - should be forced to true
 			false,  // Try to disable - should be forced to true
+			false,  // Try to disable - should be forced to true
 		);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -85,6 +87,7 @@ class RoleControllerTest extends TestCase {
 		$this->assertTrue($data['canEditRoles']);
 		$this->assertTrue($data['canEditCategories']);
 		$this->assertTrue($data['canEditBbcodes']);
+		$this->assertTrue($data['canAccessModeration']);
 	}
 
 	public function testUpdateNonAdminRoleAllowsPermissionChanges(): void {
@@ -118,6 +121,7 @@ class RoleControllerTest extends TestCase {
 			true,   // canEditRoles — kept true
 			false,  // canEditCategories — changed from true
 			null,   // canEditBbcodes — unchanged
+			null,   // canAccessModeration — unchanged
 		);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -262,6 +266,7 @@ class RoleControllerTest extends TestCase {
 		$this->assertFalse($data['canEditRoles']);
 		$this->assertTrue($data['canEditCategories']);
 		$this->assertFalse($data['canEditBbcodes']);
+		$this->assertFalse($data['canAccessModeration']);
 	}
 
 	public function testShowReturnsNotFoundWhenRoleDoesNotExist(): void {
@@ -297,6 +302,7 @@ class RoleControllerTest extends TestCase {
 				$this->assertFalse($role->getCanEditRoles());
 				$this->assertTrue($role->getCanEditCategories());
 				$this->assertFalse($role->getCanEditBbcodes());
+				$this->assertFalse($role->getCanAccessModeration());
 
 				// Simulate DB setting ID
 				$role->setId(4);
@@ -313,6 +319,7 @@ class RoleControllerTest extends TestCase {
 			false,  // canEditRoles
 			true,   // canEditCategories
 			false,  // canEditBbcodes
+			false,  // canAccessModeration
 		);
 
 		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
@@ -499,6 +506,7 @@ class RoleControllerTest extends TestCase {
 				$this->assertFalse($role->getCanEditRoles());
 				$this->assertFalse($role->getCanEditCategories());
 				$this->assertFalse($role->getCanEditBbcodes());
+				$this->assertFalse($role->getCanAccessModeration());
 				return $role;
 			});
 
@@ -514,6 +522,7 @@ class RoleControllerTest extends TestCase {
 			true,  // Try to enable - should be forced to false
 			true,  // Try to enable - should be forced to false
 			true,  // Try to enable - should be forced to false
+			true,  // Try to enable - should be forced to false
 		);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -523,6 +532,7 @@ class RoleControllerTest extends TestCase {
 		$this->assertFalse($data['canEditRoles']);
 		$this->assertFalse($data['canEditCategories']);
 		$this->assertFalse($data['canEditBbcodes']);
+		$this->assertFalse($data['canAccessModeration']);
 	}
 
 	public function testUpdateGuestPermissionsEnforcesNoModerate(): void {
@@ -593,7 +603,7 @@ class RoleControllerTest extends TestCase {
 		$this->assertTrue($data['success']);
 	}
 
-	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM, bool $canManageUsers = false, bool $canEditBbcodes = false): Role {
+	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM, bool $canManageUsers = false, bool $canEditBbcodes = false, bool $canAccessModeration = false): Role {
 		$role = new Role();
 		$role->setId($id);
 		$role->setName($name);
@@ -602,6 +612,7 @@ class RoleControllerTest extends TestCase {
 		$role->setCanEditRoles($canEditRoles);
 		$role->setCanEditCategories($canEditCategories);
 		$role->setCanEditBbcodes($canEditBbcodes);
+		$role->setCanAccessModeration($canAccessModeration);
 		$role->setIsSystemRole($isSystemRole);
 		$role->setRoleType($roleType);
 		$role->setCreatedAt(time());

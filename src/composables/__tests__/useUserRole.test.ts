@@ -205,6 +205,35 @@ describe('useUserRole', () => {
     })
   })
 
+  describe('canAccessModeration', () => {
+    it('should be true when role has canAccessModeration', () => {
+      const role = createMockRole({ canAccessModeration: true })
+
+      const { canAccessModeration, setRoles } = useUserRole()
+      setRoles('user1', [role])
+
+      expect(canAccessModeration.value).toBe(true)
+    })
+
+    it('should be false when no role has canAccessModeration', () => {
+      const role = createMockRole({ canAccessModeration: false })
+
+      const { canAccessModeration, setRoles } = useUserRole()
+      setRoles('user1', [role])
+
+      expect(canAccessModeration.value).toBe(false)
+    })
+
+    it('should grant canAccessAdmin when only canAccessModeration is set', () => {
+      const role = createMockRole({ canAccessModeration: true })
+
+      const { canAccessAdmin, setRoles } = useUserRole()
+      setRoles('user1', [role])
+
+      expect(canAccessAdmin.value).toBe(true)
+    })
+  })
+
   describe('partial admin permissions', () => {
     it('should allow admin access with only canAccessAdminTools and canEditCategories', () => {
       const customRole = createMockRole({

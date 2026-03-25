@@ -98,6 +98,7 @@ class Thread extends Entity implements JsonSerializable {
 			'isHidden' => $this->getIsHidden(),
 			'createdAt' => $this->getCreatedAt(),
 			'updatedAt' => $this->getUpdatedAt(),
+			'deletedAt' => $this->getDeletedAt(),
 		];
 	}
 }

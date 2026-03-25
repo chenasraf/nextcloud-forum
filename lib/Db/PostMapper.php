@@ -410,4 +410,91 @@ class PostMapper extends QBMapper {
 
 		return $this->findEntities($qb);
 	}
+
+	/**
+	 * Find a post by ID including soft-deleted posts
+	 *
+	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
+	 * @throws DoesNotExistException
+	 */
+	public function findIncludingDeleted(int $id): Post {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
+		return $this->findEntity($qb);
+	}
+
+	/**
+	 * Find soft-deleted replies (non-first-posts) with pagination, search, and sorting
+	 *
+	 * @return array<Post>
+	 */
+	public function findDeletedReplies(int $limit = 20, int $offset = 0, string $search = '', string $sort = 'newest'): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->isNotNull('deleted_at'))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
+
+		if ($search !== '') {
+			$qb->andWhere($qb->expr()->iLike('content', $qb->createNamedParameter('%' . $this->db->escapeLikeParameter($search) . '%')));
+		}
+
+		$qb->orderBy('deleted_at', $sort === 'oldest' ? 'ASC' : 'DESC')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
+
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Count soft-deleted replies
+	 */
+	public function countDeletedReplies(string $search = ''): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb->expr()->isNotNull('deleted_at'))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
+
+		if ($search !== '') {
+			$qb->andWhere($qb->expr()->iLike('content', $qb->createNamedParameter('%' . $this->db->escapeLikeParameter($search) . '%')));
+		}
+
+		$result = $qb->executeQuery();
+		$count = (int)($result->fetchOne() ?? 0);
+		$result->closeCursor();
+		return $count;
+	}
+
+	/**
+	 * Count all posts for a thread, including deleted posts
+	 */
+	public function countByThreadIdIncludingDeleted(int $threadId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select($qb->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)));
+		$result = $qb->executeQuery();
+		$count = (int)($result->fetchOne() ?? 0);
+		$result->closeCursor();
+		return $count;
+	}
+
+	/**
+	 * Find all posts for a thread, including deleted posts
+	 *
+	 * @return array<Post>
+	 */
+	public function findByThreadIdIncludingDeleted(int $threadId, int $limit = 50, int $offset = 0): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->orderBy('created_at', 'ASC')
+			->setMaxResults($limit)
+			->setFirstResult($offset);
+		return $this->findEntities($qb);
+	}
 }

@@ -15,6 +15,7 @@ use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Migration\SeedHelper;
 use OCA\Forum\Service\AdminSettingsService;
+use OCA\Forum\Service\StatsService;
 use OCA\Forum\Service\UserRoleService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
@@ -43,6 +44,7 @@ class AdminController extends OCSController {
 		private IUserManager $userManager,
 		private IUserSession $userSession,
 		private AdminSettingsService $settingsService,
+		private StatsService $statsService,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -292,6 +294,54 @@ class AdminController extends OCSController {
 			return new DataResponse([
 				'success' => false,
 				'message' => 'Failed to repair seeds: ' . $e->getMessage(),
+			], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Rebuild all forum statistics (users, categories, threads)
+	 *
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
+	 *
+	 * 200: Stats rebuilt successfully
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessAdminTools')]
+	#[ApiRoute(verb: 'POST', url: '/api/admin/rebuild-stats')]
+	public function rebuildStats(): DataResponse {
+		try {
+			$userResult = $this->statsService->rebuildAllUserStats();
+			$categoryResult = $this->statsService->rebuildAllCategoryStats();
+			$threadResult = $this->statsService->rebuildAllThreadStats();
+
+			$messages = [];
+			$messages[] = sprintf(
+				'Users processed: %d, created: %d, updated: %d',
+				$userResult['users'],
+				$userResult['created'],
+				$userResult['updated']
+			);
+			$messages[] = sprintf(
+				'Categories processed: %d, updated: %d',
+				$categoryResult['categories'],
+				$categoryResult['updated']
+			);
+			$messages[] = sprintf(
+				'Threads processed: %d, updated: %d',
+				$threadResult['threads'],
+				$threadResult['updated']
+			);
+
+			$this->logger->info('Forum stats rebuild completed successfully');
+			return new DataResponse([
+				'success' => true,
+				'message' => implode("\n", $messages),
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error rebuilding stats: ' . $e->getMessage());
+			return new DataResponse([
+				'success' => false,
+				'message' => 'Failed to rebuild stats: ' . $e->getMessage(),
 			], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}

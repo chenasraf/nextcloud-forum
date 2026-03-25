@@ -8,17 +8,39 @@
       </NcNoteCard>
 
       <div class="settings-section-content">
-        <div class="repair-seeds-container">
-          <NcButton :disabled="repairSeedsLoading" @click="runRepairSeeds">
+        <div class="task-container">
+          <NcButton :disabled="repairSeeds.loading" @click="runRepairSeeds">
             <template #icon>
-              <WrenchIcon v-if="!repairSeedsLoading" :size="20" />
+              <WrenchIcon v-if="!repairSeeds.loading" :size="20" />
               <NcLoadingIcon v-else :size="20" />
             </template>
             {{ strings.runRepairSeeds }}
           </NcButton>
 
-          <NcNoteCard v-if="repairSeedsResult" :type="repairSeedsSuccess ? 'success' : 'error'">
-            <pre class="repair-seeds-output">{{ repairSeedsResult }}</pre>
+          <NcNoteCard v-if="repairSeeds.result" :type="repairSeeds.success ? 'success' : 'error'">
+            <pre class="task-output">{{ repairSeeds.result }}</pre>
+          </NcNoteCard>
+        </div>
+      </div>
+    </NcSettingsSection>
+
+    <NcSettingsSection :name="strings.rebuildStatsHeader">
+      <NcNoteCard type="info">
+        {{ strings.rebuildStatsHelp }}
+      </NcNoteCard>
+
+      <div class="settings-section-content">
+        <div class="task-container">
+          <NcButton :disabled="rebuildStats.loading" @click="runRebuildStats">
+            <template #icon>
+              <ChartBoxIcon v-if="!rebuildStats.loading" :size="20" />
+              <NcLoadingIcon v-else :size="20" />
+            </template>
+            {{ strings.runRebuildStats }}
+          </NcButton>
+
+          <NcNoteCard v-if="rebuildStats.result" :type="rebuildStats.success ? 'success' : 'error'">
+            <pre class="task-output">{{ rebuildStats.result }}</pre>
           </NcNoteCard>
         </div>
       </div>
@@ -42,7 +64,7 @@
                 id="user-id"
                 v-model="userId"
                 :placeholder="strings.userIdPlaceholder"
-                :disabled="assignRoleLoading"
+                :disabled="assignRole.loading"
               />
             </div>
             <div class="form-group">
@@ -52,7 +74,7 @@
                 v-model="selectedRole"
                 :options="roleOptions"
                 :placeholder="strings.rolePlaceholder"
-                :disabled="assignRoleLoading || rolesLoading"
+                :disabled="assignRole.loading || rolesLoading"
                 :loading="rolesLoading"
               />
             </div>
@@ -61,19 +83,19 @@
           <div class="button-row">
             <NcButton
               variant="primary"
-              :disabled="!canAssignRole || assignRoleLoading"
-              @click="assignRole"
+              :disabled="!canAssignRole || assignRole.loading"
+              @click="runAssignRole"
             >
               <template #icon>
-                <PlusIcon v-if="!assignRoleLoading" :size="20" />
+                <PlusIcon v-if="!assignRole.loading" :size="20" />
                 <NcLoadingIcon v-else :size="20" />
               </template>
               {{ strings.assignRole }}
             </NcButton>
           </div>
 
-          <NcNoteCard v-if="assignRoleResult" :type="assignRoleSuccess ? 'success' : 'error'">
-            <p>{{ assignRoleResult }}</p>
+          <NcNoteCard v-if="assignRole.result" :type="assignRole.success ? 'success' : 'error'">
+            <p>{{ assignRole.result }}</p>
           </NcNoteCard>
         </div>
       </div>
@@ -89,10 +111,30 @@ import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import WrenchIcon from '@icons/Wrench.vue'
+import ChartBoxIcon from '@icons/ChartBox.vue'
 import PlusIcon from '@icons/Plus.vue'
 
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+
+function createTask() {
+  return { loading: false, result: null, success: false }
+}
+
+async function runTask(task, fn, fallbackError) {
+  try {
+    task.loading = true
+    task.result = null
+    await fn(task)
+  } catch (e) {
+    console.error(fallbackError, e)
+    task.success = false
+    task.result =
+      e.response?.data?.message || e.response?.data?.error || e.message || t('forum', fallbackError)
+  } finally {
+    task.loading = false
+  }
+}
 
 export default {
   name: 'AdminSettings',
@@ -104,14 +146,14 @@ export default {
     NcTextField,
     NcLoadingIcon,
     WrenchIcon,
+    ChartBoxIcon,
     PlusIcon,
   },
   data() {
     return {
-      // Repair seeds
-      repairSeedsLoading: false,
-      repairSeedsResult: null,
-      repairSeedsSuccess: false,
+      repairSeeds: createTask(),
+      rebuildStats: createTask(),
+      assignRole: createTask(),
 
       // User roles
       rolesLoading: true,
@@ -119,9 +161,6 @@ export default {
       roles: [],
       userId: '',
       selectedRole: null,
-      assignRoleLoading: false,
-      assignRoleResult: null,
-      assignRoleSuccess: false,
 
       strings: {
         title: t('forum', 'Forum'),
@@ -131,10 +170,16 @@ export default {
           'Run the repair database initial data command to restore default forum data (roles, categories, permissions, BBCodes). This is safe to run multiple times as it will skip data that already exists.',
         ),
         runRepairSeeds: t('forum', 'Run Repair Database Initial Data'),
+        rebuildStatsHeader: t('forum', 'Rebuild Statistics'),
+        rebuildStatsHelp: t(
+          'forum',
+          'Recalculate all forum statistics including account post counts, thread counts, and category counters. Use this if statistics appear incorrect or out of sync.',
+        ),
+        runRebuildStats: t('forum', 'Rebuild Statistics'),
         userRolesHeader: t('forum', 'User Roles'),
         userRolesHelp: t(
           'forum',
-          'Assign forum roles to users. This allows you to grant administrative or moderator privileges to specific users.',
+          'Assign forum roles to accounts. This allows you to grant administrative or moderator privileges to specific accounts.',
         ),
         userIdLabel: t('forum', 'User ID'),
         userIdPlaceholder: t('forum', 'Enter user ID'),
@@ -172,56 +217,49 @@ export default {
         this.rolesLoading = false
       }
     },
-    async runRepairSeeds() {
-      try {
-        this.repairSeedsLoading = true
-        this.repairSeedsResult = null
-        const resp = await ocs.post('/admin/repair-seeds')
-        this.repairSeedsSuccess = resp.data.success
-        this.repairSeedsResult = resp.data.message
-        if (resp.data.success) {
-          await this.fetchRoles()
-        }
-      } catch (e) {
-        console.error('Failed to run repair seeds', e)
-        this.repairSeedsSuccess = false
-        // Extract error message from various possible locations in the response
-        const errorMessage =
-          e.response?.data?.message ||
-          e.response?.data?.error ||
-          e.message ||
-          t('forum', 'Failed to run repair database initial data')
-        this.repairSeedsResult = errorMessage
-      } finally {
-        this.repairSeedsLoading = false
-      }
+    runRepairSeeds() {
+      return runTask(
+        this.repairSeeds,
+        async (task) => {
+          const resp = await ocs.post('/admin/repair-seeds')
+          task.success = resp.data.success
+          task.result = resp.data.message
+          if (resp.data.success) {
+            await this.fetchRoles()
+          }
+        },
+        'Failed to run repair database initial data',
+      )
     },
-    async assignRole() {
+    runRebuildStats() {
+      return runTask(
+        this.rebuildStats,
+        async (task) => {
+          const resp = await ocs.post('/admin/rebuild-stats')
+          task.success = resp.data.success
+          task.result = resp.data.message
+        },
+        'Failed to rebuild statistics',
+      )
+    },
+    runAssignRole() {
       if (!this.canAssignRole) return
-
-      try {
-        this.assignRoleLoading = true
-        this.assignRoleResult = null
-        const resp = await ocs.post(
-          `/admin/users/${encodeURIComponent(this.userId.trim())}/roles`,
-          {
-            roleId: this.selectedRole.id,
-          },
-        )
-        this.assignRoleSuccess = resp.data.success
-        this.assignRoleResult = resp.data.message
-        if (resp.data.success) {
-          // Clear form on success
-          this.userId = ''
-          this.selectedRole = null
-        }
-      } catch (e) {
-        console.error('Failed to assign role', e)
-        this.assignRoleSuccess = false
-        this.assignRoleResult = e.response?.data?.message || t('forum', 'Failed to assign role')
-      } finally {
-        this.assignRoleLoading = false
-      }
+      return runTask(
+        this.assignRole,
+        async (task) => {
+          const resp = await ocs.post(
+            `/admin/users/${encodeURIComponent(this.userId.trim())}/roles`,
+            { roleId: this.selectedRole.id },
+          )
+          task.success = resp.data.success
+          task.result = resp.data.message
+          if (resp.data.success) {
+            this.userId = ''
+            this.selectedRole = null
+          }
+        },
+        'Failed to assign role',
+      )
     },
   },
 }
@@ -241,14 +279,14 @@ export default {
     margin-top: 16px;
   }
 
-  .repair-seeds-container {
+  .task-container {
     display: flex;
     flex-direction: column;
     gap: 16px;
     max-width: 600px;
   }
 
-  .repair-seeds-output {
+  .task-output {
     white-space: pre-wrap;
     word-break: break-word;
     margin: 0;

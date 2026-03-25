@@ -12,6 +12,7 @@ use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\AdminSettingsService;
+use OCA\Forum\Service\StatsService;
 use OCA\Forum\Service\UserRoleService;
 use OCA\Forum\Service\UserService;
 use OCP\IRequest;
@@ -45,6 +46,8 @@ class AdminControllerTest extends TestCase {
 	private IUserSession $userSession;
 	/** @var AdminSettingsService&MockObject */
 	private AdminSettingsService $settingsService;
+	/** @var StatsService&MockObject */
+	private StatsService $statsService;
 	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 	/** @var IRequest&MockObject */
@@ -62,6 +65,7 @@ class AdminControllerTest extends TestCase {
 		$this->userManager = $this->createMock(IUserManager::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->settingsService = $this->createMock(AdminSettingsService::class);
+		$this->statsService = $this->createMock(StatsService::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->controller = new AdminController(
@@ -77,6 +81,7 @@ class AdminControllerTest extends TestCase {
 			$this->userManager,
 			$this->userSession,
 			$this->settingsService,
+			$this->statsService,
 			$this->logger
 		);
 	}

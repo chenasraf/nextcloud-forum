@@ -43,7 +43,8 @@ threads, and posts within their Nextcloud instance.
 - **User Profiles**: Post history, statistics, and role badges
 - **Dashboard Widgets**: Recent activity, top threads, and top categories on the Nextcloud dashboard
 - **Direct Post Links**: Link directly to a specific post within a thread
-- **Moderation Tools**: Lock, pin, hide, and move threads
+- **Moderation Tools**: Lock, pin, hide, and move threads; review and restore deleted content from
+  the moderation page
 - **Server Administration**: Repair seeds, rebuild statistics, and assign roles from the Nextcloud
   admin panel
 - **Modern UI**: Built with Vue 3 and Nextcloud Vue components

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.32.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.31.0...v0.32.0) (2026-03-25)
+
+
+### Features
+
+* **admin:** split role permissions for each section ([6174bed](https://github.com/chenasraf/nextcloud-forum/commit/6174bed49a77dda683d8fb1ac076bedc2293e15e))
+
+
+### Bug Fixes
+
+* **admin:** role permission checkbox style ([b139c49](https://github.com/chenasraf/nextcloud-forum/commit/b139c4988c3b8bbba4d5068b36caa593420f8172))
+
 ## [0.31.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.30.0...v0.31.0) (2026-03-25)
 
 

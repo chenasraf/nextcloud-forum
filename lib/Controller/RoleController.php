@@ -42,7 +42,7 @@ class RoleController extends OCSController {
 	 * 200: Roles returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canManageUsers', orGroup: 'access')]
 	#[RequirePermission('canEditRoles', orGroup: 'access')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles')]
 	public function index(int $limit = 100, int $offset = 0): DataResponse {
@@ -64,7 +64,7 @@ class RoleController extends OCSController {
 	 * 200: Role returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
+	#[RequirePermission('canManageUsers', orGroup: 'access')]
 	#[RequirePermission('canEditRoles', orGroup: 'access')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}')]
 	public function show(int $id): DataResponse {
@@ -87,8 +87,10 @@ class RoleController extends OCSController {
 	 * @param string|null $colorLight Light mode color
 	 * @param string|null $colorDark Dark mode color
 	 * @param bool $canAccessAdminTools Can access admin tools
+	 * @param bool $canManageUsers Can manage users
 	 * @param bool $canEditRoles Can edit roles
 	 * @param bool $canEditCategories Can edit categories
+	 * @param bool $canEditBbcodes Can edit BBCodes
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Role created
@@ -102,8 +104,10 @@ class RoleController extends OCSController {
 		?string $colorLight = null,
 		?string $colorDark = null,
 		bool $canAccessAdminTools = false,
+		bool $canManageUsers = false,
 		bool $canEditRoles = false,
 		bool $canEditCategories = false,
+		bool $canEditBbcodes = false,
 	): DataResponse {
 		try {
 			$role = new \OCA\Forum\Db\Role();
@@ -112,8 +116,10 @@ class RoleController extends OCSController {
 			$role->setColorLight($colorLight);
 			$role->setColorDark($colorDark);
 			$role->setCanAccessAdminTools($canAccessAdminTools);
+			$role->setCanManageUsers($canManageUsers);
 			$role->setCanEditRoles($canEditRoles);
 			$role->setCanEditCategories($canEditCategories);
+			$role->setCanEditBbcodes($canEditBbcodes);
 			$role->setCreatedAt(time());
 
 			/** @var \OCA\Forum\Db\Role */
@@ -134,8 +140,10 @@ class RoleController extends OCSController {
 	 * @param string|null $colorLight Light mode color
 	 * @param string|null $colorDark Dark mode color
 	 * @param bool|null $canAccessAdminTools Can access admin tools
+	 * @param bool|null $canManageUsers Can manage users
 	 * @param bool|null $canEditRoles Can edit roles
 	 * @param bool|null $canEditCategories Can edit categories
+	 * @param bool|null $canEditBbcodes Can edit BBCodes
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Role updated
@@ -150,8 +158,10 @@ class RoleController extends OCSController {
 		?string $colorLight = null,
 		?string $colorDark = null,
 		?bool $canAccessAdminTools = null,
+		?bool $canManageUsers = null,
 		?bool $canEditRoles = null,
 		?bool $canEditCategories = null,
+		?bool $canEditBbcodes = null,
 	): DataResponse {
 		try {
 			$role = $this->roleMapper->find($id);
@@ -169,25 +179,35 @@ class RoleController extends OCSController {
 				$role->setColorDark($colorDark);
 			}
 
-			// Admin role always has all permissions - cannot be changed
+			// Admin role always has all permissions — cannot be changed
 			if ($role->getRoleType() === Role::ROLE_TYPE_ADMIN) {
 				$role->setCanAccessAdminTools(true);
+				$role->setCanManageUsers(true);
 				$role->setCanEditRoles(true);
 				$role->setCanEditCategories(true);
+				$role->setCanEditBbcodes(true);
 			} elseif ($role->getRoleType() === Role::ROLE_TYPE_GUEST) {
-				// Guest role never has admin permissions - cannot be changed
+				// Guest role never has management permissions — cannot be changed
 				$role->setCanAccessAdminTools(false);
+				$role->setCanManageUsers(false);
 				$role->setCanEditRoles(false);
 				$role->setCanEditCategories(false);
+				$role->setCanEditBbcodes(false);
 			} else {
 				if ($canAccessAdminTools !== null) {
 					$role->setCanAccessAdminTools($canAccessAdminTools);
+				}
+				if ($canManageUsers !== null) {
+					$role->setCanManageUsers($canManageUsers);
 				}
 				if ($canEditRoles !== null) {
 					$role->setCanEditRoles($canEditRoles);
 				}
 				if ($canEditCategories !== null) {
 					$role->setCanEditCategories($canEditCategories);
+				}
+				if ($canEditBbcodes !== null) {
+					$role->setCanEditBbcodes($canEditBbcodes);
 				}
 			}
 
@@ -247,8 +267,7 @@ class RoleController extends OCSController {
 	 * 200: Permissions returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools', orGroup: 'access')]
-	#[RequirePermission('canEditRoles', orGroup: 'access')]
+	#[RequirePermission('canEditRoles')]
 	#[ApiRoute(verb: 'GET', url: '/api/roles/{id}/permissions')]
 	public function getPermissions(int $id, int $limit = 100, int $offset = 0): DataResponse {
 		try {

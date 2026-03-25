@@ -127,6 +127,43 @@ class PermissionServiceTest extends TestCase {
 		$this->assertTrue($result);
 	}
 
+	public function testHasGlobalPermissionCanManageUsers(): void {
+		$userId = 'user1';
+		$role = $this->createRole(1, 'Manager', false, false, false, false, Role::ROLE_TYPE_CUSTOM, true, false);
+
+		$this->roleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->assertTrue($this->service->hasGlobalPermission($userId, 'canManageUsers'));
+		$this->assertFalse($role->getCanEditBbcodes());
+	}
+
+	public function testHasGlobalPermissionCanEditBbcodes(): void {
+		$userId = 'user1';
+		$role = $this->createRole(1, 'BBCodeEditor', false, false, false, false, Role::ROLE_TYPE_CUSTOM, false, true);
+
+		$this->roleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->assertTrue($this->service->hasGlobalPermission($userId, 'canEditBbcodes'));
+		$this->assertFalse($role->getCanManageUsers());
+	}
+
+	public function testHasGlobalPermissionReturnsFalseForNewPermissionsWhenNotSet(): void {
+		$userId = 'user1';
+		$role = $this->createRole(1, 'Basic', false, false, false, false, Role::ROLE_TYPE_CUSTOM);
+
+		$this->roleMapper->method('findByUserId')
+			->with($userId)
+			->willReturn([$role]);
+
+		$this->assertFalse($this->service->hasGlobalPermission($userId, 'canManageUsers'));
+	}
+
 	public function testHasGlobalPermissionHandlesException(): void {
 		$userId = 'user1';
 		$permission = 'canEditRoles';
@@ -776,13 +813,15 @@ class PermissionServiceTest extends TestCase {
 		return $userRole;
 	}
 
-	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM): Role {
+	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM, bool $canManageUsers = false, bool $canEditBbcodes = false): Role {
 		$role = new Role();
 		$role->setId($id);
 		$role->setName($name);
 		$role->setCanAccessAdminTools($canAccessAdminTools);
+		$role->setCanManageUsers($canManageUsers);
 		$role->setCanEditRoles($canEditRoles);
 		$role->setCanEditCategories($canEditCategories);
+		$role->setCanEditBbcodes($canEditBbcodes);
 		$role->setIsSystemRole($isSystemRole);
 		$role->setRoleType($roleType);
 		$role->setCreatedAt(time());

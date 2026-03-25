@@ -83,11 +83,13 @@ router.beforeEach(async (to, from, next) => {
 
   // Check if the route is an admin route
   if (to.path.startsWith('/admin')) {
-    const { canAccessAdmin, fetchUserRoles, loaded } = useUserRole()
+    const { canAccessAdmin, loaded } = useUserRole()
 
-    // Fetch user and roles if not already loaded
+    // Roles are populated by fetchCurrentUser (/users/me includes roles).
+    // On direct page load the guard may run before AppNavigation, so fetch now.
     if (!loaded.value && userId.value) {
-      await fetchUserRoles(userId.value)
+      const { fetchCurrentUser } = useCurrentUser()
+      await fetchCurrentUser()
     }
 
     // Redirect users without admin access to home

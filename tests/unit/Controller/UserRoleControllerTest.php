@@ -328,8 +328,10 @@ class UserRoleControllerTest extends TestCase {
 		$role->setRoleType($roleType);
 		$role->setIsSystemRole($roleType !== Role::ROLE_TYPE_CUSTOM);
 		$role->setCanAccessAdminTools($roleType === Role::ROLE_TYPE_ADMIN);
+		$role->setCanManageUsers($roleType === Role::ROLE_TYPE_ADMIN);
 		$role->setCanEditRoles($roleType === Role::ROLE_TYPE_ADMIN);
 		$role->setCanEditCategories($roleType === Role::ROLE_TYPE_ADMIN);
+		$role->setCanEditBbcodes($roleType === Role::ROLE_TYPE_ADMIN);
 		$role->setCreatedAt(time());
 		return $role;
 	}

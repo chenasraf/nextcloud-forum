@@ -1,5 +1,4 @@
 import { ref, computed } from 'vue'
-import { ocs } from '@/axios'
 import { isAdminRole, isModeratorRole } from '@/constants'
 import type { Role } from '@/types'
 
@@ -10,26 +9,13 @@ const loaded = ref<boolean>(false)
 const currentUserId = ref<string | null>(null)
 
 export function useUserRole() {
-  const fetchUserRoles = async (userId: string, force = false): Promise<Role[]> => {
-    if (loaded.value && !force && currentUserId.value === userId) {
-      return userRoles.value
-    }
-
-    try {
-      loading.value = true
-      error.value = null
-      const response = await ocs.get<Role[]>(`/users/${userId}/roles`)
-      userRoles.value = response.data || []
-      currentUserId.value = userId
-      loaded.value = true
-      return userRoles.value
-    } catch (e) {
-      error.value = (e as Error).message || 'Failed to fetch user roles'
-      console.error('Failed to fetch user roles:', e)
-      return []
-    } finally {
-      loading.value = false
-    }
+  /**
+   * Set roles directly (called by useCurrentUser after fetching /users/me)
+   */
+  const setRoles = (userId: string, roles: Role[]): void => {
+    userRoles.value = roles
+    currentUserId.value = userId
+    loaded.value = true
   }
 
   const isAdmin = computed<boolean>(() => {
@@ -44,8 +30,8 @@ export function useUserRole() {
     return userRoles.value.some((role) => role.canAccessAdminTools)
   })
 
-  const canAccessAdmin = computed<boolean>(() => {
-    return canAccessAdminTools.value || canEditRoles.value || canEditCategories.value
+  const canManageUsers = computed<boolean>(() => {
+    return userRoles.value.some((role) => role.canManageUsers)
   })
 
   const canEditRoles = computed<boolean>(() => {
@@ -56,12 +42,19 @@ export function useUserRole() {
     return userRoles.value.some((role) => role.canEditCategories)
   })
 
-  const refresh = () => {
-    if (currentUserId.value) {
-      loaded.value = false
-      return fetchUserRoles(currentUserId.value, true)
-    }
-  }
+  const canEditBbcodes = computed<boolean>(() => {
+    return userRoles.value.some((role) => role.canEditBbcodes)
+  })
+
+  const canAccessAdmin = computed<boolean>(() => {
+    return (
+      canAccessAdminTools.value ||
+      canManageUsers.value ||
+      canEditRoles.value ||
+      canEditCategories.value ||
+      canEditBbcodes.value
+    )
+  })
 
   const clear = () => {
     userRoles.value = []
@@ -79,10 +72,11 @@ export function useUserRole() {
     isModerator,
     canAccessAdmin,
     canAccessAdminTools,
+    canManageUsers,
     canEditRoles,
     canEditCategories,
-    fetchUserRoles,
-    refresh,
+    canEditBbcodes,
+    setRoles,
     clear,
   }
 }

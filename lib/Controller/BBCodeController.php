@@ -38,7 +38,7 @@ class BBCodeController extends OCSController {
 	 * 200: BBCodes returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canEditBbcodes')]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes')]
 	public function index(int $limit = 100, int $offset = 0): DataResponse {
 		try {
@@ -101,7 +101,7 @@ class BBCodeController extends OCSController {
 	 * 200: BBCode returned
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canEditBbcodes')]
 	#[ApiRoute(verb: 'GET', url: '/api/bbcodes/{id}')]
 	public function show(int $id): DataResponse {
 		try {
@@ -135,7 +135,7 @@ class BBCodeController extends OCSController {
 	 * 201: BBCode created
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canEditBbcodes')]
 	#[ApiRoute(verb: 'POST', url: '/api/bbcodes')]
 	public function create(string $tag, string $replacement, string $example, ?string $description = null, bool $enabled = true, bool $parseInner = true): DataResponse {
 		try {
@@ -173,7 +173,7 @@ class BBCodeController extends OCSController {
 	 * 200: BBCode updated
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canEditBbcodes')]
 	#[ApiRoute(verb: 'PUT', url: '/api/bbcodes/{id}')]
 	public function update(int $id, ?string $tag = null, ?string $replacement = null, ?string $example = null, ?string $description = null, ?bool $enabled = null, ?bool $parseInner = null): DataResponse {
 		try {
@@ -223,7 +223,7 @@ class BBCodeController extends OCSController {
 	 * 200: BBCode deleted
 	 */
 	#[NoAdminRequired]
-	#[RequirePermission('canAccessAdminTools')]
+	#[RequirePermission('canEditBbcodes')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/bbcodes/{id}')]
 	public function destroy(int $id): DataResponse {
 		try {

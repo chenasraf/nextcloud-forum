@@ -8,6 +8,7 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\ForumUserController;
 use OCA\Forum\Db\ForumUser;
 use OCA\Forum\Db\ForumUserMapper;
+use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -22,6 +23,8 @@ class ForumUserControllerTest extends TestCase {
 	private ForumUserController $controller;
 	/** @var ForumUserMapper&MockObject */
 	private ForumUserMapper $forumUserMapper;
+	/** @var RoleMapper&MockObject */
+	private RoleMapper $roleMapper;
 	/** @var UserService&MockObject */
 	private UserService $userService;
 	/** @var IUserSession&MockObject */
@@ -34,6 +37,8 @@ class ForumUserControllerTest extends TestCase {
 	protected function setUp(): void {
 		$this->request = $this->createMock(IRequest::class);
 		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
+		$this->roleMapper = $this->createMock(RoleMapper::class);
+		$this->roleMapper->method('findByUserId')->willReturn([]);
 		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
@@ -42,6 +47,7 @@ class ForumUserControllerTest extends TestCase {
 			Application::APP_ID,
 			$this->request,
 			$this->forumUserMapper,
+			$this->roleMapper,
 			$this->userService,
 			$this->userSession,
 			$this->logger
@@ -124,7 +130,7 @@ class ForumUserControllerTest extends TestCase {
 		$this->assertEquals(['error' => 'Forum user not found'], $response->getData());
 	}
 
-	public function testShowWithMeReturnsNotFoundWhenForumUserDoesNotExist(): void {
+	public function testShowWithMeReturnsMinimalResponseWhenForumUserDoesNotExist(): void {
 		$nextcloudUserId = 'user-without-forum-profile';
 
 		$user = $this->createMock(IUser::class);
@@ -136,10 +142,17 @@ class ForumUserControllerTest extends TestCase {
 			->with($nextcloudUserId)
 			->willThrowException(new DoesNotExistException('Forum user not found'));
 
+		$this->roleMapper->expects($this->once())
+			->method('findByUserId')
+			->with($nextcloudUserId)
+			->willReturn([]);
+
 		$response = $this->controller->show('me');
 
-		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
-		$this->assertEquals(['error' => 'Forum user not found'], $response->getData());
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals($nextcloudUserId, $data['userId']);
+		$this->assertEquals([], $data['roles']);
 	}
 
 	public function testCreateForumUserSuccessfully(): void {

@@ -208,7 +208,7 @@ export default {
       try {
         this.rolesLoading = true
         this.rolesError = null
-        const resp = await ocs.get('/admin/roles')
+        const resp = await ocs.get('/server-admin/roles')
         this.roles = resp.data.roles
       } catch (e) {
         console.error('Failed to fetch roles', e)
@@ -248,7 +248,7 @@ export default {
         this.assignRole,
         async (task) => {
           const resp = await ocs.post(
-            `/admin/users/${encodeURIComponent(this.userId.trim())}/roles`,
+            `/server-admin/users/${encodeURIComponent(this.userId.trim())}/roles`,
             { roleId: this.selectedRole.id },
           )
           task.success = resp.data.success

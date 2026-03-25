@@ -139,8 +139,10 @@ export interface Role {
   colorLight: string | null
   colorDark: string | null
   canAccessAdminTools: boolean
+  canManageUsers: boolean
   canEditRoles: boolean
   canEditCategories: boolean
+  canEditBbcodes: boolean
   isSystemRole: boolean
   roleType: 'admin' | 'moderator' | 'default' | 'guest' | 'custom'
   createdAt: number

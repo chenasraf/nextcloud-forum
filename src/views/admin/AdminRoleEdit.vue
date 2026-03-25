@@ -122,6 +122,15 @@
             </NcCheckboxRadioSwitch>
 
             <NcCheckboxRadioSwitch
+              v-model="formData.canManageUsers"
+              :disabled="isAdmin || isGuest"
+              class="permission-switch"
+            >
+              <strong>{{ strings.canManageUsers }}</strong>
+              <span class="checkbox-desc muted">{{ strings.canManageUsersDesc }}</span>
+            </NcCheckboxRadioSwitch>
+
+            <NcCheckboxRadioSwitch
               v-model="formData.canEditRoles"
               :disabled="isAdmin || isGuest"
               class="permission-switch"
@@ -137,6 +146,15 @@
             >
               <strong>{{ strings.canEditCategories }}</strong>
               <span class="checkbox-desc muted">{{ strings.canEditCategoriesDesc }}</span>
+            </NcCheckboxRadioSwitch>
+
+            <NcCheckboxRadioSwitch
+              v-model="formData.canEditBbcodes"
+              :disabled="isAdmin || isGuest"
+              class="permission-switch"
+            >
+              <strong>{{ strings.canEditBbcodes }}</strong>
+              <span class="checkbox-desc muted">{{ strings.canEditBbcodesDesc }}</span>
             </NcCheckboxRadioSwitch>
           </div>
         </FormSection>
@@ -245,8 +263,10 @@ export default defineComponent({
         colorLight: '#000000',
         colorDark: '#ffffff',
         canAccessAdminTools: false,
+        canManageUsers: false,
         canEditRoles: false,
         canEditCategories: false,
+        canEditBbcodes: false,
       },
       darkColorModified: false,
       permissions: {} as Record<number, CategoryPermission>,
@@ -274,15 +294,22 @@ export default defineComponent({
         reset: t('forum', 'Reset'),
         rolePermissions: t('forum', 'Role permissions'),
         rolePermissionsDesc: t('forum', 'Set global permissions for this role'),
-        canAccessAdminTools: t('forum', 'Can access management tools'),
+        canAccessAdminTools: t('forum', 'Dashboard and forum settings'),
         canAccessAdminToolsDesc: t(
           'forum',
-          'Allow access to the management dashboard, forum settings, and BBCode management',
+          'Allow access to the management dashboard and forum settings',
         ),
-        canEditRoles: t('forum', 'Can edit roles'),
-        canEditRolesDesc: t('forum', 'Allow creating, editing and deleting roles'),
-        canEditCategories: t('forum', 'Can edit categories'),
+        canManageUsers: t('forum', 'Account management'),
+        canManageUsersDesc: t('forum', 'Allow viewing accounts and assigning roles'),
+        canEditRoles: t('forum', 'Roles and teams management'),
+        canEditRolesDesc: t(
+          'forum',
+          'Allow creating, editing and deleting roles and team permissions',
+        ),
+        canEditCategories: t('forum', 'Category management'),
         canEditCategoriesDesc: t('forum', 'Allow creating, editing and deleting categories'),
+        canEditBbcodes: t('forum', 'BBCode management'),
+        canEditBbcodesDesc: t('forum', 'Allow creating, editing and deleting custom BBCodes'),
         categoryPermissions: t('forum', 'Category permissions'),
         categoryPermissionsDesc: t('forum', 'Set which categories this role can access'),
         adminAllRolePermissions: t('forum', 'Admin role must have all permissions enabled'),
@@ -411,28 +438,36 @@ export default defineComponent({
       this.formData.colorLight = this.role.colorLight || fallback?.light || '#000000'
       this.formData.colorDark = this.role.colorDark || fallback?.dark || '#ffffff'
       this.formData.canAccessAdminTools = this.role.canAccessAdminTools || false
+      this.formData.canManageUsers = this.role.canManageUsers || false
       this.formData.canEditRoles = this.role.canEditRoles || false
       this.formData.canEditCategories = this.role.canEditCategories || false
+      this.formData.canEditBbcodes = this.role.canEditBbcodes || false
 
       // Admin role always has all permissions
       if (this.isAdmin) {
         this.formData.canAccessAdminTools = true
+        this.formData.canManageUsers = true
         this.formData.canEditRoles = true
         this.formData.canEditCategories = true
+        this.formData.canEditBbcodes = true
       }
 
-      // Guest role never has admin permissions
+      // Guest role never has management permissions
       if (this.isGuest) {
         this.formData.canAccessAdminTools = false
+        this.formData.canManageUsers = false
         this.formData.canEditRoles = false
         this.formData.canEditCategories = false
+        this.formData.canEditBbcodes = false
       }
 
-      // Default role never has admin permissions (same as guest)
+      // Default role never has management permissions (same as guest)
       if (this.isDefault) {
         this.formData.canAccessAdminTools = false
+        this.formData.canManageUsers = false
         this.formData.canEditRoles = false
         this.formData.canEditCategories = false
+        this.formData.canEditBbcodes = false
       }
 
       // If colors are different, mark dark as modified
@@ -521,22 +556,18 @@ export default defineComponent({
       try {
         this.submitting = true
 
+        const perm = (value: boolean) => (this.isAdmin ? true : this.isGuest ? false : value)
+
         const roleData = {
           name: this.formData.name.trim(),
           description: this.formData.description.trim() || null,
           colorLight: this.formData.colorLight || null,
           colorDark: this.formData.colorDark || null,
-          canAccessAdminTools: this.isAdmin
-            ? true
-            : this.isGuest
-              ? false
-              : this.formData.canAccessAdminTools,
-          canEditRoles: this.isAdmin ? true : this.isGuest ? false : this.formData.canEditRoles,
-          canEditCategories: this.isAdmin
-            ? true
-            : this.isGuest
-              ? false
-              : this.formData.canEditCategories,
+          canAccessAdminTools: perm(this.formData.canAccessAdminTools),
+          canManageUsers: perm(this.formData.canManageUsers),
+          canEditRoles: perm(this.formData.canEditRoles),
+          canEditCategories: perm(this.formData.canEditCategories),
+          canEditBbcodes: perm(this.formData.canEditBbcodes),
         }
 
         let roleId: number

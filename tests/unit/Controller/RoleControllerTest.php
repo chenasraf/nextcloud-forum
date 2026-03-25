@@ -57,8 +57,10 @@ class RoleControllerTest extends TestCase {
 				// Verify Admin role always has all permissions
 				$this->assertEquals($adminRoleId, $role->getId());
 				$this->assertTrue($role->getCanAccessAdminTools());
+				$this->assertTrue($role->getCanManageUsers());
 				$this->assertTrue($role->getCanEditRoles());
 				$this->assertTrue($role->getCanEditCategories());
+				$this->assertTrue($role->getCanEditBbcodes());
 				return $role;
 			});
 
@@ -71,14 +73,18 @@ class RoleControllerTest extends TestCase {
 			'#ff0000',
 			false,  // Try to disable - should be forced to true
 			false,  // Try to disable - should be forced to true
-			false   // Try to disable - should be forced to true
+			false,  // Try to disable - should be forced to true
+			false,  // Try to disable - should be forced to true
+			false,  // Try to disable - should be forced to true
 		);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
 		$this->assertTrue($data['canAccessAdminTools']);
+		$this->assertTrue($data['canManageUsers']);
 		$this->assertTrue($data['canEditRoles']);
 		$this->assertTrue($data['canEditCategories']);
+		$this->assertTrue($data['canEditBbcodes']);
 	}
 
 	public function testUpdateNonAdminRoleAllowsPermissionChanges(): void {
@@ -107,9 +113,11 @@ class RoleControllerTest extends TestCase {
 			'Moderator role',
 			null,
 			null,
-			false,  // Changed from true
-			true,   // Kept true
-			false   // Changed from true
+			false,  // canAccessAdminTools — changed from true
+			null,   // canManageUsers — unchanged
+			true,   // canEditRoles — kept true
+			false,  // canEditCategories — changed from true
+			null,   // canEditBbcodes — unchanged
 		);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -250,8 +258,10 @@ class RoleControllerTest extends TestCase {
 		$this->assertEquals($roleId, $data['id']);
 		$this->assertEquals('Moderator', $data['name']);
 		$this->assertTrue($data['canAccessAdminTools']);
+		$this->assertFalse($data['canManageUsers']);
 		$this->assertFalse($data['canEditRoles']);
 		$this->assertTrue($data['canEditCategories']);
+		$this->assertFalse($data['canEditBbcodes']);
 	}
 
 	public function testShowReturnsNotFoundWhenRoleDoesNotExist(): void {
@@ -283,8 +293,10 @@ class RoleControllerTest extends TestCase {
 				$this->assertEquals($colorLight, $role->getColorLight());
 				$this->assertEquals($colorDark, $role->getColorDark());
 				$this->assertTrue($role->getCanAccessAdminTools());
+				$this->assertFalse($role->getCanManageUsers());
 				$this->assertFalse($role->getCanEditRoles());
 				$this->assertTrue($role->getCanEditCategories());
+				$this->assertFalse($role->getCanEditBbcodes());
 
 				// Simulate DB setting ID
 				$role->setId(4);
@@ -297,8 +309,10 @@ class RoleControllerTest extends TestCase {
 			$colorLight,
 			$colorDark,
 			true,   // canAccessAdminTools
+			false,  // canManageUsers
 			false,  // canEditRoles
-			true    // canEditCategories
+			true,   // canEditCategories
+			false,  // canEditBbcodes
 		);
 
 		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
@@ -478,11 +492,13 @@ class RoleControllerTest extends TestCase {
 		$this->roleMapper->expects($this->once())
 			->method('update')
 			->willReturnCallback(function ($role) use ($guestRoleId) {
-				// Verify Guest role never has admin permissions
+				// Verify Guest role never has management permissions
 				$this->assertEquals($guestRoleId, $role->getId());
 				$this->assertFalse($role->getCanAccessAdminTools());
+				$this->assertFalse($role->getCanManageUsers());
 				$this->assertFalse($role->getCanEditRoles());
 				$this->assertFalse($role->getCanEditCategories());
+				$this->assertFalse($role->getCanEditBbcodes());
 				return $role;
 			});
 
@@ -495,14 +511,18 @@ class RoleControllerTest extends TestCase {
 			'#cccccc',
 			true,  // Try to enable - should be forced to false
 			true,  // Try to enable - should be forced to false
-			true   // Try to enable - should be forced to false
+			true,  // Try to enable - should be forced to false
+			true,  // Try to enable - should be forced to false
+			true,  // Try to enable - should be forced to false
 		);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
 		$this->assertFalse($data['canAccessAdminTools']);
+		$this->assertFalse($data['canManageUsers']);
 		$this->assertFalse($data['canEditRoles']);
 		$this->assertFalse($data['canEditCategories']);
+		$this->assertFalse($data['canEditBbcodes']);
 	}
 
 	public function testUpdateGuestPermissionsEnforcesNoModerate(): void {
@@ -573,13 +593,15 @@ class RoleControllerTest extends TestCase {
 		$this->assertTrue($data['success']);
 	}
 
-	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM): Role {
+	private function createRole(int $id, string $name, bool $canAccessAdminTools, bool $canEditRoles, bool $canEditCategories, bool $isSystemRole = false, string $roleType = Role::ROLE_TYPE_CUSTOM, bool $canManageUsers = false, bool $canEditBbcodes = false): Role {
 		$role = new Role();
 		$role->setId($id);
 		$role->setName($name);
 		$role->setCanAccessAdminTools($canAccessAdminTools);
+		$role->setCanManageUsers($canManageUsers);
 		$role->setCanEditRoles($canEditRoles);
 		$role->setCanEditCategories($canEditCategories);
+		$role->setCanEditBbcodes($canEditBbcodes);
 		$role->setIsSystemRole($isSystemRole);
 		$role->setRoleType($roleType);
 		$role->setCreatedAt(time());

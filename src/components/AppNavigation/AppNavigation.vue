@@ -140,7 +140,7 @@
             </NcAppNavigationItem>
 
             <NcAppNavigationItem
-              v-if="canEditRoles"
+              v-if="canManageUsers"
               :name="strings.navAdminUsers"
               :to="{ path: '/admin/users' }"
               :active="isPathActive('/admin/users', true)"
@@ -173,7 +173,7 @@
             </NcAppNavigationItem>
 
             <NcAppNavigationItem
-              v-if="canAccessAdminTools"
+              v-if="canEditBbcodes"
               :name="strings.navAdminBBCodes"
               :to="{ path: '/admin/bbcodes' }"
               :active="isPathActive('/admin/bbcodes', true)"
@@ -266,8 +266,14 @@ export default defineComponent({
   setup() {
     const { categoryHeaders, fetchCategories } = useCategories()
     const { userId, displayName, fetchCurrentUser } = useCurrentUser()
-    const { canAccessAdmin, canAccessAdminTools, canEditRoles, canEditCategories, fetchUserRoles } =
-      useUserRole()
+    const {
+      canAccessAdmin,
+      canAccessAdminTools,
+      canManageUsers,
+      canEditRoles,
+      canEditCategories,
+      canEditBbcodes,
+    } = useUserRole()
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
     const { isGuest, guestDisplayName, fetchGuestIdentity } = useGuestSession()
 
@@ -275,13 +281,14 @@ export default defineComponent({
       categoryHeaders,
       fetchCategories,
       fetchCurrentUser,
-      fetchUserRoles,
       userId,
       displayName,
       canAccessAdmin,
       canAccessAdminTools,
+      canManageUsers,
       canEditRoles,
       canEditCategories,
+      canEditBbcodes,
       currentThreadCategoryId,
       fetchThread,
       clearThread,
@@ -329,13 +336,8 @@ export default defineComponent({
         this.fetchCurrentUser(),
       ])
 
-      // If user was fetched successfully, also fetch their roles
-      if (userResult.status === 'fulfilled' && userResult.value) {
-        // Wait for roles to load before showing the sidebar
-        await this.fetchUserRoles(userResult.value.userId).catch((e) => {
-          console.error('Failed to load user roles:', e)
-        })
-      } else if (this.isGuest) {
+      // Roles are included in the /users/me response and populated automatically
+      if (userResult.status !== 'fulfilled' && this.isGuest) {
         // Fetch guest identity for sidebar display
         await this.fetchGuestIdentity().catch((e) => {
           console.error('Failed to load guest identity:', e)
@@ -465,10 +467,14 @@ export default defineComponent({
       // Navigate to the first available management item
       if (this.canAccessAdminTools) {
         this.$router.push({ path: '/admin' })
-      } else if (this.canEditRoles) {
+      } else if (this.canManageUsers) {
         this.$router.push({ path: '/admin/users' })
+      } else if (this.canEditRoles) {
+        this.$router.push({ path: '/admin/roles' })
       } else if (this.canEditCategories) {
         this.$router.push({ path: '/admin/categories' })
+      } else if (this.canEditBbcodes) {
+        this.$router.push({ path: '/admin/bbcodes' })
       }
     },
 

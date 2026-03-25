@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\Db\ForumUserMapper;
+use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -29,6 +30,7 @@ class ForumUserController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private ForumUserMapper $forumUserMapper,
+		private RoleMapper $roleMapper,
 		private UserService $userService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
@@ -98,8 +100,10 @@ class ForumUserController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/users/{userId}')]
 	public function show(string $userId): DataResponse {
 		try {
+			$isMe = $userId === 'me';
+
 			// Handle "me" as special case for current user
-			if ($userId === 'me') {
+			if ($isMe) {
 				$currentUser = $this->userSession->getUser();
 				if (!$currentUser) {
 					// Guest users have no forum profile - return 404 like a user who hasn't posted yet
@@ -108,10 +112,21 @@ class ForumUserController extends OCSController {
 				$userId = $currentUser->getUID();
 			}
 
-			$forumUser = $this->forumUserMapper->find($userId);
-			return new DataResponse($forumUser->jsonSerialize());
-		} catch (DoesNotExistException $e) {
-			return new DataResponse(['error' => 'Forum user not found'], Http::STATUS_NOT_FOUND);
+			try {
+				$forumUser = $this->forumUserMapper->find($userId);
+				$data = $forumUser->jsonSerialize();
+			} catch (DoesNotExistException $e) {
+				if (!$isMe) {
+					return new DataResponse(['error' => 'Forum user not found'], Http::STATUS_NOT_FOUND);
+				}
+				// For "me", return a minimal response so roles are still included
+				$data = ['userId' => $userId];
+			}
+
+			$roles = $this->roleMapper->findByUserId($userId);
+			$data['roles'] = array_map(fn ($role) => $role->jsonSerialize(), $roles);
+
+			return new DataResponse($data);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching forum user: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch forum user'], Http::STATUS_INTERNAL_SERVER_ERROR);

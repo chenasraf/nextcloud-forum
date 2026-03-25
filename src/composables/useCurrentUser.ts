@@ -1,7 +1,8 @@
 import { ref, computed, type Ref } from 'vue'
 import { ocs } from '@/axios'
-import type { ForumUser } from '@/types'
+import type { ForumUser, Role } from '@/types'
 import { getCurrentUser } from '@nextcloud/auth'
+import { useUserRole } from '@/composables/useUserRole'
 
 const currentForumUser = ref<ForumUser | null>(null)
 const loading = ref<boolean>(false)
@@ -9,6 +10,8 @@ const error = ref<string | null>(null)
 const loaded = ref<boolean>(false)
 
 export function useCurrentUser() {
+  const { setRoles } = useUserRole()
+
   const fetchCurrentUser = async (force = false): Promise<ForumUser | null> => {
     // Don't refetch if already loaded unless forced
     if (loaded.value && !force) {
@@ -19,19 +22,21 @@ export function useCurrentUser() {
       loading.value = true
       error.value = null
 
-      const response = await ocs.get<ForumUser>('/users/me')
-      currentForumUser.value = response.data
+      const response = await ocs.get<ForumUser & { roles?: Role[] }>('/users/me')
+      const { roles, ...forumUser } = response.data ?? {}
+      currentForumUser.value = forumUser as ForumUser
       loaded.value = true
+
+      // Extract roles from the response and populate the role composable
+      if (roles) {
+        const uid = nextcloudUser.value?.uid
+        if (uid) {
+          setRoles(uid, roles)
+        }
+      }
+
       return currentForumUser.value
     } catch (e: unknown) {
-      // If 404, forum user doesn't exist yet (user hasn't posted) - this is OK
-      const err = e as { response?: { status?: number } }
-      if (err?.response?.status === 404) {
-        console.debug('Forum user not found - user has not posted yet')
-        currentForumUser.value = null
-        loaded.value = true
-        return null
-      }
       console.error('Failed to fetch current forum user', e)
       error.value = (e as Error).message || 'Failed to load user information'
       return null

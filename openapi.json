@@ -7445,6 +7445,11 @@
                                         "default": false,
                                         "description": "Can access admin tools"
                                     },
+                                    "canManageUsers": {
+                                        "type": "boolean",
+                                        "default": false,
+                                        "description": "Can manage users"
+                                    },
                                     "canEditRoles": {
                                         "type": "boolean",
                                         "default": false,
@@ -7454,6 +7459,11 @@
                                         "type": "boolean",
                                         "default": false,
                                         "description": "Can edit categories"
+                                    },
+                                    "canEditBbcodes": {
+                                        "type": "boolean",
+                                        "default": false,
+                                        "description": "Can edit BBCodes"
                                     }
                                 }
                             }
@@ -7689,6 +7699,12 @@
                                         "default": null,
                                         "description": "Can access admin tools"
                                     },
+                                    "canManageUsers": {
+                                        "type": "boolean",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Can manage users"
+                                    },
                                     "canEditRoles": {
                                         "type": "boolean",
                                         "nullable": true,
@@ -7700,6 +7716,12 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Can edit categories"
+                                    },
+                                    "canEditBbcodes": {
+                                        "type": "boolean",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Can edit BBCodes"
                                     }
                                 }
                             }

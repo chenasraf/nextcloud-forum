@@ -6,8 +6,11 @@ namespace OCA\Forum\Tests\Controller;
 
 use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\ServerAdminController;
+use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Service\StatsService;
+use OCA\Forum\Service\UserRoleService;
 use OCP\IRequest;
+use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -15,6 +18,12 @@ use Psr\Log\LoggerInterface;
 class ServerAdminControllerTest extends TestCase {
 	private ServerAdminController $controller;
 
+	/** @var RoleMapper&MockObject */
+	private RoleMapper $roleMapper;
+	/** @var UserRoleService&MockObject */
+	private UserRoleService $userRoleService;
+	/** @var IUserManager&MockObject */
+	private IUserManager $userManager;
 	/** @var StatsService&MockObject */
 	private StatsService $statsService;
 	/** @var LoggerInterface&MockObject */
@@ -24,12 +33,18 @@ class ServerAdminControllerTest extends TestCase {
 
 	protected function setUp(): void {
 		$this->request = $this->createMock(IRequest::class);
+		$this->roleMapper = $this->createMock(RoleMapper::class);
+		$this->userRoleService = $this->createMock(UserRoleService::class);
+		$this->userManager = $this->createMock(IUserManager::class);
 		$this->statsService = $this->createMock(StatsService::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->controller = new ServerAdminController(
 			Application::APP_ID,
 			$this->request,
+			$this->roleMapper,
+			$this->userRoleService,
+			$this->userManager,
 			$this->statsService,
 			$this->logger
 		);

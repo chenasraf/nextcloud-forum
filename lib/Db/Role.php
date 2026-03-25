@@ -24,10 +24,14 @@ use OCP\AppFramework\Db\Entity;
  * @method void setColorDark(?string $value)
  * @method bool getCanAccessAdminTools()
  * @method void setCanAccessAdminTools(bool $value)
+ * @method bool getCanManageUsers()
+ * @method void setCanManageUsers(bool $value)
  * @method bool getCanEditRoles()
  * @method void setCanEditRoles(bool $value)
  * @method bool getCanEditCategories()
  * @method void setCanEditCategories(bool $value)
+ * @method bool getCanEditBbcodes()
+ * @method void setCanEditBbcodes(bool $value)
  * @method bool getIsSystemRole()
  * @method void setIsSystemRole(bool $value)
  * @method string getRoleType()
@@ -48,8 +52,10 @@ class Role extends Entity implements JsonSerializable {
 	protected $colorLight;
 	protected $colorDark;
 	protected $canAccessAdminTools;
+	protected $canManageUsers;
 	protected $canEditRoles;
 	protected $canEditCategories;
+	protected $canEditBbcodes;
 	protected $isSystemRole;
 	protected $roleType;
 	protected $createdAt;
@@ -61,8 +67,10 @@ class Role extends Entity implements JsonSerializable {
 		$this->addType('colorLight', 'string');
 		$this->addType('colorDark', 'string');
 		$this->addType('canAccessAdminTools', 'boolean');
+		$this->addType('canManageUsers', 'boolean');
 		$this->addType('canEditRoles', 'boolean');
 		$this->addType('canEditCategories', 'boolean');
+		$this->addType('canEditBbcodes', 'boolean');
 		$this->addType('isSystemRole', 'boolean');
 		$this->addType('roleType', 'string');
 		$this->addType('createdAt', 'integer');
@@ -87,8 +95,10 @@ class Role extends Entity implements JsonSerializable {
 			'colorLight' => $this->getColorLight(),
 			'colorDark' => $this->getColorDark(),
 			'canAccessAdminTools' => $this->getCanAccessAdminTools(),
+			'canManageUsers' => $this->getCanManageUsers(),
 			'canEditRoles' => $this->getCanEditRoles(),
 			'canEditCategories' => $this->getCanEditCategories(),
+			'canEditBbcodes' => $this->getCanEditBbcodes(),
 			'isSystemRole' => $this->getIsSystemRole(),
 			'roleType' => $this->getRoleType(),
 			'createdAt' => $this->getCreatedAt(),

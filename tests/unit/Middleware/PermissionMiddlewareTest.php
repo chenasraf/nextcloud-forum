@@ -58,6 +58,14 @@ class TestPermissionController extends Controller {
 	#[RequirePermission('canEditCategories')]
 	public function methodWithOrGroupAndUngrouped(): void {
 	}
+
+	#[RequirePermission('canManageUsers')]
+	public function methodWithManageUsersPermission(): void {
+	}
+
+	#[RequirePermission('canEditBbcodes')]
+	public function methodWithEditBBCodesPermission(): void {
+	}
 }
 
 class PermissionMiddlewareTest extends TestCase {
@@ -530,6 +538,74 @@ class PermissionMiddlewareTest extends TestCase {
 
 		$this->middleware->beforeController($this->controller, 'methodWithOrGroupAndUngrouped');
 		$this->assertTrue(true);
+	}
+
+	public function testCanManageUsersPermissionAllowsAccess(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->expects($this->once())
+			->method('hasGlobalPermission')
+			->with('user1', 'canManageUsers')
+			->willReturn(true);
+
+		$this->middleware->beforeController($this->controller, 'methodWithManageUsersPermission');
+		$this->assertTrue(true);
+	}
+
+	public function testCanManageUsersPermissionDeniesAccess(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->expects($this->once())
+			->method('hasGlobalPermission')
+			->with('user1', 'canManageUsers')
+			->willReturn(false);
+
+		$this->expectException(OCSForbiddenException::class);
+		$this->middleware->beforeController($this->controller, 'methodWithManageUsersPermission');
+	}
+
+	public function testCanEditBBCodesPermissionAllowsAccess(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->expects($this->once())
+			->method('hasGlobalPermission')
+			->with('user1', 'canEditBbcodes')
+			->willReturn(true);
+
+		$this->middleware->beforeController($this->controller, 'methodWithEditBBCodesPermission');
+		$this->assertTrue(true);
+	}
+
+	public function testCanEditBBCodesPermissionDeniesAccess(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->config->method('getAppValueBool')
+			->with('allow_guest_access', false, true)
+			->willReturn(false);
+
+		$this->permissionService->expects($this->once())
+			->method('hasGlobalPermission')
+			->with('user1', 'canEditBbcodes')
+			->willReturn(false);
+
+		$this->expectException(OCSForbiddenException::class);
+		$this->middleware->beforeController($this->controller, 'methodWithEditBBCodesPermission');
 	}
 
 	public function testAuthenticatedUserBypassesGuestRestrictions(): void {

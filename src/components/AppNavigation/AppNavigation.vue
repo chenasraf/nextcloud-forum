@@ -299,7 +299,7 @@ export default defineComponent({
         navSearch: t('forum', 'Search'),
         navBookmarks: t('forum', 'Bookmarks'),
         navPreferences: t('forum', 'User preferences'),
-        navAdmin: t('forum', 'Admin'),
+        navAdmin: t('forum', 'Management'),
         navAdminDashboard: t('forum', 'Dashboard'),
         navAdminSettings: t('forum', 'Forum settings'),
         navAdminUsers: t('forum', 'Users'),

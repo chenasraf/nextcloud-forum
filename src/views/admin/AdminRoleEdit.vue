@@ -274,8 +274,11 @@ export default defineComponent({
         reset: t('forum', 'Reset'),
         rolePermissions: t('forum', 'Role permissions'),
         rolePermissionsDesc: t('forum', 'Set global permissions for this role'),
-        canAccessAdminTools: t('forum', 'Can access admin tools'),
-        canAccessAdminToolsDesc: t('forum', 'Allow access to the admin dashboard and tools'),
+        canAccessAdminTools: t('forum', 'Can access management tools'),
+        canAccessAdminToolsDesc: t(
+          'forum',
+          'Allow access to the management dashboard, forum settings, and BBCode management',
+        ),
         canEditRoles: t('forum', 'Can edit roles'),
         canEditRolesDesc: t('forum', 'Allow creating, editing and deleting roles'),
         canEditCategories: t('forum', 'Can edit categories'),
@@ -284,7 +287,7 @@ export default defineComponent({
         categoryPermissionsDesc: t('forum', 'Set which categories this role can access'),
         adminAllRolePermissions: t('forum', 'Admin role must have all permissions enabled'),
         adminFullAccess: t('forum', 'Admin role has full access to all categories'),
-        guestNoRolePermissions: t('forum', 'Guest role cannot have admin permissions'),
+        guestNoRolePermissions: t('forum', 'Guest role cannot have management permissions'),
         guestNoModeratePermission: t('forum', 'Guest role cannot moderate categories'),
         guestCategoryPermissionsEditable: t(
           'forum',

@@ -145,7 +145,7 @@ export default defineComponent({
     .table-row {
       display: contents;
 
-      >div {
+      > div {
         padding: 16px;
         background: var(--color-main-background);
         display: flex;
@@ -160,7 +160,7 @@ export default defineComponent({
       }
     }
 
-    .header-row>div {
+    .header-row > div {
       font-weight: 600;
       font-size: 0.85rem;
       text-transform: uppercase;
@@ -171,11 +171,11 @@ export default defineComponent({
     }
 
     .data-row {
-      &:hover>div {
+      &:hover > div {
         background: var(--color-background-hover);
       }
 
-      &:last-child>div {
+      &:last-child > div {
         border-bottom: none;
       }
     }

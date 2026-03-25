@@ -72,13 +72,13 @@ const goBack = () => {
 
 <style scoped lang="scss">
 .not-found-page {
-	margin-top: 4rem;
+  margin-top: 4rem;
 
-	&__actions {
-		display: flex;
-		gap: 0.5rem;
-		align-items: center;
-		justify-content: center;
-	}
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>

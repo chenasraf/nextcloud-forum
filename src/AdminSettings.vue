@@ -163,7 +163,7 @@ export default {
       selectedRole: null,
 
       strings: {
-        title: t('forum', 'Forum'),
+        title: t('forum', 'Forum server administration'),
         repairSeedsHeader: t('forum', 'Database Initial Data'),
         repairSeedsHelp: t(
           'forum',

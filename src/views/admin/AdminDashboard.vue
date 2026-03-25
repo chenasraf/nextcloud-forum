@@ -242,7 +242,7 @@ export default defineComponent({
       error: null as string | null,
 
       strings: {
-        title: t('forum', 'Admin dashboard'),
+        title: t('forum', 'Management dashboard'),
         subtitle: t('forum', 'Overview of forum activity and statistics'),
         loading: t('forum', 'Loading statistics …'),
         errorTitle: t('forum', 'Error loading dashboard'),

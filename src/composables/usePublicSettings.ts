@@ -17,6 +17,8 @@ export interface PublicSettings {
   public_edit_history: boolean
   /** Whether users can hide their own edit history from others */
   allow_edit_history_user_override: boolean
+  /** Whether signatures are displayed on posts */
+  enable_signatures: boolean
 }
 
 const settings = ref<PublicSettings | null>(null)

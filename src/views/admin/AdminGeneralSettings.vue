@@ -76,6 +76,15 @@
           </div>
         </FormSection>
 
+        <FormSection :title="strings.signaturesTitle" :subtitle="strings.signaturesDesc">
+          <div class="form-group">
+            <NcCheckboxRadioSwitch v-model="formData.enable_signatures" type="switch">
+              {{ strings.enableSignatures }}
+            </NcCheckboxRadioSwitch>
+            <p class="hint">{{ strings.enableSignaturesHint }}</p>
+          </div>
+        </FormSection>
+
         <!-- Actions -->
         <div class="form-actions">
           <NcButton :disabled="saving || !hasChanges" @click="resetForm">
@@ -122,6 +131,7 @@ interface Settings {
   allow_guest_access: boolean
   public_edit_history: boolean
   allow_edit_history_user_override: boolean
+  enable_signatures: boolean
 }
 
 export default defineComponent({
@@ -157,6 +167,7 @@ export default defineComponent({
         allow_guest_access: false,
         public_edit_history: true,
         allow_edit_history_user_override: false,
+        enable_signatures: true,
       } as Settings,
       formData: {
         title: '',
@@ -164,6 +175,7 @@ export default defineComponent({
         allow_guest_access: false,
         public_edit_history: true,
         allow_edit_history_user_override: false,
+        enable_signatures: true,
       } as Settings,
 
       strings: {
@@ -199,6 +211,13 @@ export default defineComponent({
           'forum',
           'When enabled, accounts can choose to hide their edit history from other accounts in their preferences.',
         ),
+        signaturesTitle: t('forum', 'Posts'),
+        signaturesDesc: t('forum', 'Configure posting features'),
+        enableSignatures: t('forum', 'Enable signatures'),
+        enableSignaturesHint: t(
+          'forum',
+          'When enabled, accounts can set a signature in their preferences that appears at the bottom of their posts.',
+        ),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
         saveSuccess: t('forum', 'Settings saved'),
@@ -213,7 +232,8 @@ export default defineComponent({
         this.formData.allow_guest_access !== this.originalData.allow_guest_access ||
         this.formData.public_edit_history !== this.originalData.public_edit_history ||
         this.formData.allow_edit_history_user_override !==
-          this.originalData.allow_edit_history_user_override
+          this.originalData.allow_edit_history_user_override ||
+        this.formData.enable_signatures !== this.originalData.enable_signatures
       )
     },
   },

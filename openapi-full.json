@@ -383,6 +383,12 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Whether users can hide their own edit history from others"
+                                    },
+                                    "enable_signatures": {
+                                        "type": "boolean",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Whether signatures are displayed on posts"
                                     }
                                 }
                             }

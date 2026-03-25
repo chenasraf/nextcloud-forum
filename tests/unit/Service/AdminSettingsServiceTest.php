@@ -49,7 +49,7 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->exactly(4))
+		$this->config->expects($this->exactly(5))
 			->method('getAppValueBool')
 			->willReturnCallback(function ($key, $default, $lazy) {
 				return match ($key) {
@@ -57,6 +57,7 @@ class AdminSettingsServiceTest extends TestCase {
 					AdminSettingsService::SETTING_IS_INITIALIZED => false,
 					AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY => true,
 					AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => false,
+					AdminSettingsService::SETTING_ENABLE_SIGNATURES => true,
 					default => $default,
 				};
 			});
@@ -64,13 +65,14 @@ class AdminSettingsServiceTest extends TestCase {
 		$result = $this->service->getAllSettings();
 
 		$this->assertIsArray($result);
-		$this->assertCount(6, $result);
+		$this->assertCount(7, $result);
 		$this->assertEquals('My Forum', $result[AdminSettingsService::SETTING_TITLE]);
 		$this->assertEquals('Welcome!', $result[AdminSettingsService::SETTING_SUBTITLE]);
 		$this->assertTrue($result[AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS]);
 		$this->assertFalse($result[AdminSettingsService::SETTING_IS_INITIALIZED]);
 		$this->assertTrue($result[AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY]);
 		$this->assertFalse($result[AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE]);
+		$this->assertTrue($result[AdminSettingsService::SETTING_ENABLE_SIGNATURES]);
 	}
 
 	public function testGetSettingReturnsCorrectStringValue(): void {
@@ -187,7 +189,7 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->exactly(4))
+		$this->config->expects($this->exactly(5))
 			->method('getAppValueBool')
 			->willReturnCallback(function ($key, $default, $lazy) {
 				return match ($key) {
@@ -238,7 +240,7 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->exactly(4))
+		$this->config->expects($this->exactly(5))
 			->method('getAppValueBool')
 			->willReturnCallback(function ($key, $default, $lazy) {
 				return match ($key) {

@@ -81,7 +81,7 @@
         </div>
 
         <!-- Signature Section -->
-        <div class="form-section">
+        <div v-if="signaturesEnabled" class="form-section">
           <h3>{{ strings.signatureTitle }}</h3>
           <p class="section-description muted">{{ strings.signatureDesc }}</p>
 
@@ -265,6 +265,9 @@ export default defineComponent({
         this.formData.signature !== this.originalData.signature ||
         this.formData.hide_edit_history !== this.originalData.hide_edit_history
       )
+    },
+    signaturesEnabled(): boolean {
+      return this.publicSettings?.enable_signatures ?? true
     },
     showPrivacySection(): boolean {
       return (

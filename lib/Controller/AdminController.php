@@ -201,6 +201,7 @@ class AdminController extends OCSController {
 	 * @param bool|null $allow_guest_access Allow unauthenticated users to view forum content
 	 * @param bool|null $public_edit_history Whether all users can view edit history of posts
 	 * @param bool|null $allow_edit_history_user_override Whether users can hide their own edit history from others
+	 * @param bool|null $enable_signatures Whether signatures are displayed on posts
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Settings updated
@@ -208,7 +209,7 @@ class AdminController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'PUT', url: '/api/admin/settings')]
-	public function updateSettings(?string $title = null, ?string $subtitle = null, ?bool $allow_guest_access = null, ?bool $public_edit_history = null, ?bool $allow_edit_history_user_override = null): DataResponse {
+	public function updateSettings(?string $title = null, ?string $subtitle = null, ?bool $allow_guest_access = null, ?bool $public_edit_history = null, ?bool $allow_edit_history_user_override = null, ?bool $enable_signatures = null): DataResponse {
 		try {
 			// Build settings array with only non-null values
 			$settingsToUpdate = [];
@@ -226,6 +227,9 @@ class AdminController extends OCSController {
 			}
 			if ($allow_edit_history_user_override !== null) {
 				$settingsToUpdate[AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE] = $allow_edit_history_user_override;
+			}
+			if ($enable_signatures !== null) {
+				$settingsToUpdate[AdminSettingsService::SETTING_ENABLE_SIGNATURES] = $enable_signatures;
 			}
 
 			// Update settings and return all settings

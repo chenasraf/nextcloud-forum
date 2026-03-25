@@ -25,6 +25,7 @@ class ConfigLexicon implements ILexicon {
 			new Entry('is_initialized', ValueType::BOOL, false, 'Whether the forum has been initialized with seed data', lazy: true),
 			new Entry('public_edit_history', ValueType::BOOL, true, 'Whether all users can view edit history of posts', lazy: true),
 			new Entry('allow_edit_history_user_override', ValueType::BOOL, false, 'Whether users can hide their own edit history from others', lazy: true),
+			new Entry('enable_signatures', ValueType::BOOL, true, 'Whether signatures are displayed on posts', lazy: true),
 		];
 	}
 

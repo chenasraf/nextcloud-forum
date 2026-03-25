@@ -30,6 +30,9 @@ class AdminSettingsService {
 	/** Setting key for allowing user override of edit history visibility */
 	public const SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE = 'allow_edit_history_user_override';
 
+	/** Setting key for enabling signatures on posts */
+	public const SETTING_ENABLE_SIGNATURES = 'enable_signatures';
+
 	/** @var array<string> List of valid setting keys */
 	private const VALID_KEYS = [
 		self::SETTING_TITLE,
@@ -38,6 +41,7 @@ class AdminSettingsService {
 		self::SETTING_IS_INITIALIZED,
 		self::SETTING_PUBLIC_EDIT_HISTORY,
 		self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE,
+		self::SETTING_ENABLE_SIGNATURES,
 	];
 
 	public function __construct(
@@ -61,6 +65,7 @@ class AdminSettingsService {
 			self::SETTING_IS_INITIALIZED => false,
 			self::SETTING_PUBLIC_EDIT_HISTORY => true,
 			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => false,
+			self::SETTING_ENABLE_SIGNATURES => true,
 			default => null,
 		};
 	}
@@ -98,7 +103,8 @@ class AdminSettingsService {
 			self::SETTING_ALLOW_GUEST_ACCESS,
 			self::SETTING_IS_INITIALIZED,
 			self::SETTING_PUBLIC_EDIT_HISTORY,
-			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => $this->config->getAppValueBool($key, $default, true),
+			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE,
+			self::SETTING_ENABLE_SIGNATURES => $this->config->getAppValueBool($key, $default, true),
 			default => $this->config->getAppValueString($key, $default, true),
 		};
 	}
@@ -140,7 +146,8 @@ class AdminSettingsService {
 		}
 
 		if ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED
-			|| $key === self::SETTING_PUBLIC_EDIT_HISTORY || $key === self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE) {
+			|| $key === self::SETTING_PUBLIC_EDIT_HISTORY || $key === self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE
+			|| $key === self::SETTING_ENABLE_SIGNATURES) {
 			$this->config->setAppValueBool($key, (bool)$value, true);
 		} else {
 			$this->config->setAppValueString($key, (string)$value, true);

@@ -28,6 +28,7 @@ class UserService {
 		private UserRoleMapper $userRoleMapper,
 		private BBCodeMapper $bbCodeMapper,
 		private BBCodeService $bbCodeService,
+		private AdminSettingsService $adminSettingsService,
 		private GuestService $guestService,
 		private IL10N $l10n,
 	) {
@@ -114,21 +115,24 @@ class UserService {
 			}
 		}
 
-		// Get signature from forum user
+		// Get signature from forum user (only if signatures are enabled)
 		$signatureRaw = null;
 		$signature = null;
-		try {
-			$forumUser = $this->forumUserMapper->find($userId);
-			$signatureRaw = $forumUser->getSignature();
-			if ($signatureRaw !== null && $signatureRaw !== '') {
-				// Parse BBCode in signature
-				if ($bbcodes === null) {
-					$bbcodes = $this->bbCodeMapper->findAllEnabled();
+		$signaturesEnabled = (bool)$this->adminSettingsService->getSetting(AdminSettingsService::SETTING_ENABLE_SIGNATURES);
+		if ($signaturesEnabled) {
+			try {
+				$forumUser = $this->forumUserMapper->find($userId);
+				$signatureRaw = $forumUser->getSignature();
+				if ($signatureRaw !== null && $signatureRaw !== '') {
+					// Parse BBCode in signature
+					if ($bbcodes === null) {
+						$bbcodes = $this->bbCodeMapper->findAllEnabled();
+					}
+					$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
 				}
-				$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
+			} catch (DoesNotExistException $e) {
+				// No forum user record, no signature
 			}
-		} catch (DoesNotExistException $e) {
-			// No forum user record, no signature
 		}
 
 		return [
@@ -194,11 +198,11 @@ class UserService {
 				$rolesMap = $this->fetchRolesForUsers($realUserIds);
 			}
 
-			// Fetch all forum users at once for signatures
-			$signaturesMap = $this->fetchSignaturesForUsers($realUserIds);
+			// Fetch signatures only if enabled
+			$signaturesEnabled = (bool)$this->adminSettingsService->getSetting(AdminSettingsService::SETTING_ENABLE_SIGNATURES);
+			$signaturesMap = $signaturesEnabled ? $this->fetchSignaturesForUsers($realUserIds) : [];
 
-			// Fetch BBCodes once for parsing all signatures (if not provided)
-			if ($bbcodes === null) {
+			if ($signaturesEnabled && $bbcodes === null) {
 				$bbcodes = $this->bbCodeMapper->findAllEnabled();
 			}
 
@@ -208,7 +212,7 @@ class UserService {
 
 				$signatureRaw = $signaturesMap[$userId] ?? null;
 				$signature = null;
-				if ($signatureRaw !== null && $signatureRaw !== '') {
+				if ($signaturesEnabled && $signatureRaw !== null && $signatureRaw !== '') {
 					$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
 				}
 

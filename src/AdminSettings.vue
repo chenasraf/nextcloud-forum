@@ -221,7 +221,7 @@ export default {
       return runTask(
         this.repairSeeds,
         async (task) => {
-          const resp = await ocs.post('/admin/repair-seeds')
+          const resp = await ocs.post('/server-admin/repair-seeds')
           task.success = resp.data.success
           task.result = resp.data.message
           if (resp.data.success) {
@@ -235,7 +235,7 @@ export default {
       return runTask(
         this.rebuildStats,
         async (task) => {
-          const resp = await ocs.post('/admin/rebuild-stats')
+          const resp = await ocs.post('/server-admin/rebuild-stats')
           task.success = resp.data.success
           task.result = resp.data.message
         },

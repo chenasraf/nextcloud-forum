@@ -13,9 +13,7 @@ use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
-use OCA\Forum\Migration\SeedHelper;
 use OCA\Forum\Service\AdminSettingsService;
-use OCA\Forum\Service\StatsService;
 use OCA\Forum\Service\UserRoleService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
@@ -26,7 +24,6 @@ use OCP\AppFramework\OCSController;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IUserSession;
-use OCP\Migration\IOutput;
 use Psr\Log\LoggerInterface;
 
 class AdminController extends OCSController {
@@ -44,7 +41,6 @@ class AdminController extends OCSController {
 		private IUserManager $userManager,
 		private IUserSession $userSession,
 		private AdminSettingsService $settingsService,
-		private StatsService $statsService,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -239,109 +235,6 @@ class AdminController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error updating settings: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to update settings'], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * Run the repair seeds command to restore default forum data
-	 *
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
-	 *
-	 * 200: Seeds repaired successfully
-	 */
-	#[ApiRoute(verb: 'POST', url: '/api/admin/repair-seeds')]
-	public function repairSeeds(): DataResponse {
-		try {
-			$messages = [];
-			$migrationOutput = new class($messages) implements IOutput {
-				/** @var array<string> */
-				private array $messages;
-
-				public function __construct(array &$messages) {
-					$this->messages = &$messages;
-				}
-
-				public function info($message): void {
-					$this->messages[] = $message;
-				}
-
-				public function warning($message): void {
-					$this->messages[] = '[Warning] ' . $message;
-				}
-
-				public function debug($message): void {
-					$this->messages[] = '[Debug] ' . $message;
-				}
-
-				public function startProgress($max = 0): void {
-				}
-
-				public function advance($step = 1, $description = ''): void {
-				}
-
-				public function finishProgress(): void {
-				}
-			};
-
-			SeedHelper::seedAll($migrationOutput, true);
-
-			$this->logger->info('Forum repair seeds completed successfully');
-			return new DataResponse([
-				'success' => true,
-				'message' => implode("\n", $messages),
-			]);
-		} catch (\Exception $e) {
-			$this->logger->error('Error running repair seeds: ' . $e->getMessage());
-			return new DataResponse([
-				'success' => false,
-				'message' => 'Failed to repair seeds: ' . $e->getMessage(),
-			], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * Rebuild all forum statistics (users, categories, threads)
-	 *
-	 * @return DataResponse<Http::STATUS_OK, array{success: bool, message: string}, array{}>
-	 *
-	 * 200: Stats rebuilt successfully
-	 */
-	#[ApiRoute(verb: 'POST', url: '/api/admin/rebuild-stats')]
-	public function rebuildStats(): DataResponse {
-		try {
-			$userResult = $this->statsService->rebuildAllUserStats();
-			$categoryResult = $this->statsService->rebuildAllCategoryStats();
-			$threadResult = $this->statsService->rebuildAllThreadStats();
-
-			$messages = [];
-			$messages[] = sprintf(
-				'Users processed: %d, created: %d, updated: %d',
-				$userResult['users'],
-				$userResult['created'],
-				$userResult['updated']
-			);
-			$messages[] = sprintf(
-				'Categories processed: %d, updated: %d',
-				$categoryResult['categories'],
-				$categoryResult['updated']
-			);
-			$messages[] = sprintf(
-				'Threads processed: %d, updated: %d',
-				$threadResult['threads'],
-				$threadResult['updated']
-			);
-
-			$this->logger->info('Forum stats rebuild completed successfully');
-			return new DataResponse([
-				'success' => true,
-				'message' => implode("\n", $messages),
-			]);
-		} catch (\Exception $e) {
-			$this->logger->error('Error rebuilding stats: ' . $e->getMessage());
-			return new DataResponse([
-				'success' => false,
-				'message' => 'Failed to rebuild stats: ' . $e->getMessage(),
-			], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 

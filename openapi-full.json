@@ -11967,266 +11967,6 @@
                 }
             }
         },
-        "/ocs/v2.php/apps/forum/api/admin/repair-seeds": {
-            "post": {
-                "operationId": "admin-repair-seeds",
-                "summary": "Run the repair seeds command to restore default forum data",
-                "description": "This endpoint requires admin access",
-                "tags": [
-                    "admin"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Seeds repaired successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "success",
-                                                        "message"
-                                                    ],
-                                                    "properties": {
-                                                        "success": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "message": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Current user is not logged in",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Logged in account must be an admin",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/ocs/v2.php/apps/forum/api/admin/rebuild-stats": {
-            "post": {
-                "operationId": "admin-rebuild-stats",
-                "summary": "Rebuild all forum statistics (users, categories, threads)",
-                "description": "This endpoint requires admin access",
-                "tags": [
-                    "admin"
-                ],
-                "security": [
-                    {
-                        "bearer_auth": []
-                    },
-                    {
-                        "basic_auth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "OCS-APIRequest",
-                        "in": "header",
-                        "description": "Required to be true for the API request to pass",
-                        "required": true,
-                        "schema": {
-                            "type": "boolean",
-                            "default": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Stats rebuilt successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {
-                                                    "type": "object",
-                                                    "required": [
-                                                        "success",
-                                                        "message"
-                                                    ],
-                                                    "properties": {
-                                                        "success": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "message": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Current user is not logged in",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Logged in account must be an admin",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "required": [
-                                        "ocs"
-                                    ],
-                                    "properties": {
-                                        "ocs": {
-                                            "type": "object",
-                                            "required": [
-                                                "meta",
-                                                "data"
-                                            ],
-                                            "properties": {
-                                                "meta": {
-                                                    "$ref": "#/components/schemas/OCSMeta"
-                                                },
-                                                "data": {}
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/ocs/v2.php/apps/forum/api/init/admin-users": {
             "get": {
                 "operationId": "init-get-admin-users",
@@ -12572,6 +12312,266 @@
                                                         "message"
                                                     ],
                                                     "properties": {
+                                                        "message": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Current user is not logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Logged in account must be an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ocs/v2.php/apps/forum/api/server-admin/repair-seeds": {
+            "post": {
+                "operationId": "server_admin-repair-seeds",
+                "summary": "Run the repair seeds command to restore default forum data",
+                "description": "This endpoint requires admin access",
+                "tags": [
+                    "server_admin"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Seeds repaired successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "success",
+                                                        "message"
+                                                    ],
+                                                    "properties": {
+                                                        "success": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "message": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Current user is not logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Logged in account must be an admin",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ocs/v2.php/apps/forum/api/server-admin/rebuild-stats": {
+            "post": {
+                "operationId": "server_admin-rebuild-stats",
+                "summary": "Rebuild all forum statistics (users, categories, threads)",
+                "description": "This endpoint requires admin access",
+                "tags": [
+                    "server_admin"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Stats rebuilt successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "success",
+                                                        "message"
+                                                    ],
+                                                    "properties": {
+                                                        "success": {
+                                                            "type": "boolean"
+                                                        },
                                                         "message": {
                                                             "type": "string"
                                                         }

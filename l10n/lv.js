@@ -36,6 +36,9 @@ OC.L10N.register(
     "Allow" : "Atļaut",
     "Cancel" : "Atcelt",
     "Update" : "Atjaunināt",
+    "Deleted" : "Izdzēsts",
+    "Restore" : "Atjaunot",
+    "Retry" : "Mēģināt vēlreiz",
     "Move" : "Pārvietot",
     "Page not found" : "Lapa nav atrasta",
     "Edit" : "Labot",
@@ -50,7 +53,6 @@ OC.L10N.register(
     "Title" : "Virsraksts",
     "Unsaved changes" : "Nesaglabātas izmaiņas",
     "Refresh" : "Atsvaidzināt",
-    "Retry" : "Mēģināt vēlreiz",
     "Error" : "Kļūda",
     "Searching …" : "Meklē...",
     "by" : "līdz",
@@ -74,10 +76,11 @@ OC.L10N.register(
     "Access control" : "Piekļuves vadība",
     "Settings saved" : "Iestatījumi saglabāti",
     "Failed to save settings" : "Neizdevās saglabāt iestatījumus",
+    "Newest first" : "Jaunākie pirms",
+    "Oldest first" : "Vecākie pirms",
     "Reset" : "Atiestatīt",
     "Actions" : "Darbības",
     "No teams found" : "Netika atrasta neviena komanda",
-    "Members" : "Biedri",
-    "Deleted" : "Izdzēsts"
+    "Members" : "Biedri"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);");

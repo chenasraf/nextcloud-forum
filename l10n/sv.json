@@ -17,6 +17,7 @@
     "Dashboard" : "Dashboard",
     "Users" : "Användare",
     "Categories" : "Kategorier",
+    "Moderation" : "Moderering",
     "Expand" : "Utöka",
     "Collapse" : "Dölj",
     "Hello world!" : "Hej världen!",
@@ -35,6 +36,9 @@
     "Cancel" : "Avbryt",
     "Create" : "Skapa",
     "Update" : "Uppdatera",
+    "Deleted" : "Borttagen",
+    "Restore" : "Återställ",
+    "Retry" : "Försök igen",
     "Move" : "Flytta",
     "Page not found" : "Sidan hittades inte",
     "Back" : "Tillbaka",
@@ -65,7 +69,6 @@
     "Draft saved" : "Utkast sparat",
     "Unsaved changes" : "Ej sparade ändringar",
     "Refresh" : "Uppdatera",
-    "Retry" : "Försök igen",
     "In {category}" : "I {category}",
     "Error" : "Fel",
     "Created" : "Skapat",
@@ -102,7 +105,10 @@
     "Access control" : "Åtkomstkontroll",
     "Settings saved" : "Inställningar sparade",
     "Failed to save settings" : "Kunde inte spara inställningarna",
+    "Newest first" : "Nyast först",
+    "Oldest first" : "Äldst först",
     "Reset" : "Återställ",
+    "Account management" : "Kontohantering",
     "ID" : "ID",
     "Owner" : "Ägare",
     "Actions" : "Funktioner",
@@ -114,7 +120,6 @@
     "No users found" : "Inga användare hittades",
     "Joined" : "Gått med i",
     "Status" : "Status",
-    "Active" : "Aktiv",
-    "Deleted" : "Borttagen"
+    "Active" : "Aktiv"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

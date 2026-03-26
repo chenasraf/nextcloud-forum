@@ -21,6 +21,9 @@ OC.L10N.register(
     "Allow" : "Permesi",
     "Cancel" : "Cancel",
     "Update" : "Ĝisdatigi",
+    "Deleted" : "Forigita",
+    "Restore" : "Restaŭri",
+    "Retry" : "Reprovi",
     "Move" : "Movi",
     "Page not found" : "Paĝo ne trovita",
     "Edit" : "Modifi",
@@ -36,7 +39,6 @@ OC.L10N.register(
     "Draft saved" : "Malneto konservita",
     "Unsaved changes" : "Nekonservitaj ŝanĝoj",
     "Refresh" : "Aktualigi",
-    "Retry" : "Reprovi",
     "Error" : "Eraro",
     "Created" : "Kreita",
     "Searching …" : "Serĉado ...",
@@ -55,12 +57,13 @@ OC.L10N.register(
     "Access control" : "Alirkontrolo",
     "Settings saved" : "Agordoj konservitaj",
     "Failed to save settings" : "Konservo de agordoj malsukcesis",
+    "Newest first" : "Pli novaj unue",
+    "Oldest first" : "Malpli novaj unue",
     "Reset" : "Restarigi",
     "ID" : "Identigilo",
     "Owner" : "Posedanto",
     "Actions" : "Agoj",
     "Members" : "Membroj",
-    "Joined" : "Membriĝinta",
-    "Deleted" : "Forigita"
+    "Joined" : "Membriĝinta"
 },
 "nplurals=2; plural=(n != 1);");

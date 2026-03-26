@@ -17,6 +17,7 @@
     "Dashboard" : "Instrumentpanel",
     "Users" : "Brukere",
     "Categories" : "Kategorier",
+    "Moderation" : "Moderering",
     "Expand" : "Ekspander",
     "Collapse" : "Skjul",
     "Hello world!" : "Hei, verden!",
@@ -33,6 +34,9 @@
     "Cancel" : "Cancel",
     "Create" : "Opprett",
     "Update" : "Oppdater",
+    "Deleted" : "Slettet",
+    "Restore" : "Gjenopprett",
+    "Retry" : "Prøv igjen",
     "Move" : "Flytt",
     "Page not found" : "Siden ble ikke funnet",
     "Back" : "Tilbake",
@@ -61,7 +65,6 @@
     "Draft saved" : "Kladd ble lagret",
     "Unsaved changes" : "Ulagrede endringer",
     "Refresh" : "Oppdater",
-    "Retry" : "Prøv igjen",
     "Error" : "Feil",
     "Created" : "Opprettet",
     "Searching …" : "Søker ...",
@@ -94,7 +97,10 @@
     "Access control" : "Tilgangskontroll",
     "Settings saved" : "Innstillinger lagret",
     "Failed to save settings" : "Klarte ikke å lagre innstillinger",
+    "Newest first" : "Nyeste først",
+    "Oldest first" : "Eldste først",
     "Reset" : "Tilbakestill",
+    "Account management" : "Kontoadministrasjon",
     "ID" : "ID",
     "Owner" : "Eier",
     "Actions" : "Handlinger",
@@ -106,7 +112,6 @@
     "No users found" : "Ingen brukere funnet",
     "Joined" : "Ble med",
     "Status" : "Status",
-    "Active" : "Aktiv",
-    "Deleted" : "Slettet"
+    "Active" : "Aktiv"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

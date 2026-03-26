@@ -24,6 +24,9 @@
     "Cancel" : "Cancel",
     "Create" : "Crear",
     "Update" : "Actualizar",
+    "Deleted" : "Suprimit",
+    "Restore" : "Restaurar",
+    "Retry" : "Tornar ensajar",
     "Move" : "Desplaçar",
     "Page not found" : "Pagina pas trobada",
     "Edit" : "Modificar",
@@ -39,7 +42,6 @@
     "Title" : "Títol",
     "Unsaved changes" : "Modificacions pas enregistradas",
     "Refresh" : "Refrescar",
-    "Retry" : "Tornar ensajar",
     "Error" : "Error",
     "Searching …" : "Recèrca…",
     "Back to {category}" : "Tornar a {category}",
@@ -66,7 +68,6 @@
     "Actions" : "Accions",
     "Members" : "Membres",
     "Status" : "Estat",
-    "Active" : "Activa",
-    "Deleted" : "Suprimit"
+    "Active" : "Activa"
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }

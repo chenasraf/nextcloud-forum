@@ -10,6 +10,8 @@
     "Close" : "Zoumaachen",
     "Cancel" : "Cancel",
     "Update" : "Update",
+    "Deleted" : "Geläscht",
+    "Restore" : "Zrécksetzen",
     "Move" : "Verschieben",
     "Edit" : "Änneren",
     "Delete" : "Läschen",
@@ -26,7 +28,6 @@
     "Enabled" : "Aktivéiert",
     "New" : "Nei",
     "Reset" : "Zeréck setzen",
-    "Actions" : "Aktiounen",
-    "Deleted" : "Geläscht"
+    "Actions" : "Aktiounen"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

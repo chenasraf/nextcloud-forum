@@ -19,6 +19,9 @@
     "Allow" : "Permesi",
     "Cancel" : "Cancel",
     "Update" : "Ĝisdatigi",
+    "Deleted" : "Forigita",
+    "Restore" : "Restaŭri",
+    "Retry" : "Reprovi",
     "Move" : "Movi",
     "Page not found" : "Paĝo ne trovita",
     "Edit" : "Modifi",
@@ -34,7 +37,6 @@
     "Draft saved" : "Malneto konservita",
     "Unsaved changes" : "Nekonservitaj ŝanĝoj",
     "Refresh" : "Aktualigi",
-    "Retry" : "Reprovi",
     "Error" : "Eraro",
     "Created" : "Kreita",
     "Searching …" : "Serĉado ...",
@@ -53,12 +55,13 @@
     "Access control" : "Alirkontrolo",
     "Settings saved" : "Agordoj konservitaj",
     "Failed to save settings" : "Konservo de agordoj malsukcesis",
+    "Newest first" : "Pli novaj unue",
+    "Oldest first" : "Malpli novaj unue",
     "Reset" : "Restarigi",
     "ID" : "Identigilo",
     "Owner" : "Posedanto",
     "Actions" : "Agoj",
     "Members" : "Membroj",
-    "Joined" : "Membriĝinta",
-    "Deleted" : "Forigita"
+    "Joined" : "Membriĝinta"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

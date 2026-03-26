@@ -20,6 +20,8 @@ OC.L10N.register(
     "Pick a color" : "Fren ini",
     "Cancel" : "Semmet",
     "Create" : "Snulfu-d",
+    "Deleted" : "Yettwakkes",
+    "Retry" : "Ɛreḍ tikkelt-nniḍen",
     "Move" : "Senkez",
     "Page not found" : "Ulac asebter",
     "Back" : "Tuɣalin",
@@ -31,7 +33,6 @@ OC.L10N.register(
     "Content" : "Agbur",
     "Title" : "Azwel",
     "Refresh" : "Sismeḍ",
-    "Retry" : "Ɛreḍ tikkelt-nniḍen",
     "Error" : "Tuccḍa",
     "Created" : "Yettwarna.",
     "Searching …" : "Anadi …",
@@ -46,9 +47,10 @@ OC.L10N.register(
     "New" : "Amaynut",
     "Last 7 days" : "7 n wussan yezrin",
     "Appearance" : "Udem",
+    "Newest first" : "Imaynuten d imezwura",
+    "Oldest first" : "Iqbuṛen d imezwura",
     "Owner" : "Bab-is",
     "Actions" : "Tigawin",
-    "Status" : "Addad",
-    "Deleted" : "Yettwakkes"
+    "Status" : "Addad"
 },
 "nplurals=2; plural=(n != 1);");

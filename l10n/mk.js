@@ -26,6 +26,9 @@ OC.L10N.register(
     "Cancel" : "Откажи",
     "Create" : "Креирај",
     "Update" : "Ажурирај",
+    "Deleted" : "Избришани",
+    "Restore" : "Врати",
+    "Retry" : "Обидете се повторно",
     "Move" : "Премести",
     "Page not found" : "Страницата не е пронајдена",
     "Back" : "Назад",
@@ -45,7 +48,6 @@ OC.L10N.register(
     "Draft saved" : "Нацртот е зачуван",
     "Unsaved changes" : "Незачувани промени",
     "Refresh" : "Освежи",
-    "Retry" : "Обидете се повторно",
     "Error" : "Грешка",
     "Created" : "Креирано",
     "Searching …" : "Пребарување ...",
@@ -73,6 +75,8 @@ OC.L10N.register(
     "Access control" : "Контрола на пристап",
     "Settings saved" : "Параматрите се зачувани",
     "Failed to save settings" : "Неуспешно зачувување на параметрите",
+    "Newest first" : "Новите прво",
+    "Oldest first" : "Старите прво",
     "Reset" : "Ресетирање",
     "ID" : "ID",
     "Owner" : "Сопственик",
@@ -82,7 +86,6 @@ OC.L10N.register(
     "Loading users …" : "Вчитување корисници ...",
     "Joined" : "Приклучен",
     "Status" : "Статус",
-    "Active" : "Активно",
-    "Deleted" : "Избришани"
+    "Active" : "Активно"
 },
 "nplurals=2; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : 1;");

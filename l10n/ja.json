@@ -16,6 +16,7 @@
     "Dashboard" : "ダッシュボード",
     "Users" : "ユーザ",
     "Categories" : "カテゴリ",
+    "Moderation" : "モデレーション",
     "Expand" : "展開",
     "Collapse" : "折りたたむ",
     "Hello world!" : "Hello world!",
@@ -33,6 +34,9 @@
     "Cancel" : "キャンセル",
     "Create" : "作成",
     "Update" : "更新",
+    "Deleted" : "削除済み",
+    "Restore" : "復元",
+    "Retry" : "リトライ",
     "Move" : "移動",
     "Page not found" : "ページが見つかりません",
     "Back" : "戻る",
@@ -59,7 +63,6 @@
     "Unsaved changes" : "未保存の変更点",
     "Back to home" : "ホーム画面に戻る",
     "Refresh" : "更新",
-    "Retry" : "リトライ",
     "Error" : "エラー",
     "Created" : "作成時刻",
     "Searching …" : "検索しています…",
@@ -94,7 +97,10 @@
     "Access control" : "アクセス制御",
     "Settings saved" : "設定が保存されました",
     "Failed to save settings" : "設定の保存に失敗しました",
+    "Newest first" : "新しい順",
+    "Oldest first" : "日付（昇順）",
     "Reset" : "リセット",
+    "Account management" : "アカウント管理",
     "ID" : "ID",
     "Owner" : "作成者",
     "Actions" : "アクション",
@@ -105,7 +111,6 @@
     "No users found" : "ユーザーが見つかりません",
     "Joined" : "参加",
     "Status" : "ステータス",
-    "Active" : "有効",
-    "Deleted" : "削除済み"
+    "Active" : "有効"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

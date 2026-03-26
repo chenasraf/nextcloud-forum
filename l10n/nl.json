@@ -18,6 +18,7 @@
     "Dashboard" : "Dashboard",
     "Users" : "Gebruikers",
     "Categories" : "Categorieën",
+    "Moderation" : "Beheer",
     "Expand" : "Uitbreiden",
     "Collapse" : "Inklappen",
     "Hello world!" : "Hallo wereld!",
@@ -36,6 +37,9 @@
     "Cancel" : "Annuleren",
     "Create" : "Creëer",
     "Update" : "Bijwerken",
+    "Deleted" : "Verwijderd",
+    "Restore" : "Herstellen",
+    "Retry" : "Opnieuw",
     "Move" : "Verplaatsen",
     "Page not found" : "Pagina niet gevonden",
     "Back" : "Terug",
@@ -65,7 +69,6 @@
     "Draft saved" : "Concept opgeslagen",
     "Unsaved changes" : "Niet opgeslagen veranderingen",
     "Refresh" : "Verversen",
-    "Retry" : "Opnieuw",
     "In {category}" : "In {category}",
     "Error" : "Fout",
     "Created" : "Gemaakt",
@@ -101,7 +104,10 @@
     "Access control" : "Toegangscontrole",
     "Settings saved" : "Instellingen opgeslagen",
     "Failed to save settings" : "Instellingen konden niet worden opgeslagen",
+    "Newest first" : "Nieuwste eerst",
+    "Oldest first" : "Oudste eerst",
     "Reset" : "Herstellen",
+    "Account management" : "Accountbeheer",
     "ID" : "ID",
     "Owner" : "Eigenaar",
     "Actions" : "Acties",
@@ -113,7 +119,6 @@
     "No users found" : "Geen gebruikers gevonden",
     "Joined" : "Toegetreden",
     "Status" : "Status",
-    "Active" : "Actief",
-    "Deleted" : "Verwijderd"
+    "Active" : "Actief"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

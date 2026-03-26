@@ -18,6 +18,7 @@ OC.L10N.register(
     "Dashboard" : "پیشخوان",
     "Users" : "کاربران",
     "Categories" : "دسته‌ها",
+    "Moderation" : "Moderation",
     "Expand" : "بسط دادن",
     "Collapse" : "فروکش  کردن",
     "Hello world!" : "سلام دنیا!",
@@ -34,6 +35,9 @@ OC.L10N.register(
     "Cancel" : "انصراف",
     "Create" : "ایجاد",
     "Update" : "به‌روزرسانی",
+    "Deleted" : "حذف شده",
+    "Restore" : "بازیابی",
+    "Retry" : "تلاش دوباره",
     "Move" : "انتقال",
     "Page not found" : "صفحه پیدا نشد",
     "Back" : "بازگشت",
@@ -58,7 +62,6 @@ OC.L10N.register(
     "Draft saved" : "پیش نویس ذخیره شد",
     "Unsaved changes" : "Unsaved changes",
     "Refresh" : "تازه‌سازی",
-    "Retry" : "تلاش دوباره",
     "Error" : "خطا",
     "Created" : "ایجاد شده",
     "Searching …" : "جستجوکردن …",
@@ -89,6 +92,8 @@ OC.L10N.register(
     "Access control" : "کنترل دسترسی",
     "Settings saved" : "تنظیمات ذخیره شد",
     "Failed to save settings" : "تنظیمات ذخیره نشدند",
+    "Newest first" : "نخست جدیدترین",
+    "Oldest first" : "نخست قدیمی‌ترین",
     "Reset" : "بازنشانی",
     "ID" : "شناسه",
     "Owner" : "مالک",
@@ -100,7 +105,6 @@ OC.L10N.register(
     "No users found" : "No users found",
     "Joined" : "پیوستن",
     "Status" : "Status",
-    "Active" : "فعال کردن",
-    "Deleted" : "حذف شده"
+    "Active" : "فعال کردن"
 },
 "nplurals=2; plural=(n > 1);");

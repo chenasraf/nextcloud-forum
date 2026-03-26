@@ -12,6 +12,8 @@ OC.L10N.register(
     "Close" : "Zoumaachen",
     "Cancel" : "Cancel",
     "Update" : "Update",
+    "Deleted" : "Geläscht",
+    "Restore" : "Zrécksetzen",
     "Move" : "Verschieben",
     "Edit" : "Änneren",
     "Delete" : "Läschen",
@@ -28,7 +30,6 @@ OC.L10N.register(
     "Enabled" : "Aktivéiert",
     "New" : "Nei",
     "Reset" : "Zeréck setzen",
-    "Actions" : "Aktiounen",
-    "Deleted" : "Geläscht"
+    "Actions" : "Aktiounen"
 },
 "nplurals=2; plural=(n != 1);");

@@ -26,6 +26,9 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Crear",
     "Update" : "Actualizar",
+    "Deleted" : "Suprimit",
+    "Restore" : "Restaurar",
+    "Retry" : "Tornar ensajar",
     "Move" : "Desplaçar",
     "Page not found" : "Pagina pas trobada",
     "Edit" : "Modificar",
@@ -41,7 +44,6 @@ OC.L10N.register(
     "Title" : "Títol",
     "Unsaved changes" : "Modificacions pas enregistradas",
     "Refresh" : "Refrescar",
-    "Retry" : "Tornar ensajar",
     "Error" : "Error",
     "Searching …" : "Recèrca…",
     "Back to {category}" : "Tornar a {category}",
@@ -68,7 +70,6 @@ OC.L10N.register(
     "Actions" : "Accions",
     "Members" : "Membres",
     "Status" : "Estat",
-    "Active" : "Activa",
-    "Deleted" : "Suprimit"
+    "Active" : "Activa"
 },
 "nplurals=2; plural=(n > 1);");

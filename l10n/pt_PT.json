@@ -41,6 +41,9 @@
     "Cancel" : "Cancel",
     "Create" : "Criar",
     "Update" : "Atualizar",
+    "Deleted" : "Eliminado",
+    "Restore" : "Restaurar",
+    "Retry" : "Repetir",
     "Move" : "Mover",
     "Page not found" : "Página não encontrada",
     "Back" : "Voltar",
@@ -60,7 +63,6 @@
     "Unsaved changes" : "Modificações não guardadas",
     "Back to home" : "Voltar à pasta inicial",
     "Refresh" : "Atualizar",
-    "Retry" : "Repetir",
     "Error" : "Erro",
     "Created" : "Criado",
     "Searching …" : "A procurar…",
@@ -93,6 +95,8 @@
     "Access control" : "Controlo de acesso",
     "Settings saved" : "Definições guardadas",
     "Failed to save settings" : "Erro ao gravar as definições",
+    "Newest first" : "Recentes primeiro",
+    "Oldest first" : "Antigos primeiro",
     "Reset" : "Reiniciar",
     "ID" : "Id.",
     "Owner" : "Proprietário",
@@ -100,7 +104,6 @@
     "No teams found" : "Nenhum grupo encontrado",
     "Members" : "Membros",
     "No users found" : "Não foram encontrados utilizadores",
-    "Joined" : "Aderiu",
-    "Deleted" : "Eliminado"
+    "Joined" : "Aderiu"
 },"pluralForm" :"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

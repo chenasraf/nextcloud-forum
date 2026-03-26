@@ -13,6 +13,8 @@ OC.L10N.register(
     "Close" : "বন্ধ",
     "Cancel" : "Cancel",
     "Update" : "পরিবর্ধন",
+    "Deleted" : "মুছে ফেলা",
+    "Restore" : "ফিরিয়ে দাও",
     "Move" : "Move",
     "Edit" : "সম্পাদনা",
     "Delete" : "মুছে",
@@ -28,7 +30,6 @@ OC.L10N.register(
     "Enabled" : "কার্যকর",
     "New" : "নতুন",
     "Reset" : "পূণঃনির্ধানণ",
-    "Actions" : "পদক্ষেপসমূহ",
-    "Deleted" : "মুছে ফেলা"
+    "Actions" : "পদক্ষেপসমূহ"
 },
 "nplurals=2; plural=(n != 1);");

@@ -27,6 +27,8 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Crea",
     "Update" : "Agiorna",
+    "Deleted" : "Cantzelladu",
+    "Restore" : "Riprìstina",
     "Move" : "Tràmuda",
     "Page not found" : "Pàgina no agatada",
     "Back" : "In segus",
@@ -74,6 +76,8 @@ OC.L10N.register(
     "Appearance" : "Aspetu",
     "Settings saved" : "Cunfiguratzione sarvada",
     "Failed to save settings" : "No at fatu a sarvare is informatziones",
+    "Newest first" : "In antis is prus reghentes",
+    "Oldest first" : "In antis is prus betzos",
     "Reset" : "Riprìstinu",
     "ID" : "ID",
     "Actions" : "Atziones",
@@ -81,7 +85,6 @@ OC.L10N.register(
     "No users found" : "Peruna utèntzia agatada",
     "Joined" : "As atzèdidu",
     "Status" : "Status",
-    "Active" : "Ativu",
-    "Deleted" : "Cantzelladu"
+    "Active" : "Ativu"
 },
 "nplurals=2; plural=(n != 1);");

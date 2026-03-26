@@ -15,6 +15,8 @@ OC.L10N.register(
     "Category" : "Kateqoriya",
     "Cancel" : "Cancel",
     "Update" : "Yenilənmə",
+    "Deleted" : "Silinib",
+    "Restore" : "Geri qaytar",
     "Move" : "Move",
     "Back" : "Geri",
     "Edit" : "Dəyişiklik et",
@@ -34,7 +36,6 @@ OC.L10N.register(
     "Settings saved" : "Parametrlər yaddaşa verildi",
     "Reset" : "Sıfırla",
     "Actions" : "İşlər",
-    "Status" : "Status",
-    "Deleted" : "Silinib"
+    "Status" : "Status"
 },
 "nplurals=2; plural=(n != 1);");

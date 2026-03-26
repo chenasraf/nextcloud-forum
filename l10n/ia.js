@@ -12,6 +12,8 @@ OC.L10N.register(
     "Category" : "Categoria",
     "Cancel" : "Cancel",
     "Update" : "Actualisation",
+    "Deleted" : "Delite",
+    "Restore" : "Restaurar",
     "Move" : "Mover",
     "Edit" : "Modificar",
     "Delete" : "Deler",
@@ -29,7 +31,6 @@ OC.L10N.register(
     "Settings saved" : "Configurationes salveguardate",
     "Reset" : "Re-fixar",
     "Actions" : "Actiones",
-    "Members" : "Membros",
-    "Deleted" : "Delite"
+    "Members" : "Membros"
 },
 "nplurals=2; plural=(n != 1);");

@@ -13,6 +13,8 @@
     "Category" : "Kateqoriya",
     "Cancel" : "Cancel",
     "Update" : "Yenilənmə",
+    "Deleted" : "Silinib",
+    "Restore" : "Geri qaytar",
     "Move" : "Move",
     "Back" : "Geri",
     "Edit" : "Dəyişiklik et",
@@ -32,7 +34,6 @@
     "Settings saved" : "Parametrlər yaddaşa verildi",
     "Reset" : "Sıfırla",
     "Actions" : "İşlər",
-    "Status" : "Status",
-    "Deleted" : "Silinib"
+    "Status" : "Status"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

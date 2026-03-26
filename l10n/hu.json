@@ -16,6 +16,7 @@
     "Dashboard" : "Irányítópult",
     "Users" : "Felhasználók",
     "Categories" : "Kategóriák",
+    "Moderation" : "Moderálás",
     "Expand" : "Kibontás",
     "Collapse" : "Összecsukás",
     "Hello world!" : "Helló világ!",
@@ -35,6 +36,9 @@
     "Cancel" : "Cancel",
     "Create" : "Létrehozás",
     "Update" : "Frissítés",
+    "Deleted" : "Törölve",
+    "Restore" : "Helyreállítás",
+    "Retry" : "Újra",
     "Move" : "Áthelyezés",
     "Page not found" : "Az oldal nem található",
     "Back" : "Vissza",
@@ -65,7 +69,6 @@
     "Unsaved changes" : "Mentetlen változtatások",
     "Back to home" : "Vissza a kezdőlapra",
     "Refresh" : "Frissítés",
-    "Retry" : "Újra",
     "In {category}" : "Ebben: {category}",
     "Error" : "Hiba",
     "Created" : "Létrehozva",
@@ -101,7 +104,10 @@
     "Access control" : "Hozzáférés-vezérlés",
     "Settings saved" : "Beállítások mentve",
     "Failed to save settings" : "A beállítások mentése sikertelen",
+    "Newest first" : "Legújabb elöl",
+    "Oldest first" : "Régebbiek elöl",
     "Reset" : "Alaphelyzetbe állítás",
+    "Account management" : "Fiókkezelés",
     "ID" : "Azonosító",
     "Owner" : "Tulajdonos",
     "Actions" : "Műveletek",
@@ -112,7 +118,6 @@
     "No users found" : "Nem találhatók felhasználók",
     "Joined" : "Csatlakozott",
     "Status" : "Állapot",
-    "Active" : "Aktív",
-    "Deleted" : "Törölve"
+    "Active" : "Aktív"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

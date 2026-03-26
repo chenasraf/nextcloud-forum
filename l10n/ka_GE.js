@@ -19,6 +19,9 @@ OC.L10N.register(
     "Category" : "კატეგორია",
     "Cancel" : "Cancel",
     "Update" : "განახლება",
+    "Deleted" : "გაუქმდა",
+    "Restore" : "აღდგენა",
+    "Retry" : "ვცადოთ ახლიდან",
     "Move" : "გადატანა",
     "Page not found" : "გვერდი არაა ნაპოვნი",
     "Edit" : "შეცვლა",
@@ -31,7 +34,6 @@ OC.L10N.register(
     "Title" : "სათაური",
     "Unsaved changes" : "შეუნახავი ცვლილებები",
     "Refresh" : "განახლება",
-    "Retry" : "ვცადოთ ახლიდან",
     "Error" : "შეცდომა",
     "Created" : "შექმნილია",
     "by" : "სუბიექტი:",
@@ -46,12 +48,13 @@ OC.L10N.register(
     "General settings" : "მთავარი პარამეტრები",
     "Access control" : "დაშვების კონტროლი",
     "Settings saved" : "პარამეტრები შენახულია",
+    "Newest first" : "ჯერ ახალი",
+    "Oldest first" : "ჯერ ძველი",
     "Reset" : "საწყის მდოგმარეობაში დაბრუნება",
     "ID" : "ID",
     "Actions" : "მოქმედებები",
     "Members" : "წევრები",
     "Joined" : "გაწევრიანდა",
-    "Status" : "სტაუტის",
-    "Deleted" : "გაუქმდა"
+    "Status" : "სტაუტის"
 },
 "nplurals=2; plural=(n!=1);");

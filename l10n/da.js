@@ -36,6 +36,9 @@ OC.L10N.register(
     "Cancel" : "Annullér",
     "Create" : "Opret",
     "Update" : "Opdatér",
+    "Deleted" : "Slettet",
+    "Restore" : "Gendan",
+    "Retry" : "Prøv igen",
     "Move" : "Flyt",
     "Page not found" : "Siden blev ikke fundet",
     "Back" : "Tilbage",
@@ -60,7 +63,6 @@ OC.L10N.register(
     "Unsaved changes" : "Ikke-gemte ændringer",
     "Back to home" : "Tilbage til hjem ",
     "Refresh" : "Opdatér",
-    "Retry" : "Prøv igen",
     "Error" : "Fejl",
     "Created" : "Oprettet",
     "Searching …" : "Søger …",
@@ -94,7 +96,10 @@ OC.L10N.register(
     "Access control" : "Adgangskontrol",
     "Settings saved" : "Indstillinger gemt",
     "Failed to save settings" : "Kunne ikke gemme indstillinger",
+    "Newest first" : "Nyeste først",
+    "Oldest first" : "Ældste først",
     "Reset" : "Nulstil",
+    "Account management" : "Kontostyring",
     "ID" : "ID",
     "Owner" : "Ejer",
     "Actions" : "Handlinger",
@@ -103,7 +108,6 @@ OC.L10N.register(
     "Loading users …" : "Henter brugere ...",
     "No users found" : "Ingen brugere fundet",
     "Joined" : "Forbind",
-    "Status" : "Status",
-    "Deleted" : "Slettet"
+    "Status" : "Status"
 },
 "nplurals=2; plural=(n != 1);");

@@ -17,6 +17,7 @@
     "Dashboard" : "Infopanel",
     "Users" : "Používatelia",
     "Categories" : "Kategórie",
+    "Moderation" : "Moderovanie",
     "Expand" : "Rozbaliť",
     "Collapse" : "Zvinúť",
     "Hello world!" : "Ahoj svet!",
@@ -34,6 +35,9 @@
     "Cancel" : "Cancel",
     "Create" : "Vytvoriť",
     "Update" : "Aktualizovať",
+    "Deleted" : "Odstránené",
+    "Restore" : "Obnoviť",
+    "Retry" : "Zopakovať",
     "Move" : "Presunúť",
     "Page not found" : "Stránka nenájdená",
     "Back" : "Späť",
@@ -63,7 +67,6 @@
     "Draft saved" : "Koncept bol uložený",
     "Unsaved changes" : "Neuložené zmeny",
     "Refresh" : "Obnoviť",
-    "Retry" : "Zopakovať",
     "In {category}" : "V {category}",
     "Error" : "Chyba",
     "Created" : "Vytvorené",
@@ -99,7 +102,10 @@
     "Access control" : "Prístupové práva",
     "Settings saved" : "Nastavenia uložené",
     "Failed to save settings" : "Nepodarilo sa uložiť nastavenia",
+    "Newest first" : "Najnovšie prvé",
+    "Oldest first" : "Najstaršie prvé",
     "Reset" : "Resetovať/Obnoviť",
+    "Account management" : "Správa účtu",
     "ID" : "ID",
     "Owner" : "Vlastník",
     "Actions" : "Akcie",
@@ -110,7 +116,6 @@
     "No users found" : "Žiadni používatelia nenájdení",
     "Joined" : "Pripojený",
     "Status" : "Stav",
-    "Active" : "Aktívne",
-    "Deleted" : "Odstránené"
+    "Active" : "Aktívne"
 },"pluralForm" :"nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);"
 }

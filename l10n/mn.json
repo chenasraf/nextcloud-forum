@@ -18,6 +18,7 @@
     "Dashboard" : "Хянах самбар",
     "Users" : "хэрэглэгч",
     "Categories" : "төрөл",
+    "Moderation" : "Модераци",
     "Expand" : "Дэлгэх",
     "Collapse" : "Хураах",
     "Hello world!" : "Сайн байна уу, ертөнцөө!",
@@ -33,6 +34,9 @@
     "Cancel" : "Cancel",
     "Create" : "үүсгэх",
     "Update" : "Шинэчлэх",
+    "Deleted" : "Устгагдсан",
+    "Restore" : "–°—ç—Ä–≥—ç—ç—Ö",
+    "Retry" : "Дахин оролдох",
     "Move" : "Зөөх",
     "Page not found" : "Хуудас олдсонгүй",
     "Back" : "Буцах",
@@ -57,7 +61,6 @@
     "Draft saved" : "Ноорог хадгалагдлаа",
     "Unsaved changes" : "Хадгалаагүй өөрчлөлтүүд",
     "Refresh" : "Сэргээх",
-    "Retry" : "Дахин оролдох",
     "In {category}" : "{category} яриад",
     "Error" : "Алдаа",
     "Created" : "Үүсгэсэн",
@@ -90,7 +93,10 @@
     "Access control" : "Хандах эрхийн тохиргоо",
     "Settings saved" : "Тохиргоо хадгалагдлаа",
     "Failed to save settings" : "Тохиргоог хадгалж чадсангүй",
+    "Newest first" : "–®–∏–Ω–∏–π–≥ —É—Ä–¥ –Ω—å",
+    "Oldest first" : "–•—É—É—á–Ω—ã–≥ —É—Ä–¥ –Ω—å",
     "Reset" : "тохируулах",
+    "Account management" : "Бүртгэл удирдлага",
     "ID" : "ID",
     "Owner" : "–≠–∑—ç–º—à–∏–≥—á",
     "Actions" : "Үйл ажиллагаа",
@@ -98,7 +104,6 @@
     "Members" : "–ì–∏—à“Ø“Ø–¥",
     "Joined" : "нэгдсэн",
     "Status" : "Төлөв",
-    "Active" : "Идэвхтэй",
-    "Deleted" : "Устгагдсан"
+    "Active" : "Идэвхтэй"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

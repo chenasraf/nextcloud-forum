@@ -43,6 +43,9 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Criar",
     "Update" : "Atualizar",
+    "Deleted" : "Eliminado",
+    "Restore" : "Restaurar",
+    "Retry" : "Repetir",
     "Move" : "Mover",
     "Page not found" : "Página não encontrada",
     "Back" : "Voltar",
@@ -62,7 +65,6 @@ OC.L10N.register(
     "Unsaved changes" : "Modificações não guardadas",
     "Back to home" : "Voltar à pasta inicial",
     "Refresh" : "Atualizar",
-    "Retry" : "Repetir",
     "Error" : "Erro",
     "Created" : "Criado",
     "Searching …" : "A procurar…",
@@ -95,6 +97,8 @@ OC.L10N.register(
     "Access control" : "Controlo de acesso",
     "Settings saved" : "Definições guardadas",
     "Failed to save settings" : "Erro ao gravar as definições",
+    "Newest first" : "Recentes primeiro",
+    "Oldest first" : "Antigos primeiro",
     "Reset" : "Reiniciar",
     "ID" : "Id.",
     "Owner" : "Proprietário",
@@ -102,7 +106,6 @@ OC.L10N.register(
     "No teams found" : "Nenhum grupo encontrado",
     "Members" : "Membros",
     "No users found" : "Não foram encontrados utilizadores",
-    "Joined" : "Aderiu",
-    "Deleted" : "Eliminado"
+    "Joined" : "Aderiu"
 },
 "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

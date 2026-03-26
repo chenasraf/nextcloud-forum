@@ -21,6 +21,9 @@ OC.L10N.register(
     "Cancel" : "Bekor qilish",
     "Create" : "Yaratish",
     "Update" : "Yangilash",
+    "Deleted" : "O`chirilgan",
+    "Restore" : "Qayta tiklangan",
+    "Retry" : "Qayta urinish",
     "Move" : "Ko'chirish",
     "Page not found" : "Sahifa topilmadi",
     "Back" : "Orqaga",
@@ -34,7 +37,6 @@ OC.L10N.register(
     "Title" : "Sarlavha",
     "Unsaved changes" : "Saqlanmagan o'zgarishlar",
     "Refresh" : "Yangilash",
-    "Retry" : "Qayta urinish",
     "Error" : "Xatolik",
     "Searching …" : "Qidirilmoqda …",
     "No results found" : "Hech qanday natija topilmadi",
@@ -59,7 +61,6 @@ OC.L10N.register(
     "Reset" : "Qayta tiklash",
     "Owner" : "Egasi",
     "Actions" : "Faolliklar",
-    "Status" : "Holat",
-    "Deleted" : "O`chirilgan"
+    "Status" : "Holat"
 },
 "nplurals=1; plural=0;");

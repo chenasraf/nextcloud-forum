@@ -17,6 +17,9 @@ OC.L10N.register(
     "Category" : "Categori",
     "Cancel" : "Cancel",
     "Update" : "Diweddaru",
+    "Deleted" : "Wedi dileu",
+    "Restore" : "Adfer",
+    "Retry" : "Ceisio eto",
     "Move" : "Symud",
     "Page not found" : "Heb ganfod y dudalen",
     "Edit" : "Golygu",
@@ -28,7 +31,6 @@ OC.L10N.register(
     "Saving draft …" : "Yn cadw drafft …",
     "Draft saved" : "Cadwyd y drafft",
     "Refresh" : "Ail-lwytho",
-    "Retry" : "Ceisio eto",
     "Error" : "Gwall",
     "by" : "gan",
     "Subscribe" : "Tanysgrifio",
@@ -37,10 +39,11 @@ OC.L10N.register(
     "Description" : "Disgrifiad",
     "New" : "Newydd",
     "Preview" : "Rhagolwg",
+    "Newest first" : "Diweddaraf gyntaf",
+    "Oldest first" : "Hynaf gyntaf",
     "ID" : "ID",
     "Owner" : "Perchennog",
     "Actions" : "Gweithredoedd",
-    "Status" : "Statws",
-    "Deleted" : "Wedi dileu"
+    "Status" : "Statws"
 },
 "nplurals=4; plural=(n==1) ? 0 : (n==2) ? 1 : (n != 8 && n != 11) ? 2 : 3;");

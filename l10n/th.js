@@ -20,6 +20,8 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "สร้าง",
     "Update" : "อัปเดต",
+    "Deleted" : "ลบแล้ว",
+    "Restore" : "คืนค่า",
     "Move" : "ย้าย",
     "Page not found" : "ไม่พบหน้า",
     "Edit" : "แก้ไข",
@@ -47,11 +49,12 @@ OC.L10N.register(
     "Appearance" : "ลักษณะที่ปรากฏ",
     "Settings saved" : "บันทึกการตั้งค่าแล้ว",
     "Failed to save settings" : "ไม่สามารถบันทึกการตั้งค่าได้",
+    "Newest first" : "ใหม่ที่สุดก่อน",
+    "Oldest first" : "เก่าที่สุดก่อน",
     "Reset" : "รีเซ็ต",
     "ID" : "ID",
     "Owner" : "เจ้าของ",
     "Actions" : "การกระทำ",
-    "Status" : "สถานะ",
-    "Deleted" : "ลบแล้ว"
+    "Status" : "สถานะ"
 },
 "nplurals=1; plural=0;");

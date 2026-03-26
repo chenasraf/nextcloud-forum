@@ -15,6 +15,7 @@
     "Bookmarks" : "Zaznamki",
     "Dashboard" : "Nadzorna plošča",
     "Categories" : "Kategorije",
+    "Moderation" : "Moderacija",
     "Expand" : "Razširi",
     "Collapse" : "Skrči",
     "Hello world!" : "Pozdravljen svet!",
@@ -31,6 +32,9 @@
     "Cancel" : "Prekliči",
     "Create" : "Ustvari",
     "Update" : "Posodobi",
+    "Deleted" : "Izbrisano",
+    "Restore" : "Obnovi",
+    "Retry" : "Poskusi znova     ",
     "Move" : "Premakni",
     "Page not found" : "Strani ni mogoče najti",
     "Back" : "Nazaj",
@@ -58,7 +62,6 @@
     "Draft saved" : "Osnutek je shranjen",
     "Unsaved changes" : "Neshranjene spremembe",
     "Refresh" : "Osveži",
-    "Retry" : "Poskusi znova     ",
     "Error" : "Napaka",
     "Searching …" : "Poteka iskanje ...",
     "No results found" : "Ni najdenih zadetkov",
@@ -91,7 +94,10 @@
     "Access control" : "Nadzor dostopa",
     "Settings saved" : "Nastavitve so shranjene",
     "Failed to save settings" : "Shranjevanje nastavitev je spodletelo",
+    "Newest first" : "najprej najnovejše",
+    "Oldest first" : "najprej najstarejše",
     "Reset" : "Ponastavi",
+    "Account management" : "Upravljanje z računi",
     "ID" : "ID",
     "Owner" : "Lastnik",
     "Actions" : "Dejanja",
@@ -103,7 +109,6 @@
     "No users found" : "Ni najdenih uporabnikov",
     "Joined" : "Pridružen",
     "Status" : "Stanje",
-    "Active" : "Dejavno",
-    "Deleted" : "Izbrisano"
+    "Active" : "Dejavno"
 },"pluralForm" :"nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);"
 }

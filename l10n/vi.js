@@ -28,6 +28,9 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Tạo",
     "Update" : "Sửa",
+    "Deleted" : "Đã xoá",
+    "Restore" : "Khôi phục",
+    "Retry" : "Thử lại",
     "Move" : "Chuyển",
     "Page not found" : "Trang không tìm thấy",
     "Back" : "Trở lại",
@@ -46,7 +49,6 @@ OC.L10N.register(
     "Draft saved" : "Bản nháp đã được lưu",
     "Unsaved changes" : "Thay đổi chưa được lưu",
     "Refresh" : "Tải mới",
-    "Retry" : "Thử lại",
     "Error" : "Lỗi",
     "Searching …" : "Đang tìm kiếm ...",
     "No results found" : "Không tìm thấy kết quả",
@@ -75,6 +77,8 @@ OC.L10N.register(
     "Access control" : "Kiểm soát truy cập",
     "Settings saved" : "Cấu hình đã được lưu",
     "Failed to save settings" : "Lưu cấu hình thất bại",
+    "Newest first" : "Mới nhất trước",
+    "Oldest first" : "Cũ nhất trước",
     "Reset" : "Đặt lại",
     "ID" : "ID",
     "Owner" : "Người sở hữu",
@@ -82,7 +86,6 @@ OC.L10N.register(
     "Members" : "Thành viên",
     "Loading users …" : "Đang tải người dùng…",
     "Joined" : "Đã tham gia",
-    "Active" : "Hoạt động",
-    "Deleted" : "Đã xoá"
+    "Active" : "Hoạt động"
 },
 "nplurals=1; plural=0;");

@@ -14,6 +14,7 @@
     "Dashboard" : "대시보드",
     "Users" : "사용자",
     "Categories" : "분류",
+    "Moderation" : "중재",
     "Expand" : "확장",
     "Collapse" : "접기",
     "Hello world!" : "Hello world!",
@@ -29,6 +30,9 @@
     "Cancel" : "취소",
     "Create" : "생성",
     "Update" : "업데이트",
+    "Deleted" : "삭제됨",
+    "Restore" : "복원",
+    "Retry" : "다시 시도",
     "Move" : "이동",
     "Page not found" : "페이지를 찾을 수 없음",
     "Back" : "뒤로",
@@ -53,7 +57,6 @@
     "Draft saved" : "초안 저장됨",
     "Unsaved changes" : "저장하지 않은 변경 사항",
     "Refresh" : "새로 고침",
-    "Retry" : "다시 시도",
     "Error" : "오류",
     "Created" : "만든 날짜",
     "Searching …" : "검색 중...",
@@ -84,7 +87,10 @@
     "Access control" : "접근 제어",
     "Settings saved" : "설정 저장됨",
     "Failed to save settings" : "설정을 저장하는 데 실패했습니다",
+    "Newest first" : "최신순",
+    "Oldest first" : "오래된순",
     "Reset" : "초기화",
+    "Account management" : "계정 관리",
     "ID" : "ID",
     "Owner" : "소유자",
     "Actions" : "동작",
@@ -95,7 +101,6 @@
     "No users found" : "사용자 없음",
     "Joined" : "등록함",
     "Status" : "상태",
-    "Active" : "활성화",
-    "Deleted" : "삭제됨"
+    "Active" : "활성화"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

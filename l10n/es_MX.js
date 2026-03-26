@@ -29,6 +29,9 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Crear",
     "Update" : "Actualizar",
+    "Deleted" : "Eliminado",
+    "Restore" : "Restaurar",
+    "Retry" : "Reintentar",
     "Move" : "Mover",
     "Page not found" : "Página no encontrada",
     "Back" : "Atrás",
@@ -51,7 +54,6 @@ OC.L10N.register(
     "Unsaved changes" : "Cambios no guardados",
     "Back to home" : "Regresar al inicio",
     "Refresh" : "Actualizar",
-    "Retry" : "Reintentar",
     "Error" : "Error",
     "Created" : "Creado",
     "Searching …" : "Buscando  …",
@@ -81,7 +83,10 @@ OC.L10N.register(
     "Access control" : "Control de acceso",
     "Settings saved" : "Se han guardado las configuraciones ",
     "Failed to save settings" : "No se pudo guardar la configuración",
+    "Newest first" : "Más reciente primero",
+    "Oldest first" : "Más antiguo primero",
     "Reset" : "Reiniciar",
+    "Account management" : "Administración de cuentas",
     "ID" : "ID",
     "Owner" : "Propietario",
     "Actions" : "Acciones",
@@ -91,7 +96,6 @@ OC.L10N.register(
     "Loading users …" : "Cargando usuarios …",
     "No users found" : "No se encontraron usuarios",
     "Joined" : "Se ha unido",
-    "Active" : "Activo",
-    "Deleted" : "Eliminado"
+    "Active" : "Activo"
 },
 "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

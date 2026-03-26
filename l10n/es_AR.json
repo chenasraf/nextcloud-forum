@@ -19,6 +19,9 @@
     "Allow" : "Permitir",
     "Cancel" : "Cancel",
     "Update" : "Actualizar",
+    "Deleted" : "Eliminado",
+    "Restore" : "Restaurar",
+    "Retry" : "Reintentar",
     "Move" : "Mover",
     "Page not found" : "Página no encontrada",
     "Back" : "Volver",
@@ -28,7 +31,6 @@
     "Save" : "Guardar",
     "Name" : "Nombre",
     "Refresh" : "Recargar",
-    "Retry" : "Reintentar",
     "Error" : "Error",
     "Created" : "Creado",
     "Searching …" : "Buscando ...",
@@ -49,12 +51,14 @@
     "General settings" : "Configuraciones generales",
     "Access control" : "Control de acceso",
     "Settings saved" : "Configuraciones guardadas",
+    "Newest first" : "El más reciente primero",
+    "Oldest first" : "Los más viejos primero",
     "Reset" : "Restablecer",
+    "Account management" : "Administración de cuentas",
     "ID" : "ID",
     "Actions" : "Acciones",
     "Members" : "Miembros",
     "Loading users …" : "Cargando usuarios...",
-    "Joined" : "Se ha unido",
-    "Deleted" : "Eliminado"
+    "Joined" : "Se ha unido"
 },"pluralForm" :"nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

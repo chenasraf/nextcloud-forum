@@ -28,6 +28,9 @@
     "Cancel" : "Cancel",
     "Create" : "Crear",
     "Update" : "Anovar",
+    "Deleted" : "Desanicióse",
+    "Restore" : "Restaurar",
+    "Retry" : "Retentar",
     "Move" : "Mover",
     "Page not found" : "Nun s'atopó la páxina",
     "Back" : "Atrás",
@@ -49,7 +52,6 @@
     "Draft saved" : "Guardóse'l borrador",
     "Unsaved changes" : "Cambeos ensin guardar",
     "Refresh" : "Anovar",
-    "Retry" : "Retentar",
     "Error" : "Error",
     "Searching …" : "Buscando…",
     "No results found" : "Nun s'atopó nengún resultáu",
@@ -63,6 +65,7 @@
     "Notifications" : "Avisos",
     "Files" : "Ficheros",
     "Signature" : "Firma",
+    "Privacy" : "Privacidá",
     "Enable" : "Activar",
     "Disable" : "Desactivar",
     "Description" : "Descripción",
@@ -79,7 +82,10 @@
     "Access control" : "Control d'accesu",
     "Settings saved" : "Guardóse la configuración",
     "Failed to save settings" : "Nun se pue guardar la configuración",
+    "Newest first" : "Primero lo nuevo",
+    "Oldest first" : "Primero lo antiguo",
     "Reset" : "Reafitar",
+    "Account management" : "Xestión de cuentes",
     "ID" : "ID",
     "Owner" : "Propietariu",
     "Actions" : "Aiciones",
@@ -89,7 +95,6 @@
     "Loading users …" : "Cargando los usuarios…",
     "No users found" : "Nun s'atopó nengún usuariu",
     "Status" : "Estáu",
-    "Active" : "Activa",
-    "Deleted" : "Desanicióse"
+    "Active" : "Activa"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

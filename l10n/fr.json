@@ -22,6 +22,7 @@
     "Dashboard" : "Tableau de bord",
     "Users" : "Utilisateurs",
     "Categories" : "Catégories",
+    "Moderation" : "Modération",
     "Expand" : "Étendre",
     "Collapse" : "Replier",
     "Hello world!" : "Hello world!",
@@ -41,6 +42,9 @@
     "Cancel" : "Annuler",
     "Create" : "Créer",
     "Update" : "Mettre à jour",
+    "Deleted" : "Effacé",
+    "Restore" : "Restaurer",
+    "Retry" : "Réessayer",
     "Move" : "Déplacer",
     "Page not found" : "Page non trouvée",
     "Back" : "Retour",
@@ -71,7 +75,6 @@
     "Unsaved changes" : "Modifications non enregistrées",
     "Back to home" : "Retour à l'accueil",
     "Refresh" : "Actualiser",
-    "Retry" : "Réessayer",
     "In {category}" : "Dans {category}",
     "Error" : "Erreur",
     "Created" : "Créée",
@@ -110,7 +113,10 @@
     "Access control" : "Contrôle d'accès",
     "Settings saved" : "Paramètres enregistrés",
     "Failed to save settings" : "Impossible d'enregistrer les paramètres",
+    "Newest first" : "Les plus récents en premier",
+    "Oldest first" : "Les plus anciens en premier",
     "Reset" : "Réinitialiser",
+    "Account management" : "Gestion de compte",
     "ID" : "ID",
     "Owner" : "Propriétaire",
     "Actions" : "Actions",
@@ -122,7 +128,6 @@
     "No users found" : "Aucun utilisateur trouvé",
     "Joined" : "A rejoint",
     "Status" : "Statut",
-    "Active" : "Actif",
-    "Deleted" : "Effacé"
+    "Active" : "Actif"
 },"pluralForm" :"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

@@ -11,13 +11,15 @@
     "Category" : "Kategorie",
     "Cancel" : "Cancel",
     "Update" : "Werk by",
+    "Deleted" : "Geskrap",
+    "Restore" : "Herstel",
+    "Retry" : "Herprobeer",
     "Move" : "Skuif",
     "Page not found" : "Blad nie gevind nie",
     "Delete" : "Skrap",
     "Direct link" : "Direkte skakel",
     "Save" : "Stoor",
     "Unsaved changes" : "Onbewaarde veranderinge",
-    "Retry" : "Herprobeer",
     "Back to {category}" : "Terug na {category}",
     "by" : "deur",
     "Subscribe" : "Teken in",
@@ -28,10 +30,11 @@
     "New" : "Nuut",
     "Access control" : "Toegangsbeheer",
     "Settings saved" : "Instellings gestoor",
+    "Newest first" : "Nuutste eerste",
+    "Oldest first" : "Oudste eerste",
     "Reset" : "Herstel",
     "ID" : "ID",
     "Actions" : "Aksies",
-    "Active" : "Aktief",
-    "Deleted" : "Geskrap"
+    "Active" : "Aktief"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

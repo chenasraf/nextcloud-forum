@@ -25,6 +25,8 @@
     "Cancel" : "Cancel",
     "Create" : "Crea",
     "Update" : "Agiorna",
+    "Deleted" : "Cantzelladu",
+    "Restore" : "Riprìstina",
     "Move" : "Tràmuda",
     "Page not found" : "Pàgina no agatada",
     "Back" : "In segus",
@@ -72,6 +74,8 @@
     "Appearance" : "Aspetu",
     "Settings saved" : "Cunfiguratzione sarvada",
     "Failed to save settings" : "No at fatu a sarvare is informatziones",
+    "Newest first" : "In antis is prus reghentes",
+    "Oldest first" : "In antis is prus betzos",
     "Reset" : "Riprìstinu",
     "ID" : "ID",
     "Actions" : "Atziones",
@@ -79,7 +83,6 @@
     "No users found" : "Peruna utèntzia agatada",
     "Joined" : "As atzèdidu",
     "Status" : "Status",
-    "Active" : "Ativu",
-    "Deleted" : "Cantzelladu"
+    "Active" : "Ativu"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

@@ -31,6 +31,9 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Búa til",
     "Update" : "Uppfæra",
+    "Deleted" : "Eytt",
+    "Restore" : "Endurheimta",
+    "Retry" : "Reyna aftur",
     "Move" : "Færa",
     "Page not found" : "Síða fannst ekki",
     "Back" : "Til baka",
@@ -54,7 +57,6 @@ OC.L10N.register(
     "Unsaved changes" : "Óvistaðar breytingar",
     "Back to home" : "Til baka á upphafssíðu",
     "Refresh" : "Endurnýja",
-    "Retry" : "Reyna aftur",
     "Error" : "Villa",
     "Created" : "Búið til þann",
     "Searching …" : "Leita …",
@@ -85,7 +87,10 @@ OC.L10N.register(
     "Access control" : "Aðgangsstýring",
     "Settings saved" : "Stillingar vistaðar",
     "Failed to save settings" : "Mistókst að vista stillingar",
+    "Newest first" : "Nýjast fyrst",
+    "Oldest first" : "Elsta fyrst",
     "Reset" : "Endurstilla",
+    "Account management" : "Umsýsla notandaaðgangs",
     "ID" : "ID",
     "Owner" : "Eigandi",
     "Actions" : "Aðgerðir",
@@ -93,7 +98,6 @@ OC.L10N.register(
     "Members" : "Meðlimir",
     "Loading users …" : "Hleð inn notendum …",
     "Joined" : "Gekk inn",
-    "Active" : "Virkur",
-    "Deleted" : "Eytt"
+    "Active" : "Virkur"
 },
 "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);");

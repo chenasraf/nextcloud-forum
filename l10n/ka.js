@@ -15,6 +15,7 @@ OC.L10N.register(
     "Dashboard" : "Dashboard",
     "Users" : "Users",
     "Categories" : "Categories",
+    "Moderation" : "Moderation",
     "Expand" : "Expand",
     "Collapse" : "Collapse",
     "Hello world!" : "Hello world!",
@@ -28,6 +29,9 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Create",
     "Update" : "Update",
+    "Deleted" : "Deleted",
+    "Restore" : "Restore",
+    "Retry" : "Retry",
     "Move" : "Move",
     "Page not found" : "Page not found",
     "Back" : "უკან",
@@ -46,7 +50,6 @@ OC.L10N.register(
     "Saving draft …" : "Saving draft …",
     "Draft saved" : "Draft saved",
     "Refresh" : "Refresh",
-    "Retry" : "Retry",
     "Error" : "Error",
     "Created" : "Created",
     "Searching …" : "Searching …",
@@ -75,6 +78,8 @@ OC.L10N.register(
     "General settings" : "General settings",
     "Settings saved" : "Settings saved",
     "Failed to save settings" : "Failed to save settings",
+    "Newest first" : "Newest first",
+    "Oldest first" : "Oldest first",
     "Reset" : "Reset",
     "ID" : "ID",
     "Owner" : "Owner",
@@ -84,7 +89,6 @@ OC.L10N.register(
     "Loading users …" : "Loading users …",
     "No users found" : "No users found",
     "Status" : "Status",
-    "Active" : "Active",
-    "Deleted" : "Deleted"
+    "Active" : "Active"
 },
 "nplurals=2; plural=(n!=1);");

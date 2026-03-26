@@ -13,6 +13,7 @@ OC.L10N.register(
     "Dashboard" : "Panou",
     "Users" : "Utilizatori",
     "Categories" : "Categori",
+    "Moderation" : "Moderare",
     "Expand" : "Extinde",
     "Collapse" : "Restrânge",
     "Hello world!" : "Hello world!",
@@ -25,6 +26,9 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Crează",
     "Update" : "Actualizare",
+    "Deleted" : "Șters",
+    "Restore" : "Restaurare",
+    "Retry" : "Reîncearcă",
     "Move" : "Mută",
     "Page not found" : "Pagina nu a fost găsită",
     "Back" : "Înapoi",
@@ -42,7 +46,6 @@ OC.L10N.register(
     "Draft saved" : "Mesaj salvat",
     "Unsaved changes" : "Modificări nesalvate",
     "Refresh" : "Reîmprospătează",
-    "Retry" : "Reîncearcă",
     "Error" : "Eroare",
     "Created" : "A fost creat",
     "Searching …" : "Căutare ...",
@@ -70,6 +73,8 @@ OC.L10N.register(
     "Appearance" : "Aspect",
     "Access control" : "Control acces",
     "Settings saved" : "Setările au fost salvate",
+    "Newest first" : "Cel mai nou mai întâi",
+    "Oldest first" : "Cel mai vechi mai întâi",
     "Reset" : "Resetare",
     "ID" : "ID",
     "Owner" : "Proprietar",
@@ -77,7 +82,6 @@ OC.L10N.register(
     "Members" : "Membri",
     "No users found" : "Nu au fost găsiți utilizatori",
     "Joined" : "Alăturat",
-    "Active" : "Activ",
-    "Deleted" : "Șters"
+    "Active" : "Activ"
 },
 "nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));");

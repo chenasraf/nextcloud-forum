@@ -17,6 +17,9 @@ OC.L10N.register(
     "Category" : "Kategori",
     "Cancel" : "Cancel",
     "Update" : "Oppdater",
+    "Deleted" : "Sletta",
+    "Restore" : "Gjenopprett",
+    "Retry" : "Forsøk att",
     "Move" : "Move",
     "Page not found" : "Fann ikkje sida",
     "Edit" : "Rediger",
@@ -25,7 +28,6 @@ OC.L10N.register(
     "Save" : "Lagre",
     "Name" : "Namn",
     "Refresh" : "Last inn på nytt",
-    "Retry" : "Forsøk att",
     "Error" : "Feil",
     "Reply" : "Svare",
     "by" : "av",
@@ -37,8 +39,9 @@ OC.L10N.register(
     "Description" : "Skildring",
     "New" : "Ny",
     "Appearance" : "Utsjånad",
+    "Newest first" : "Nyaste fyrst",
+    "Oldest first" : "Eldste fyrst",
     "ID" : "ID",
-    "Actions" : "Handlingar",
-    "Deleted" : "Sletta"
+    "Actions" : "Handlingar"
 },
 "nplurals=2; plural=(n != 1);");

@@ -17,6 +17,7 @@
     "Dashboard" : "الرئيسية",
     "Users" : "المستخدمين",
     "Categories" : "التصنيفات",
+    "Moderation" : "الإدارة",
     "Expand" : "توسيع",
     "Collapse" : "طوي",
     "Hello world!" : "مرحبا بالعالم!",
@@ -33,6 +34,9 @@
     "Cancel" : "Cancel",
     "Create" : "إنشاء",
     "Update" : "تحديث",
+    "Deleted" : "محذوف",
+    "Restore" : "إستعادة ",
+    "Retry" : "أعِدِ المحاولة",
     "Move" : "نقل",
     "Page not found" : "الصفحة غير موجودة",
     "Back" : "عودة",
@@ -57,7 +61,6 @@
     "Draft saved" : "تمّ حفظ المُسوَّدة",
     "Unsaved changes" : "تغييرات لم يتم حفظها",
     "Refresh" : "إنعاش",
-    "Retry" : "أعِدِ المحاولة",
     "Error" : "خطأ",
     "Created" : "أُنشِئَ",
     "Searching …" : "يتم الآن البحث…",
@@ -75,6 +78,7 @@
     "Files" : "الملفّات",
     "Browse" : "تصفُّح",
     "Signature" : "التوقيع",
+    "Privacy" : "الخصوصية",
     "Enable" : "تمكين",
     "Disable" : "تعطيل",
     "Description" : "الوصف",
@@ -90,7 +94,10 @@
     "Access control" : "مراقبة النفاذ",
     "Settings saved" : "تمّ حفظ الإعدادات",
     "Failed to save settings" : "فشل في حفظ الإعدادات",
+    "Newest first" : "الأحدث أولاً",
+    "Oldest first" : "الأقدم أولاً",
     "Reset" : "إعادة تعيين",
+    "Account management" : "إدارة الحساب",
     "ID" : "معرف ID",
     "Owner" : "المالك",
     "Actions" : "الإجراءات",
@@ -101,7 +108,6 @@
     "Loading users …" : "تحميل المستخدِمين جارٍ ...",
     "No users found" : "لا يوجد مستخدمون",
     "Status" : "الحاله",
-    "Active" : "نَشِط",
-    "Deleted" : "محذوف"
+    "Active" : "نَشِط"
 },"pluralForm" :"nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;"
 }

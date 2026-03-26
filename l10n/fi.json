@@ -17,6 +17,7 @@
     "Dashboard" : "Kojelauta",
     "Users" : "Käyttäjät",
     "Categories" : "Luokat",
+    "Moderation" : "Moderaatio",
     "Expand" : "Laajenna",
     "Collapse" : "Kutista näkymää",
     "Hello world!" : "Hei maailma!",
@@ -35,6 +36,9 @@
     "Cancel" : "Peruuta",
     "Create" : "Luo",
     "Update" : "Päivitä",
+    "Deleted" : "Poistettu",
+    "Restore" : "Palauta",
+    "Retry" : "Yritä uudelleen",
     "Move" : "Siirrä",
     "Page not found" : "Sivua ei löytynyt",
     "Back" : "Takaisin",
@@ -64,7 +68,6 @@
     "Draft saved" : "Luonnos tallennettu",
     "Unsaved changes" : "Tallentamattomia muutoksia",
     "Refresh" : "Päivitä",
-    "Retry" : "Yritä uudelleen",
     "Error" : "Virhe",
     "Created" : "Luonut",
     "Searching …" : "Haetaan…",
@@ -99,7 +102,10 @@
     "Access control" : "Pääsynhallinta",
     "Settings saved" : "Asetukset tallennettu",
     "Failed to save settings" : "Asetusten tallentaminen epäonnistui",
+    "Newest first" : "Uusin ensin",
+    "Oldest first" : "Vanhin ensin",
     "Reset" : "Palauta",
+    "Account management" : "Tilihallinta",
     "ID" : "ID",
     "Owner" : "Omistaja",
     "Actions" : "Toiminnot",
@@ -111,7 +117,6 @@
     "No users found" : "Käyttäjiä ei löytynyt",
     "Joined" : "Liittynyt",
     "Status" : "Tila",
-    "Active" : "Aktiivinen",
-    "Deleted" : "Poistettu"
+    "Active" : "Aktiivinen"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

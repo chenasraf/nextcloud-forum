@@ -22,6 +22,9 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Create" : "Krijo",
     "Update" : "Përditëso",
+    "Deleted" : "E fshirë",
+    "Restore" : "Rikthe",
+    "Retry" : "Riprovoni",
     "Move" : "Zhvendos",
     "Page not found" : "Faqja nuk u gjet ",
     "Back" : "Mbrapsht",
@@ -35,7 +38,6 @@ OC.L10N.register(
     "Title" : "Titulli",
     "Unsaved changes" : "Ndryshime të paruajtura",
     "Refresh" : "Rifreskoje",
-    "Retry" : "Riprovoni",
     "Error" : "Gabim",
     "Created" : "U krijua",
     "by" : "nga",
@@ -56,12 +58,13 @@ OC.L10N.register(
     "General settings" : "Opsjonet e Pergjithshme",
     "Access control" : "Kontrolli i aksesit",
     "Settings saved" : "Opsjonet u Ruajtën.",
+    "Newest first" : "Më i riu i pari",
+    "Oldest first" : "Më i vjetri i pari",
     "Reset" : "Rivendos",
     "ID" : "ID",
     "Actions" : "Veprimet",
     "Members" : "Anëtar",
     "Joined" : "I lidhur",
-    "Status" : "Statusi",
-    "Deleted" : "E fshirë"
+    "Status" : "Statusi"
 },
 "nplurals=2; plural=(n != 1);");

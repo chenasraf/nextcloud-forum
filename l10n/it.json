@@ -18,6 +18,7 @@
     "Dashboard" : "Cruscotto",
     "Users" : "Utenti",
     "Categories" : "Categorie",
+    "Moderation" : "Moderazione",
     "Expand" : "Espandi",
     "Collapse" : "Contrai",
     "Hello world!" : "Ciao mondo!",
@@ -37,6 +38,9 @@
     "Cancel" : "Cancel",
     "Create" : "Crea",
     "Update" : "Aggiorna",
+    "Deleted" : "Eliminato",
+    "Restore" : "Ripristina",
+    "Retry" : "Riprova",
     "Move" : "Sposta",
     "Page not found" : "Pagina non trovata",
     "Back" : "Indietro",
@@ -67,7 +71,6 @@
     "Draft saved" : "Bozza salvata",
     "Unsaved changes" : "Modifiche non salvate",
     "Refresh" : "Aggiorna",
-    "Retry" : "Riprova",
     "In {category}" : "In {category}",
     "Error" : "Errore",
     "Created" : "Creato il",
@@ -104,7 +107,10 @@
     "Access control" : "Controllo d'accesso",
     "Settings saved" : "Impostazioni salvate",
     "Failed to save settings" : "Salvataggio impostazioni non riuscito",
+    "Newest first" : "Prima i più recenti",
+    "Oldest first" : "Prima i più datati",
     "Reset" : "Ripristina",
+    "Account management" : "Gestione account",
     "ID" : "ID",
     "Owner" : "Proprietario",
     "Actions" : "Azioni",
@@ -115,7 +121,6 @@
     "No users found" : "Nessun utente trovato",
     "Joined" : "Partecipata",
     "Status" : "Stato",
-    "Active" : "Attivo",
-    "Deleted" : "Eliminato"
+    "Active" : "Attivo"
 },"pluralForm" :"nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

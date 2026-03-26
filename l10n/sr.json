@@ -18,6 +18,7 @@
     "Dashboard" : "Контролна табла",
     "Users" : "Корисници",
     "Categories" : "Категорије",
+    "Moderation" : "Модерација",
     "Expand" : "Proširi",
     "Collapse" : "Скупи",
     "Hello world!" : "Здраво свете!",
@@ -37,6 +38,9 @@
     "Cancel" : "Откажи",
     "Create" : "Креирање",
     "Update" : "Ажурирај",
+    "Deleted" : "Обрисано",
+    "Restore" : "Врати",
+    "Retry" : "Покушај поново",
     "Move" : "Помери",
     "Page not found" : "Страна није нађена",
     "Back" : "Назад",
@@ -62,7 +66,6 @@
     "Draft saved" : "Нацрт сачуван",
     "Unsaved changes" : "Несачуване измене",
     "Refresh" : "Освежи",
-    "Retry" : "Покушај поново",
     "In {category}" : "У {category}",
     "Error" : "Грешка",
     "Created" : "Направљен",
@@ -99,7 +102,10 @@
     "Access control" : "Контрола приступа",
     "Settings saved" : "Поставке сачуване",
     "Failed to save settings" : "Грешка приликом чувања поставки",
+    "Newest first" : "Прво новије",
+    "Oldest first" : "Прво старије",
     "Reset" : "Ресетуј",
+    "Account management" : "Управљање налозима",
     "ID" : "ID",
     "Owner" : "Власник",
     "Actions" : "Радње",
@@ -111,7 +117,6 @@
     "No users found" : "Није пронађен ниједан корисник",
     "Joined" : "Придружен",
     "Status" : "Стање",
-    "Active" : "Активан",
-    "Deleted" : "Обрисано"
+    "Active" : "Активан"
 },"pluralForm" :"nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);"
 }

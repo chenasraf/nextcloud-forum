@@ -16,6 +16,7 @@
     "Dashboard" : "Panela",
     "Users" : "Erabiltzaileak",
     "Categories" : "Kategoriak",
+    "Moderation" : "Moderazioa",
     "Expand" : "Zabaldu",
     "Collapse" : "Tolestu",
     "Hello world!" : "Kaixo mundua!",
@@ -33,6 +34,9 @@
     "Cancel" : "Cancel",
     "Create" : "Sortu",
     "Update" : "Eguneratu",
+    "Deleted" : "Ezabatuta",
+    "Restore" : "Leheneratu",
+    "Retry" : "saiatu berriro",
     "Move" : "Mugitu",
     "Page not found" : "Orria ez da aurkitu",
     "Back" : "Itzuli",
@@ -62,7 +66,6 @@
     "Unsaved changes" : "Gorde gabeko aldaketak",
     "Back to home" : "Itzuli etxera",
     "Refresh" : "Freskatu",
-    "Retry" : "saiatu berriro",
     "Error" : "Errorea",
     "Created" : "Sortua",
     "Searching …" : "Bilatzen…",
@@ -96,7 +99,10 @@
     "Access control" : "Sarbide kontrola",
     "Settings saved" : "Ezarpenak gordeta",
     "Failed to save settings" : "Ezarpenak gordetzeak huts egin du",
+    "Newest first" : "Berrienak lehenengo ",
+    "Oldest first" : "Zaharrenak lehenengo",
     "Reset" : "Berrezarri",
+    "Account management" : "Kontuen kudeaketa",
     "ID" : "ID",
     "Owner" : "Jabea",
     "Actions" : "Ekintzak",
@@ -108,7 +114,6 @@
     "No users found" : "Ez da erabiltzailerik aurkitu",
     "Joined" : "Batu da",
     "Status" : "Egoera",
-    "Active" : "Aktibo",
-    "Deleted" : "Ezabatuta"
+    "Active" : "Aktibo"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

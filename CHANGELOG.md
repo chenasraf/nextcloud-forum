@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.33.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.32.0...v0.33.0) (2026-03-27)
+
+
+### Features
+
+* **admin:** enable toggling signatures ([c592876](https://github.com/chenasraf/nextcloud-forum/commit/c5928766562c71cb80ed4ada0dbe724914262082))
+* **moderation:** add moderation section with deleted threads/replies and restore ([8ec51a2](https://github.com/chenasraf/nextcloud-forum/commit/8ec51a2d60c66dc1a86eed6f6cbc1a34fa5afb76))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([d758344](https://github.com/chenasraf/nextcloud-forum/commit/d7583449340aa07fce2ef900bbaed7922cc9d6a3))
+* **l10n:** Update translations from Transifex ([03d11eb](https://github.com/chenasraf/nextcloud-forum/commit/03d11eb804c69873212411fd0bbe394a71dde716))
+
 ## [0.32.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.31.0...v0.32.0) (2026-03-25)
 
 

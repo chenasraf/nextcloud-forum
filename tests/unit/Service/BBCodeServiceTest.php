@@ -252,6 +252,208 @@ class BBCodeServiceTest extends TestCase {
 		$this->assertStringContainsString('Red text', $result);
 	}
 
+	public function testParseYoutubeTagGeneratesCorrectIframe(): void {
+		$content = '[youtube]dQw4w9WgXcQ[/youtube]';
+
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringContainsString('<iframe', $result);
+		$this->assertStringContainsString('src="https://www.youtube.com/embed/dQw4w9WgXcQ"', $result);
+		$this->assertStringContainsString('allowfullscreen', $result);
+		$this->assertStringContainsString('class="youtube-player"', $result);
+		$this->assertStringContainsString('allow="accelerometer', $result);
+	}
+
+	public function testParseYoutubeTagEscapesVideoId(): void {
+		$content = '[youtube]<script>alert("xss")</script>[/youtube]';
+
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringNotContainsString('<script>', $result);
+		$this->assertStringContainsString('&lt;script&gt;', $result);
+	}
+
+	public function testParseMultipleYoutubeTags(): void {
+		$content = 'First: [youtube]abc123[/youtube] Second: [youtube]def456[/youtube]';
+
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringContainsString('embed/abc123', $result);
+		$this->assertStringContainsString('embed/def456', $result);
+		$this->assertEquals(2, substr_count($result, '<iframe'));
+	}
+
+	public function testParseVideoAttachmentRendersVideoTag(): void {
+		$bbCode = new BBCode();
+		$bbCode->setTag('attachment');
+		$bbCode->setReplacement('');
+		$bbCode->setEnabled(true);
+		$bbCode->setParseInner(false);
+		$bbCode->setSpecialHandler('attachment');
+
+		$file = $this->createMock(\OCP\Files\File::class);
+		$file->method('getName')->willReturn('video.mp4');
+		$file->method('getMimeType')->willReturn('video/mp4');
+		$file->method('getSize')->willReturn(1024 * 1024);
+		$file->method('getId')->willReturn(42);
+
+		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder->method('get')->willReturn($file);
+		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
+		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/download');
+
+		$content = '[attachment]Forum/video.mp4[/attachment]';
+		$result = $this->service->parse($content, [$bbCode], 'alice', 1);
+
+		$this->assertStringContainsString('<video', $result);
+		$this->assertStringContainsString('controls', $result);
+		$this->assertStringContainsString('playsinline', $result);
+		$this->assertStringContainsString('<source', $result);
+		$this->assertStringContainsString('type="video/mp4"', $result);
+		$this->assertStringContainsString('class="attachment attachment-video"', $result);
+	}
+
+	public function testParseImageAttachmentRendersImgTag(): void {
+		$bbCode = new BBCode();
+		$bbCode->setTag('attachment');
+		$bbCode->setReplacement('');
+		$bbCode->setEnabled(true);
+		$bbCode->setParseInner(false);
+		$bbCode->setSpecialHandler('attachment');
+
+		$file = $this->createMock(\OCP\Files\File::class);
+		$file->method('getName')->willReturn('photo.jpg');
+		$file->method('getMimeType')->willReturn('image/jpeg');
+		$file->method('getSize')->willReturn(512 * 1024);
+		$file->method('getId')->willReturn(43);
+
+		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder->method('get')->willReturn($file);
+		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
+		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/preview');
+
+		$content = '[attachment]Forum/photo.jpg[/attachment]';
+		$result = $this->service->parse($content, [$bbCode], 'alice', 1);
+
+		$this->assertStringContainsString('<img', $result);
+		$this->assertStringContainsString('class="attachment attachment-image"', $result);
+		$this->assertStringNotContainsString('<video', $result);
+	}
+
+	// ── XSS injection tests ─────────────────────────────────────
+
+	public function testXssInBoldTagContentIsEscaped(): void {
+		$content = '[b]<img src=x onerror=alert(1)>[/b]';
+		$result = $this->service->parse($content, []);
+
+		// Library HTML-escapes content — the tag is rendered as text, not executable HTML
+		$this->assertStringContainsString('&lt;img', $result);
+		$this->assertStringNotContainsString('<img src=x', $result);
+	}
+
+	public function testXssInItalicTagContentIsEscaped(): void {
+		$content = '[i]<svg onload=alert(1)>[/i]';
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringContainsString('&lt;svg', $result);
+		$this->assertStringNotContainsString('<svg', $result);
+	}
+
+	public function testXssInUrlTagContentIsEscaped(): void {
+		$content = '[url=https://example.com]<script>alert(1)</script>[/url]';
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringNotContainsString('<script>', $result);
+		$this->assertStringContainsString('&lt;script&gt;', $result);
+	}
+
+	public function testXssInCodeTagContentIsEscaped(): void {
+		$content = '[code]<script>alert("xss")</script>[/code]';
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringNotContainsString('<script>', $result);
+		$this->assertStringContainsString('&lt;script&gt;', $result);
+	}
+
+	public function testXssInQuoteTagContentIsEscaped(): void {
+		$content = '[quote]<iframe src="javascript:alert(1)"></iframe>[/quote]';
+		$result = $this->service->parse($content, []);
+
+		// Content is HTML-escaped inside blockquote
+		$this->assertStringContainsString('&lt;iframe', $result);
+		$this->assertStringNotContainsString('<iframe', $result);
+	}
+
+	public function testXssInSpoilerTagContentIsEscaped(): void {
+		$content = '[spoiler]<script>document.cookie</script>[/spoiler]';
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringNotContainsString('<script>', $result);
+		$this->assertStringContainsString('&lt;script&gt;', $result);
+	}
+
+	public function testXssInYoutubeTagVideoIdIsEscaped(): void {
+		$content = '[youtube]" onload="alert(1)" data-x="[/youtube]';
+		$result = $this->service->parse($content, []);
+
+		// Quotes are escaped via htmlspecialchars, preventing attribute breakout
+		$this->assertStringContainsString('&quot;', $result);
+		// The onload is inside the src attribute value (escaped), not a real attribute
+		$this->assertStringNotContainsString('" onload="', $result);
+	}
+
+	public function testXssInYoutubeTagScriptIsEscaped(): void {
+		$content = '[youtube]<script>alert(1)</script>[/youtube]';
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringNotContainsString('<script>', $result);
+		$this->assertStringContainsString('&lt;script&gt;', $result);
+	}
+
+	public function testXssInCustomTagContentIsEscaped(): void {
+		$customTag = $this->createBBCode('highlight', '<mark>{content}</mark>', true, true);
+		$content = '[highlight]<img src=x onerror=alert(1)>[/highlight]';
+		$result = $this->service->parse($content, [$customTag]);
+
+		// Library escapes content inside custom tags
+		$this->assertStringContainsString('&lt;img', $result);
+		$this->assertStringNotContainsString('<img src=x', $result);
+	}
+
+	public function testXssInCustomTagNoParseInnerIsEscaped(): void {
+		$customTag = $this->createBBCode('raw', '<pre>{content}</pre>', true, false);
+		$content = '[raw]<script>alert("xss")</script>[/raw]';
+		$result = $this->service->parse($content, [$customTag]);
+
+		$this->assertStringNotContainsString('<script>', $result);
+		$this->assertStringContainsString('&lt;script&gt;', $result);
+	}
+
+	public function testXssDangerousProtocolsBlockedInCustomUrlParam(): void {
+		$customTag = $this->createBBCode('link', '<a href="{url}">{content}</a>', true, true);
+
+		$protocols = [
+			'javascript:alert(1)',
+			'vbscript:alert(1)',
+			'data:text/html,<script>alert(1)</script>',
+			'file:///etc/passwd',
+		];
+
+		foreach ($protocols as $protocol) {
+			$content = "[link=$protocol]click[/link]";
+			$result = $this->service->parse($content, [$customTag]);
+			$this->assertStringContainsString('href=""', $result, "Dangerous protocol not blocked: $protocol");
+		}
+	}
+
+	public function testXssCssInjectionInColorParamIsStripped(): void {
+		$colorCode = $this->createBBCode('customcolor', '<span style="color:{color}">{content}</span>', true, true);
+		$content = '[customcolor=red;font-weight:bold]text[/customcolor]';
+		$result = $this->service->parse($content, [$colorCode]);
+
+		$this->assertStringNotContainsString('font-weight:bold', $result);
+	}
+
 	private function createBBCode(string $tag, string $replacement, bool $enabled, bool $parseInner): BBCode {
 		$bbCode = new BBCode();
 		$bbCode->setTag($tag);

@@ -462,7 +462,7 @@ class BBCodeService {
 
 				return sprintf(
 					'<div class="attachment attachment-video">'
-					. '<video controls preload="metadata" title="%s">'
+					. '<video controls playsinline preload="metadata" title="%s">'
 					. '<source src="%s" type="%s" />'
 					. '</video>'
 					. '</div>',

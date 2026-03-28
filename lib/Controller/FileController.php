@@ -60,7 +60,14 @@ class FileController extends Controller {
 				return new DataResponse(['error' => 'Invalid file'], Http::STATUS_BAD_REQUEST);
 			}
 
-			$response = new FileDisplayResponse($file, Http::STATUS_OK, ['Content-Type' => $file->getMimeType()]);
+			$mimeType = $file->getMimeType();
+
+			// Support Range requests for media files (video/audio) to enable seeking
+			if (str_starts_with($mimeType, 'video/') || str_starts_with($mimeType, 'audio/')) {
+				return $this->serveWithRangeSupport($file);
+			}
+
+			$response = new FileDisplayResponse($file, Http::STATUS_OK, ['Content-Type' => $mimeType]);
 			$response->addHeader('Cache-Control', 'public, max-age=3600');
 
 			return $response;
@@ -118,5 +125,75 @@ class FileController extends Controller {
 			$this->logger->error('Error serving preview: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Error loading preview'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * Stream a media file with HTTP Range support for seeking
+	 *
+	 * Bypasses Nextcloud's response framework to stream directly,
+	 * enabling proper range request handling for video/audio seeking.
+	 *
+	 * @return never
+	 */
+	private function serveWithRangeSupport(\OCP\Files\File $file): never {
+		$fileSize = $file->getSize();
+		$mimeType = $file->getMimeType();
+
+		$rangeHeader = $this->request->getHeader('Range');
+		$start = 0;
+		$end = $fileSize - 1;
+		$statusCode = Http::STATUS_OK;
+
+		if ($rangeHeader && preg_match('/bytes=(\d+)-(\d*)/', $rangeHeader, $matches)) {
+			$start = (int)$matches[1];
+			$end = $matches[2] !== '' ? (int)$matches[2] : $end;
+			$statusCode = Http::STATUS_PARTIAL_CONTENT;
+		}
+
+		$length = $end - $start + 1;
+
+		// Clear any previous output buffers
+		while (ob_get_level() > 0) {
+			ob_end_clean();
+		}
+
+		http_response_code($statusCode);
+		header('Content-Type: ' . $mimeType);
+		header('Content-Length: ' . $length);
+		header('Accept-Ranges: bytes');
+		header('Cache-Control: public, max-age=3600');
+		header('Content-Disposition: inline; filename="' . basename($file->getName()) . '"');
+
+		if ($statusCode === Http::STATUS_PARTIAL_CONTENT) {
+			header("Content-Range: bytes $start-$end/$fileSize");
+		}
+
+		// Stream the file in chunks
+		$handle = $file->fopen('r');
+		if ($handle === false) {
+			http_response_code(500);
+			exit;
+		}
+
+		if ($start > 0) {
+			fseek($handle, $start);
+		}
+
+		$remaining = $length;
+		$chunkSize = 1024 * 1024; // 1MB chunks
+
+		while ($remaining > 0 && !feof($handle)) {
+			$readSize = min($chunkSize, $remaining);
+			$data = fread($handle, $readSize);
+			if ($data === false) {
+				break;
+			}
+			echo $data;
+			flush();
+			$remaining -= strlen($data);
+		}
+
+		fclose($handle);
+		exit;
 	}
 }

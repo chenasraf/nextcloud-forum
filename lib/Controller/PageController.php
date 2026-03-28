@@ -51,10 +51,12 @@ class PageController extends Controller {
 			$response = new PublicTemplateResponse(Application::APP_ID, 'app', $templateData);
 		}
 
-		// Allow loading images from external sources in forum posts
+		// Allow loading external resources in forum posts
 		$csp = new ContentSecurityPolicy();
 		$csp->addAllowedImageDomain('*');
 		$csp->addAllowedMediaDomain('*');
+		$csp->addAllowedFrameDomain('https://www.youtube.com');
+		$csp->addAllowedFrameDomain('https://www.youtube-nocookie.com');
 		$response->setContentSecurityPolicy($csp);
 
 		return $response;

@@ -68,6 +68,21 @@ class BBCodeService {
 			}, $content);
 		}
 
+		// Preprocess [youtube] tags — the builtin handler generates malformed HTML
+		$youtubePlaceholders = [];
+		$content = preg_replace_callback('/\[youtube\](.*?)\[\/youtube\]/s', function ($matches) use (&$youtubePlaceholders) {
+			$placeholder = '___YOUTUBE_' . count($youtubePlaceholders) . '___';
+			$videoId = htmlspecialchars(trim($matches[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$youtubePlaceholders[$placeholder] = '<div class="embed-video">'
+				. '<iframe class="youtube-player" width="560" height="315"'
+				. ' src="https://www.youtube.com/embed/' . $videoId . '"'
+				. ' title="YouTube video player" frameborder="0"'
+				. ' allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"'
+				. ' referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+				. '</div>';
+			return $placeholder;
+		}, $content);
+
 		// Preprocess [code] blocks to prevent nl2br and trim whitespace
 		// The built-in [code] tag wraps content in <pre><code>, so we don't want <br/> tags inside
 		$codePlaceholders = [];
@@ -176,6 +191,11 @@ class BBCodeService {
 				$html = str_replace($placeholder, $replacement, $html);
 			}
 
+			// Replace YouTube placeholders
+			foreach ($youtubePlaceholders as $placeholder => $replacement) {
+				$html = str_replace($placeholder, $replacement, $html);
+			}
+
 			// Replace code block placeholders (must be done before other placeholders to avoid double-escaping)
 			foreach ($codePlaceholders as $placeholder => $replacement) {
 				$html = str_replace($placeholder, $replacement, $html);
@@ -224,6 +244,9 @@ class BBCodeService {
 	private function getParser(array $bbCodes): BBCodeParser {
 		// Create a new parser instance each time to ensure fresh state
 		$parser = new BBCodeParser();
+
+		// Ignore the builtin youtube tag — we handle it in preprocessing
+		$parser->ignoreTag('youtube');
 
 		// Register custom BBCodes from database
 		foreach ($bbCodes as $bbCode) {

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.34.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.33.0...v0.34.0) (2026-03-28)
+
+
+### Features
+
+* video playr support in attachments ([07c864b](https://github.com/chenasraf/nextcloud-forum/commit/07c864b7e9cb1b645d3e710b24dc4ec588bbd09e))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([a751eaa](https://github.com/chenasraf/nextcloud-forum/commit/a751eaa7ed37be89178dfc2c93602b4807654609))
+
 ## [0.33.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.32.0...v0.33.0) (2026-03-27)
 
 

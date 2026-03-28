@@ -93,6 +93,7 @@ OC.L10N.register(
     "Enabled" : "Omogućeno",
     "New" : "Novo",
     "Permissions" : "Dopuštenja",
+    "Preview" : "Pretpregled",
     "Move up" : "Premjesti gore",
     "Move down" : "Premjesti dolje",
     "Last 7 days" : "Zadnjih 7 dana",

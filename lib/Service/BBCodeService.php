@@ -426,6 +426,27 @@ class BBCodeService {
 					$escapedFileName,
 					$escapedFileName
 				);
+			} elseif (str_starts_with($mimeType, 'video/')) {
+				// Generate download URL for video (used as source)
+				$videoUrl = $this->urlGenerator->linkToRouteAbsolute(
+					'forum.file.download',
+					['postId' => $postId, 'filePath' => $filePath]
+				);
+
+				$escapedFileName = htmlspecialchars($fileName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+				$escapedUrl = htmlspecialchars($videoUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+				$escapedMimeType = htmlspecialchars($mimeType, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+				return sprintf(
+					'<div class="attachment attachment-video">'
+					. '<video controls preload="metadata" title="%s">'
+					. '<source src="%s" type="%s" />'
+					. '</video>'
+					. '</div>',
+					$escapedFileName,
+					$escapedUrl,
+					$escapedMimeType
+				);
 			} else {
 				// Generate download URL for non-image files using proxy endpoint
 				$downloadUrl = $this->urlGenerator->linkToRouteAbsolute(

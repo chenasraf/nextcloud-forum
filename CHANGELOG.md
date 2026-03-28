@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.34.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.34.0...v0.34.1) (2026-03-28)
+
+
+### Bug Fixes
+
+* attachment video streaming ([fcf9cf6](https://github.com/chenasraf/nextcloud-forum/commit/fcf9cf614bcd3ae41b61ba780264b2c74bda671a))
+* youtube embed CSP ([0d461f1](https://github.com/chenasraf/nextcloud-forum/commit/0d461f1373022642c6160ab5e10d459f9ece4b93))
+
 ## [0.34.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.33.0...v0.34.0) (2026-03-28)
 
 

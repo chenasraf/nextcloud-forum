@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.35.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.34.2...v0.35.0) (2026-03-29)
+
+
+### Features
+
+* audio attachment support ([3e7ccbb](https://github.com/chenasraf/nextcloud-forum/commit/3e7ccbb02ac9831d3e69e434e1723825a69880d5))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([58c25e4](https://github.com/chenasraf/nextcloud-forum/commit/58c25e4c6443df4f99d5192759116ea8112fbc66))
+
 ## [0.34.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.34.1...v0.34.2) (2026-03-29)
 
 

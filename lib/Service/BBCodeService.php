@@ -387,7 +387,6 @@ class BBCodeService {
 	 * @return string The rendered HTML for the attachment
 	 */
 	private function renderAttachment(string $filePath, ?string $authorId, ?int $postId): string {
-		// Trim whitespace from file path
 		$filePath = trim($filePath);
 
 		if (empty($filePath)) {
@@ -395,111 +394,52 @@ class BBCodeService {
 			return '<span class="attachment-error">Invalid attachment</span>';
 		}
 
-		// If no author ID provided, we can't verify ownership
 		if (empty($authorId)) {
 			$this->logger->warning('Attachment rendering attempted without author ID: ' . $filePath);
 			return '<span class="attachment-error">Attachment unavailable</span>';
 		}
 
-		// If no post ID provided, we can't generate proxy URLs
 		if (empty($postId)) {
 			$this->logger->warning('Attachment rendering attempted without post ID: ' . $filePath);
 			return '<span class="attachment-error">Attachment unavailable</span>';
 		}
 
 		try {
-			// Get the user's folder
 			$userFolder = $this->rootFolder->getUserFolder($authorId);
-
-			$this->logger->debug('Attempting to load attachment', [
-				'filePath' => $filePath,
-				'authorId' => $authorId,
-			]);
-
-			// Get the file - path is relative to user's home directory
 			$file = $userFolder->get($filePath);
 
-			// Verify it's actually a file (not a folder)
 			if (!($file instanceof \OCP\Files\File)) {
 				$this->logger->warning('Attachment path is not a file: ' . $filePath);
 				return '<span class="attachment-error">Invalid attachment</span>';
 			}
 
-			// Get file metadata
-			$fileName = $file->getName();
 			$mimeType = $file->getMimeType();
-			$fileSize = $file->getSize();
-			$fileId = $file->getId();
+			$mimeCategory = explode('/', $mimeType)[0];
 
-			// Check if it's an image
-			if (str_starts_with($mimeType, 'image/')) {
-				// Generate preview URL for images using proxy endpoint
-				$previewUrl = $this->urlGenerator->linkToRouteAbsolute(
+			// Resolve URLs and metadata once
+			$ctx = [
+				'fileName' => $this->esc($file->getName()),
+				'mimeType' => $this->esc($mimeType),
+				'downloadUrl' => $this->esc($this->urlGenerator->linkToRouteAbsolute(
+					'forum.file.download',
+					['postId' => $postId, 'filePath' => $filePath]
+				)),
+				'previewUrl' => $this->esc($this->urlGenerator->linkToRouteAbsolute(
 					'forum.file.preview',
 					['postId' => $postId, 'filePath' => $filePath, 'x' => 1920, 'y' => 1080]
-				);
+				)),
+				'fileSize' => $this->formatFileSize($file->getSize()),
+				'iconClass' => $this->getFileIconClass($mimeType),
+			];
 
-				// Render as image
-				$escapedFileName = htmlspecialchars($fileName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-				$escapedUrl = htmlspecialchars($previewUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$html = match ($mimeCategory) {
+				'image' => $this->renderImageAttachment($ctx),
+				'video' => $this->renderVideoAttachment($ctx),
+				'audio' => $this->renderAudioAttachment($ctx),
+				default => $this->renderFileAttachment($ctx),
+			};
 
-				return sprintf(
-					'<div class="attachment attachment-image"><img src="%s" alt="%s" title="%s" loading="lazy" /></div>',
-					$escapedUrl,
-					$escapedFileName,
-					$escapedFileName
-				);
-			} elseif (str_starts_with($mimeType, 'video/')) {
-				// Generate download URL for video (used as source)
-				$videoUrl = $this->urlGenerator->linkToRouteAbsolute(
-					'forum.file.download',
-					['postId' => $postId, 'filePath' => $filePath]
-				);
-
-				$escapedFileName = htmlspecialchars($fileName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-				$escapedUrl = htmlspecialchars($videoUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-				$escapedMimeType = htmlspecialchars($mimeType, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-				return sprintf(
-					'<div class="attachment attachment-video">'
-					. '<video controls playsinline preload="metadata" title="%s">'
-					. '<source src="%s" type="%s" />'
-					. '</video>'
-					. '</div>',
-					$escapedFileName,
-					$escapedUrl,
-					$escapedMimeType
-				);
-			} else {
-				// Generate download URL for non-image files using proxy endpoint
-				$downloadUrl = $this->urlGenerator->linkToRouteAbsolute(
-					'forum.file.download',
-					['postId' => $postId, 'filePath' => $filePath]
-				);
-
-				// Render as file link with icon
-				$escapedFileName = htmlspecialchars($fileName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-				$escapedUrl = htmlspecialchars($downloadUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-				$formattedSize = $this->formatFileSize($fileSize);
-
-				// Get appropriate icon for file type
-				$iconClass = $this->getFileIconClass($mimeType);
-
-				return sprintf(
-					'<div class="attachment attachment-file">'
-					. '<span class="attachment-icon %s"></span>'
-					. '<div class="attachment-info">'
-					. '<a href="%s" class="attachment-name" download="%s">%s</a>'
-					. '<span class="attachment-size">%s</span>'
-					. '</div>'
-					. '</div>',
-					$iconClass,
-					$escapedUrl,
-					$escapedFileName,
-					$escapedFileName,
-					$formattedSize
-				);
-			}
+			return $html;
 		} catch (NotFoundException $e) {
 			$this->logger->warning('Attachment file not found: ' . $filePath);
 			return '<span class="attachment-error">Attachment not found</span>';
@@ -507,6 +447,79 @@ class BBCodeService {
 			$this->logger->error('Error rendering attachment: ' . $e->getMessage());
 			return '<span class="attachment-error">Error loading attachment</span>';
 		}
+	}
+
+	/**
+	 * @param array{fileName: string, previewUrl: string} $ctx
+	 */
+	private function renderImageAttachment(array $ctx): string {
+		return sprintf(
+			'<div class="attachment attachment-image">'
+			. '<img src="%s" alt="%s" title="%s" loading="lazy" />'
+			. '</div>',
+			$ctx['previewUrl'],
+			$ctx['fileName'],
+			$ctx['fileName']
+		);
+	}
+
+	/**
+	 * @param array{fileName: string, downloadUrl: string, mimeType: string} $ctx
+	 */
+	private function renderVideoAttachment(array $ctx): string {
+		return sprintf(
+			'<div class="attachment attachment-video">'
+			. '<video controls playsinline preload="metadata" title="%s">'
+			. '<source src="%s" type="%s" />'
+			. '</video>'
+			. '</div>',
+			$ctx['fileName'],
+			$ctx['downloadUrl'],
+			$ctx['mimeType']
+		);
+	}
+
+	/**
+	 * @param array{fileName: string, downloadUrl: string, mimeType: string} $ctx
+	 */
+	private function renderAudioAttachment(array $ctx): string {
+		return sprintf(
+			'<div class="attachment attachment-audio">'
+			. '<audio controls preload="metadata" title="%s">'
+			. '<source src="%s" type="%s" />'
+			. '</audio>'
+			. '</div>',
+			$ctx['fileName'],
+			$ctx['downloadUrl'],
+			$ctx['mimeType']
+		);
+	}
+
+	/**
+	 * @param array{fileName: string, downloadUrl: string, fileSize: string, iconClass: string} $ctx
+	 */
+	private function renderFileAttachment(array $ctx): string {
+		return sprintf(
+			'<div class="attachment attachment-file">'
+			. '<span class="attachment-icon %s"></span>'
+			. '<div class="attachment-info">'
+			. '<a href="%s" class="attachment-name" download="%s">%s</a>'
+			. '<span class="attachment-size">%s</span>'
+			. '</div>'
+			. '</div>',
+			$ctx['iconClass'],
+			$ctx['downloadUrl'],
+			$ctx['fileName'],
+			$ctx['fileName'],
+			$ctx['fileSize']
+		);
+	}
+
+	/**
+	 * HTML-escape a string for safe use in attributes and content
+	 */
+	private function esc(string $value): string {
+		return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 	}
 
 	/**

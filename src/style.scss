@@ -78,6 +78,16 @@
     }
   }
 
+  &-audio {
+    display: block;
+    max-width: 100%;
+
+    audio {
+      width: 100%;
+      border-radius: 8px;
+    }
+  }
+
   &-file {
     display: flex;
     align-items: center;

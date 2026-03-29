@@ -8,14 +8,17 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\Db\PostMapper;
+use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\Attribute\Route;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\FileDisplayResponse;
+use OCP\AppFramework\Services\IAppConfig;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
 use OCP\IRequest;
@@ -26,7 +29,9 @@ class FileController extends Controller {
 		string $appName,
 		IRequest $request,
 		private PostMapper $postMapper,
+		private PermissionService $permissionService,
 		private IRootFolder $rootFolder,
+		private IAppConfig $config,
 		private LoggerInterface $logger,
 		private ?string $userId,
 	) {
@@ -34,12 +39,47 @@ class FileController extends Controller {
 	}
 
 	/**
+	 * Check if the current user can view a post's attachments.
+	 * For authenticated users, checks category canView permission.
+	 * For guests, also checks that guest access is globally enabled.
+	 * Returns a 403 response if denied, or null if access is allowed.
+	 */
+	private function checkFileAccess(int $postId): ?DataResponse {
+		// Guests: check global guest access first
+		if ($this->userId === null) {
+			$guestAccessEnabled = $this->config->getAppValueBool('allow_guest_access', false, true);
+			if (!$guestAccessEnabled) {
+				return new DataResponse(['error' => 'Authentication required'], Http::STATUS_FORBIDDEN);
+			}
+		}
+
+		// Check canView on the post's category (works for both guests and authenticated users)
+		try {
+			$categoryId = $this->permissionService->getCategoryIdFromPost($postId);
+			if (!$this->permissionService->hasCategoryPermission($this->userId, $categoryId, 'canView')) {
+				return new DataResponse(['error' => 'Access denied'], Http::STATUS_FORBIDDEN);
+			}
+		} catch (\Exception $e) {
+			// If we can't determine the category, deny access for safety
+			return new DataResponse(['error' => 'Access denied'], Http::STATUS_FORBIDDEN);
+		}
+
+		return null;
+	}
+
+	/**
 	 * Download a BBCode attachment file
 	 */
+	#[PublicPage]
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	#[Route(type: Route::TYPE_FRONTPAGE, verb: 'GET', url: '/api/posts/{postId}/files')]
 	public function download(int $postId, string $filePath): FileDisplayResponse|DataResponse {
+		$denied = $this->checkFileAccess($postId);
+		if ($denied) {
+			return $denied;
+		}
+
 		try {
 			$post = $this->postMapper->find($postId);
 
@@ -84,10 +124,16 @@ class FileController extends Controller {
 	/**
 	 * Get preview for a BBCode attachment
 	 */
+	#[PublicPage]
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	#[Route(type: Route::TYPE_FRONTPAGE, verb: 'GET', url: '/api/posts/{postId}/preview')]
 	public function preview(int $postId, string $filePath, int $x = 1920, int $y = 1080): FileDisplayResponse|DataResponse {
+		$denied = $this->checkFileAccess($postId);
+		if ($denied) {
+			return $denied;
+		}
+
 		try {
 			$post = $this->postMapper->find($postId);
 

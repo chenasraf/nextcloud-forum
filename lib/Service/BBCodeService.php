@@ -68,20 +68,16 @@ class BBCodeService {
 			}, $content);
 		}
 
-		// Preprocess [youtube] tags — the builtin handler generates malformed HTML
-		$youtubePlaceholders = [];
-		$content = preg_replace_callback('/\[youtube\](.*?)\[\/youtube\]/s', function ($matches) use (&$youtubePlaceholders) {
-			$placeholder = '___YOUTUBE_' . count($youtubePlaceholders) . '___';
-			$videoId = htmlspecialchars(trim($matches[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-			$youtubePlaceholders[$placeholder] = '<div class="embed-video">'
-				. '<iframe class="youtube-player" width="560" height="315"'
-				. ' src="https://www.youtube.com/embed/' . $videoId . '"'
-				. ' title="YouTube video player" frameborder="0"'
-				. ' allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"'
-				. ' referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
-				. '</div>';
-			return $placeholder;
-		}, $content);
+		// Preprocess builtin tag overrides (tags whose library rendering we replace)
+		$builtinOverridePlaceholders = [];
+		foreach ($this->getBuiltinOverrides() as $tag => $renderer) {
+			$pattern = '/\[' . preg_quote($tag, '/') . '\](.*?)\[\/' . preg_quote($tag, '/') . '\]/s';
+			$content = preg_replace_callback($pattern, function ($matches) use (&$builtinOverridePlaceholders, $renderer) {
+				$placeholder = '___BUILTIN_OVERRIDE_' . count($builtinOverridePlaceholders) . '___';
+				$builtinOverridePlaceholders[$placeholder] = $renderer(trim($matches[1]));
+				return $placeholder;
+			}, $content);
+		}
 
 		// Preprocess [code] blocks to prevent nl2br and trim whitespace
 		// The built-in [code] tag wraps content in <pre><code>, so we don't want <br/> tags inside
@@ -191,8 +187,8 @@ class BBCodeService {
 				$html = str_replace($placeholder, $replacement, $html);
 			}
 
-			// Replace YouTube placeholders
-			foreach ($youtubePlaceholders as $placeholder => $replacement) {
+			// Replace builtin override placeholders
+			foreach ($builtinOverridePlaceholders as $placeholder => $replacement) {
 				$html = str_replace($placeholder, $replacement, $html);
 			}
 
@@ -245,8 +241,10 @@ class BBCodeService {
 		// Create a new parser instance each time to ensure fresh state
 		$parser = new BBCodeParser();
 
-		// Ignore the builtin youtube tag — we handle it in preprocessing
-		$parser->ignoreTag('youtube');
+		// Ignore builtin tags that we override in preprocessing
+		foreach (array_keys($this->getBuiltinOverrides()) as $tag) {
+			$parser->ignoreTag($tag);
+		}
 
 		// Register custom BBCodes from database
 		foreach ($bbCodes as $bbCode) {
@@ -520,6 +518,36 @@ class BBCodeService {
 	 */
 	private function esc(string $value): string {
 		return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+	}
+
+	/**
+	 * Returns a map of builtin tag names to renderer callables.
+	 * Each renderer receives the raw inner content and returns HTML.
+	 * These tags are ignored by the library parser and handled in preprocessing.
+	 *
+	 * To override another builtin tag, add an entry here — the preprocessing
+	 * loop and parser ignoreTag loop will pick it up automatically.
+	 *
+	 * @return array<string, \Closure(string): string>
+	 */
+	private function getBuiltinOverrides(): array {
+		return [
+			'youtube' => fn (string $content): string => $this->renderYoutubeEmbed($content),
+		];
+	}
+
+	/**
+	 * Render a YouTube embed from a video ID
+	 */
+	private function renderYoutubeEmbed(string $videoId): string {
+		$escapedId = $this->esc($videoId);
+		return '<div class="embed-video">'
+			. '<iframe class="youtube-player" width="560" height="315"'
+			. ' src="https://www.youtube.com/embed/' . $escapedId . '"'
+			. ' title="YouTube video player" frameborder="0"'
+			. ' allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"'
+			. ' referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'
+			. '</div>';
 	}
 
 	/**

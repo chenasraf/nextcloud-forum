@@ -284,12 +284,7 @@ class BBCodeServiceTest extends TestCase {
 	}
 
 	public function testParseVideoAttachmentRendersVideoTag(): void {
-		$bbCode = new BBCode();
-		$bbCode->setTag('attachment');
-		$bbCode->setReplacement('');
-		$bbCode->setEnabled(true);
-		$bbCode->setParseInner(false);
-		$bbCode->setSpecialHandler('attachment');
+		$bbCode = $this->createAttachmentBBCode();
 
 		$file = $this->createMock(\OCP\Files\File::class);
 		$file->method('getName')->willReturn('video.mp4');
@@ -314,12 +309,7 @@ class BBCodeServiceTest extends TestCase {
 	}
 
 	public function testParseImageAttachmentRendersImgTag(): void {
-		$bbCode = new BBCode();
-		$bbCode->setTag('attachment');
-		$bbCode->setReplacement('');
-		$bbCode->setEnabled(true);
-		$bbCode->setParseInner(false);
-		$bbCode->setSpecialHandler('attachment');
+		$bbCode = $this->createAttachmentBBCode();
 
 		$file = $this->createMock(\OCP\Files\File::class);
 		$file->method('getName')->willReturn('photo.jpg');
@@ -338,6 +328,119 @@ class BBCodeServiceTest extends TestCase {
 		$this->assertStringContainsString('<img', $result);
 		$this->assertStringContainsString('class="attachment attachment-image"', $result);
 		$this->assertStringNotContainsString('<video', $result);
+	}
+
+	public function testParseAudioAttachmentRendersAudioTag(): void {
+		$bbCode = $this->createAttachmentBBCode();
+
+		$file = $this->createMock(\OCP\Files\File::class);
+		$file->method('getName')->willReturn('podcast.mp3');
+		$file->method('getMimeType')->willReturn('audio/mpeg');
+		$file->method('getSize')->willReturn(5 * 1024 * 1024);
+		$file->method('getId')->willReturn(44);
+
+		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder->method('get')->willReturn($file);
+		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
+		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/download');
+
+		$content = '[attachment]Forum/podcast.mp3[/attachment]';
+		$result = $this->service->parse($content, [$bbCode], 'alice', 1);
+
+		$this->assertStringContainsString('<audio', $result);
+		$this->assertStringContainsString('controls', $result);
+		$this->assertStringContainsString('<source', $result);
+		$this->assertStringContainsString('type="audio/mpeg"', $result);
+		$this->assertStringContainsString('class="attachment attachment-audio"', $result);
+		$this->assertStringNotContainsString('<video', $result);
+		$this->assertStringNotContainsString('<img', $result);
+	}
+
+	public function testParseGenericFileAttachmentRendersDownloadLink(): void {
+		$bbCode = $this->createAttachmentBBCode();
+
+		$file = $this->createMock(\OCP\Files\File::class);
+		$file->method('getName')->willReturn('document.pdf');
+		$file->method('getMimeType')->willReturn('application/pdf');
+		$file->method('getSize')->willReturn(2 * 1024 * 1024);
+		$file->method('getId')->willReturn(45);
+
+		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder->method('get')->willReturn($file);
+		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
+		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/download');
+
+		$content = '[attachment]Forum/document.pdf[/attachment]';
+		$result = $this->service->parse($content, [$bbCode], 'alice', 1);
+
+		$this->assertStringContainsString('class="attachment attachment-file"', $result);
+		$this->assertStringContainsString('download="document.pdf"', $result);
+		$this->assertStringContainsString('attachment-size', $result);
+		$this->assertStringNotContainsString('<video', $result);
+		$this->assertStringNotContainsString('<audio', $result);
+		$this->assertStringNotContainsString('<img', $result);
+	}
+
+	public function testAttachmentTypeDispatchSelectsCorrectRenderer(): void {
+		$bbCode = $this->createAttachmentBBCode();
+
+		$types = [
+			['image/png', 'attachment-image', '<img'],
+			['video/webm', 'attachment-video', '<video'],
+			['audio/ogg', 'attachment-audio', '<audio'],
+			['application/zip', 'attachment-file', 'attachment-name'],
+		];
+
+		foreach ($types as [$mimeType, $expectedClass, $expectedElement]) {
+			$file = $this->createMock(\OCP\Files\File::class);
+			$file->method('getName')->willReturn('file.ext');
+			$file->method('getMimeType')->willReturn($mimeType);
+			$file->method('getSize')->willReturn(1024);
+			$file->method('getId')->willReturn(1);
+
+			$userFolder = $this->createMock(\OCP\Files\Folder::class);
+			$userFolder->method('get')->willReturn($file);
+
+			$rootFolder = $this->createMock(\OCP\Files\IRootFolder::class);
+			$rootFolder->method('getUserFolder')->willReturn($userFolder);
+
+			$urlGenerator = $this->createMock(\OCP\IURLGenerator::class);
+			$urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/file');
+
+			$service = new BBCodeService(
+				$this->bbCodeMapper,
+				$this->logger,
+				$rootFolder,
+				$urlGenerator,
+				$this->userManager,
+			);
+
+			$result = $service->parse('[attachment]test[/attachment]', [$bbCode], 'user', 1);
+
+			$this->assertStringContainsString($expectedClass, $result, "Failed for mime: $mimeType");
+			$this->assertStringContainsString($expectedElement, $result, "Missing element for mime: $mimeType");
+		}
+	}
+
+	public function testBuiltinOverrideYoutubeReplacesBrokenLibraryOutput(): void {
+		// The library generates malformed HTML for youtube — our override should produce clean output
+		$content = '[youtube]testVideoId[/youtube]';
+		$result = $this->service->parse($content, []);
+
+		// Should not contain the library's broken backslash in width attribute
+		$this->assertStringNotContainsString('\\', $result);
+		// Should contain our clean iframe
+		$this->assertStringContainsString('www.youtube.com/embed/testVideoId', $result);
+		$this->assertStringContainsString('allowfullscreen', $result);
+	}
+
+	public function testYoutubeEmbedWithSurroundingContent(): void {
+		$content = 'Check this video: [youtube]abc123[/youtube] and this text after.';
+		$result = $this->service->parse($content, []);
+
+		$this->assertStringContainsString('Check this video:', $result);
+		$this->assertStringContainsString('embed/abc123', $result);
+		$this->assertStringContainsString('and this text after.', $result);
 	}
 
 	// ── XSS injection tests ─────────────────────────────────────
@@ -460,6 +563,16 @@ class BBCodeServiceTest extends TestCase {
 		$bbCode->setReplacement($replacement);
 		$bbCode->setEnabled($enabled);
 		$bbCode->setParseInner($parseInner);
+		return $bbCode;
+	}
+
+	private function createAttachmentBBCode(): BBCode {
+		$bbCode = new BBCode();
+		$bbCode->setTag('attachment');
+		$bbCode->setReplacement('');
+		$bbCode->setEnabled(true);
+		$bbCode->setParseInner(false);
+		$bbCode->setSpecialHandler('attachment');
 		return $bbCode;
 	}
 }

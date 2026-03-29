@@ -60,7 +60,7 @@ class BBCodeService {
 				// Handle based on the special handler type
 				$html = match ($handler) {
 					'attachment' => $this->renderAttachment($innerContent, $authorId, $postId),
-					default => htmlspecialchars($matches[0], ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+					default => $this->esc($matches[0]),
 				};
 
 				$specialHandlerPlaceholders[$placeholder] = $html;
@@ -86,7 +86,7 @@ class BBCodeService {
 			$placeholder = '___CODE_BLOCK_' . count($codePlaceholders) . '___';
 			// Trim leading and trailing newlines, then HTML-escape
 			$innerContent = trim($matches[1], "\r\n");
-			$innerContent = htmlspecialchars($innerContent, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$innerContent = $this->esc($innerContent);
 			$codePlaceholders[$placeholder] = '<pre><code>' . $innerContent . '</code></pre>';
 			return $placeholder;
 		}, $content);
@@ -156,7 +156,7 @@ class BBCodeService {
 				}
 
 				// HTML-escape the inner content to prevent any HTML injection
-				$innerContent = htmlspecialchars($innerContent, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+				$innerContent = $this->esc($innerContent);
 
 				// Replace {content} with the escaped inner content
 				$html = str_replace('{content}', $innerContent, $replacement);
@@ -204,7 +204,7 @@ class BBCodeService {
 
 			// Restore disabled tags as literal text
 			foreach ($disabledPlaceholders as $placeholder => $original) {
-				$html = str_replace($placeholder, htmlspecialchars($original, ENT_QUOTES | ENT_HTML5, 'UTF-8'), $html);
+				$html = str_replace($placeholder, $this->esc($original), $html);
 			}
 
 			// Parse @mentions and convert them to user profile links
@@ -214,7 +214,7 @@ class BBCodeService {
 		} catch (\Exception $e) {
 			$this->logger->error('BBCode parsing error: ' . $e->getMessage());
 			// Return escaped content as fallback
-			return htmlspecialchars($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			return $this->esc($content);
 		}
 	}
 
@@ -607,25 +607,28 @@ class BBCodeService {
 			$userId = $matches[1] !== '' ? $matches[1] : $matches[2];
 
 			// Check if the user exists
-			$user = $this->userManager->get($userId);
+			try {
+				$user = $this->userManager->get($userId);
+			} catch (\Exception $e) {
+				return $matches[0];
+			}
 			if ($user === null) {
-				// User doesn't exist, return original text
 				return $matches[0];
 			}
 
-			$displayName = $user->getDisplayName();
-			$escapedUserId = htmlspecialchars($userId, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-			$escapedDisplayName = htmlspecialchars($displayName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$displayName = $user->getDisplayName() ?? $userId;
+			$escapedUserId = $this->esc($userId);
+			$escapedDisplayName = $this->esc($displayName);
 
 			// Generate link to user profile in the forum app
 			$profileUrl = $this->urlGenerator->linkToRouteAbsolute('forum.page.index') . 'u/' . urlencode($userId);
-			$escapedUrl = htmlspecialchars($profileUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$escapedUrl = $this->esc($profileUrl);
 
 			// Generate avatar URLs for both light and dark themes
 			$avatarUrlLight = $this->urlGenerator->linkToRouteAbsolute('core.avatar.getAvatar', ['userId' => $userId, 'size' => 64]);
 			$avatarUrlDark = $avatarUrlLight . '/dark';
-			$escapedAvatarUrlLight = htmlspecialchars($avatarUrlLight, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-			$escapedAvatarUrlDark = htmlspecialchars($avatarUrlDark, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+			$escapedAvatarUrlLight = $this->esc($avatarUrlLight);
+			$escapedAvatarUrlDark = $this->esc($avatarUrlDark);
 
 			return sprintf(
 				'<a href="%s" class="mention-bubble" data-user-id="%s">'

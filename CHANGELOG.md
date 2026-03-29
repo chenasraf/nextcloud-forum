@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.34.1...v0.34.2) (2026-03-29)
+
+
+### Bug Fixes
+
+* attachments file permissions for guest access posts ([beaae2a](https://github.com/chenasraf/nextcloud-forum/commit/beaae2a4b4ec061b50904221198ea6847ad7254a))
+
 ## [0.34.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.34.0...v0.34.1) (2026-03-28)
 
 

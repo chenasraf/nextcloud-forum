@@ -43,7 +43,7 @@ Create discussions, share ideas, and collaborate with your community directly in
 
 The forum integrates seamlessly with your Nextcloud instance, using your existing accounts and teams for authentication and access control.
 ]]></description>
-	<version>0.34.1</version>
+	<version>0.34.2</version>
 	<licence>agpl</licence>
 	<author mail="contact@casraf.dev" homepage="https://casraf.dev">Chen Asraf</author>
 	<namespace>Forum</namespace>

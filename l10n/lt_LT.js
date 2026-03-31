@@ -62,6 +62,8 @@ OC.L10N.register(
     "Name" : "Pavadinimas",
     "Template name" : "Šablono pavadinimas",
     "Content" : "Turinys",
+    "Both" : "Abu",
+    "Insert" : "Įterpti",
     "Views" : "Rodiniai",
     "Title" : "Pavadinimas",
     "Saving draft …" : "Įrašomas juodraštis…",

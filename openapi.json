@@ -3055,28 +3055,27 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true,
+                    "required": false,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": [
-                                    "headerId",
-                                    "name",
-                                    "slug"
-                                ],
                                 "properties": {
                                     "headerId": {
                                         "type": "integer",
                                         "format": "int64",
-                                        "description": "Category header ID"
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Category header ID (required for top-level categories)"
                                     },
                                     "name": {
                                         "type": "string",
+                                        "default": "",
                                         "description": "Category name"
                                     },
                                     "slug": {
                                         "type": "string",
+                                        "default": "",
                                         "description": "Category slug"
                                     },
                                     "description": {
@@ -3102,6 +3101,18 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Text color mode ('light' or 'dark')"
+                                    },
+                                    "parentId": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Parent category ID (null for top-level categories)"
+                                    },
+                                    "hideChildrenOnCard": {
+                                        "type": "boolean",
+                                        "default": false,
+                                        "description": "Whether to hide child categories on the parent card"
                                     }
                                 }
                             }
@@ -3424,6 +3435,18 @@
                                         "nullable": true,
                                         "default": "__unset__",
                                         "description": "Text color mode ('light' or 'dark')"
+                                    },
+                                    "parentId": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "default": "__unset__",
+                                        "description": "Parent category ID ('__unset__' = not provided, null = top-level, int = child)"
+                                    },
+                                    "hideChildrenOnCard": {
+                                        "type": "boolean",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Whether to hide child categories on the parent card"
                                     }
                                 }
                             }

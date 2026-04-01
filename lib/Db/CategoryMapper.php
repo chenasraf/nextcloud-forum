@@ -120,6 +120,46 @@ class CategoryMapper extends QBMapper {
 	}
 
 	/**
+	 * Find direct children of a category
+	 *
+	 * @param int $parentId Parent category ID
+	 * @return array<Category>
+	 */
+	public function findByParentId(int $parentId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where(
+				$qb->expr()
+					->eq('parent_id', $qb->createNamedParameter($parentId, IQueryBuilder::PARAM_INT))
+			)
+			->orderBy('sort_order', 'ASC');
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find all descendants of a category (iterative breadth-first)
+	 *
+	 * @param int $categoryId Root category ID
+	 * @return array<Category> All descendants (not including the root)
+	 */
+	public function findChildren(int $categoryId): array {
+		$allChildren = [];
+		$queue = [$categoryId];
+
+		while (!empty($queue)) {
+			$currentId = array_shift($queue);
+			$children = $this->findByParentId($currentId);
+			foreach ($children as $child) {
+				$allChildren[] = $child;
+				$queue[] = $child->getId();
+			}
+		}
+
+		return $allChildren;
+	}
+
+	/**
 	 * Move all categories from one header to another
 	 *
 	 * @param int $fromHeaderId Source header ID

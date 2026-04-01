@@ -98,63 +98,71 @@
             </div>
 
             <div v-if="header.categories && header.categories.length > 0" class="categories-table">
-              <div
-                v-for="(category, index) in header.categories"
-                :key="category.id"
-                class="category-row"
+              <template
+                v-for="row in flattenCategoriesWithContext(header.categories, header.id)"
+                :key="row.category.id"
               >
-                <div class="category-sort-buttons">
-                  <NcButton
-                    v-if="index > 0"
-                    variant="tertiary"
-                    @click="moveCategoryUp(header.id, index)"
-                    :aria-label="strings.moveUp"
-                    :title="strings.moveUp"
-                  >
-                    <template #icon>
-                      <ChevronUpIcon :size="20" />
-                    </template>
-                  </NcButton>
-                  <NcButton
-                    v-if="index < header.categories.length - 1"
-                    variant="tertiary"
-                    @click="moveCategoryDown(header.id, index)"
-                    :aria-label="strings.moveDown"
-                    :title="strings.moveDown"
-                  >
-                    <template #icon>
-                      <ChevronDownIcon :size="20" />
-                    </template>
-                  </NcButton>
-                </div>
-                <div class="category-info">
-                  <div class="category-name">{{ category.name }}</div>
-                  <div v-if="category.description" class="category-desc muted">
-                    {{ category.description }}
+                <div
+                  class="category-row"
+                  :class="{ 'subcategory-row': row.depth > 0 }"
+                  :style="{ paddingLeft: `${16 + row.depth * 32}px` }"
+                >
+                  <div class="category-sort-buttons">
+                    <NcButton
+                      v-if="row.index > 0"
+                      variant="tertiary"
+                      @click="reorderSiblings(row.siblings, row.index, -1)"
+                      :aria-label="strings.moveUp"
+                      :title="strings.moveUp"
+                    >
+                      <template #icon>
+                        <ChevronUpIcon :size="20" />
+                      </template>
+                    </NcButton>
+                    <NcButton
+                      v-if="row.index < row.siblings.length - 1"
+                      variant="tertiary"
+                      @click="reorderSiblings(row.siblings, row.index, 1)"
+                      :aria-label="strings.moveDown"
+                      :title="strings.moveDown"
+                    >
+                      <template #icon>
+                        <ChevronDownIcon :size="20" />
+                      </template>
+                    </NcButton>
                   </div>
-                  <div class="category-meta muted">
-                    <span>Slug: {{ category.slug }}</span>
-                    <span>•</span>
-                    <span>{{ strings.threadsCount(category.threadCount || 0) }}</span>
-                    <span>•</span>
-                    <span>{{ strings.postsCount(category.postCount || 0) }}</span>
+                  <div class="category-info">
+                    <div class="category-name" :class="{ 'subcategory-indicator': row.depth > 0 }">
+                      <span v-if="row.depth > 0" class="subcategory-arrow">↳</span>
+                      {{ row.category.name }}
+                    </div>
+                    <div v-if="row.category.description" class="category-desc muted">
+                      {{ row.category.description }}
+                    </div>
+                    <div class="category-meta muted">
+                      <span>Slug: {{ row.category.slug }}</span>
+                      <span>•</span>
+                      <span>{{ strings.threadsCount(row.category.threadCount || 0) }}</span>
+                      <span>•</span>
+                      <span>{{ strings.postsCount(row.category.postCount || 0) }}</span>
+                    </div>
+                  </div>
+                  <div class="category-actions">
+                    <NcButton @click="editCategory(row.category.id)">
+                      <template #icon>
+                        <PencilIcon :size="20" />
+                      </template>
+                      {{ strings.edit }}
+                    </NcButton>
+                    <NcButton variant="error" @click="confirmDelete(row.category)">
+                      <template #icon>
+                        <DeleteIcon :size="20" />
+                      </template>
+                      {{ strings.delete }}
+                    </NcButton>
                   </div>
                 </div>
-                <div class="category-actions">
-                  <NcButton @click="editCategory(category.id)">
-                    <template #icon>
-                      <PencilIcon :size="20" />
-                    </template>
-                    {{ strings.edit }}
-                  </NcButton>
-                  <NcButton variant="error" @click="confirmDelete(category)">
-                    <template #icon>
-                      <DeleteIcon :size="20" />
-                    </template>
-                    {{ strings.delete }}
-                  </NcButton>
-                </div>
-              </div>
+              </template>
             </div>
             <div v-else class="no-categories muted">
               {{ strings.noCategories }}
@@ -462,16 +470,24 @@ export default defineComponent({
   computed: {
     targetCategoryOptions(): Array<{ id: number; label: string; disabled?: boolean }> {
       const options: Array<{ id: number; label: string; disabled?: boolean }> = []
+      const deletingId = this.deleteDialog.category?.id
+
+      const addCats = (categories: Category[], prefix: string) => {
+        for (const cat of categories) {
+          options.push({
+            id: cat.id,
+            label: `${prefix} / ${cat.name}`,
+            disabled: cat.id === deletingId,
+          })
+          if (cat.children && cat.children.length > 0) {
+            addCats(cat.children, `${prefix} / ${cat.name}`)
+          }
+        }
+      }
 
       this.categoryHeaders.forEach((header) => {
         if (header.categories) {
-          header.categories.forEach((cat) => {
-            options.push({
-              id: cat.id,
-              label: `${header.name} / ${cat.name}`,
-              disabled: cat.id === this.deleteDialog.category?.id,
-            })
-          })
+          addCats(header.categories, header.name)
         }
       })
 
@@ -652,53 +668,64 @@ export default defineComponent({
       }
     },
 
-    async moveCategoryUp(headerId: number, index: number): Promise<void> {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories || index <= 0) return
-
-      // Update sort orders on backend
-      await this.updateCategorySortOrders(headerId, index, -1)
+    /**
+     * Flatten a category tree into rows with depth, index, and sibling info
+     * for rendering and reordering at any nesting level.
+     */
+    flattenCategoriesWithContext(
+      categories: Category[],
+      _headerId: number,
+      depth = 0,
+    ): Array<{
+      category: Category
+      depth: number
+      index: number
+      siblings: Category[]
+    }> {
+      const rows: Array<{
+        category: Category
+        depth: number
+        index: number
+        siblings: Category[]
+      }> = []
+      for (let i = 0; i < categories.length; i++) {
+        const cat = categories[i]!
+        rows.push({ category: cat, depth, index: i, siblings: categories })
+        if (cat.children && cat.children.length > 0) {
+          rows.push(...this.flattenCategoriesWithContext(cat.children, _headerId, depth + 1))
+        }
+      }
+      return rows
     },
 
-    async moveCategoryDown(headerId: number, index: number): Promise<void> {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories || index >= header.categories.length - 1) return
-
-      // Update sort orders on backend
-      await this.updateCategorySortOrders(headerId, index, 1)
-    },
-
-    async updateCategorySortOrders(headerId: number, index: number, amount: number): Promise<void> {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories) return
-
-      // Swap positions locally
-      const temp = header.categories[index]
-      const swapTarget = header.categories[index + amount]
+    /**
+     * Reorder siblings by swapping two adjacent items and persisting to backend.
+     */
+    async reorderSiblings(siblings: Category[], index: number, amount: number): Promise<void> {
+      const temp = siblings[index]
+      const swapTarget = siblings[index + amount]
       if (!temp || !swapTarget) return
 
-      header.categories[index] = swapTarget
-      header.categories[index + amount] = temp
+      // Swap locally
+      siblings[index] = swapTarget
+      siblings[index + amount] = temp
 
       try {
-        // Build array of category IDs in their current order
-        const sortOrders = header.categories.map((category, idx) => ({
-          id: category.id,
+        const sortOrders = siblings.map((cat, idx) => ({
+          id: cat.id,
           sortOrder: idx,
         }))
 
         await ocs.post('/categories/reorder', { categories: sortOrders })
-
-        // Refresh sidebar categories silently
         await this.refreshCategories(true)
       } catch (e) {
         console.error('Failed to update category sort orders', e)
-        // Revert the swap on error
-        const revertTemp = header.categories[index + amount]
-        const revertCurrent = header.categories[index]
+        // Revert
+        const revertTemp = siblings[index + amount]
+        const revertCurrent = siblings[index]
         if (revertTemp && revertCurrent) {
-          header.categories[index + amount] = revertCurrent
-          header.categories[index] = revertTemp
+          siblings[index + amount] = revertCurrent
+          siblings[index] = revertTemp
         }
       }
     },
@@ -819,6 +846,21 @@ export default defineComponent({
           display: flex;
           gap: 8px;
         }
+      }
+
+      .subcategory-row {
+        background: var(--color-background-dark);
+      }
+
+      .subcategory-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .subcategory-arrow {
+        color: var(--color-text-maxcontrast);
+        font-size: 1.1rem;
       }
     }
 

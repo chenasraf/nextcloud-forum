@@ -84,6 +84,7 @@ interface CategoryOption {
   id: number
   name: string
   isHeader?: boolean
+  $isDisabled?: boolean
 }
 
 export default defineComponent({
@@ -147,16 +148,11 @@ export default defineComponent({
             id: -header.id, // Negative ID to distinguish from categories
             name: header.name,
             isHeader: true,
+            $isDisabled: true,
           })
 
-          // Add categories under this header
-          for (const category of header.categories) {
-            options.push({
-              id: category.id,
-              name: `  ${category.name}`,
-              isHeader: false,
-            })
-          }
+          // Add categories under this header (recursively)
+          this.addCategoryOptions(header.categories, options, 1)
         }
       }
 
@@ -176,6 +172,20 @@ export default defineComponent({
     },
   },
   methods: {
+    addCategoryOptions(categories: Category[], options: CategoryOption[], depth: number): void {
+      const indent = '\u00A0\u00A0'.repeat(depth)
+      for (const category of categories) {
+        options.push({
+          id: category.id,
+          name: `${indent}${category.name}`,
+          isHeader: false,
+        })
+        if (category.children && category.children.length > 0) {
+          this.addCategoryOptions(category.children, options, depth + 1)
+        }
+      }
+    },
+
     async loadCategories() {
       try {
         this.loading = true

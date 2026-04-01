@@ -16,6 +16,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setId(int $value)
  * @method int getHeaderId()
  * @method void setHeaderId(int $value)
+ * @method int|null getParentId()
+ * @method void setParentId(?int $value)
  * @method string getName()
  * @method void setName(string $value)
  * @method string|null getDescription()
@@ -32,6 +34,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setColor(?string $value)
  * @method string|null getTextColor()
  * @method void setTextColor(?string $value)
+ * @method bool getHideChildrenOnCard()
+ * @method void setHideChildrenOnCard(bool $value)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $value)
  * @method int getUpdatedAt()
@@ -39,12 +43,14 @@ use OCP\AppFramework\Db\Entity;
  */
 class Category extends Entity implements JsonSerializable {
 	protected $headerId;
+	protected $parentId;
 	protected $name;
 	protected $description;
 	protected $slug;
 	protected $sortOrder;
 	protected $color;
 	protected $textColor;
+	protected $hideChildrenOnCard;
 	protected $threadCount;
 	protected $postCount;
 	protected $createdAt;
@@ -53,12 +59,14 @@ class Category extends Entity implements JsonSerializable {
 	public function __construct() {
 		$this->addType('id', 'integer');
 		$this->addType('headerId', 'integer');
+		$this->addType('parentId', 'integer');
 		$this->addType('name', 'string');
 		$this->addType('description', 'string');
 		$this->addType('slug', 'string');
 		$this->addType('sortOrder', 'integer');
 		$this->addType('color', 'string');
 		$this->addType('textColor', 'string');
+		$this->addType('hideChildrenOnCard', 'boolean');
 		$this->addType('threadCount', 'integer');
 		$this->addType('postCount', 'integer');
 		$this->addType('createdAt', 'integer');
@@ -69,12 +77,14 @@ class Category extends Entity implements JsonSerializable {
 		return [
 			'id' => $this->getId(),
 			'headerId' => $this->getHeaderId(),
+			'parentId' => $this->getParentId(),
 			'name' => $this->getName(),
 			'description' => $this->getDescription(),
 			'slug' => $this->getSlug(),
 			'sortOrder' => $this->getSortOrder(),
 			'color' => $this->getColor(),
 			'textColor' => $this->getTextColor(),
+			'hideChildrenOnCard' => (bool)$this->getHideChildrenOnCard(),
 			'threadCount' => $this->getThreadCount(),
 			'postCount' => $this->getPostCount(),
 			'createdAt' => $this->getCreatedAt(),

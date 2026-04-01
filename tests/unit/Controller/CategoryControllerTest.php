@@ -1015,6 +1015,226 @@ class CategoryControllerTest extends TestCase {
 		$this->assertTrue($data['success']);
 	}
 
+	// ====== Subcategory Tests ======
+
+	public function testCreateCategoryWithParentId(): void {
+		$parentCategory = $this->createCategory(1, 1, 'Parent Category');
+		$createdChild = $this->createCategory(2, 1, 'Child Category', 1);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with(1)
+			->willReturn($parentCategory);
+
+		$this->categoryMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function ($category) use ($createdChild) {
+				// Child categories should have null headerId and parentId set
+				$this->assertNull($category->getHeaderId());
+				$this->assertEquals(1, $category->getParentId());
+				return $createdChild;
+			});
+
+		$response = $this->controller->create(null, 'Child Category', 'child-category', null, 0, null, null, 1);
+
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
+		$data = $response->getData();
+		$this->assertEquals(1, $data['parentId']);
+	}
+
+	public function testCreateCategoryWithParentIdNotFound(): void {
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with(999)
+			->willThrowException(new DoesNotExistException('Not found'));
+
+		$response = $this->controller->create(null, 'Child', 'child', null, 0, null, null, 999);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
+
+	public function testCreateCategoryRequiresHeaderOrParent(): void {
+		$response = $this->controller->create(null, 'Orphan', 'orphan');
+
+		$this->assertEquals(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}
+
+	public function testUpdateCategorySetParentId(): void {
+		$category = $this->createCategory(1, 1, 'Category');
+		$parentCategory = $this->createCategory(2, 1, 'Parent');
+
+		$this->categoryMapper->method('find')
+			->willReturnMap([
+				[1, $category],
+				[2, $parentCategory],
+			]);
+
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($cat) {
+				$this->assertEquals(2, $cat->getParentId());
+				$this->assertNull($cat->getHeaderId());
+				return $cat;
+			});
+
+		$response = $this->controller->update(1, null, null, null, null, null, '__unset__', '__unset__', '2');
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testUpdateCategoryPreventCircularReferenceDirectChild(): void {
+		$parentCategory = $this->createCategory(1, 1, 'Parent');
+		$childCategory = $this->createCategory(2, 1, 'Child', 1);
+
+		$this->categoryMapper->method('find')
+			->willReturnMap([
+				[1, $parentCategory],
+				[2, $childCategory],
+			]);
+
+		// Try to set parent (1) as child of its own child (2)
+		$response = $this->controller->update(1, null, null, null, null, null, '__unset__', '__unset__', '2');
+
+		$this->assertEquals(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$data = $response->getData();
+		$this->assertStringContainsString('circular', $data['error']);
+	}
+
+	public function testUpdateCategoryPreventCircularReferenceDeeperDescendant(): void {
+		$grandparent = $this->createCategory(1, 1, 'Grandparent');
+		$parent = $this->createCategory(2, 1, 'Parent', 1);
+		$child = $this->createCategory(3, 1, 'Child', 2);
+
+		$this->categoryMapper->method('find')
+			->willReturnMap([
+				[1, $grandparent],
+				[2, $parent],
+				[3, $child],
+			]);
+
+		// Try to set grandparent (1) as child of its grandchild (3)
+		$response = $this->controller->update(1, null, null, null, null, null, '__unset__', '__unset__', '3');
+
+		$this->assertEquals(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$data = $response->getData();
+		$this->assertStringContainsString('circular', $data['error']);
+	}
+
+	public function testUpdateCategoryPreventSelfAsParent(): void {
+		$category = $this->createCategory(1, 1, 'Category');
+
+		$this->categoryMapper->method('find')
+			->willReturnMap([
+				[1, $category],
+			]);
+
+		// Try to set category as its own parent
+		$response = $this->controller->update(1, null, null, null, null, null, '__unset__', '__unset__', '1');
+
+		$this->assertEquals(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$data = $response->getData();
+		$this->assertStringContainsString('circular', $data['error']);
+	}
+
+	public function testUpdateCategorySetHideChildrenOnCard(): void {
+		$category = $this->createCategory(1, 1, 'Category');
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with(1)
+			->willReturn($category);
+
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($cat) {
+				$this->assertTrue($cat->getHideChildrenOnCard());
+				return $cat;
+			});
+
+		$response = $this->controller->update(1, null, null, null, null, null, '__unset__', '__unset__', '__unset__', true);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testDestroyReparentsChildren(): void {
+		$parent = $this->createCategory(1, 1, 'Parent');
+		$child1 = $this->createCategory(2, 1, 'Child 1', 1);
+		$child2 = $this->createCategory(3, 1, 'Child 2', 1);
+
+		$this->categoryMapper->expects($this->once())
+			->method('find')
+			->with(1)
+			->willReturn($parent);
+
+		$this->categoryMapper->expects($this->once())
+			->method('findByParentId')
+			->with(1)
+			->willReturn([$child1, $child2]);
+
+		// Children should be re-parented to parent's parent (null = top-level)
+		$updateCount = 0;
+		$this->categoryMapper->method('update')
+			->willReturnCallback(function ($cat) use (&$updateCount) {
+				$updateCount++;
+				$this->assertNull($cat->getParentId());
+				$this->assertEquals(1, $cat->getHeaderId());
+				return $cat;
+			});
+
+		$this->threadMapper->method('softDeleteByCategoryId')->willReturn(0);
+		$this->categoryMapper->expects($this->once())->method('delete')->with($parent);
+
+		$response = $this->controller->destroy(1);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertEquals(2, $updateCount);
+	}
+
+	public function testIndexGroupsChildCategoriesUnderParentHeader(): void {
+		$header = $this->createCatHeader(1, 'General');
+		$parent = $this->createCategory(1, 1, 'Parent');
+		$child = $this->createCategory(2, 1, 'Child', 1);
+		// Child has null headerId but should be grouped under header 1
+
+		$this->catHeaderMapper->method('findAll')->willReturn([$header]);
+		$this->categoryMapper->method('findAll')->willReturn([$parent, $child]);
+		$this->threadMapper->method('getLastActivityByCategories')->willReturn([]);
+
+		$response = $this->controller->index();
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertCount(1, $data); // One header
+		$this->assertCount(2, $data[0]['categories']); // Both parent and child under it
+
+		// Verify child has parentId set
+		$childData = array_values(array_filter($data[0]['categories'], fn ($c) => $c['id'] === 2));
+		$this->assertNotEmpty($childData);
+		$this->assertEquals(1, $childData[0]['parentId']);
+	}
+
+	public function testCategoryEntityJsonIncludesSubcategoryFields(): void {
+		$category = new Category();
+		$category->setId(1);
+		$category->setHeaderId(1);
+		$category->setParentId(5);
+		$category->setName('Test');
+		$category->setSlug('test');
+		$category->setSortOrder(0);
+		$category->setHideChildrenOnCard(true);
+		$category->setThreadCount(0);
+		$category->setPostCount(0);
+		$category->setCreatedAt(time());
+		$category->setUpdatedAt(time());
+
+		$json = $category->jsonSerialize();
+
+		$this->assertArrayHasKey('parentId', $json);
+		$this->assertEquals(5, $json['parentId']);
+		$this->assertArrayHasKey('hideChildrenOnCard', $json);
+		$this->assertTrue($json['hideChildrenOnCard']);
+	}
+
 	private function createCatHeader(int $id, string $name): CatHeader {
 		$header = new CatHeader();
 		$header->setId($id);
@@ -1024,14 +1244,16 @@ class CategoryControllerTest extends TestCase {
 		return $header;
 	}
 
-	private function createCategory(int $id, int $headerId, string $name): Category {
+	private function createCategory(int $id, int $headerId, string $name, ?int $parentId = null): Category {
 		$category = new Category();
 		$category->setId($id);
-		$category->setHeaderId($headerId);
+		$category->setHeaderId($parentId !== null ? null : $headerId);
+		$category->setParentId($parentId);
 		$category->setName($name);
 		$category->setSlug("category-$id");
 		$category->setDescription(null);
 		$category->setSortOrder(0);
+		$category->setHideChildrenOnCard(false);
 		$category->setThreadCount(0);
 		$category->setPostCount(0);
 		$category->setCreatedAt(time());

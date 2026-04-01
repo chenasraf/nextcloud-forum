@@ -65,17 +65,13 @@
 
             <!-- Categories under each header -->
             <template v-if="isHeaderOpen(header.id)">
-              <NcAppNavigationItem
+              <NavCategoryItem
                 v-for="category in header.categories"
                 :key="`category-${category.id}`"
-                :name="category.name"
-                :to="{ path: `/c/${category.slug}` }"
+                :category="category"
                 :active="isCategoryActive(category)"
-              >
-                <template #icon>
-                  <ForumIcon :size="20" />
-                </template>
-              </NcAppNavigationItem>
+                :active-category-ids="activeCategoryIds"
+              />
             </template>
           </NcAppNavigationItem>
 
@@ -229,8 +225,8 @@ import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSear
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import UserInfo from '@/components/UserInfo'
+import NavCategoryItem from './NavCategoryItem.vue'
 import HomeIcon from '@icons/Home.vue'
-import ForumIcon from '@icons/Forum.vue'
 import FolderIcon from '@icons/Folder.vue'
 import MagnifyIcon from '@icons/Magnify.vue'
 import BookmarkIcon from '@icons/Bookmark.vue'
@@ -260,8 +256,8 @@ export default defineComponent({
     NcActionButton,
     NcLoadingIcon,
     UserInfo,
+    NavCategoryItem,
     HomeIcon,
-    ForumIcon,
     FolderIcon,
     MagnifyIcon,
     BookmarkIcon,
@@ -277,7 +273,7 @@ export default defineComponent({
     AccountCogIcon,
   },
   setup() {
-    const { categoryHeaders, fetchCategories } = useCategories()
+    const { categoryHeaders, fetchCategories, getAllCategoriesFlat } = useCategories()
     const { userId, displayName, fetchCurrentUser } = useCurrentUser()
     const {
       canAccessAdmin,
@@ -294,6 +290,7 @@ export default defineComponent({
     return {
       categoryHeaders,
       fetchCategories,
+      getAllCategoriesFlat,
       fetchCurrentUser,
       userId,
       displayName,
@@ -370,6 +367,18 @@ export default defineComponent({
     } finally {
       this.isLoading = false
     }
+  },
+  computed: {
+    activeCategoryIds(): Set<number> {
+      const ids = new Set<number>()
+      const allCats = this.getAllCategoriesFlat()
+      for (const cat of allCats) {
+        if (this.isCategoryActive(cat)) {
+          ids.add(cat.id)
+        }
+      }
+      return ids
+    },
   },
   methods: {
     loadNavigationState(): void {

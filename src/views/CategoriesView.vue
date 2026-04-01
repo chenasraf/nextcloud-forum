@@ -45,6 +45,8 @@
               v-for="category in header.categories"
               :key="category.id"
               :category="category"
+              :children="category.children || []"
+              :hide-children="category.hideChildrenOnCard"
               :is-unread="isCategoryUnread(category)"
               @click="navigateToCategory(category)"
             />

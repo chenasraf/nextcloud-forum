@@ -5,19 +5,22 @@
 
 export interface Category {
   id: number
-  headerId: number
+  headerId: number | null
+  parentId: number | null
   name: string
   description: string | null
   slug: string
   sortOrder: number
   color: string | null
   textColor: 'light' | 'dark' | null
+  hideChildrenOnCard: boolean
   threadCount: number
   postCount: number
   createdAt: number
   updatedAt: number
   lastActivityAt?: number | null
   readAt?: number | null
+  children?: Category[]
 }
 
 export interface CategoryHeader {

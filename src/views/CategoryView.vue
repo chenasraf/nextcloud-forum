@@ -7,7 +7,7 @@
             <template #icon>
               <ArrowLeftIcon :size="20" />
             </template>
-            {{ strings.back }}
+            {{ backLabel }}
           </NcButton>
         </template>
 
@@ -42,6 +42,24 @@
         :text-color="category.textColor || undefined"
         class="mt-16"
       />
+
+      <!-- Subcategories section -->
+      <div
+        v-if="!loading && !error && childCategories.length > 0"
+        class="subcategories-section mt-16"
+      >
+        <h3 class="subcategories-title">{{ strings.subcategories }}</h3>
+        <div class="subcategories-grid">
+          <CategoryCard
+            v-for="child in childCategories"
+            :key="child.id"
+            :category="child"
+            :children="child.children || []"
+            :is-unread="isCategoryUnread(child)"
+            @click="navigateToChildCategory(child)"
+          />
+        </div>
+      </div>
 
       <!-- Loading state -->
       <div class="center mt-16" v-if="loading">
@@ -141,6 +159,7 @@ import CategoryNotFound from '@/views/CategoryNotFound.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import MessagePlusIcon from '@icons/MessagePlus.vue'
+import CategoryCard from '@/components/CategoryCard'
 import type { Category, Thread } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
@@ -153,9 +172,14 @@ export default defineComponent({
   name: 'CategoryView',
   setup() {
     const { userId } = useCurrentUser()
-    const { markCategoryAsRead } = useCategories()
+    const { markCategoryAsRead, findCategoryInTree } = useCategories()
     const { checkCategoryPermission } = usePermissions()
-    return { userId, markCategoryAsReadLocal: markCategoryAsRead, checkCategoryPermission }
+    return {
+      userId,
+      markCategoryAsReadLocal: markCategoryAsRead,
+      findCategoryInTree,
+      checkCategoryPermission,
+    }
   },
   components: {
     NcButton,
@@ -167,6 +191,7 @@ export default defineComponent({
     ThreadCard,
     Pagination,
     CategoryNotFound,
+    CategoryCard,
     ArrowLeftIcon,
     RefreshIcon,
     MessagePlusIcon,
@@ -193,6 +218,7 @@ export default defineComponent({
         emptyTitle: t('forum', 'No threads yet'),
         emptyDesc: t('forum', 'Be the first to start a discussion in this category.'),
         retry: t('forum', 'Retry'),
+        subcategories: t('forum', 'Subcategories'),
       },
     }
   },
@@ -203,8 +229,23 @@ export default defineComponent({
     categorySlug(): string | null {
       return (this.$route.params.slug as string) || null
     },
+    backLabel(): string {
+      if (this.category?.parentId) {
+        const parent = this.findCategoryInTree(this.category.parentId)
+        if (parent) {
+          return t('forum', 'Back to {name}', { name: parent.name })
+        }
+      }
+      return t('forum', 'Back to categories')
+    },
     sortedThreads(): Thread[] {
       return this.threads
+    },
+    childCategories(): Category[] {
+      if (!this.category) return []
+      // Look up this category in the tree to get its children
+      const catInTree = this.findCategoryInTree(this.category.id)
+      return catInTree?.children || []
     },
   },
   created() {
@@ -389,8 +430,27 @@ export default defineComponent({
       }
     },
 
+    navigateToChildCategory(child: Category): void {
+      this.$router.push(`/c/${child.slug}`)
+    },
+
+    isCategoryUnread(category: Category): boolean {
+      if (this.userId === null) return false
+      const lastActivity = category.lastActivityAt
+      if (!lastActivity) return false
+      if (category.readAt == null) return true
+      return lastActivity > category.readAt
+    },
+
     goBack(): void {
-      // Always navigate to home, not browser history
+      // Navigate to parent category if this is a child, otherwise home
+      if (this.category?.parentId) {
+        const parent = this.findCategoryInTree(this.category.parentId)
+        if (parent) {
+          this.$router.push(`/c/${parent.slug}`)
+          return
+        }
+      }
       this.$router.push('/')
     },
   },
@@ -399,6 +459,21 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .category-view {
+  .subcategories-section {
+    .subcategories-title {
+      margin: 0 0 12px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--color-main-text);
+    }
+
+    .subcategories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+  }
+
   .threads-list {
     display: flex;
     flex-direction: column;

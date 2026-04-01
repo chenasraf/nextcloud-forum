@@ -77,6 +77,53 @@ describe('CategoryCard', () => {
     })
   })
 
+  describe('children', () => {
+    it('should not render children section when no children', () => {
+      const wrapper = mount(CategoryCard, {
+        props: { category: createMockCategory() },
+      })
+      expect(wrapper.find('.category-children').exists()).toBe(false)
+    })
+
+    it('should not render children section when children is empty', () => {
+      const wrapper = mount(CategoryCard, {
+        props: { category: createMockCategory(), children: [] },
+      })
+      expect(wrapper.find('.category-children').exists()).toBe(false)
+    })
+
+    it('should render child links when children provided', () => {
+      const children = [
+        createMockCategory({ id: 2, name: 'Child 1', slug: 'child-1' }),
+        createMockCategory({ id: 3, name: 'Child 2', slug: 'child-2' }),
+      ]
+      const wrapper = mount(CategoryCard, {
+        props: { category: createMockCategory(), children },
+        global: {
+          stubs: {
+            'router-link': {
+              template: '<a class="child-link"><slot /></a>',
+              props: ['to'],
+            },
+          },
+        },
+      })
+      expect(wrapper.find('.category-children').exists()).toBe(true)
+      const links = wrapper.findAll('.child-link')
+      expect(links).toHaveLength(2)
+      expect(links[0]!.text()).toBe('Child 1')
+      expect(links[1]!.text()).toBe('Child 2')
+    })
+
+    it('should not render children when hideChildren is true', () => {
+      const children = [createMockCategory({ id: 2, name: 'Child 1', slug: 'child-1' })]
+      const wrapper = mount(CategoryCard, {
+        props: { category: createMockCategory(), children, hideChildren: true },
+      })
+      expect(wrapper.find('.category-children').exists()).toBe(false)
+    })
+  })
+
   describe('structure', () => {
     it('should have correct class', () => {
       const wrapper = mount(CategoryCard, {

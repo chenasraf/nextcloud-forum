@@ -24,6 +24,7 @@ vi.mock('@/composables/useCurrentUser', () => ({
 vi.mock('@/composables/useCategories', () => ({
   useCategories: () => ({
     markCategoryAsRead: vi.fn(),
+    findCategoryInTree: vi.fn().mockReturnValue(null),
   }),
 }))
 
@@ -79,6 +80,14 @@ vi.mock('@/components/Pagination', () =>
 vi.mock('@/views/CategoryNotFound.vue', () =>
   createComponentMock('CategoryNotFound', {
     template: '<div class="category-not-found-mock" />',
+  }),
+)
+
+vi.mock('@/components/CategoryCard', () =>
+  createComponentMock('CategoryCard', {
+    template: '<div class="category-card-mock">{{ category.name }}</div>',
+    props: ['category', 'children', 'hideChildren', 'isUnread'],
+    emits: ['click'],
   }),
 )
 

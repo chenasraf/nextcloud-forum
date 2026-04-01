@@ -42,28 +42,16 @@
         <FormSection :title="strings.basicInfo">
           <div class="form-grid">
             <div class="form-group">
-              <label>{{ strings.categoryHeader }} *</label>
+              <label>{{ strings.parent }} *</label>
               <div class="header-select-row">
                 <NcSelect
-                  v-model="selectedHeader"
-                  :options="headerOptions"
-                  :placeholder="strings.selectHeader"
+                  v-model="selectedParent"
+                  :options="parentOptions"
+                  :placeholder="strings.selectParent"
                   label="label"
                   track-by="id"
                   class="header-select"
                 />
-                <NcButton @click="createNewHeader">
-                  <template #icon>
-                    <PlusIcon :size="20" />
-                  </template>
-                  {{ strings.newHeader }}
-                </NcButton>
-                <NcButton v-if="selectedHeader" @click="editHeader">
-                  <template #icon>
-                    <PencilIcon :size="20" />
-                  </template>
-                  {{ strings.editHeader }}
-                </NcButton>
               </div>
             </div>
 
@@ -139,6 +127,12 @@
                     {{ strings.lightText }}
                   </NcCheckboxRadioSwitch>
                 </div>
+              </div>
+              <div class="hide-children-group">
+                <NcCheckboxRadioSwitch v-model="formData.hideChildrenOnCard">
+                  {{ strings.hideChildrenOnCard }}
+                </NcCheckboxRadioSwitch>
+                <p class="help-text muted">{{ strings.hideChildrenOnCardHelp }}</p>
               </div>
             </div>
             <div class="design-preview">
@@ -224,17 +218,6 @@
           </NcButton>
         </div>
       </div>
-
-      <!-- Header Edit/Create Dialog -->
-      <HeaderEditDialog
-        :open="headerDialog.show"
-        :header-id="headerDialog.id"
-        :name="headerDialog.name"
-        :description="headerDialog.description"
-        :sort-order="headerDialog.sortOrder"
-        @update:open="headerDialog.show = $event"
-        @saved="handleHeaderSaved"
-      />
     </div>
   </PageWrapper>
 </template>
@@ -246,32 +229,29 @@ import AppToolbar from '@/components/AppToolbar'
 import FormSection from '@/components/FormSection'
 import CategoryCard from '@/components/CategoryCard'
 import ColorPickerPreset from '@/components/ColorPickerPreset'
-import HeaderEditDialog from '@/components/HeaderEditDialog'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
-import NcDialog from '@nextcloud/vue/components/NcDialog'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
-import PlusIcon from '@icons/Plus.vue'
-import PencilIcon from '@icons/Pencil.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 import { isAdminRole, isModeratorRole, isDefaultRole, isGuestRole } from '@/constants'
 import { useCategories } from '@/composables/useCategories'
 import type { Category, CategoryPerm, CatHeader, Role, Team } from '@/types'
+import PageHeader from '@/components/PageHeader'
 
 type PermTarget = { id: string; label: string; type: 'role' | 'team' }
+type ParentOption = { id: string; label: string; type: 'header' | 'category' }
 
 export default defineComponent({
   name: 'AdminCategoryEdit',
   components: {
     NcButton,
     NcCheckboxRadioSwitch,
-    NcDialog,
     NcEmptyContent,
     NcLoadingIcon,
     NcSelect,
@@ -282,17 +262,21 @@ export default defineComponent({
     FormSection,
     CategoryCard,
     ColorPickerPreset,
-    HeaderEditDialog,
     ArrowLeftIcon,
-    PlusIcon,
-    PencilIcon,
+    PageHeader,
   },
   setup() {
-    const { categoryHeaders, fetchCategories, refresh: refreshCategories } = useCategories()
+    const {
+      categoryHeaders,
+      fetchCategories,
+      refresh: refreshCategories,
+      getAllCategoriesFlat,
+    } = useCategories()
     return {
       categoryHeaders,
       fetchCategories,
       refreshCategories,
+      getAllCategoriesFlat,
     }
   },
   data() {
@@ -302,7 +286,7 @@ export default defineComponent({
       error: null as string | null,
       headers: [] as CatHeader[],
       roles: [] as Role[],
-      selectedHeader: null as { id: number; label: string } | null,
+      selectedParent: null as ParentOption | null,
       teams: [] as Team[],
       selectedViewTargets: [] as PermTarget[],
       selectedPostTargets: [] as PermTarget[],
@@ -310,21 +294,16 @@ export default defineComponent({
       selectedModerateTargets: [] as PermTarget[],
       formData: {
         headerId: null as number | null,
+        parentId: null as number | null,
         name: '',
         slug: '',
         description: '',
         sortOrder: 0,
         color: null as string | null,
         textColor: 'dark' as 'light' | 'dark',
+        hideChildrenOnCard: false,
       },
       slugManuallyEdited: false,
-      headerDialog: {
-        show: false,
-        id: null as number | null,
-        name: '',
-        description: '',
-        sortOrder: 0,
-      },
 
       strings: {
         back: t('forum', 'Back'),
@@ -335,8 +314,8 @@ export default defineComponent({
         errorTitle: t('forum', 'Error loading category'),
         retry: t('forum', 'Retry'),
         basicInfo: t('forum', 'Basic information'),
-        categoryHeader: t('forum', 'Category header'),
-        selectHeader: t('forum', '-- Select a header --'),
+        parent: t('forum', 'Parent'),
+        selectParent: t('forum', '-- Select a parent --'),
         name: t('forum', 'Name'),
         namePlaceholder: t('forum', 'Enter category name'),
         slug: t('forum', 'Slug'),
@@ -353,8 +332,6 @@ export default defineComponent({
         cancel: t('forum', 'Cancel'),
         create: t('forum', 'Create'),
         update: t('forum', 'Update'),
-        newHeader: t('forum', 'New'),
-        editHeader: t('forum', 'Edit'),
         permissions: t('forum', 'Permissions'),
         permissionsDescription: t(
           'forum',
@@ -388,6 +365,11 @@ export default defineComponent({
         darkText: t('forum', 'Dark text'),
         lightText: t('forum', 'Light text'),
         preview: t('forum', 'Preview'),
+        hideChildrenOnCard: t('forum', 'Hide subcategories on category card'),
+        hideChildrenOnCardHelp: t(
+          'forum',
+          "When enabled, child categories will not appear as links on this category's card on the home page",
+        ),
       },
     }
   },
@@ -400,16 +382,33 @@ export default defineComponent({
     },
     canSubmit(): boolean {
       return (
-        this.selectedHeader !== null &&
+        this.selectedParent !== null &&
         this.formData.name.trim().length > 0 &&
         this.formData.slug.trim().length > 0
       )
     },
-    headerOptions(): Array<{ id: number; label: string }> {
-      return this.headers.map((header) => ({
-        id: header.id,
-        label: header.name,
-      }))
+    parentOptions(): ParentOption[] {
+      const options: ParentOption[] = []
+      // Get the set of descendant IDs to exclude (prevent circular refs)
+      const excludeIds = new Set<number>()
+      if (this.categoryId !== null) {
+        excludeIds.add(this.categoryId)
+        this.collectDescendantIds(this.categoryId, excludeIds)
+      }
+
+      for (const header of this.categoryHeaders) {
+        // Add header as a parent option
+        options.push({
+          id: `header:${header.id}`,
+          label: header.name,
+          type: 'header',
+        })
+        // Add categories nested under this header (with indentation)
+        if (header.categories) {
+          this.addCategoryOptions(header.categories, options, excludeIds, 1)
+        }
+      }
+      return options
     },
     teamOptions(): PermTarget[] {
       return this.teams.map((team) => ({
@@ -479,12 +478,14 @@ export default defineComponent({
       return {
         id: 0,
         headerId: 0,
+        parentId: null,
         name: this.formData.name || this.strings.namePlaceholder,
         description: this.formData.description || this.strings.descriptionPlaceholder,
         slug: '',
         sortOrder: 0,
         color: this.formData.color,
         textColor: this.formData.color ? this.formData.textColor : null,
+        hideChildrenOnCard: false,
         threadCount: 0,
         postCount: 0,
         createdAt: 0,
@@ -493,14 +494,33 @@ export default defineComponent({
     },
   },
   watch: {
-    selectedHeader(newVal: { id: number; label: string } | null) {
-      this.formData.headerId = newVal?.id || null
+    selectedParent(newVal: ParentOption | null) {
+      if (!newVal) {
+        this.formData.headerId = null
+        this.formData.parentId = null
+        return
+      }
+      if (newVal.type === 'header') {
+        this.formData.headerId = parseInt(newVal.id.split(':')[1])
+        this.formData.parentId = null
+      } else {
+        this.formData.parentId = parseInt(newVal.id.split(':')[1])
+        this.formData.headerId = null
+      }
 
-      // When creating a new category, auto-set sort order based on category count in the header
+      // When creating a new category, auto-set sort order based on sibling count
       if (!this.isEditing && newVal) {
-        const header = this.categoryHeaders.find((h) => h.id === newVal.id)
-        const categoryCount = header?.categories?.length || 0
-        this.formData.sortOrder = categoryCount
+        if (newVal.type === 'header') {
+          const header = this.categoryHeaders.find(
+            (h) => h.id === parseInt(newVal.id.split(':')[1]),
+          )
+          this.formData.sortOrder = header?.categories?.length || 0
+        } else {
+          const allCats = this.getAllCategoriesFlat()
+          const parentId = parseInt(newVal.id.split(':')[1])
+          const siblings = allCats.filter((c) => c.parentId === parentId)
+          this.formData.sortOrder = siblings.length
+        }
       }
     },
     'formData.name'(newVal: string) {
@@ -523,6 +543,38 @@ export default defineComponent({
     this.refresh()
   },
   methods: {
+    /** Recursively add category options with indentation */
+    addCategoryOptions(
+      categories: Category[],
+      options: ParentOption[],
+      excludeIds: Set<number>,
+      depth: number,
+    ): void {
+      for (const cat of categories) {
+        if (!excludeIds.has(cat.id)) {
+          const indent = '\u00A0\u00A0\u00A0\u00A0'.repeat(depth)
+          options.push({
+            id: `category:${cat.id}`,
+            label: `${indent}${cat.name}`,
+            type: 'category',
+          })
+        }
+        if (cat.children && cat.children.length > 0) {
+          this.addCategoryOptions(cat.children, options, excludeIds, depth + 1)
+        }
+      }
+    },
+
+    /** Collect all descendant IDs of a category */
+    collectDescendantIds(categoryId: number, result: Set<number>): void {
+      const allCats = this.getAllCategoriesFlat()
+      const children = allCats.filter((c) => c.parentId === categoryId)
+      for (const child of children) {
+        result.add(child.id)
+        this.collectDescendantIds(child.id, result)
+      }
+    },
+
     toKebabCase(str: string): string {
       return str
         .trim()
@@ -602,22 +654,40 @@ export default defineComponent({
       const category = categoryResponse.data
 
       this.formData.headerId = category.headerId
+      this.formData.parentId = category.parentId
       this.formData.name = category.name
       this.formData.slug = category.slug
       this.formData.description = category.description || ''
       this.formData.sortOrder = category.sortOrder
       this.formData.color = category.color || null
       this.formData.textColor = category.textColor || 'dark'
+      this.formData.hideChildrenOnCard = category.hideChildrenOnCard || false
 
       // When editing, don't track manual slug edits (slug is pre-populated from DB)
       this.slugManuallyEdited = false
 
-      // Set selectedHeader based on headerId
-      const header = this.headers.find((h) => h.id === category.headerId)
-      if (header) {
-        this.selectedHeader = {
-          id: header.id,
-          label: header.name,
+      // Set selectedParent based on parentId or headerId
+      if (category.parentId !== null) {
+        // Find the parent category in the tree
+        const allCats = this.getAllCategoriesFlat()
+        const parentCat = allCats.find((c) => c.id === category.parentId)
+        if (parentCat) {
+          // Find depth for indentation
+          const option = this.parentOptions.find((o) => o.id === `category:${category.parentId}`)
+          this.selectedParent = option || {
+            id: `category:${parentCat.id}`,
+            label: parentCat.name,
+            type: 'category',
+          }
+        }
+      } else if (category.headerId !== null) {
+        const header = this.headers.find((h) => h.id === category.headerId)
+        if (header) {
+          this.selectedParent = {
+            id: `header:${header.id}`,
+            label: header.name,
+            type: 'header',
+          }
         }
       }
     },
@@ -687,14 +757,23 @@ export default defineComponent({
       try {
         this.submitting = true
 
-        const categoryData = {
-          headerId: this.formData.headerId!,
+        const categoryData: Record<string, unknown> = {
           name: this.formData.name.trim(),
           slug: this.formData.slug.trim(),
           description: this.formData.description.trim() || null,
           sortOrder: this.formData.sortOrder,
           color: this.formData.color || null,
           textColor: this.formData.color ? this.formData.textColor : null,
+          hideChildrenOnCard: this.formData.hideChildrenOnCard,
+        }
+
+        // Set parent based on selection type
+        if (this.formData.parentId !== null) {
+          categoryData.parentId = this.formData.parentId
+          categoryData.headerId = null
+        } else {
+          categoryData.headerId = this.formData.headerId
+          categoryData.parentId = null
         }
 
         let categoryId: number
@@ -800,50 +879,6 @@ export default defineComponent({
     goBack(): void {
       this.$router.push('/admin/categories')
     },
-
-    createNewHeader(): void {
-      this.headerDialog.show = true
-      this.headerDialog.id = null
-      this.headerDialog.name = ''
-      this.headerDialog.description = ''
-      // Set sort order to the count of headers (will be last)
-      this.headerDialog.sortOrder = this.categoryHeaders.length
-    },
-
-    editHeader(): void {
-      if (!this.selectedHeader) return
-
-      const header = this.categoryHeaders.find((h) => h.id === this.selectedHeader?.id)
-      if (!header) return
-
-      this.headerDialog.show = true
-      this.headerDialog.id = header.id
-      this.headerDialog.name = header.name
-      this.headerDialog.description = header.description || ''
-      this.headerDialog.sortOrder = header.sortOrder || 0
-    },
-
-    async handleHeaderSaved(savedHeader: CatHeader): Promise<void> {
-      // Update in local headers array
-      const index = this.headers.findIndex((h) => h.id === savedHeader.id)
-      if (index !== -1) {
-        this.headers[index] = savedHeader
-      } else {
-        // Add to local headers array if new
-        this.headers.push(savedHeader)
-      }
-
-      // Auto-select the new/updated header
-      this.selectedHeader = {
-        id: savedHeader.id,
-        label: savedHeader.name,
-      }
-
-      // Refresh sidebar categories
-      await this.refreshCategories()
-
-      this.headerDialog.show = false
-    },
   },
 })
 </script>
@@ -925,6 +960,17 @@ export default defineComponent({
         .text-color-options {
           display: flex;
           gap: 16px;
+        }
+      }
+
+      .hide-children-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .help-text {
+          font-size: 0.85rem;
+          margin-top: 2px;
         }
       }
 

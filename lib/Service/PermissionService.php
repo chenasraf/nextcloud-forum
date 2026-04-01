@@ -266,13 +266,33 @@ class PermissionService {
 			// Get all categories
 			$categories = $this->categoryMapper->findAll();
 
-			// Check view permission for each category
+			// Check view permission for each category (own permission only)
 			foreach ($categories as $category) {
 				if ($this->hasCategoryPermission($userId, $category->getId(), 'canView')) {
 					$accessibleCategoryIds[] = $category->getId();
 				}
 			}
-			return $accessibleCategoryIds;
+
+			// Build parent map for ancestor chain checking
+			$parentMap = [];
+			foreach ($categories as $category) {
+				$parentMap[$category->getId()] = $category->getParentId();
+			}
+
+			// Prune categories whose ancestor chain is not fully accessible
+			$accessibleSet = array_flip($accessibleCategoryIds);
+			$accessibleCategoryIds = array_filter($accessibleCategoryIds, function ($catId) use ($parentMap, $accessibleSet) {
+				$current = $parentMap[$catId] ?? null;
+				while ($current !== null) {
+					if (!isset($accessibleSet[$current])) {
+						return false;
+					}
+					$current = $parentMap[$current] ?? null;
+				}
+				return true;
+			});
+
+			return array_values($accessibleCategoryIds);
 		} catch (\Exception $e) {
 			$this->logger->error('Error getting accessible categories: ' . $e->getMessage());
 			return [];

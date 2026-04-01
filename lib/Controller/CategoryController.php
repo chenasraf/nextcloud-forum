@@ -78,13 +78,25 @@ class CategoryController extends OCSController {
 				}
 			}
 
-			// Group accessible categories by header_id
+			// Build a lookup map for resolving effective header IDs
+			$allCatsById = [];
+			foreach ($allCategories as $category) {
+				$allCatsById[$category->getId()] = $category;
+			}
+
+			// Group accessible categories by effective header_id
+			// Child categories inherit the header from their root ancestor
 			$categoriesByHeader = [];
 			foreach ($allCategories as $category) {
 				if (!in_array($category->getId(), $accessibleCategoryIds, true)) {
 					continue;
 				}
-				$headerId = $category->getHeaderId();
+				// Walk up the parent chain to find the effective header
+				$current = $category;
+				while ($current->getParentId() !== null && isset($allCatsById[$current->getParentId()])) {
+					$current = $allCatsById[$current->getParentId()];
+				}
+				$headerId = $current->getHeaderId();
 				if (!isset($categoriesByHeader[$headerId])) {
 					$categoriesByHeader[$headerId] = [];
 				}
@@ -190,13 +202,15 @@ class CategoryController extends OCSController {
 	/**
 	 * Create a new category
 	 *
-	 * @param int $headerId Category header ID
+	 * @param int|null $headerId Category header ID (required for top-level categories)
 	 * @param string $name Category name
 	 * @param string $slug Category slug
 	 * @param string|null $description Category description
 	 * @param int $sortOrder Sort order
 	 * @param string|null $color Category color (hex, e.g. #dc2626)
 	 * @param string|null $textColor Text color mode ('light' or 'dark')
+	 * @param int|null $parentId Parent category ID (null for top-level categories)
+	 * @param bool $hideChildrenOnCard Whether to hide child categories on the parent card
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Category created
@@ -204,16 +218,32 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'POST', url: '/api/categories')]
-	public function create(int $headerId, string $name, string $slug, ?string $description = null, int $sortOrder = 0, ?string $color = null, ?string $textColor = null): DataResponse {
+	public function create(?int $headerId = null, string $name = '', string $slug = '', ?string $description = null, int $sortOrder = 0, ?string $color = null, ?string $textColor = null, ?int $parentId = null, bool $hideChildrenOnCard = false): DataResponse {
 		try {
+			// Validate: either headerId (top-level) or parentId (child) must be set
+			if ($parentId !== null) {
+				// Validate parent exists
+				try {
+					$this->categoryMapper->find($parentId);
+				} catch (DoesNotExistException $e) {
+					return new DataResponse(['error' => 'Parent category not found'], Http::STATUS_NOT_FOUND);
+				}
+				// Child categories don't have their own header
+				$headerId = null;
+			} elseif ($headerId === null) {
+				return new DataResponse(['error' => 'Either headerId or parentId must be provided'], Http::STATUS_BAD_REQUEST);
+			}
+
 			$category = new \OCA\Forum\Db\Category();
 			$category->setHeaderId($headerId);
+			$category->setParentId($parentId);
 			$category->setName($name);
 			$category->setSlug($slug);
 			$category->setDescription($description);
 			$category->setSortOrder($sortOrder);
 			$category->setColor($color);
 			$category->setTextColor($textColor);
+			$category->setHideChildrenOnCard($hideChildrenOnCard);
 			$category->setThreadCount(0);
 			$category->setPostCount(0);
 			$category->setCreatedAt(time());
@@ -239,6 +269,8 @@ class CategoryController extends OCSController {
 	 * @param int|null $sortOrder Sort order
 	 * @param string|null $color Category color (hex, e.g. #dc2626)
 	 * @param string|null $textColor Text color mode ('light' or 'dark')
+	 * @param string|null $parentId Parent category ID ('__unset__' = not provided, null = top-level, int = child)
+	 * @param bool|null $hideChildrenOnCard Whether to hide child categories on the parent card
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Category updated
@@ -246,13 +278,49 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'PUT', url: '/api/categories/{id}')]
-	public function update(int $id, ?int $headerId = null, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null, ?string $color = '__unset__', ?string $textColor = '__unset__'): DataResponse {
+	public function update(int $id, ?int $headerId = null, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null, ?string $color = '__unset__', ?string $textColor = '__unset__', string|int|null $parentId = '__unset__', ?bool $hideChildrenOnCard = null): DataResponse {
 		try {
 			$category = $this->categoryMapper->find($id);
 
-			if ($headerId !== null) {
+			// Handle parentId changes
+			if ($parentId !== '__unset__') {
+				if ($parentId !== null) {
+					$parentIdInt = (int)$parentId;
+
+					// Validate parent exists
+					try {
+						$this->categoryMapper->find($parentIdInt);
+					} catch (DoesNotExistException $e) {
+						return new DataResponse(['error' => 'Parent category not found'], Http::STATUS_NOT_FOUND);
+					}
+
+					// Prevent circular references: walk up from proposed parent
+					$current = $parentIdInt;
+					while ($current !== null) {
+						if ($current === $id) {
+							return new DataResponse(['error' => 'Cannot set a descendant as parent (circular reference)'], Http::STATUS_BAD_REQUEST);
+						}
+						try {
+							$parentCat = $this->categoryMapper->find($current);
+							$current = $parentCat->getParentId();
+						} catch (DoesNotExistException $e) {
+							break;
+						}
+					}
+
+					$category->setParentId($parentIdInt);
+					$category->setHeaderId(null);
+				} else {
+					// Moving to top-level: need a headerId
+					$category->setParentId(null);
+					if ($headerId !== null) {
+						$category->setHeaderId($headerId);
+					}
+				}
+			} elseif ($headerId !== null) {
 				$category->setHeaderId($headerId);
 			}
+
 			if ($name !== null) {
 				$category->setName($name);
 			}
@@ -270,6 +338,9 @@ class CategoryController extends OCSController {
 			}
 			if ($textColor !== '__unset__') {
 				$category->setTextColor($textColor);
+			}
+			if ($hideChildrenOnCard !== null) {
+				$category->setHideChildrenOnCard($hideChildrenOnCard);
 			}
 			$category->setUpdatedAt(time());
 
@@ -323,6 +394,18 @@ class CategoryController extends OCSController {
 	public function destroy(int $id, ?int $migrateToCategoryId = null): DataResponse {
 		try {
 			$category = $this->categoryMapper->find($id);
+
+			// Re-parent children: move direct children to this category's parent
+			$children = $this->categoryMapper->findByParentId($id);
+			foreach ($children as $child) {
+				$child->setParentId($category->getParentId());
+				// If deleted category was top-level, children become top-level under the same header
+				if ($category->getParentId() === null) {
+					$child->setHeaderId($category->getHeaderId());
+				}
+				$child->setUpdatedAt(time());
+				$this->categoryMapper->update($child);
+			}
 
 			$threadsAffected = 0;
 

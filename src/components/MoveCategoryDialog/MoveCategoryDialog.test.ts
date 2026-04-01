@@ -211,7 +211,7 @@ describe('MoveCategoryDialog', () => {
       }
 
       const categoryOption = vm.categoryOptions.find((o) => !o.isHeader)
-      expect(categoryOption!.name).toBe('  Category') // Two spaces prefix
+      expect(categoryOption!.name).toBe('\u00A0\u00A0Category') // Non-breaking space prefix
     })
 
     it('excludes headers with no categories', async () => {

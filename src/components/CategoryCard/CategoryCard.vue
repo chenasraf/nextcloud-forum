@@ -29,6 +29,18 @@
     </div>
     <p v-if="category.description" class="category-description">{{ category.description }}</p>
     <p v-else class="category-description muted">{{ strings.noDescription }}</p>
+    <!-- Child category links -->
+    <div v-if="!hideChildren && visibleChildren.length > 0" class="category-children">
+      <router-link
+        v-for="child in visibleChildren"
+        :key="child.id"
+        :to="`/c/${child.slug}`"
+        class="child-link"
+        @click.stop
+      >
+        {{ child.name }}
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -48,6 +60,14 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    children: {
+      type: Array as PropType<Category[]>,
+      default: () => [],
+    },
+    hideChildren: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     cardStyle(): Record<string, string> {
@@ -60,6 +80,9 @@ export default defineComponent({
           this.category.textColor === 'light' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)'
       }
       return style
+    },
+    visibleChildren(): Category[] {
+      return this.children
     },
   },
   data() {
@@ -108,6 +131,16 @@ export default defineComponent({
 
     .category-description.muted {
       color: var(--card-text-muted);
+    }
+
+    .child-link {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--card-text);
+      border-color: rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
     }
   }
 
@@ -190,6 +223,36 @@ export default defineComponent({
       color: var(--color-text-maxcontrast);
       opacity: 0.7;
       font-style: italic;
+    }
+  }
+
+  .category-children {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .child-link {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    background: var(--color-background-dark);
+    color: var(--color-main-text);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+
+    &:hover {
+      background: var(--color-background-hover);
+      border-color: var(--color-primary-element);
     }
   }
 }

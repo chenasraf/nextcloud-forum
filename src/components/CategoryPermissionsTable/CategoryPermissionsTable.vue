@@ -64,55 +64,60 @@
           </div>
         </div>
 
-        <!-- Category rows under this header -->
-        <div v-for="category in header.categories" :key="category.id" class="table-row">
-          <div class="col-category">
-            <span class="category-name">{{ category.name }}</span>
-            <span v-if="category.description" class="category-desc muted">
-              {{ category.description }}
-            </span>
-          </div>
+        <!-- Category rows under this header (including subcategories) -->
+        <template v-for="row in flattenCategories(header.categories || [])" :key="row.category.id">
+          <div class="table-row" :class="{ 'subcategory-row': row.depth > 0 }">
+            <div class="col-category" :style="{ paddingLeft: `${row.depth * 24 + 16}px` }">
+              <span class="category-name">
+                <span v-if="row.depth > 0" class="subcategory-arrow">↳</span>
+                {{ row.category.name }}
+              </span>
+              <span v-if="row.category.description" class="category-desc muted">
+                {{ row.category.description }}
+              </span>
+            </div>
 
-          <div class="col-permission">
-            <NcCheckboxRadioSwitch
-              :model-value="permissions[category.id]?.canView || false"
-              :disabled="disableView"
-              @update:model-value="updateCategoryView(category.id, $event)"
-            >
-              {{ strings.allow }}
-            </NcCheckboxRadioSwitch>
-          </div>
+            <div class="col-permission">
+              <NcCheckboxRadioSwitch
+                :model-value="permissions[row.category.id]?.canView || false"
+                :disabled="disableView"
+                @update:model-value="updateCategoryView(row.category.id, $event)"
+              >
+                {{ strings.allow }}
+              </NcCheckboxRadioSwitch>
+            </div>
 
-          <div class="col-permission">
-            <NcCheckboxRadioSwitch
-              :model-value="permissions[category.id]?.canPost || false"
-              :disabled="disablePost"
-              @update:model-value="updateCategoryPost(category.id, $event)"
-            >
-              {{ strings.allow }}
-            </NcCheckboxRadioSwitch>
-          </div>
+            <div class="col-permission">
+              <NcCheckboxRadioSwitch
+                :model-value="permissions[row.category.id]?.canPost || false"
+                :disabled="disablePost"
+                @update:model-value="updateCategoryPost(row.category.id, $event)"
+              >
+                {{ strings.allow }}
+              </NcCheckboxRadioSwitch>
+            </div>
 
-          <div class="col-permission">
-            <NcCheckboxRadioSwitch
-              :model-value="permissions[category.id]?.canReply || false"
-              :disabled="disableReply"
-              @update:model-value="updateCategoryReply(category.id, $event)"
-            >
-              {{ strings.allow }}
-            </NcCheckboxRadioSwitch>
-          </div>
+            <div class="col-permission">
+              <NcCheckboxRadioSwitch
+                :model-value="permissions[row.category.id]?.canReply || false"
+                :disabled="disableReply"
+                @update:model-value="updateCategoryReply(row.category.id, $event)"
+              >
+                {{ strings.allow }}
+              </NcCheckboxRadioSwitch>
+            </div>
 
-          <div class="col-permission">
-            <NcCheckboxRadioSwitch
-              :model-value="permissions[category.id]?.canModerate || false"
-              :disabled="disableModerate"
-              @update:model-value="updateCategoryModerate(category.id, $event)"
-            >
-              {{ strings.allow }}
-            </NcCheckboxRadioSwitch>
+            <div class="col-permission">
+              <NcCheckboxRadioSwitch
+                :model-value="permissions[row.category.id]?.canModerate || false"
+                :disabled="disableModerate"
+                @update:model-value="updateCategoryModerate(row.category.id, $event)"
+              >
+                {{ strings.allow }}
+              </NcCheckboxRadioSwitch>
+            </div>
           </div>
-        </div>
+        </template>
       </template>
     </div>
     <div v-else class="muted">{{ strings.noCategories }}</div>
@@ -124,7 +129,12 @@ import { defineComponent, type PropType } from 'vue'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import { t } from '@nextcloud/l10n'
-import type { CategoryHeader } from '@/types'
+import type { Category, CategoryHeader } from '@/types'
+
+interface FlatCategoryRow {
+  category: Category
+  depth: number
+}
 
 export interface CategoryPermission {
   canView: boolean
@@ -205,6 +215,24 @@ export default defineComponent({
     }
   },
   methods: {
+    flattenCategories(categories: Category[], depth = 0): FlatCategoryRow[] {
+      const result: FlatCategoryRow[] = []
+      for (const cat of categories) {
+        result.push({ category: cat, depth })
+        if (cat.children && cat.children.length > 0) {
+          result.push(...this.flattenCategories(cat.children, depth + 1))
+        }
+      }
+      return result
+    },
+
+    /** Get all categories under a header (including nested subcategories) */
+    getAllCategoriesInHeader(headerId: number): Category[] {
+      const header = this.categoryHeaders.find((h) => h.id === headerId)
+      if (!header || !header.categories) return []
+      return this.flattenCategories(header.categories).map((row) => row.category)
+    },
+
     ensurePermission(categoryId: number): CategoryPermission {
       if (!this.permissions[categoryId]) {
         this.permissions[categoryId] = {
@@ -221,13 +249,13 @@ export default defineComponent({
       headerId: number,
       key: keyof CategoryPermission,
     ): { checked: boolean; indeterminate: boolean } {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories || header.categories.length === 0) {
+      const allCats = this.getAllCategoriesInHeader(headerId)
+      if (allCats.length === 0) {
         return { checked: false, indeterminate: false }
       }
 
-      const checkedCount = header.categories.filter((cat) => this.permissions[cat.id]?.[key]).length
-      const totalCount = header.categories.length
+      const checkedCount = allCats.filter((cat) => this.permissions[cat.id]?.[key]).length
+      const totalCount = allCats.length
 
       if (checkedCount === 0) {
         return { checked: false, indeterminate: false }
@@ -265,11 +293,11 @@ export default defineComponent({
     },
 
     toggleHeader(headerId: number, key: keyof CategoryPermission): void {
-      const header = this.categoryHeaders.find((h) => h.id === headerId)
-      if (!header || !header.categories) return
+      const allCats = this.getAllCategoriesInHeader(headerId)
+      if (allCats.length === 0) return
 
       const newValue = !this.getHeaderState(headerId, key).checked
-      header.categories.forEach((cat) => {
+      allCats.forEach((cat) => {
         this.ensurePermission(cat.id)[key] = newValue
       })
       this.$emit('update:permissions', this.permissions)
@@ -364,6 +392,15 @@ export default defineComponent({
   .table-row {
     &:hover {
       background: var(--color-background-hover);
+    }
+
+    &.subcategory-row {
+      background: var(--color-background-dark);
+    }
+
+    .subcategory-arrow {
+      color: var(--color-text-maxcontrast);
+      margin-right: 4px;
     }
 
     .col-category {

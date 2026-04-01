@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.36.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.35.0...v0.36.0) (2026-04-01)
+
+
+### Features
+
+* allow reassigning guests to actual users ([ca109dc](https://github.com/chenasraf/nextcloud-forum/commit/ca109dc7fc7f05d861f163b4dd050cb459352626))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([a1d2791](https://github.com/chenasraf/nextcloud-forum/commit/a1d2791d1ca7201255ccd1a9879d5cf9df29bb20))
+* **l10n:** Update translations from Transifex ([73acd9e](https://github.com/chenasraf/nextcloud-forum/commit/73acd9e9af7bf9032eeb5d4eaf6a4a8c7bf60209))
+
 ## [0.35.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.34.2...v0.35.0) (2026-03-29)
 
 

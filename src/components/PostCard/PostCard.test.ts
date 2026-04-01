@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createIconMock, createComponentMock } from '@/test-utils'
-import { createMockPost, createMockUser } from '@/test-mocks'
+import { createMockPost, createMockRole, createMockUser } from '@/test-mocks'
+import { useUserRole } from '@/composables/useUserRole'
 import PostCard from './PostCard.vue'
 
 // Mock icons
@@ -10,6 +11,7 @@ vi.mock('@icons/Pencil.vue', () => createIconMock('PencilIcon'))
 vi.mock('@icons/Delete.vue', () => createIconMock('DeleteIcon'))
 vi.mock('@icons/History.vue', () => createIconMock('HistoryIcon'))
 vi.mock('@icons/LinkVariant.vue', () => createIconMock('LinkVariantIcon'))
+vi.mock('@icons/AccountConvert.vue', () => createIconMock('AccountConvertIcon'))
 
 // Mock components
 vi.mock('@/components/UserInfo', () =>
@@ -37,6 +39,14 @@ vi.mock('@/components/PostHistoryDialog', () =>
   createComponentMock('PostHistoryDialog', {
     template: '<div class="post-history-dialog-mock" v-if="open" />',
     props: ['open', 'postId'],
+  }),
+)
+
+vi.mock('@/components/GuestReassignDialog', () =>
+  createComponentMock('GuestReassignDialog', {
+    template: '<div class="guest-reassign-dialog-mock" v-if="open" />',
+    props: ['open', 'guestAuthorId', 'guestDisplayName'],
+    emits: ['update:open', 'reassigned'],
   }),
 )
 
@@ -72,6 +82,8 @@ describe('PostCard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockCurrentUser.mockReturnValue({ uid: 'testuser', displayName: 'Test User' })
+    const { clear } = useUserRole()
+    clear()
   })
 
   describe('rendering', () => {
@@ -500,6 +512,101 @@ describe('PostCard', () => {
       const buttons = wrapper.findAll('.nc-action-button')
       expect(buttons.some((b) => b.text().includes('Edit'))).toBe(false)
       expect(buttons.some((b) => b.text().includes('Delete'))).toBe(false)
+    })
+  })
+
+  describe('guest reassignment', () => {
+    it('should show assign to account button for guest posts when user has canManageUsers', () => {
+      const { setRoles } = useUserRole()
+      setRoles('testuser', [createMockRole({ canManageUsers: true })])
+
+      const guestAuthor = createMockUser({
+        userId: 'guest:abc123',
+        displayName: 'BrightMountain42',
+        isGuest: true,
+      })
+      const post = createMockPost({ authorId: 'guest:abc123', author: guestAuthor })
+      const wrapper = mount(PostCard, {
+        props: { post },
+      })
+
+      const buttons = wrapper.findAll('.nc-action-button')
+      expect(buttons.some((b) => b.text().includes('Assign to account'))).toBe(true)
+    })
+
+    it('should not show assign to account button for non-guest posts', () => {
+      const { setRoles } = useUserRole()
+      setRoles('testuser', [createMockRole({ canManageUsers: true })])
+
+      const author = createMockUser({ userId: 'alice', isGuest: false })
+      const post = createMockPost({ authorId: 'alice', author })
+      const wrapper = mount(PostCard, {
+        props: { post },
+      })
+
+      const buttons = wrapper.findAll('.nc-action-button')
+      expect(buttons.some((b) => b.text().includes('Assign to account'))).toBe(false)
+    })
+
+    it('should not show assign to account button when user lacks canManageUsers', () => {
+      const { setRoles } = useUserRole()
+      setRoles('testuser', [createMockRole({ canManageUsers: false })])
+
+      const guestAuthor = createMockUser({ userId: 'guest:abc123', isGuest: true })
+      const post = createMockPost({ authorId: 'guest:abc123', author: guestAuthor })
+      const wrapper = mount(PostCard, {
+        props: { post },
+      })
+
+      const buttons = wrapper.findAll('.nc-action-button')
+      expect(buttons.some((b) => b.text().includes('Assign to account'))).toBe(false)
+    })
+
+    it('should open reassign dialog when button is clicked', async () => {
+      const { setRoles } = useUserRole()
+      setRoles('testuser', [createMockRole({ canManageUsers: true })])
+
+      const guestAuthor = createMockUser({ userId: 'guest:abc123', isGuest: true })
+      const post = createMockPost({ authorId: 'guest:abc123', author: guestAuthor })
+      const wrapper = mount(PostCard, {
+        props: { post },
+      })
+
+      expect(wrapper.find('.guest-reassign-dialog-mock').exists()).toBe(false)
+
+      const button = wrapper
+        .findAll('.nc-action-button')
+        .find((b) => b.text().includes('Assign to account'))
+      await button?.trigger('click')
+
+      expect(wrapper.find('.guest-reassign-dialog-mock').exists()).toBe(true)
+    })
+
+    it('should emit reassigned event from dialog', async () => {
+      const { setRoles } = useUserRole()
+      setRoles('testuser', [createMockRole({ canManageUsers: true })])
+
+      const guestAuthor = createMockUser({ userId: 'guest:abc123', isGuest: true })
+      const post = createMockPost({ authorId: 'guest:abc123', author: guestAuthor })
+      const wrapper = mount(PostCard, {
+        props: { post },
+      })
+
+      const vm = wrapper.vm as InstanceType<typeof PostCard>
+      vm.handleReassigned({
+        guestAuthorId: 'guest:abc123',
+        targetUserId: 'alice',
+        targetDisplayName: 'Alice',
+      })
+
+      expect(wrapper.emitted('reassigned')).toBeTruthy()
+      expect(wrapper.emitted('reassigned')![0]).toEqual([
+        {
+          guestAuthorId: 'guest:abc123',
+          targetUserId: 'alice',
+          targetDisplayName: 'Alice',
+        },
+      ])
     })
   })
 })

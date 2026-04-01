@@ -12,8 +12,10 @@ use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\AdminSettingsService;
+use OCA\Forum\Service\GuestService;
 use OCA\Forum\Service\UserRoleService;
 use OCA\Forum\Service\UserService;
+use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -45,6 +47,8 @@ class AdminControllerTest extends TestCase {
 	private IUserSession $userSession;
 	/** @var AdminSettingsService&MockObject */
 	private AdminSettingsService $settingsService;
+	/** @var GuestService&MockObject */
+	private GuestService $guestService;
 	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 	/** @var IRequest&MockObject */
@@ -62,6 +66,7 @@ class AdminControllerTest extends TestCase {
 		$this->userManager = $this->createMock(IUserManager::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->settingsService = $this->createMock(AdminSettingsService::class);
+		$this->guestService = $this->createMock(GuestService::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->controller = new AdminController(
@@ -77,6 +82,7 @@ class AdminControllerTest extends TestCase {
 			$this->userManager,
 			$this->userSession,
 			$this->settingsService,
+			$this->guestService,
 			$this->logger
 		);
 	}
@@ -259,5 +265,115 @@ class AdminControllerTest extends TestCase {
 		$this->assertEquals([$guestRole], $contributor['roles']);
 		$this->assertEquals(3, $contributor['postCount']);
 		$this->assertEquals(1, $contributor['threadCount']);
+	}
+
+	// ── Guest reassignment tests ─────────────────────────────────────
+
+	public function testReassignGuestPostsSuccess(): void {
+		$guestAuthorId = 'guest:abcdef1234567890abcdef1234567890';
+		$targetUserId = 'alice';
+
+		$targetUser = $this->createMock(IUser::class);
+		$this->userManager->expects($this->once())
+			->method('get')
+			->with($targetUserId)
+			->willReturn($targetUser);
+
+		$this->postMapper->expects($this->once())
+			->method('countByAuthorId')
+			->with($guestAuthorId)
+			->willReturn(['total' => 5, 'threads' => 1, 'replies' => 4]);
+
+		$this->postMapper->expects($this->once())
+			->method('reassignAuthor')
+			->with($guestAuthorId, $targetUserId)
+			->willReturn(5);
+
+		$this->threadMapper->expects($this->once())
+			->method('reassignAuthor')
+			->with($guestAuthorId, $targetUserId)
+			->willReturn(1);
+
+		$this->threadMapper->expects($this->once())
+			->method('reassignLastReplyAuthor')
+			->with($guestAuthorId, $targetUserId);
+
+		$this->forumUserMapper->expects($this->once())
+			->method('incrementPostCount')
+			->with($targetUserId, 4);
+
+		$this->forumUserMapper->expects($this->once())
+			->method('incrementThreadCount')
+			->with($targetUserId, 1);
+
+		$response = $this->controller->reassignGuestPosts($guestAuthorId, $targetUserId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$data = $response->getData();
+		$this->assertTrue($data['success']);
+		$this->assertEquals(5, $data['postsReassigned']);
+		$this->assertEquals(1, $data['threadsReassigned']);
+	}
+
+	public function testReassignGuestPostsRejectsInvalidGuestId(): void {
+		$response = $this->controller->reassignGuestPosts('not-a-guest-id', 'alice');
+
+		$this->assertEquals(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$this->assertEquals('Invalid guest author ID format', $response->getData()['error']);
+	}
+
+	public function testReassignGuestPostsRejectsNonexistentTargetUser(): void {
+		$this->userManager->expects($this->once())
+			->method('get')
+			->with('nonexistent')
+			->willReturn(null);
+
+		$response = $this->controller->reassignGuestPosts(
+			'guest:abcdef1234567890abcdef1234567890',
+			'nonexistent'
+		);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertEquals('Target user does not exist', $response->getData()['error']);
+	}
+
+	public function testReassignGuestPostsDoesNotIncrementZeroCounts(): void {
+		$guestAuthorId = 'guest:abcdef1234567890abcdef1234567890';
+		$targetUserId = 'alice';
+
+		$targetUser = $this->createMock(IUser::class);
+		$this->userManager->method('get')->willReturn($targetUser);
+
+		$this->postMapper->method('countByAuthorId')
+			->willReturn(['total' => 0, 'threads' => 0, 'replies' => 0]);
+		$this->postMapper->method('reassignAuthor')->willReturn(0);
+		$this->threadMapper->method('reassignAuthor')->willReturn(0);
+		$this->threadMapper->method('reassignLastReplyAuthor');
+
+		$this->forumUserMapper->expects($this->never())->method('incrementPostCount');
+		$this->forumUserMapper->expects($this->never())->method('incrementThreadCount');
+
+		$response = $this->controller->reassignGuestPosts($guestAuthorId, $targetUserId);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertTrue($response->getData()['success']);
+	}
+
+	public function testReassignGuestPostsHandlesException(): void {
+		$guestAuthorId = 'guest:abcdef1234567890abcdef1234567890';
+
+		$targetUser = $this->createMock(IUser::class);
+		$this->userManager->method('get')->willReturn($targetUser);
+
+		$this->postMapper->method('countByAuthorId')
+			->willThrowException(new \Exception('DB error'));
+
+		$this->logger->expects($this->once())
+			->method('error')
+			->with($this->stringContains('Error reassigning guest posts'));
+
+		$response = $this->controller->reassignGuestPosts($guestAuthorId, 'alice');
+
+		$this->assertEquals(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
 	}
 }

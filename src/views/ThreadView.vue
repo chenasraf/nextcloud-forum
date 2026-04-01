@@ -209,6 +209,7 @@
           @reply="handleReply"
           @update="handleUpdate"
           @delete="handleDelete"
+          @reassigned="handleReassigned"
         />
       </section>
 
@@ -246,6 +247,7 @@
             @reply="handleReply"
             @update="handleUpdate"
             @delete="handleDelete"
+            @reassigned="handleReassigned"
           />
         </div>
 
@@ -871,6 +873,60 @@ export default defineComponent({
       } catch (e) {
         console.error('Failed to delete post', e)
         showError(t('forum', 'Failed to delete reply'))
+      }
+    },
+
+    async handleReassigned(data: {
+      guestAuthorId: string
+      targetUserId: string
+      targetDisplayName: string
+    }): Promise<void> {
+      try {
+        // Fetch the target user's roles from the forum user endpoint
+        let roles: any[] = []
+        try {
+          const response = await ocs.get(`/users/${data.targetUserId}`)
+          roles = response.data?.roles || []
+        } catch {
+          // User may not have a forum profile yet - that is fine
+        }
+
+        const newAuthor = {
+          userId: data.targetUserId,
+          displayName: data.targetDisplayName,
+          isDeleted: false,
+          isGuest: false,
+          roles,
+          signature: null,
+          signatureRaw: null,
+        }
+
+        // Update first post if it belonged to this guest
+        if (this.firstPost && this.firstPost.authorId === data.guestAuthorId) {
+          this.firstPost = { ...this.firstPost, authorId: data.targetUserId, author: newAuthor }
+        }
+
+        // Update all replies that belonged to this guest
+        this.replies = this.replies.map((reply) => {
+          if (reply.authorId === data.guestAuthorId) {
+            return { ...reply, authorId: data.targetUserId, author: newAuthor }
+          }
+          return reply
+        })
+
+        // Update thread header if the thread author was this guest
+        if (this.thread && this.thread.authorId === data.guestAuthorId) {
+          this.thread.authorId = data.targetUserId
+          this.thread.author = newAuthor
+        }
+
+        // Update lastReplyAuthorId if it was this guest
+        if (this.thread && this.thread.lastReplyAuthorId === data.guestAuthorId) {
+          this.thread.lastReplyAuthorId = data.targetUserId
+        }
+      } catch (e) {
+        console.error('Failed to update posts after reassignment', e)
+        // Posts were reassigned on the backend; a refresh will show the correct state
       }
     },
 

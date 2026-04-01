@@ -14,6 +14,7 @@ use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Service\AdminSettingsService;
+use OCA\Forum\Service\GuestService;
 use OCA\Forum\Service\UserRoleService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
@@ -41,6 +42,7 @@ class AdminController extends OCSController {
 		private IUserManager $userManager,
 		private IUserSession $userSession,
 		private AdminSettingsService $settingsService,
+		private GuestService $guestService,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -378,6 +380,60 @@ class AdminController extends OCSController {
 				'success' => false,
 				'message' => 'Failed to remove role: ' . $e->getMessage(),
 			], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Reassign all posts and threads from a guest to a registered user
+	 *
+	 * @param string $guestAuthorId The guest author ID (format: "guest:<token>")
+	 * @param string $targetUserId The target Nextcloud user ID to assign posts to
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, postsReassigned: int, threadsReassigned: int}, array{}>
+	 *
+	 * 200: Posts reassigned successfully
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canManageUsers')]
+	#[ApiRoute(verb: 'POST', url: '/api/admin/guests/reassign')]
+	public function reassignGuestPosts(string $guestAuthorId, string $targetUserId): DataResponse {
+		try {
+			// Validate guest author ID format
+			if (!GuestService::isGuestAuthor($guestAuthorId)) {
+				return new DataResponse(['error' => 'Invalid guest author ID format'], Http::STATUS_BAD_REQUEST);
+			}
+
+			// Validate target user exists
+			$targetUser = $this->userManager->get($targetUserId);
+			if ($targetUser === null) {
+				return new DataResponse(['error' => 'Target user does not exist'], Http::STATUS_NOT_FOUND);
+			}
+
+			// Count posts before reassignment for forum user stats
+			$postCounts = $this->postMapper->countByAuthorId($guestAuthorId);
+
+			// Reassign posts, threads, and last_reply_author_id references
+			$postsReassigned = $this->postMapper->reassignAuthor($guestAuthorId, $targetUserId);
+			$threadsReassigned = $this->threadMapper->reassignAuthor($guestAuthorId, $targetUserId);
+			$this->threadMapper->reassignLastReplyAuthor($guestAuthorId, $targetUserId);
+
+			// Update the target user's forum user stats
+			if ($postCounts['replies'] > 0) {
+				$this->forumUserMapper->incrementPostCount($targetUserId, $postCounts['replies']);
+			}
+			if ($postCounts['threads'] > 0) {
+				$this->forumUserMapper->incrementThreadCount($targetUserId, $postCounts['threads']);
+			}
+
+			$this->logger->info("Reassigned {$postsReassigned} posts and {$threadsReassigned} threads from guest '{$guestAuthorId}' to user '{$targetUserId}'");
+
+			return new DataResponse([
+				'success' => true,
+				'postsReassigned' => $postsReassigned,
+				'threadsReassigned' => $threadsReassigned,
+			]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error reassigning guest posts: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to reassign guest posts'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 }

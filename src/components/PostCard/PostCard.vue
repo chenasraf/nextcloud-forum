@@ -54,6 +54,12 @@
             </template>
             {{ strings.directLink }}
           </NcActionButton>
+          <NcActionButton v-if="canReassignGuest" @click="handleReassignGuest">
+            <template #icon>
+              <AccountConvertIcon :size="20" />
+            </template>
+            {{ strings.assignToAccount }}
+          </NcActionButton>
         </NcActions>
       </div>
     </div>
@@ -91,6 +97,15 @@
       :post-id="post.id"
       @update:open="showHistoryDialog = $event"
     />
+
+    <!-- Guest Reassign Dialog -->
+    <GuestReassignDialog
+      :open="showReassignDialog"
+      :guest-author-id="post.authorId"
+      :guest-display-name="post.author?.displayName || ''"
+      @update:open="showReassignDialog = $event"
+      @reassigned="handleReassigned"
+    />
   </div>
 </template>
 
@@ -104,14 +119,17 @@ import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import HistoryIcon from '@icons/History.vue'
 import LinkVariantIcon from '@icons/LinkVariant.vue'
+import AccountConvertIcon from '@icons/AccountConvert.vue'
 import UserInfo from '@/components/UserInfo'
 import PostReactions from '@/components/PostReactions'
 import PostEditForm from '@/components/PostEditForm'
 import PostHistoryDialog from '@/components/PostHistoryDialog'
+import GuestReassignDialog from '@/components/GuestReassignDialog'
 import { t } from '@nextcloud/l10n'
 import { getCurrentUser } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess } from '@nextcloud/dialogs'
+import { useUserRole } from '@/composables/useUserRole'
 import type { Post } from '@/types'
 import type { ReactionGroup } from '@/composables/useReactions'
 
@@ -126,10 +144,12 @@ export default defineComponent({
     DeleteIcon,
     HistoryIcon,
     LinkVariantIcon,
+    AccountConvertIcon,
     UserInfo,
     PostReactions,
     PostEditForm,
     PostHistoryDialog,
+    GuestReassignDialog,
   },
   props: {
     post: {
@@ -157,14 +177,16 @@ export default defineComponent({
       default: 1,
     },
   },
-  emits: ['reply', 'edit', 'delete', 'update'],
+  emits: ['reply', 'edit', 'delete', 'update', 'reassigned'],
   setup() {
-    return {}
+    const { canManageUsers } = useUserRole()
+    return { canManageUsers }
   },
   data() {
     return {
       isEditing: false,
       showHistoryDialog: false,
+      showReassignDialog: false,
       strings: {
         edited: t('forum', 'Edited'),
         reply: t('forum', 'Quote reply'),
@@ -178,6 +200,7 @@ export default defineComponent({
         unread: t('forum', 'Unread'),
         directLink: t('forum', 'Direct link'),
         directLinkCopied: t('forum', 'Direct link copied to clipboard'),
+        assignToAccount: t('forum', 'Assign to account'),
       },
     }
   },
@@ -208,6 +231,9 @@ export default defineComponent({
     },
     hasSignature(): boolean {
       return !!this.post.author?.signature
+    },
+    canReassignGuest(): boolean {
+      return this.canManageUsers && !!this.post.author?.isGuest
     },
   },
   methods: {
@@ -243,6 +269,19 @@ export default defineComponent({
     handleViewHistory() {
       this.closeActionsMenu()
       this.showHistoryDialog = true
+    },
+
+    handleReassignGuest() {
+      this.closeActionsMenu()
+      this.showReassignDialog = true
+    },
+
+    handleReassigned(data: {
+      guestAuthorId: string
+      targetUserId: string
+      targetDisplayName: string
+    }) {
+      this.$emit('reassigned', data)
     },
 
     async handleDirectLink() {

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { computed, ref } from 'vue'
 import { createIconMock, createComponentMock } from '@/test-utils'
-import { createMockThread, createMockPost } from '@/test-mocks'
+import { createMockThread, createMockPost, createMockUser } from '@/test-mocks'
 
 // Mock axios
 vi.mock('@/axios', () => ({
@@ -82,7 +82,7 @@ vi.mock('@/components/PostCard', () =>
     template:
       '<div class="post-card-mock" :data-can-reply="canReply" :data-can-moderate="canModerateCategory" />',
     props: ['post', 'isFirstPost', 'isUnread', 'canModerateCategory', 'canReply'],
-    emits: ['reply', 'update', 'delete'],
+    emits: ['reply', 'update', 'delete', 'reassigned'],
   }),
 )
 
@@ -340,6 +340,245 @@ describe('ThreadView', () => {
       await flushPromises()
 
       expect(wrapper.text()).toContain('You do not have permission to reply in this category.')
+    })
+  })
+
+  describe('guest reassignment', () => {
+    const guestAuthorId = 'guest:abcdef1234567890abcdef1234567890'
+    const guestAuthor = createMockUser({
+      userId: guestAuthorId,
+      displayName: 'BrightMountain42',
+      isGuest: true,
+    })
+
+    it('updates first post author in-place after reassignment', async () => {
+      const guestFirstPost = createMockPost({
+        id: 1,
+        authorId: guestAuthorId,
+        author: guestAuthor,
+        content: '<p>Guest post</p>',
+      })
+
+      mockOcsGet.mockImplementation((url: string) => {
+        if (url.includes('/posts/paginated')) {
+          return mockGetResponse({
+            data: {
+              firstPost: guestFirstPost,
+              replies: [],
+              pagination: {
+                page: 1,
+                perPage: 20,
+                total: 0,
+                totalPages: 1,
+                startPage: 1,
+                lastReadPostId: null,
+              },
+            },
+          })
+        }
+        if (url === '/users/alice') {
+          return mockGetResponse({ data: { userId: 'alice', roles: [{ id: 1, name: 'Default' }] } })
+        }
+        return mockGetResponse({ data: null })
+      })
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const vm = wrapper.vm as InstanceType<typeof ThreadView>
+      await vm.handleReassigned({
+        guestAuthorId,
+        targetUserId: 'alice',
+        targetDisplayName: 'Alice Smith',
+      })
+      await flushPromises()
+
+      expect(vm.firstPost!.authorId).toBe('alice')
+      expect(vm.firstPost!.author!.displayName).toBe('Alice Smith')
+      expect(vm.firstPost!.author!.isGuest).toBe(false)
+    })
+
+    it('updates replies author in-place after reassignment', async () => {
+      const guestReply = createMockPost({ id: 10, authorId: guestAuthorId, author: guestAuthor })
+      const otherReply = createMockPost({
+        id: 11,
+        authorId: 'bob',
+        author: createMockUser({ userId: 'bob' }),
+      })
+
+      mockOcsGet.mockImplementation((url: string) => {
+        if (url.includes('/posts/paginated')) {
+          return mockGetResponse({
+            data: {
+              firstPost: mockFirstPost,
+              replies: [guestReply, otherReply],
+              pagination: {
+                page: 1,
+                perPage: 20,
+                total: 2,
+                totalPages: 1,
+                startPage: 1,
+                lastReadPostId: null,
+              },
+            },
+          })
+        }
+        if (url === '/users/alice') {
+          return mockGetResponse({ data: { userId: 'alice', roles: [] } })
+        }
+        return mockGetResponse({ data: null })
+      })
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const vm = wrapper.vm as InstanceType<typeof ThreadView>
+      await vm.handleReassigned({
+        guestAuthorId,
+        targetUserId: 'alice',
+        targetDisplayName: 'Alice Smith',
+      })
+      await flushPromises()
+
+      // Guest reply should be updated
+      expect(vm.replies[0]!.authorId).toBe('alice')
+      expect(vm.replies[0]!.author!.displayName).toBe('Alice Smith')
+      expect(vm.replies[0]!.author!.isGuest).toBe(false)
+
+      // Other reply should be unchanged
+      expect(vm.replies[1]!.authorId).toBe('bob')
+    })
+
+    it('updates thread header author after reassignment', async () => {
+      mockThread.value = createMockThread({
+        id: 1,
+        categoryId: 5,
+        authorId: guestAuthorId,
+        author: guestAuthor,
+      })
+      mockFetchThread.mockResolvedValue(mockThread.value)
+
+      mockOcsGet.mockImplementation((url: string) => {
+        if (url.includes('/posts/paginated')) {
+          return mockGetResponse({
+            data: {
+              firstPost: mockFirstPost,
+              replies: [],
+              pagination: {
+                page: 1,
+                perPage: 20,
+                total: 0,
+                totalPages: 1,
+                startPage: 1,
+                lastReadPostId: null,
+              },
+            },
+          })
+        }
+        if (url === '/users/alice') {
+          return mockGetResponse({ data: { userId: 'alice', roles: [] } })
+        }
+        return mockGetResponse({ data: null })
+      })
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const vm = wrapper.vm as InstanceType<typeof ThreadView>
+      await vm.handleReassigned({
+        guestAuthorId,
+        targetUserId: 'alice',
+        targetDisplayName: 'Alice Smith',
+      })
+      await flushPromises()
+
+      expect(vm.thread!.authorId).toBe('alice')
+      expect(vm.thread!.author!.displayName).toBe('Alice Smith')
+    })
+
+    it('updates thread lastReplyAuthorId after reassignment', async () => {
+      mockThread.value = createMockThread({
+        id: 1,
+        categoryId: 5,
+        lastReplyAuthorId: guestAuthorId,
+      })
+      mockFetchThread.mockResolvedValue(mockThread.value)
+
+      mockOcsGet.mockImplementation((url: string) => {
+        if (url.includes('/posts/paginated')) {
+          return mockGetResponse({
+            data: {
+              firstPost: mockFirstPost,
+              replies: [],
+              pagination: {
+                page: 1,
+                perPage: 20,
+                total: 0,
+                totalPages: 1,
+                startPage: 1,
+                lastReadPostId: null,
+              },
+            },
+          })
+        }
+        return mockGetResponse({ data: null })
+      })
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const vm = wrapper.vm as InstanceType<typeof ThreadView>
+      await vm.handleReassigned({
+        guestAuthorId,
+        targetUserId: 'alice',
+        targetDisplayName: 'Alice Smith',
+      })
+      await flushPromises()
+
+      expect(vm.thread!.lastReplyAuthorId).toBe('alice')
+    })
+
+    it('handles user fetch failure gracefully', async () => {
+      const guestReply = createMockPost({ id: 10, authorId: guestAuthorId, author: guestAuthor })
+
+      mockOcsGet.mockImplementation((url: string) => {
+        if (url.includes('/posts/paginated')) {
+          return mockGetResponse({
+            data: {
+              firstPost: mockFirstPost,
+              replies: [guestReply],
+              pagination: {
+                page: 1,
+                perPage: 20,
+                total: 1,
+                totalPages: 1,
+                startPage: 1,
+                lastReadPostId: null,
+              },
+            },
+          })
+        }
+        if (url === '/users/alice') {
+          return Promise.reject(new Error('Not found'))
+        }
+        return mockGetResponse({ data: null })
+      })
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const vm = wrapper.vm as InstanceType<typeof ThreadView>
+      await vm.handleReassigned({
+        guestAuthorId,
+        targetUserId: 'alice',
+        targetDisplayName: 'Alice Smith',
+      })
+      await flushPromises()
+
+      // Should still update with empty roles
+      expect(vm.replies[0]!.authorId).toBe('alice')
+      expect(vm.replies[0]!.author!.displayName).toBe('Alice Smith')
+      expect(vm.replies[0]!.author!.roles).toEqual([])
     })
   })
 })

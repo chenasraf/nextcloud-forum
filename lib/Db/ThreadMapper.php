@@ -360,6 +360,37 @@ class ThreadMapper extends QBMapper {
 	}
 
 	/**
+	 * Reassign all threads from one author to another
+	 *
+	 * @param string $fromAuthorId Current author ID (e.g., "guest:abc123")
+	 * @param string $toAuthorId New author ID (e.g., "john")
+	 * @return int Number of threads updated
+	 */
+	public function reassignAuthor(string $fromAuthorId, string $toAuthorId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update($this->getTableName())
+			->set('author_id', $qb->createNamedParameter($toAuthorId, IQueryBuilder::PARAM_STR))
+			->set('updated_at', $qb->createNamedParameter(time(), IQueryBuilder::PARAM_INT))
+			->where($qb->expr()->eq('author_id', $qb->createNamedParameter($fromAuthorId, IQueryBuilder::PARAM_STR)));
+		return $qb->executeStatement();
+	}
+
+	/**
+	 * Reassign last_reply_author_id from one author to another
+	 *
+	 * @param string $fromAuthorId Current author ID
+	 * @param string $toAuthorId New author ID
+	 * @return int Number of threads updated
+	 */
+	public function reassignLastReplyAuthor(string $fromAuthorId, string $toAuthorId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update($this->getTableName())
+			->set('last_reply_author_id', $qb->createNamedParameter($toAuthorId, IQueryBuilder::PARAM_STR))
+			->where($qb->expr()->eq('last_reply_author_id', $qb->createNamedParameter($fromAuthorId, IQueryBuilder::PARAM_STR)));
+		return $qb->executeStatement();
+	}
+
+	/**
 	 * Find a thread by ID including soft-deleted threads
 	 *
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException

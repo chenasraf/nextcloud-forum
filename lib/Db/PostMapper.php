@@ -483,6 +483,64 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
+	 * Reassign all posts from one author to another
+	 *
+	 * @param string $fromAuthorId Current author ID (e.g., "guest:abc123")
+	 * @param string $toAuthorId New author ID (e.g., "john")
+	 * @return int Number of posts updated
+	 */
+	public function reassignAuthor(string $fromAuthorId, string $toAuthorId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->update($this->getTableName())
+			->set('author_id', $qb->createNamedParameter($toAuthorId, IQueryBuilder::PARAM_STR))
+			->set('updated_at', $qb->createNamedParameter(time(), IQueryBuilder::PARAM_INT))
+			->where($qb->expr()->eq('author_id', $qb->createNamedParameter($fromAuthorId, IQueryBuilder::PARAM_STR)));
+		return $qb->executeStatement();
+	}
+
+	/**
+	 * Count posts by author (including deleted)
+	 */
+	public function countByAuthorId(string $authorId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select(
+			$qb->func()->count('*', 'total'),
+		)
+			->from($this->getTableName())
+			->where($qb->expr()->eq('author_id', $qb->createNamedParameter($authorId, IQueryBuilder::PARAM_STR)));
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+
+		// Count first posts (threads) vs replies separately
+		$qb2 = $this->db->getQueryBuilder();
+		$qb2->select($qb2->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb2->expr()->eq('author_id', $qb2->createNamedParameter($authorId, IQueryBuilder::PARAM_STR)))
+			->andWhere($qb2->expr()->eq('is_first_post', $qb2->createNamedParameter(true, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb2->expr()->isNull('deleted_at'));
+		$result2 = $qb2->executeQuery();
+		$row2 = $result2->fetch();
+		$result2->closeCursor();
+
+		$qb3 = $this->db->getQueryBuilder();
+		$qb3->select($qb3->func()->count('*', 'count'))
+			->from($this->getTableName())
+			->where($qb3->expr()->eq('author_id', $qb3->createNamedParameter($authorId, IQueryBuilder::PARAM_STR)))
+			->andWhere($qb3->expr()->eq('is_first_post', $qb3->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb3->expr()->isNull('deleted_at'));
+		$result3 = $qb3->executeQuery();
+		$row3 = $result3->fetch();
+		$result3->closeCursor();
+
+		return [
+			'total' => (int)($row['total'] ?? 0),
+			'threads' => (int)($row2['count'] ?? 0),
+			'replies' => (int)($row3['count'] ?? 0),
+		];
+	}
+
+	/**
 	 * Find all posts for a thread, including deleted posts
 	 *
 	 * @return array<Post>

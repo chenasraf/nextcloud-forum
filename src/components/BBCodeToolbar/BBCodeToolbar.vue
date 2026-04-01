@@ -110,7 +110,7 @@
       @update:open="uploadDialog = $event"
       size="small"
     >
-      <div class="upload-progress">
+      <div class="upload-progress" aria-live="polite">
         <p class="upload-filename">{{ uploadFileName }}</p>
         <template v-if="uploadError">
           <p class="upload-error-message">{{ uploadError }}</p>

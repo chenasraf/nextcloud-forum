@@ -3,12 +3,12 @@
     <div class="bbcode-help">
       <!-- Built-in BBCodes Section -->
       <section class="bbcode-section">
-        <h3 class="section-title">{{ strings.builtInTitle }}</h3>
+        <h2 class="section-title">{{ strings.builtInTitle }}</h2>
         <p class="section-description">{{ strings.builtInDescription }}</p>
 
-        <div class="bbcode-list">
+        <ul class="bbcode-list">
           <!-- Library-provided BBCodes -->
-          <div v-for="code in builtInCodes" :key="code.tag" class="bbcode-item">
+          <li v-for="code in builtInCodes" :key="code.tag" class="bbcode-item">
             <div class="bbcode-header">
               <code class="bbcode-tag">[{{ code.tag }}]</code>
               <span class="bbcode-name">{{ code.name }}</span>
@@ -17,10 +17,10 @@
               <span class="example-label">{{ strings.example }}:</span>
               <code class="example-code">{{ code.example }}</code>
             </div>
-          </div>
+          </li>
 
           <!-- Database builtin BBCodes -->
-          <div v-for="code in builtinDbCodes" :key="code.id" class="bbcode-item">
+          <li v-for="code in builtinDbCodes" :key="code.id" class="bbcode-item">
             <div class="bbcode-header">
               <code class="bbcode-tag">[{{ code.tag }}]</code>
               <span v-if="code.description" class="bbcode-name">{{ code.description }}</span>
@@ -29,13 +29,13 @@
               <span class="example-label">{{ strings.example }}:</span>
               <code class="example-code">{{ code.example }}</code>
             </div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </section>
 
       <!-- Custom BBCodes Section -->
       <section v-if="showCustom" class="bbcode-section">
-        <h3 class="section-title">{{ strings.customTitle }}</h3>
+        <h2 class="section-title">{{ strings.customTitle }}</h2>
         <p class="section-description">{{ strings.customDescription }}</p>
 
         <!-- Loading state -->
@@ -55,8 +55,8 @@
         </div>
 
         <!-- Custom codes list -->
-        <div v-else class="bbcode-list">
-          <div v-for="code in customCodes" :key="code.id" class="bbcode-item">
+        <ul v-else class="bbcode-list">
+          <li v-for="code in customCodes" :key="code.id" class="bbcode-item">
             <div class="bbcode-header">
               <code class="bbcode-tag">[{{ code.tag }}]</code>
               <span v-if="code.description" class="bbcode-name">{{ code.description }}</span>
@@ -65,8 +65,8 @@
               <span class="example-label">{{ strings.example }}:</span>
               <code class="example-code" :v-html="code.example"></code>
             </div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </section>
     </div>
   </NcDialog>
@@ -313,6 +313,9 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .bbcode-item {

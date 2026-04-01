@@ -1,7 +1,7 @@
 <template>
   <div class="deleted-item-list">
     <!-- Loading -->
-    <div v-if="loading" class="center mt-16">
+    <div v-if="loading" class="center mt-16" aria-live="polite" aria-busy="true">
       <NcLoadingIcon :size="32" />
     </div>
 
@@ -27,14 +27,17 @@
 
     <!-- Items -->
     <template v-else>
-      <div class="item-list">
+      <ul class="item-list">
         <!-- Thread items: clickable to open preview -->
-        <div
+        <li
           v-for="item in items"
           :key="item.id"
           class="deleted-item-wrapper"
           :class="{ clickable: mode === 'threads' }"
+          :role="mode === 'threads' ? 'button' : undefined"
+          :tabindex="mode === 'threads' ? 0 : undefined"
           @click="mode === 'threads' && $emit('view', item)"
+          @keydown.enter="mode === 'threads' && $emit('view', item)"
         >
           <div class="deleted-item-overlay">
             <span class="deleted-badge">
@@ -67,8 +70,8 @@
           </div>
           <ThreadCard v-if="mode === 'threads'" :thread="item" />
           <PostCard v-else :post="item" />
-        </div>
-      </div>
+        </li>
+      </ul>
 
       <Pagination
         v-if="maxPages > 1"
@@ -140,6 +143,8 @@ export default defineComponent({
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
+  list-style: none;
+  padding: 0;
 }
 
 .deleted-item-wrapper {

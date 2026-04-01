@@ -1,11 +1,30 @@
 <template>
-  <div class="search-thread-result" :class="{ 'dark-theme': isDarkTheme }" @click="$emit('click')">
+  <div
+    class="search-thread-result"
+    :class="{ 'dark-theme': isDarkTheme }"
+    role="link"
+    tabindex="0"
+    @click="$emit('click')"
+    @keydown.enter="$emit('click')"
+  >
     <div class="result-header">
       <h4 class="thread-title">
-        <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
+        <span
+          v-if="thread.isPinned"
+          class="badge badge-pinned"
+          :title="strings.pinned"
+          :aria-label="strings.pinned"
+          role="img"
+        >
           <PinIcon :size="16" />
         </span>
-        <span v-if="thread.isLocked" class="badge badge-locked" :title="strings.locked">
+        <span
+          v-if="thread.isLocked"
+          class="badge badge-locked"
+          :title="strings.locked"
+          :aria-label="strings.locked"
+          role="img"
+        >
           <LockIcon :size="16" />
         </span>
         <span v-html="highlightedTitle"></span>
@@ -35,6 +54,7 @@
       </span>
       <a
         v-if="thread.lastReply"
+        href="#"
         class="meta-item last-reply"
         @click.prevent.stop="$emit('navigate-last-reply', thread)"
       >

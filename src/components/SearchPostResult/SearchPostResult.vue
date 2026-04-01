@@ -1,5 +1,12 @@
 <template>
-  <div class="search-post-result" :class="{ 'dark-theme': isDarkTheme }" @click="navigateToPost">
+  <div
+    class="search-post-result"
+    :class="{ 'dark-theme': isDarkTheme }"
+    role="link"
+    tabindex="0"
+    @click="navigateToPost"
+    @keydown.enter="navigateToPost"
+  >
     <div class="result-header">
       <div class="thread-context">
         <span class="meta-label">{{ strings.inThread }}:</span>

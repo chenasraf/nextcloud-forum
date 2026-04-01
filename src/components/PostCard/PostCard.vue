@@ -2,7 +2,13 @@
   <div class="post-card" :class="{ 'first-post': isFirstPost, unread: isUnread }">
     <div class="post-header">
       <div class="author-info">
-        <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
+        <span
+          v-if="isUnread"
+          class="unread-indicator"
+          :title="strings.unread"
+          :aria-label="strings.unread"
+          role="img"
+        ></span>
         <UserInfo
           :user-id="post.author?.userId || post.authorId"
           :display-name="post.author?.displayName || post.authorId"

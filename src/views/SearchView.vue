@@ -11,6 +11,7 @@
             v-model="searchQuery"
             type="text"
             :placeholder="strings.searchPlaceholder"
+            :aria-label="strings.searchTitle"
             class="search-input"
             @keydown.enter="performSearch"
           />
@@ -23,7 +24,7 @@
         </div>
 
         <!-- Search Options -->
-        <div class="search-options">
+        <fieldset class="search-options">
           <NcCheckboxRadioSwitch v-model="searchThreads" @update:checked="onOptionsChange">
             {{ strings.searchThreads }}
           </NcCheckboxRadioSwitch>
@@ -37,7 +38,7 @@
             </template>
             {{ strings.syntaxHelp }}
           </NcButton>
-        </div>
+        </fieldset>
 
         <!-- Syntax Help -->
         <div v-if="showSyntaxHelp" class="syntax-help">
@@ -53,7 +54,7 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="center mt-16">
+      <div v-if="loading" class="center mt-16" aria-live="polite">
         <NcLoadingIcon :size="32" />
         <span class="muted ml-8">{{ strings.searching }}</span>
       </div>
@@ -95,7 +96,7 @@
       </NcEmptyContent>
 
       <!-- Results -->
-      <div v-else class="search-results mt-16">
+      <div v-else class="search-results mt-16" aria-live="polite">
         <!-- Thread Results Section -->
         <section v-if="searchThreads && threadResults.length > 0" class="results-section">
           <h3 class="results-header">
@@ -328,6 +329,9 @@ export default defineComponent({
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+    border: none;
+    padding: 0;
+    margin: 0;
   }
 
   .syntax-help {

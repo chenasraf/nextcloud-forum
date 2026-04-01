@@ -6,7 +6,13 @@
     <div class="thread-main">
       <div class="thread-header">
         <div class="thread-title-row">
-          <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
+          <span
+            v-if="isUnread"
+            class="unread-indicator"
+            :title="strings.unread"
+            :aria-label="strings.unread"
+            role="img"
+          ></span>
           <h4 class="thread-title">
             <span v-if="thread.isPinned" class="badge badge-pinned" :title="strings.pinned">
               <PinIcon :size="16" />

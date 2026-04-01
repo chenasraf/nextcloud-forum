@@ -3,9 +3,17 @@
     class="category-card"
     :class="{ unread: isUnread, colored: !!category.color }"
     :style="cardStyle"
+    role="link"
+    tabindex="0"
   >
     <div class="category-header">
-      <span v-if="isUnread" class="unread-indicator" :title="strings.unread"></span>
+      <span
+        v-if="isUnread"
+        class="unread-indicator"
+        :title="strings.unread"
+        :aria-label="strings.unread"
+        role="img"
+      ></span>
       <h4 class="category-name">{{ category.name }}</h4>
       <div class="category-stats">
         <span class="stat">

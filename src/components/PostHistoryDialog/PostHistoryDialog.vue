@@ -2,7 +2,7 @@
   <NcDialog :name="strings.title" :open="open" @update:open="handleClose" size="large">
     <div class="post-history-dialog">
       <!-- Loading state -->
-      <div v-if="loading" class="loading-state">
+      <div v-if="loading" class="loading-state" aria-live="polite" aria-busy="true">
         <NcLoadingIcon :size="32" />
         <span class="loading-text">{{ strings.loading }}</span>
       </div>

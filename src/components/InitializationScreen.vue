@@ -31,7 +31,7 @@
             </template>
             {{ initializing ? strings.initializingButton : strings.initializeButton }}
           </NcButton>
-          <NcNoteCard v-if="errorMessage" type="error" class="init-note">
+          <NcNoteCard v-if="errorMessage" type="error" class="init-note" role="alert">
             {{ errorMessage }}
           </NcNoteCard>
         </div>

@@ -7,6 +7,8 @@
       class="reaction-button"
       :class="{ reacted: isReacted(emoji), 'has-count': getCount(emoji) > 0 }"
       :title="getReactionTooltip(emoji)"
+      :aria-label="getReactionTooltip(emoji)"
+      :aria-pressed="isReacted(emoji)"
       @click="handleToggleReaction(emoji)"
     >
       <span class="emoji">{{ emoji }}</span>
@@ -15,7 +17,11 @@
 
     <!-- Add custom reaction button -->
     <LazyEmojiPicker @select="handleSelectEmoji" style="display: inline-block">
-      <button class="add-reaction-button" :title="strings.addReaction">
+      <button
+        class="add-reaction-button"
+        :title="strings.addReaction"
+        :aria-label="strings.addReaction"
+      >
         <span class="icon">+</span>
       </button>
     </LazyEmojiPicker>

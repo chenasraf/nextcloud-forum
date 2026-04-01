@@ -8,12 +8,16 @@
       @update:model-value="$emit('update:modelValue', $event)"
       @submit="$emit('update:modelValue', $event)"
     >
-      <NcButton>
+      <NcButton
+        :aria-label="modelValue ? strings.changeColor + ': ' + modelValue : strings.pickColor"
+      >
         <template #icon>
           <div
             class="color-preview"
             :class="{ empty: !modelValue }"
             :style="modelValue ? { backgroundColor: modelValue } : {}"
+            role="img"
+            :aria-label="modelValue || strings.noColor"
           />
         </template>
         {{ modelValue || strings.pickColor }}
@@ -53,6 +57,8 @@ export default defineComponent({
     return {
       strings: {
         pickColor: t('forum', 'Pick a color'),
+        changeColor: t('forum', 'Change color'),
+        noColor: t('forum', 'No color selected'),
       },
     }
   },

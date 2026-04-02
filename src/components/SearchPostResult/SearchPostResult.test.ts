@@ -74,7 +74,7 @@ describe('SearchPostResult', () => {
           mocks: { $router: { push: mockPush } },
         },
       })
-      expect(wrapper.find('.author').text()).toContain('Deleted user')
+      expect(wrapper.find('.author').text()).toContain('Deleted account')
     })
 
     it('should show edited indicator when post is edited', () => {

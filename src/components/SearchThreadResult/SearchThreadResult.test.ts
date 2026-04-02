@@ -48,7 +48,7 @@ describe('SearchThreadResult', () => {
       const wrapper = mount(SearchThreadResult, {
         props: { thread, query: 'test' },
       })
-      expect(wrapper.find('.author').text()).toContain('Deleted user')
+      expect(wrapper.find('.author').text()).toContain('Deleted account')
     })
   })
 

@@ -185,7 +185,7 @@ export default defineComponent({
         errorTitle: t('forum', 'Error loading settings'),
         retry: t('forum', 'Retry'),
         appearanceTitle: t('forum', 'Appearance'),
-        appearanceDesc: t('forum', 'Customize how your forum looks to users'),
+        appearanceDesc: t('forum', 'Customize how your forum looks to people'),
         forumTitle: t('forum', 'Forum title'),
         forumTitlePlaceholder: t('forum', 'Forum'),
         forumTitleHint: t('forum', 'Displayed at the top of the forum home page'),

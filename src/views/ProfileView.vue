@@ -214,9 +214,9 @@ export default defineComponent({
         threadsTab: (count: number) => t('forum', 'Threads ({count})', { count }),
         repliesTab: (count: number) => t('forum', 'Replies ({count})', { count }),
         noThreads: t('forum', 'No threads'),
-        noThreadsDesc: t('forum', 'This user has not created any threads yet'),
+        noThreadsDesc: t('forum', 'This account has not created any threads yet'),
         noPosts: t('forum', 'No replies'),
-        noPostsDesc: t('forum', 'This user has not written any replies yet'),
+        noPostsDesc: t('forum', 'This account has not written any replies yet'),
         inThread: t('forum', 'In thread'),
       },
     }
@@ -266,7 +266,7 @@ export default defineComponent({
         await Promise.all([this.loadThreads(), this.loadPosts()])
       } catch (err: any) {
         console.error('Error loading profile:', err)
-        this.error = err.response?.data?.error || t('forum', 'Failed to load user profile')
+        this.error = err.response?.data?.error || t('forum', 'Failed to load profile')
       } finally {
         this.loading = false
       }

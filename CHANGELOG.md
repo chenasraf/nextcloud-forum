@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.37.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.36.0...v0.37.0) (2026-04-02)
+
+
+### Features
+
+* allow category nesting ([cb5c0ca](https://github.com/chenasraf/nextcloud-forum/commit/cb5c0ca44cf7527f8c5e6ebee67030676b78dc2d))
+* improve accessibility ([7b1f425](https://github.com/chenasraf/nextcloud-forum/commit/7b1f42587b29a0ae467f2924f58f79db3ed0d6d8))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([b36d82f](https://github.com/chenasraf/nextcloud-forum/commit/b36d82fbefd0463e8ab8ff35bf2ad60c0d7e4817))
+* **l10n:** user -&gt; account ([d8c3920](https://github.com/chenasraf/nextcloud-forum/commit/d8c3920ac28a6b172b70198575a7be472f9ae963))
+* refresh roles after forum initialization ([7418bdf](https://github.com/chenasraf/nextcloud-forum/commit/7418bdf8688fe8d520888be15eca2586c3be9825))
+
 ## [0.36.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.35.0...v0.36.0) (2026-04-01)
 
 

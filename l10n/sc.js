@@ -24,6 +24,8 @@ OC.L10N.register(
     "Failed to upload file" : "No at fatu a carrigare su documentu",
     "Category" : "Categorias",
     "Allow" : "Permite",
+    "Change color" : "Càmbia colore",
+    "Account" : "Contu",
     "Cancel" : "Cancel",
     "Create" : "Crea",
     "Update" : "Agiorna",

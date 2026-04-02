@@ -15,6 +15,7 @@ OC.L10N.register(
     "Upload failed" : "Pellkasaden c'hwitet",
     "Close" : "Serriñ",
     "Allow" : "Aotrañ",
+    "Account" : "Kont",
     "Cancel" : "Cancel",
     "Update" : "Hizivaat",
     "Deleted" : "Dilamet",

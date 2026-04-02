@@ -26,6 +26,8 @@ OC.L10N.register(
     "Close" : "Cerrar",
     "Category" : "Categoría",
     "Allow" : "Permitir",
+    "Change color" : "Cambiar color",
+    "Account" : "Cuenta",
     "Cancel" : "Cancel",
     "Create" : "Crear",
     "Update" : "Actualizar",

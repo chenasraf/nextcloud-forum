@@ -23,6 +23,8 @@ OC.L10N.register(
     "Upload failed" : "Încărcarea a eșuat",
     "Close" : "Închide",
     "Allow" : "Permiteți",
+    "Change color" : "Schimbă culoarea",
+    "Account" : "Cont",
     "Cancel" : "Cancel",
     "Create" : "Crează",
     "Update" : "Actualizare",

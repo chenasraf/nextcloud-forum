@@ -15,6 +15,7 @@ OC.L10N.register(
     "Upload failed" : "Methwyd llwytho i fyny",
     "Close" : "Cau",
     "Category" : "Categori",
+    "Account" : "Cyfrif",
     "Cancel" : "Cancel",
     "Update" : "Diweddaru",
     "Deleted" : "Wedi dileu",

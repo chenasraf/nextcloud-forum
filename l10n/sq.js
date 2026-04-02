@@ -19,6 +19,7 @@ OC.L10N.register(
     "Close" : "Mbylleni",
     "Category" : "Kategori",
     "Allow" : "Lejo",
+    "Account" : "Llogari",
     "Cancel" : "Cancel",
     "Create" : "Krijo",
     "Update" : "Përditëso",

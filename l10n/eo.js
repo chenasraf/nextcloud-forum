@@ -19,6 +19,7 @@ OC.L10N.register(
     "Close" : "Malfermi",
     "Category" : "Kategorio",
     "Allow" : "Permesi",
+    "Account" : "Konto",
     "Cancel" : "Cancel",
     "Update" : "Ĝisdatigi",
     "Deleted" : "Forigita",

@@ -34,6 +34,8 @@ OC.L10N.register(
     "Category" : "Kategorija",
     "Allow" : "Dopusti",
     "Pick a color" : "Odaberite boju",
+    "Change color" : "Promijeni boju",
+    "Account" : "Račun",
     "Cancel" : "Cancel",
     "Create" : "Stvori",
     "Update" : "Ažuriraj",

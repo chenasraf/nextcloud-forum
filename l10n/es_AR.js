@@ -19,6 +19,7 @@ OC.L10N.register(
     "Close" : "Cerrar",
     "Category" : "Categoría",
     "Allow" : "Permitir",
+    "Account" : "Cuenta",
     "Cancel" : "Cancel",
     "Update" : "Actualizar",
     "Deleted" : "Eliminado",

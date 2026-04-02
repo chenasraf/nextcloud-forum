@@ -34,6 +34,8 @@ OC.L10N.register(
     "Close" : "Aizvērt",
     "Category" : "Kategorija",
     "Allow" : "Atļaut",
+    "Account" : "Konts",
+    "No accounts found" : "Konti nav atrasti",
     "Cancel" : "Atcelt",
     "Update" : "Atjaunināt",
     "Deleted" : "Izdzēsts",

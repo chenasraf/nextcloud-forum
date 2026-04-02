@@ -17,6 +17,7 @@ OC.L10N.register(
     "Upload failed" : "ატვირთვა ვერ განხორციელდა",
     "Close" : "დახურვა",
     "Category" : "კატეგორია",
+    "Account" : "ანგარიში",
     "Cancel" : "Cancel",
     "Update" : "განახლება",
     "Deleted" : "გაუქმდა",

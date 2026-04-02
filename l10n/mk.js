@@ -23,6 +23,8 @@ OC.L10N.register(
     "Upload failed" : "Прикачувањето не успеа",
     "Close" : "Затвори",
     "Allow" : "Дозволи",
+    "Change color" : "Промени боја",
+    "Account" : "Сметка",
     "Cancel" : "Откажи",
     "Create" : "Креирај",
     "Update" : "Ажурирај",

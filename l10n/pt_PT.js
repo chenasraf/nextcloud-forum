@@ -40,6 +40,8 @@ OC.L10N.register(
     "Close" : "Fechar",
     "Category" : "Categoria",
     "Allow" : "Permitir",
+    "Account" : "Conta",
+    "No accounts found" : "Nenhuma conta encontrada",
     "Cancel" : "Cancel",
     "Create" : "Criar",
     "Update" : "Atualizar",

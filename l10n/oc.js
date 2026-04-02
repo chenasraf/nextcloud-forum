@@ -23,6 +23,7 @@ OC.L10N.register(
     "Upload failed" : "Fracàs del mandadís",
     "Close" : "Plegar",
     "Category" : "Categoria",
+    "Account" : "Compte",
     "Cancel" : "Cancel",
     "Create" : "Crear",
     "Update" : "Actualizar",

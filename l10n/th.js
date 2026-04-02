@@ -17,6 +17,7 @@ OC.L10N.register(
     "Upload failed" : "อัปโหลดล้มเหลว",
     "Close" : "ปิด",
     "Category" : "หมวดหมู่",
+    "Account" : "บัญชี",
     "Cancel" : "Cancel",
     "Create" : "สร้าง",
     "Update" : "อัปเดต",

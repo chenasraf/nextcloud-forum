@@ -15,6 +15,7 @@ OC.L10N.register(
     "Hello world!" : "¡Hola mundo!",
     "Upload failed" : "Falla en la carga",
     "Category" : "Categoría",
+    "Account" : "Cuenta",
     "Cancel" : "Cancel",
     "Update" : "Actualizar",
     "Deleted" : "Borrado",

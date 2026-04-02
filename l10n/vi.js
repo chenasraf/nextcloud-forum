@@ -25,6 +25,8 @@ OC.L10N.register(
     "Close" : "Đóng",
     "Category" : "Hạng mục",
     "Allow" : "Cho phép",
+    "Change color" : "Thay đổi màu sắc",
+    "Account" : "Tài khoản",
     "Cancel" : "Cancel",
     "Create" : "Tạo",
     "Update" : "Sửa",

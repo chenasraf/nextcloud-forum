@@ -17,6 +17,7 @@ OC.L10N.register(
     "Upload failed" : "Falla en la carga",
     "Close" : "Cerrar",
     "Category" : "Categoría",
+    "Account" : "Cuenta",
     "Cancel" : "Cancel",
     "Deleted" : "Borrado",
     "Restore" : "Restaurar",

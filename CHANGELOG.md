@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.37.0...v0.37.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* remove/consolidate redundant endpoints ([ba075a7](https://github.com/chenasraf/nextcloud-forum/commit/ba075a7c9bea569e9d94d20bd35fb473ffcae484))
+
 ## [0.37.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.36.0...v0.37.0) (2026-04-02)
 
 

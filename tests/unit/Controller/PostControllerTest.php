@@ -133,75 +133,25 @@ class PostControllerTest extends TestCase {
 		);
 	}
 
-	public function testByThreadReturnsPostsSuccessfully(): void {
-		$threadId = 1;
-		$limit = 50;
-		$offset = 0;
-
-		// Create mock posts
-		$post1 = $this->createMockPost(1, $threadId, 'user1', 'Test content 1');
-		$post2 = $this->createMockPost(2, $threadId, 'user2', 'Test content 2');
-		$posts = [$post1, $post2];
-
-		// Create mock BBCode
-		$bbcode = new BBCode();
-		$bbcode->setId(1);
-		$bbcode->setTag('b');
-		$bbcode->setReplacement('<strong>{content}</strong>');
-		$bbcode->setEnabled(true);
-
-		// Create mock reactions
-		$reaction1 = $this->createMockReaction(1, 1, 'user1', '👍');
-		$reaction2 = $this->createMockReaction(2, 1, 'user2', '👍');
-
-		// Mock user session
-		$user = $this->createMock(IUser::class);
-		$user->method('getUID')->willReturn('user1');
-		$this->userSession->method('getUser')->willReturn($user);
-
-		// Set up expectations
-		$this->postMapper->expects($this->once())
-			->method('findByThreadId')
-			->with($threadId, $limit, $offset)
-			->willReturn($posts);
-
-		$this->bbCodeMapper->expects($this->once())
-			->method('findAllEnabled')
-			->willReturn([$bbcode]);
-
-		$this->reactionMapper->expects($this->once())
-			->method('findByPostIds')
-			->with([1, 2])
-			->willReturn([$reaction1, $reaction2]);
-
-		// Mock userService to return enriched user data
-		$this->userService->expects($this->once())
-			->method('enrichMultipleUsers')
-			->with(['user1', 'user2'])
-			->willReturn([
-				'user1' => ['userId' => 'user1', 'displayName' => 'User 1', 'roles' => []],
-				'user2' => ['userId' => 'user2', 'displayName' => 'User 2', 'roles' => []],
-			]);
-
-		// Execute
-		$response = $this->controller->byThread($threadId, $limit, $offset);
-
-		// Assert
-		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
-		$data = $response->getData();
-		$this->assertIsArray($data);
-		$this->assertCount(2, $data);
-		$this->assertEquals(1, $data[0]['id']);
-		$this->assertEquals(2, $data[1]['id']);
-		$this->assertArrayHasKey('reactions', $data[0]);
-		$this->assertArrayHasKey('reactions', $data[1]);
-	}
-
 	public function testByThreadHandlesEmptyPosts(): void {
 		$threadId = 1;
 
+		// Mock user session (no user = guest)
+		$this->userSession->method('getUser')->willReturn(null);
+
 		$this->postMapper->expects($this->once())
-			->method('findByThreadId')
+			->method('countRepliesByThreadId')
+			->with($threadId)
+			->willReturn(0);
+
+		$this->postMapper->expects($this->once())
+			->method('findFirstPostByThreadId')
+			->with($threadId)
+			->willReturn(null);
+
+		$this->postMapper->expects($this->once())
+			->method('findRepliesByThreadId')
+			->with($threadId, 20, 0)
 			->willReturn([]);
 
 		$this->bbCodeMapper->expects($this->once())
@@ -213,11 +163,20 @@ class PostControllerTest extends TestCase {
 			->with([])
 			->willReturn([]);
 
+		$this->userService->method('enrichMultipleUsers')->willReturn([]);
+
 		$response = $this->controller->byThread($threadId);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
-		$this->assertIsArray($response->getData());
-		$this->assertCount(0, $response->getData());
+		$data = $response->getData();
+		$this->assertArrayHasKey('firstPost', $data);
+		$this->assertArrayHasKey('replies', $data);
+		$this->assertArrayHasKey('pagination', $data);
+		$this->assertNull($data['firstPost']);
+		$this->assertCount(0, $data['replies']);
+		$this->assertEquals(1, $data['pagination']['page']);
+		$this->assertEquals(1, $data['pagination']['totalPages']);
+		$this->assertEquals(0, $data['pagination']['total']);
 	}
 
 	public function testShowReturnsPostSuccessfully(): void {
@@ -978,7 +937,7 @@ class PostControllerTest extends TestCase {
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 	}
 
-	public function testByThreadPaginatedReturnsPostsSuccessfully(): void {
+	public function testByThreadReturnsPostsSuccessfully(): void {
 		$threadId = 1;
 		$page = 1;
 		$perPage = 20;
@@ -1043,7 +1002,7 @@ class PostControllerTest extends TestCase {
 			]);
 
 		// Execute
-		$response = $this->controller->byThreadPaginated($threadId, $page, $perPage);
+		$response = $this->controller->byThread($threadId, $page, $perPage);
 
 		// Assert
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -1059,7 +1018,7 @@ class PostControllerTest extends TestCase {
 		$this->assertEquals(1, $data['pagination']['totalPages']);
 	}
 
-	public function testByThreadPaginatedStartsAtLastPageForUnreadThread(): void {
+	public function testByThreadStartsAtLastPageForUnreadThread(): void {
 		$threadId = 1;
 		$perPage = 20;
 
@@ -1109,7 +1068,7 @@ class PostControllerTest extends TestCase {
 		]);
 
 		// Execute with page=0 (auto-calculate start page)
-		$response = $this->controller->byThreadPaginated($threadId, 0, $perPage);
+		$response = $this->controller->byThread($threadId, 0, $perPage);
 
 		// Assert
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -1120,7 +1079,7 @@ class PostControllerTest extends TestCase {
 		$this->assertNull($data['pagination']['lastReadPostId']);
 	}
 
-	public function testByThreadPaginatedStartsAtOldestUnreadPage(): void {
+	public function testByThreadStartsAtOldestUnreadPage(): void {
 		$threadId = 1;
 		$perPage = 20;
 
@@ -1185,7 +1144,7 @@ class PostControllerTest extends TestCase {
 		]);
 
 		// Execute with page=0 (auto-calculate start page)
-		$response = $this->controller->byThreadPaginated($threadId, 0, $perPage);
+		$response = $this->controller->byThread($threadId, 0, $perPage);
 
 		// Assert
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -1196,7 +1155,7 @@ class PostControllerTest extends TestCase {
 		$this->assertEquals(31, $data['pagination']['lastReadPostId']);
 	}
 
-	public function testByThreadPaginatedGoesToLastPageWhenAllRead(): void {
+	public function testByThreadGoesToLastPageWhenAllRead(): void {
 		$threadId = 1;
 		$perPage = 20;
 
@@ -1252,7 +1211,7 @@ class PostControllerTest extends TestCase {
 		]);
 
 		// Execute with page=0 (auto-calculate start page)
-		$response = $this->controller->byThreadPaginated($threadId, 0, $perPage);
+		$response = $this->controller->byThread($threadId, 0, $perPage);
 
 		// Assert
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -1263,7 +1222,7 @@ class PostControllerTest extends TestCase {
 		$this->assertEquals(50, $data['pagination']['lastReadPostId']);
 	}
 
-	public function testByThreadPaginatedWorksForGuestUser(): void {
+	public function testByThreadWorksForGuestUser(): void {
 		$threadId = 1;
 		$page = 1;
 		$perPage = 20;
@@ -1302,7 +1261,7 @@ class PostControllerTest extends TestCase {
 		]);
 
 		// Execute
-		$response = $this->controller->byThreadPaginated($threadId, $page, $perPage);
+		$response = $this->controller->byThread($threadId, $page, $perPage);
 
 		// Assert
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -1312,7 +1271,7 @@ class PostControllerTest extends TestCase {
 		$this->assertNull($data['pagination']['lastReadPostId']);
 	}
 
-	public function testByThreadPaginatedRespectsExplicitPageParameter(): void {
+	public function testByThreadRespectsExplicitPageParameter(): void {
 		$threadId = 1;
 		$perPage = 20;
 
@@ -1354,7 +1313,7 @@ class PostControllerTest extends TestCase {
 		]);
 
 		// Execute with explicit page=2
-		$response = $this->controller->byThreadPaginated($threadId, 2, $perPage);
+		$response = $this->controller->byThread($threadId, 2, $perPage);
 
 		// Assert
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());

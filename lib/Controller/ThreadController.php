@@ -105,51 +105,6 @@ class ThreadController extends OCSController {
 	 * Get threads by category
 	 *
 	 * @param int $categoryId Category ID
-	 * @param int<1, 200> $limit Maximum number of threads to return
-	 * @param int $offset Offset for pagination
-	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
-	 *
-	 * 200: Threads returned
-	 */
-	#[NoAdminRequired]
-	#[PublicPage]
-	#[RequirePermission('canView', resourceType: 'category', resourceIdParam: 'categoryId')]
-	#[ApiRoute(verb: 'GET', url: '/api/categories/{categoryId}/threads')]
-	public function byCategory(int $categoryId, int $limit = 50, int $offset = 0): DataResponse {
-		try {
-			$threads = $this->threadMapper->findByCategoryId($categoryId, $limit, $offset);
-
-			// Extract unique author IDs (thread authors + last reply authors)
-			$authorIds = array_map(fn ($t) => $t->getAuthorId(), $threads);
-			$lastReplyAuthorIds = array_filter(array_map(fn ($t) => $t->getLastReplyAuthorId(), $threads));
-			$allAuthorIds = array_unique(array_merge($authorIds, $lastReplyAuthorIds));
-
-			// Batch fetch author data (includes roles)
-			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
-
-			// Enrich threads with pre-fetched author data and last reply info
-			return new DataResponse(array_map(function ($t) use ($authors) {
-				$lastReply = null;
-				$lastReplyAuthorId = $t->getLastReplyAuthorId();
-				if ($lastReplyAuthorId !== null) {
-					$lastReply = [
-						'postId' => $t->getLastPostId(),
-						'author' => $authors[$lastReplyAuthorId] ?? null,
-						'createdAt' => $t->getLastReplyAt(),
-					];
-				}
-				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null, $lastReply);
-			}, $threads));
-		} catch (\Exception $e) {
-			$this->logger->error('Error fetching threads by category: ' . $e->getMessage());
-			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * Get paginated threads by category
-	 *
-	 * @param int $categoryId Category ID
 	 * @param int $page Page number (1-indexed)
 	 * @param int $perPage Number of threads per page
 	 * @return DataResponse<Http::STATUS_OK, array{threads: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int}}, array{}>
@@ -159,8 +114,8 @@ class ThreadController extends OCSController {
 	#[NoAdminRequired]
 	#[PublicPage]
 	#[RequirePermission('canView', resourceType: 'category', resourceIdParam: 'categoryId')]
-	#[ApiRoute(verb: 'GET', url: '/api/categories/{categoryId}/threads/paginated')]
-	public function byCategoryPaginated(int $categoryId, int $page = 1, int $perPage = 20): DataResponse {
+	#[ApiRoute(verb: 'GET', url: '/api/categories/{categoryId}/threads')]
+	public function byCategory(int $categoryId, int $page = 1, int $perPage = 20): DataResponse {
 		try {
 			// Count total threads in category
 			$totalThreads = $this->threadMapper->countByCategoryId($categoryId);
@@ -205,7 +160,7 @@ class ThreadController extends OCSController {
 				],
 			]);
 		} catch (\Exception $e) {
-			$this->logger->error('Error fetching paginated threads by category: ' . $e->getMessage());
+			$this->logger->error('Error fetching threads by category: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}

@@ -160,15 +160,20 @@ class ThreadControllerTest extends TestCase {
 
 	public function testByCategoryReturnsThreadsSuccessfully(): void {
 		$categoryId = 1;
-		$limit = 50;
-		$offset = 0;
+		$page = 1;
+		$perPage = 20;
 
 		$thread1 = $this->createMockThread(1, $categoryId, 'user1', 'Test Thread 1');
 		$thread2 = $this->createMockThread(2, $categoryId, 'user2', 'Test Thread 2');
 
 		$this->threadMapper->expects($this->once())
+			->method('countByCategoryId')
+			->with($categoryId)
+			->willReturn(2);
+
+		$this->threadMapper->expects($this->once())
 			->method('findByCategoryId')
-			->with($categoryId, $limit, $offset)
+			->with($categoryId, $perPage, 0)
 			->willReturn([$thread1, $thread2]);
 
 		$this->userService->expects($this->once())
@@ -178,12 +183,17 @@ class ThreadControllerTest extends TestCase {
 				'user2' => ['userId' => 'user2', 'displayName' => 'User 2'],
 			]);
 
-		$response = $this->controller->byCategory($categoryId, $limit, $offset);
+		$response = $this->controller->byCategory($categoryId, $page, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
-		$this->assertIsArray($data);
-		$this->assertCount(2, $data);
+		$this->assertArrayHasKey('threads', $data);
+		$this->assertArrayHasKey('pagination', $data);
+		$this->assertCount(2, $data['threads']);
+		$this->assertEquals(1, $data['pagination']['page']);
+		$this->assertEquals(20, $data['pagination']['perPage']);
+		$this->assertEquals(2, $data['pagination']['total']);
+		$this->assertEquals(1, $data['pagination']['totalPages']);
 	}
 
 	public function testShowReturnsThreadAndIncrementsViewCount(): void {
@@ -1141,7 +1151,7 @@ class ThreadControllerTest extends TestCase {
 				'user2' => ['userId' => 'user2', 'displayName' => 'User 2'],
 			]);
 
-		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+		$response = $this->controller->byCategory($categoryId, $page, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
@@ -1172,7 +1182,7 @@ class ThreadControllerTest extends TestCase {
 
 		$this->userService->method('enrichMultipleUsers')->willReturn([]);
 
-		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+		$response = $this->controller->byCategory($categoryId, $page, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
@@ -1198,7 +1208,7 @@ class ThreadControllerTest extends TestCase {
 
 		$this->userService->method('enrichMultipleUsers')->willReturn([]);
 
-		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+		$response = $this->controller->byCategory($categoryId, $page, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
@@ -1223,7 +1233,7 @@ class ThreadControllerTest extends TestCase {
 
 		$this->userService->method('enrichMultipleUsers')->willReturn([]);
 
-		$response = $this->controller->byCategoryPaginated($categoryId, 5, $perPage);
+		$response = $this->controller->byCategory($categoryId, 5, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
@@ -1248,7 +1258,7 @@ class ThreadControllerTest extends TestCase {
 
 		$this->userService->method('enrichMultipleUsers')->willReturn([]);
 
-		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+		$response = $this->controller->byCategory($categoryId, $page, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
@@ -1285,7 +1295,7 @@ class ThreadControllerTest extends TestCase {
 				'user2' => ['userId' => 'user2', 'displayName' => 'User 2'],
 			]);
 
-		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+		$response = $this->controller->byCategory($categoryId, $page, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();
@@ -1323,7 +1333,7 @@ class ThreadControllerTest extends TestCase {
 				'user1' => ['userId' => 'user1', 'displayName' => 'User 1'],
 			]);
 
-		$response = $this->controller->byCategoryPaginated($categoryId, $page, $perPage);
+		$response = $this->controller->byCategory($categoryId, $page, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
 		$data = $response->getData();

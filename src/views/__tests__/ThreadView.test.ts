@@ -158,7 +158,7 @@ describe('ThreadView', () => {
     mockFetchThread.mockResolvedValue(mockThread.value)
     mockCheckCategoryPermission.mockResolvedValue(false)
     mockOcsGet.mockImplementation((url: string) => {
-      if (url.includes('/posts/paginated')) {
+      if (url.includes('/posts')) {
         return mockGetResponse({
           data: {
             firstPost: mockFirstPost,
@@ -360,7 +360,7 @@ describe('ThreadView', () => {
       })
 
       mockOcsGet.mockImplementation((url: string) => {
-        if (url.includes('/posts/paginated')) {
+        if (url.includes('/posts')) {
           return mockGetResponse({
             data: {
               firstPost: guestFirstPost,
@@ -407,7 +407,7 @@ describe('ThreadView', () => {
       })
 
       mockOcsGet.mockImplementation((url: string) => {
-        if (url.includes('/posts/paginated')) {
+        if (url.includes('/posts')) {
           return mockGetResponse({
             data: {
               firstPost: mockFirstPost,
@@ -459,7 +459,7 @@ describe('ThreadView', () => {
       mockFetchThread.mockResolvedValue(mockThread.value)
 
       mockOcsGet.mockImplementation((url: string) => {
-        if (url.includes('/posts/paginated')) {
+        if (url.includes('/posts')) {
           return mockGetResponse({
             data: {
               firstPost: mockFirstPost,
@@ -505,7 +505,7 @@ describe('ThreadView', () => {
       mockFetchThread.mockResolvedValue(mockThread.value)
 
       mockOcsGet.mockImplementation((url: string) => {
-        if (url.includes('/posts/paginated')) {
+        if (url.includes('/posts')) {
           return mockGetResponse({
             data: {
               firstPost: mockFirstPost,
@@ -542,7 +542,7 @@ describe('ThreadView', () => {
       const guestReply = createMockPost({ id: 10, authorId: guestAuthorId, author: guestAuthor })
 
       mockOcsGet.mockImplementation((url: string) => {
-        if (url.includes('/posts/paginated')) {
+        if (url.includes('/posts')) {
           return mockGetResponse({
             data: {
               firstPost: mockFirstPost,

@@ -307,15 +307,12 @@ export default defineComponent({
           }
         }
 
-        const resp = await ocs.get<PaginatedResponse>(
-          `/categories/${this.category!.id}/threads/paginated`,
-          {
-            params: {
-              page,
-              perPage: this.perPage,
-            },
+        const resp = await ocs.get<PaginatedResponse>(`/categories/${this.category!.id}/threads`, {
+          params: {
+            page,
+            perPage: this.perPage,
           },
-        )
+        })
 
         const data = resp.data
         if (data) {

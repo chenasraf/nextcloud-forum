@@ -63,65 +63,7 @@ class PostController extends OCSController {
 	}
 
 	/**
-	 * Get posts by thread
-	 *
-	 * @param int $threadId Thread ID
-	 * @param int<1, 200> $limit Maximum number of posts to return
-	 * @param int $offset Offset for pagination
-	 * @return DataResponse<Http::STATUS_OK, list<array<string, mixed>>, array{}>
-	 *
-	 * 200: Posts returned
-	 */
-	#[NoAdminRequired]
-	#[PublicPage]
-	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
-	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts')]
-	public function byThread(int $threadId, int $limit = 50, int $offset = 0): DataResponse {
-		try {
-			$posts = $this->postMapper->findByThreadId($threadId, $limit, $offset);
-
-			// Prefetch BBCodes once for all posts to avoid repeated queries
-			$bbcodes = $this->bbCodeMapper->findAllEnabled();
-
-			// Fetch reactions for all posts at once (performance optimization)
-			$postIds = array_map(fn ($p) => $p->getId(), $posts);
-			$reactions = $this->reactionMapper->findByPostIds($postIds);
-
-			// Group reactions by post ID
-			$reactionsByPostId = [];
-			foreach ($reactions as $reaction) {
-				$postId = $reaction->getPostId();
-				if (!isset($reactionsByPostId[$postId])) {
-					$reactionsByPostId[$postId] = [];
-				}
-				$reactionsByPostId[$postId][] = $reaction;
-			}
-
-			// Get current user ID to mark user's reactions
-			$currentUserId = $this->userSession->getUser()?->getUID();
-
-			// Extract unique author IDs
-			$authorIds = array_unique(array_map(fn ($p) => $p->getAuthorId(), $posts));
-
-			// Batch fetch author data (includes roles)
-			$authors = $this->userService->enrichMultipleUsers($authorIds);
-
-			// Get category ID for permission checks
-			$categoryId = $this->permissionService->getCategoryIdFromThread($threadId);
-
-			// Enrich posts with content, reactions, and pre-fetched author data
-			return new DataResponse(array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors, $categoryId) {
-				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
-				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()], $categoryId);
-			}, $posts));
-		} catch (\Exception $e) {
-			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
-			return new DataResponse(['error' => 'Failed to fetch posts'], Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	/**
-	 * Get paginated posts by thread with first post separated
+	 * Get posts by thread with first post separated
 	 *
 	 * @param int $threadId Thread ID
 	 * @param int $page Page number (1-indexed)
@@ -133,8 +75,8 @@ class PostController extends OCSController {
 	#[NoAdminRequired]
 	#[PublicPage]
 	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
-	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts/paginated')]
-	public function byThreadPaginated(int $threadId, int $page = 0, int $perPage = 20): DataResponse {
+	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts')]
+	public function byThread(int $threadId, int $page = 0, int $perPage = 20): DataResponse {
 		try {
 			// Get current user ID
 			$currentUserId = $this->userSession->getUser()?->getUID();
@@ -245,7 +187,7 @@ class PostController extends OCSController {
 				],
 			]);
 		} catch (\Exception $e) {
-			$this->logger->error('Error fetching paginated posts by thread: ' . $e->getMessage());
+			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch posts'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}

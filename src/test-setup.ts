@@ -135,3 +135,30 @@ vi.mock('@nextcloud/vue/components/NcNoteCard', () => ({
     props: ['type'],
   },
 }))
+
+// Mock @/axios globally — covers ocs (REST) and webDav (file ops)
+vi.mock('@/axios', () => ({
+  ocs: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  },
+  webDav: {
+    put: vi.fn(),
+    request: vi.fn(),
+  },
+}))
+
+// Mock @nextcloud/dialogs globally
+vi.mock('@nextcloud/dialogs', () => ({
+  showSuccess: vi.fn(),
+  showError: vi.fn(),
+  showWarning: vi.fn(),
+  getFilePickerBuilder: vi.fn(() => ({
+    setMultiSelect: vi.fn().mockReturnThis(),
+    setType: vi.fn().mockReturnThis(),
+    build: vi.fn(() => ({ pick: vi.fn() })),
+  })),
+  FilePickerType: { TYPE_FILE: 1 },
+}))

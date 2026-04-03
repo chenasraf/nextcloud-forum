@@ -63,7 +63,6 @@ describe('Skeleton', () => {
       const wrapper = mount(Skeleton, {
         props: { radius: '10px' },
       })
-      const vm = wrapper.vm as unknown as { getBorderRadius: () => string; shape: string }
 
       // Test via computed style since method is internal
       expect(wrapper.find('.skeleton').attributes('style')).toContain('border-radius: 10px')

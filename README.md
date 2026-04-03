@@ -91,31 +91,8 @@ For a complete list of available commands, usage examples, and detailed document
 
 ## Troubleshooting
 
-### Cannot access management features
-
-If you are a Nextcloud administrator but cannot access Forum management features (e.g., managing
-categories, roles, or settings), this is likely due to missing database seeds or role assignments.
-
-**Option 1: Using OCC commands**
-
-Run the following commands from your Nextcloud installation directory:
-
-```bash
-# Repair database seeds (creates default roles and permissions if missing)
-php occ forum:repair-seeds
-
-# Assign administrator role to an account
-php occ forum:set-role <username> admin
-```
-
-**Option 2: Using the server administration panel**
-
-1. Log in to Nextcloud as an administrator
-2. Go to **Administration Settings** (click your profile picture → Administration Settings)
-3. Navigate to **Forum** in the left sidebar under the Administration section
-4. Use the **Repair Seeds** button to restore default roles and permissions
-5. If the seeds are already in place, use the **Assign Roles** section to assign the administrator
-   role to accounts
+For troubleshooting common issues, visit the
+[Troubleshooting Wiki page](https://github.com/chenasraf/nextcloud-forum/wiki/Troubleshooting).
 
 ## Contributing
 

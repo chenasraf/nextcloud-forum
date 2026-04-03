@@ -3,12 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockRole } from '@/test-mocks'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-  },
-}))
+// Uses global mock for @/axios from test-setup.ts
 
 // Mock icons
 vi.mock('@icons/AccountMultiple.vue', () => createIconMock('AccountMultipleIcon'))

@@ -3,17 +3,8 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockThread, createMockPost } from '@/test-mocks'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-  },
-}))
-
-// Mock @nextcloud/dialogs
-vi.mock('@nextcloud/dialogs', () => ({
-  showError: vi.fn(),
-}))
+// Uses global mock for @/axios from test-setup.ts
+// Uses global mock for @nextcloud/dialogs from test-setup.ts
 
 // Mock Nextcloud Vue components (to avoid CSS import issues)
 vi.mock('@nextcloud/vue/components/NcCheckboxRadioSwitch', () =>
@@ -57,7 +48,6 @@ import { ocs } from '@/axios'
 import { showError } from '@nextcloud/dialogs'
 
 const mockOcsGet = vi.mocked(ocs.get)
-const mockShowError = vi.mocked(showError)
 
 // Helper to get the primary search button (first button in the component)
 const getSearchButton = (wrapper: ReturnType<typeof mount>) => wrapper.findAll('button')[0]!

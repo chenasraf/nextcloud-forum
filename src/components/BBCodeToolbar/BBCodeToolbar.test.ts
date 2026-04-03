@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createIconMock, createComponentMock } from '@/test-utils'
+import {
+  createIconMock,
+  createComponentMock,
+  createNcActionsMock,
+  createNcActionButtonMock,
+} from '@/test-utils'
 
 // Mock icons
 vi.mock('@icons/FormatBold.vue', () => createIconMock('FormatBoldIcon'))
@@ -53,52 +58,14 @@ vi.mock('@/components/TemplateModal', () =>
 vi.mock('@icons/TextBox.vue', () => createIconMock('TextBoxIcon'))
 vi.mock('@icons/ArrowDown.vue', () => createIconMock('ArrowDownIcon'))
 
-// Mock Nextcloud dialogs
-vi.mock('@nextcloud/dialogs', () => ({
-  getFilePickerBuilder: vi.fn(() => ({
-    setMultiSelect: vi.fn().mockReturnThis(),
-    setType: vi.fn().mockReturnThis(),
-    build: vi.fn(() => ({
-      pick: vi.fn(),
-    })),
-  })),
-  FilePickerType: { TYPE_FILE: 1 },
-}))
+// Uses global mocks for @/axios and @nextcloud/dialogs from test-setup.ts
 
-// Mock Nextcloud auth
 vi.mock('@nextcloud/auth', () => ({
   getCurrentUser: vi.fn(() => ({ uid: 'testuser', displayName: 'Test User' })),
 }))
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-  },
-  webDav: {
-    put: vi.fn(),
-    request: vi.fn(),
-  },
-}))
-
-// Mock NcActions and NcActionButton since they're complex
-vi.mock('@nextcloud/vue/components/NcActions', () => ({
-  default: {
-    name: 'NcActions',
-    template: '<div class="nc-actions-mock"><slot /><slot name="icon" /></div>',
-    props: ['ariaLabel'],
-  },
-}))
-
-vi.mock('@nextcloud/vue/components/NcActionButton', () => ({
-  default: {
-    name: 'NcActionButton',
-    template:
-      '<button class="nc-action-button-mock" @click="$emit(\'click\')"><slot /><slot name="icon" /></button>',
-    props: [],
-    emits: ['click'],
-  },
-}))
+vi.mock('@nextcloud/vue/components/NcActions', () => createNcActionsMock())
+vi.mock('@nextcloud/vue/components/NcActionButton', () => createNcActionButtonMock())
 
 vi.mock('@nextcloud/vue/components/NcProgressBar', () => ({
   default: {
@@ -160,7 +127,7 @@ describe('BBCodeToolbar', () => {
 
     it('renders attachment actions', () => {
       const wrapper = createWrapper()
-      expect(wrapper.find('.nc-actions-mock').exists()).toBe(true)
+      expect(wrapper.find('.nc-actions').exists()).toBe(true)
     })
   })
 
@@ -168,7 +135,7 @@ describe('BBCodeToolbar', () => {
     it('does not render overflow menu when all buttons fit', () => {
       const wrapper = createWrapper()
       // Default visibleCount is 18 (all buttons), so no overflow
-      const actionsElements = wrapper.findAll('.nc-actions-mock')
+      const actionsElements = wrapper.findAll('.nc-actions')
       // Only the attachment NcActions should exist, not an overflow one
       expect(actionsElements.length).toBe(1)
     })
@@ -179,7 +146,7 @@ describe('BBCodeToolbar', () => {
       vm.visibleCount = 5
       await flushPromises()
 
-      const actionsElements = wrapper.findAll('.nc-actions-mock')
+      const actionsElements = wrapper.findAll('.nc-actions')
       // Should have 2: overflow menu + attachment menu
       expect(actionsElements.length).toBe(2)
     })
@@ -196,7 +163,7 @@ describe('BBCodeToolbar', () => {
       await flushPromises()
 
       // Find the overflow action buttons (they are nc-action-button-mock inside the overflow NcActions)
-      const overflowActionButtons = wrapper.findAll('.nc-action-button-mock')
+      const overflowActionButtons = wrapper.findAll('.nc-action-button')
       // The first 2 are attachment menu buttons (pick file, upload file)
       // The rest are overflow bbcode buttons
       const firstOverflowButton = overflowActionButtons[2]

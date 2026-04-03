@@ -2,14 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import type { BBCode } from '@/types'
 
-// Mock axios - must use factory that doesn't reference external variables
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-  },
-}))
-
-// Import after mock
+// Uses global mock for @/axios from test-setup.ts
 import { ocs } from '@/axios'
 import BBCodeHelpDialog from './BBCodeHelpDialog.vue'
 

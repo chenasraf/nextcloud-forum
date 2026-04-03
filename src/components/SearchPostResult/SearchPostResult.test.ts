@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createIconMock } from '@/test-utils'
+import { createIconMock, RouterLinkStub } from '@/test-utils'
 import { createMockPost, createMockUser } from '@/test-mocks'
 import SearchPostResult from './SearchPostResult.vue'
 
@@ -26,12 +26,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: {
-            'router-link': {
-              template: '<a class="thread-link"><slot /></a>',
-              props: ['to'],
-            },
-          },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -43,7 +38,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -57,7 +52,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -70,7 +65,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -82,7 +77,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -95,7 +90,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -109,7 +104,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'xyz' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -124,7 +119,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'xyz' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -138,7 +133,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -152,7 +147,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })
@@ -165,7 +160,7 @@ describe('SearchPostResult', () => {
       const wrapper = mount(SearchPostResult, {
         props: { post, query: 'test' },
         global: {
-          stubs: { 'router-link': true },
+          stubs: { RouterLink: RouterLinkStub },
           mocks: { $router: { push: mockPush } },
         },
       })

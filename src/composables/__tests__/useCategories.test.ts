@@ -2,12 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createMockCategory } from '@/test-mocks'
 import type { CategoryHeader } from '@/types'
 
-// Mock the axios module before importing the composable
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-  },
-}))
+// Uses global mock for @/axios from test-setup.ts
 
 import { useCategories } from '../useCategories'
 import { ocs } from '@/axios'

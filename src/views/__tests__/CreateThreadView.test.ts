@@ -3,14 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockCategory } from '@/test-mocks'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-  },
-}))
+// Uses global mock for @/axios from test-setup.ts
 
 // Mock usePermissions composable
 const mockCheckCategoryPermission = vi.fn()
@@ -51,11 +44,7 @@ vi.mock('@/components/ThreadCreateForm', () =>
   }),
 )
 
-// Mock dialogs
-vi.mock('@nextcloud/dialogs', () => ({
-  showError: vi.fn(),
-  showSuccess: vi.fn(),
-}))
+// Uses global mock for @nextcloud/dialogs from test-setup.ts
 
 import CreateThreadView from '../CreateThreadView.vue'
 import { ocs } from '@/axios'

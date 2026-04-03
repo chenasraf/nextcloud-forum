@@ -2,15 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import type { CatHeader } from '@/types'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    post: vi.fn(),
-    put: vi.fn(),
-  },
-}))
-
-// Import after mocks
+// Uses global mock for @/axios from test-setup.ts
 import { ocs } from '@/axios'
 import HeaderEditDialog from './HeaderEditDialog.vue'
 

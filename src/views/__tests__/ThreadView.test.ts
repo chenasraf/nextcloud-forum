@@ -4,15 +4,7 @@ import { computed, ref } from 'vue'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockThread, createMockPost, createMockUser } from '@/test-mocks'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  },
-}))
+// Uses global mock for @/axios from test-setup.ts
 
 // Mock useCurrentUser composable
 const mockUserId = ref<string | null>('testuser')
@@ -41,11 +33,7 @@ vi.mock('@/composables/usePermissions', () => ({
   }),
 }))
 
-// Mock dialogs
-vi.mock('@nextcloud/dialogs', () => ({
-  showError: vi.fn(),
-  showSuccess: vi.fn(),
-}))
+// Uses global mock for @nextcloud/dialogs from test-setup.ts
 
 // Mock icons
 vi.mock('@icons/ArrowLeft.vue', () => createIconMock('ArrowLeftIcon'))

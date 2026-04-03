@@ -1,18 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockCategory, createMockRole } from '@/test-mocks'
 import type { Category, CategoryHeader, Role } from '@/types'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-  },
-}))
+// Uses global mock for @/axios from test-setup.ts
 
 // Reactive state for categories
 const mockCategoryHeaders = ref<CategoryHeader[]>([])

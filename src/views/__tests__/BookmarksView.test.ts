@@ -4,12 +4,7 @@ import { computed } from 'vue'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockThread } from '@/test-mocks'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-  },
-}))
+// Uses global mock for @/axios from test-setup.ts
 
 // Mock useCurrentUser composable
 vi.mock('@/composables/useCurrentUser', () => ({

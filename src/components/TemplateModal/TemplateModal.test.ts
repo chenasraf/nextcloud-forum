@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { createIconMock, createComponentMock } from '@/test-utils'
+import { createIconMock } from '@/test-utils'
 import { createMockTemplate } from '@/test-mocks'
 import type { Template } from '@/types'
 
@@ -35,17 +35,7 @@ vi.mock('@nextcloud/vue/components/NcCheckboxRadioSwitch', () => ({
   },
 }))
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-  },
-}))
-
-// Import after mocks
+// Uses global mock for @/axios from test-setup.ts
 import { ocs } from '@/axios'
 import TemplateModal from './TemplateModal.vue'
 

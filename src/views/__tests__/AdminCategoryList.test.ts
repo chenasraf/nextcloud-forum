@@ -5,14 +5,7 @@ import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockCategory } from '@/test-mocks'
 import type { Category, CategoryHeader } from '@/types'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-    post: vi.fn(),
-    delete: vi.fn(),
-  },
-}))
+// Uses global mock for @/axios from test-setup.ts
 
 // Reactive state for categoryHeaders so tests can control it
 const mockCategoryHeaders = ref<CategoryHeader[]>([])

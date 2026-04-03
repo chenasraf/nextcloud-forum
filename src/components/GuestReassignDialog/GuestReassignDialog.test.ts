@@ -2,18 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createComponentMock } from '@/test-utils'
 
-// Mock axios
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-    post: vi.fn(),
-  },
-}))
-
-vi.mock('@nextcloud/dialogs', () => ({
-  showSuccess: vi.fn(),
-  showError: vi.fn(),
-}))
+// Uses global mocks for @/axios and @nextcloud/dialogs from test-setup.ts
 
 // Mock NcAvatar
 vi.mock('@nextcloud/vue/components/NcAvatar', () =>
@@ -23,7 +12,6 @@ vi.mock('@nextcloud/vue/components/NcAvatar', () =>
   }),
 )
 
-// Import after mocks
 import { ocs } from '@/axios'
 import { showSuccess } from '@nextcloud/dialogs'
 import GuestReassignDialog from './GuestReassignDialog.vue'

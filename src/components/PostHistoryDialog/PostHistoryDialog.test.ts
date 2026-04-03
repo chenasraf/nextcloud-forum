@@ -3,12 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import type { PostHistoryResponse, Post, PostHistoryEntry, User } from '@/types'
 
-// Mock axios - must use factory that doesn't reference external variables
-vi.mock('@/axios', () => ({
-  ocs: {
-    get: vi.fn(),
-  },
-}))
+// Uses global mock for @/axios from test-setup.ts
 
 // Mock icons
 vi.mock('@icons/History.vue', () => createIconMock('HistoryIcon'))
@@ -21,7 +16,6 @@ vi.mock('@/components/UserInfo', () =>
   }),
 )
 
-// Import after mocks
 import { ocs } from '@/axios'
 import PostHistoryDialog from './PostHistoryDialog.vue'
 
@@ -245,7 +239,7 @@ describe('PostHistoryDialog', () => {
 
   describe('API calls', () => {
     it('fetches history when dialog opens', async () => {
-      const wrapper = createWrapper({ open: true, postId: 42 })
+      createWrapper({ open: true, postId: 42 })
       await flushPromises()
 
       expect(mockGet).toHaveBeenCalledWith('/posts/42/history')

@@ -1,18 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { createNcCheckboxRadioSwitchMock } from '@/test-utils'
 import CategoryPermissionsTable from './CategoryPermissionsTable.vue'
 import type { CategoryPermission } from './CategoryPermissionsTable.vue'
 import type { CategoryHeader } from '@/types'
 
-vi.mock('@nextcloud/vue/components/NcCheckboxRadioSwitch', () => ({
-  default: {
-    name: 'NcCheckboxRadioSwitch',
-    template:
-      '<label class="nc-checkbox" :class="{ disabled }" @click="!disabled && $emit(\'update:model-value\', !modelValue)"><input type="checkbox" :checked="modelValue" :disabled="disabled" /><slot /></label>',
-    props: ['modelValue', 'disabled', 'indeterminate'],
-    emits: ['update:model-value'],
-  },
-}))
+vi.mock('@nextcloud/vue/components/NcCheckboxRadioSwitch', () => createNcCheckboxRadioSwitchMock())
 
 type VM = InstanceType<typeof CategoryPermissionsTable> & {
   toggleHeaderView: (id: number) => void

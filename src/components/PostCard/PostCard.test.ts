@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createIconMock, createComponentMock } from '@/test-utils'
+import {
+  createIconMock,
+  createComponentMock,
+  createNcActionsMock,
+  createNcActionButtonMock,
+  createCurrentUserMock,
+} from '@/test-utils'
 import { createMockPost, createMockRole, createMockUser } from '@/test-mocks'
 import { useUserRole } from '@/composables/useUserRole'
 import PostCard from './PostCard.vue'
@@ -50,33 +56,14 @@ vi.mock('@/components/GuestReassignDialog', () =>
   }),
 )
 
-vi.mock('@nextcloud/dialogs', () => ({
-  showSuccess: vi.fn(),
-  showError: vi.fn(),
-}))
+// Uses global mock for @nextcloud/dialogs from test-setup.ts
 
-// Mock NcActions and NcActionButton
-vi.mock('@nextcloud/vue/components/NcActions', () =>
-  createComponentMock('NcActions', {
-    template: '<div class="nc-actions-mock"><slot /></div>',
-    props: [],
-  }),
-)
-
-vi.mock('@nextcloud/vue/components/NcActionButton', () =>
-  createComponentMock('NcActionButton', {
-    template:
-      '<button class="nc-action-button" @click="$emit(\'click\')"><slot /><slot name="icon" /></button>',
-    props: [],
-    emits: ['click'],
-  }),
-)
+vi.mock('@nextcloud/vue/components/NcActions', () => createNcActionsMock())
+vi.mock('@nextcloud/vue/components/NcActionButton', () => createNcActionButtonMock())
 
 // Mock getCurrentUser
-const mockCurrentUser = vi.fn()
-vi.mock('@nextcloud/auth', () => ({
-  getCurrentUser: () => mockCurrentUser(),
-}))
+const { mockGetCurrentUser: mockCurrentUser } = createCurrentUserMock()
+vi.mock('@nextcloud/auth', () => ({ getCurrentUser: () => mockCurrentUser() }))
 
 describe('PostCard', () => {
   beforeEach(() => {

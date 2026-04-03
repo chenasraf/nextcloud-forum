@@ -29,8 +29,8 @@ OC.L10N.register(
     "Search" : "Pesquisa sobre",
     "Home" : "Início",
     "Bookmarks" : "Marcadores",
+    "Preferences" : "Preferências",
     "Dashboard" : "Painel de controle",
-    "Users" : "Utilizadores",
     "Categories" : "Categorias",
     "Collapse" : "Expandir",
     "Hello world!" : "Olá, mundo!",
@@ -76,7 +76,6 @@ OC.L10N.register(
     "by" : "por",
     "Subscribe" : "Subscrever",
     "Subscribed" : "Subscrito",
-    "Preferences" : "Preferências",
     "Files" : "Ficheiros",
     "Signature" : "Assinatura",
     "Privacy" : "Privacidade",
@@ -89,7 +88,6 @@ OC.L10N.register(
     "Description" : "Descrição",
     "Enabled" : "Ativado",
     "If enabled, BBCode tags inside this tag will also be parsed" : "Se estiver ativada, as etiquetas BBCode dentro desta etiqueta serão também analisadas.",
-    "New" : "Novo",
     "Preview" : "Pré-visualizar",
     "Move up" : "Mover para cima",
     "Move down" : "Mover para baixo",
@@ -107,7 +105,6 @@ OC.L10N.register(
     "Actions" : "Ações",
     "No teams found" : "Nenhum grupo encontrado",
     "Members" : "Membros",
-    "No users found" : "Não foram encontrados utilizadores",
     "Joined" : "Aderiu"
 },
 "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

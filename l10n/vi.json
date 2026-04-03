@@ -9,8 +9,8 @@
     "Loading …" : "Đang tải …",
     "Search" : "Tìm kiếm",
     "Home" : "Trang nhà",
+    "Preferences" : "Cài đặt",
     "Dashboard" : "Tổng quan",
-    "Users" : "Người dùng",
     "Categories" : "Các hạng mục",
     "Expand" : "Mở rộng",
     "Collapse" : "Thu gọn",
@@ -58,7 +58,6 @@
     "Subscribe" : "Theo dõi",
     "Subscribed" : "Đã đăng ký",
     "Edit title" : "Chỉnh sửa tiêu đề",
-    "Preferences" : "Cài đặt",
     "Notifications" : "Thông báo",
     "Files" : "Tệp Tin",
     "Signature" : "Chữ ký",
@@ -67,7 +66,6 @@
     "Disable" : "Tắt",
     "Description" : "Mô tả",
     "Enabled" : "Đá kích hoạt",
-    "New" : "Tạo mới",
     "Preview" : "Xem trước",
     "Move up" : "Di chuyển lên",
     "Move down" : "Di chuyển xuống",
@@ -84,7 +82,6 @@
     "Owner" : "Người sở hữu",
     "Actions" : "Hành động",
     "Members" : "Thành viên",
-    "Loading users …" : "Đang tải người dùng…",
     "Joined" : "Đã tham gia",
     "Active" : "Hoạt động"
 },"pluralForm" :"nplurals=1; plural=0;"

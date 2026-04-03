@@ -7,7 +7,6 @@ OC.L10N.register(
     "Forum" : "ফোরাম",
     "Search" : "Search",
     "Home" : "বাড়ি",
-    "Users" : "ব্যবহারকারী",
     "Collapse" : "ভাঙো",
     "Upload failed" : "আপলোড হয়নি",
     "Close" : "বন্ধ",
@@ -28,7 +27,6 @@ OC.L10N.register(
     "Disable" : "নিষ্ক্রিয়",
     "Description" : "বিবরণ",
     "Enabled" : "কার্যকর",
-    "New" : "নতুন",
     "Reset" : "পূণঃনির্ধানণ",
     "Actions" : "পদক্ষেপসমূহ"
 },

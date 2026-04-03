@@ -6,7 +6,6 @@ OC.L10N.register(
     "General" : "Allgemeng",
     "Search" : "Sichen",
     "Home" : "Doheem",
-    "Users" : "Benotzer",
     "Collapse" : "Zesumme falen",
     "Upload failed" : "Eropluede feelgeschloen",
     "Close" : "Zoumaachen",
@@ -28,7 +27,6 @@ OC.L10N.register(
     "Disable" : "Ofschalten",
     "Description" : "Beschreiwung",
     "Enabled" : "Aktivéiert",
-    "New" : "Nei",
     "Reset" : "Zeréck setzen",
     "Actions" : "Aktiounen"
 },

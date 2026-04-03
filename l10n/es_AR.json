@@ -8,7 +8,7 @@
     "Role" : "Rol",
     "Search" : "Buscar",
     "Home" : "Casa",
-    "Users" : "Usuarios",
+    "Preferences" : "Preferencias",
     "Categories" : "Categoría",
     "Collapse" : "Colapsar",
     "Hello world!" : "¡Hola mundo!",
@@ -38,14 +38,12 @@
     "Back to {category}" : "Volver a {category}",
     "by" : "por",
     "Subscribe" : "Suscribirse",
-    "Preferences" : "Preferencias",
     "Files" : "Archivo",
     "Signature" : "Firma",
     "Enable" : "Activar",
     "Disable" : "Deshabilitar",
     "Description" : "Descripción",
     "Enabled" : "Habilitado",
-    "New" : "Nuevo",
     "Permissions" : "Permisos",
     "Preview" : "Vista previa",
     "All time" : "Tiempo total",
@@ -59,7 +57,6 @@
     "ID" : "ID",
     "Actions" : "Acciones",
     "Members" : "Miembros",
-    "Loading users …" : "Cargando usuarios...",
     "Joined" : "Se ha unido"
 },"pluralForm" :"nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

@@ -198,8 +198,9 @@
       <div v-if="!isLoading && userId" class="sidebar-footer">
         <UserInfo :user-id="userId" :display-name="displayName" :avatar-size="32" />
       </div>
-      <div v-else-if="!isLoading && isGuest && guestDisplayName" class="sidebar-footer">
+      <div v-else-if="!isLoading && isGuest" class="sidebar-footer">
         <UserInfo
+          v-if="guestDisplayName"
           :user-id="'guest'"
           :display-name="guestDisplayName"
           :avatar-size="32"
@@ -358,7 +359,7 @@ export default defineComponent({
       ])
 
       // Roles are included in the /users/me response and populated automatically
-      if (userResult.status !== 'fulfilled' && this.isGuest) {
+      if (this.isGuest) {
         // Fetch guest identity for sidebar display
         await this.fetchGuestIdentity().catch((e) => {
           console.error('Failed to load guest identity:', e)

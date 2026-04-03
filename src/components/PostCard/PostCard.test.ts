@@ -87,6 +87,14 @@ describe('PostCard', () => {
   })
 
   describe('rendering', () => {
+    it('should render as an article element for screen reader landmark navigation', () => {
+      const post = createMockPost()
+      const wrapper = mount(PostCard, {
+        props: { post },
+      })
+      expect(wrapper.element.tagName).toBe('ARTICLE')
+    })
+
     it('should render post content', () => {
       const post = createMockPost({ content: '<p>Hello world</p>' })
       const wrapper = mount(PostCard, {

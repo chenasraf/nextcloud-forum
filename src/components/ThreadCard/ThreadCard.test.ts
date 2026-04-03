@@ -19,6 +19,14 @@ vi.mock('@icons/Eye.vue', () => createIconMock('EyeIcon'))
 
 describe('ThreadCard', () => {
   describe('rendering', () => {
+    it('should render as an article element for screen reader landmark navigation', () => {
+      const thread = createMockThread()
+      const wrapper = mount(ThreadCard, {
+        props: { thread },
+      })
+      expect(wrapper.element.tagName).toBe('ARTICLE')
+    })
+
     it('should render thread title', () => {
       const thread = createMockThread({ title: 'My First Thread' })
       const wrapper = mount(ThreadCard, {

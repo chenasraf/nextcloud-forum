@@ -1,5 +1,5 @@
 <template>
-  <div class="post-card" :class="{ 'first-post': isFirstPost, unread: isUnread }">
+  <article class="post-card" :class="{ 'first-post': isFirstPost, unread: isUnread }">
     <div class="post-header">
       <div class="author-info">
         <span
@@ -112,7 +112,7 @@
       @update:open="showReassignDialog = $event"
       @reassigned="handleReassigned"
     />
-  </div>
+  </article>
 </template>
 
 <script lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <div
+  <article
     class="thread-card"
     :class="{ pinned: thread.isPinned, locked: thread.isLocked, unread: isUnread }"
   >
@@ -74,7 +74,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </article>
 </template>
 
 <script lang="ts">

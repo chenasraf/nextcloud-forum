@@ -211,6 +211,10 @@
             <span class="guest-label">{{ strings.guestLabel }}</span>
           </template>
         </UserInfo>
+        <a :href="loginUrl" class="guest-login-link">
+          <LoginIcon :size="16" />
+          {{ strings.login }}
+        </a>
       </div>
     </template>
   </NcAppNavigation>
@@ -219,6 +223,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSearch'
@@ -240,6 +245,7 @@ import CodeBracketsIcon from '@icons/CodeBrackets.vue'
 import ShieldAlertIcon from '@icons/ShieldAlert.vue'
 import CogIcon from '@icons/Cog.vue'
 import AccountCogIcon from '@icons/AccountCog.vue'
+import LoginIcon from '@icons/Login.vue'
 import { useCategories } from '@/composables/useCategories'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useUserRole } from '@/composables/useUserRole'
@@ -271,6 +277,7 @@ export default defineComponent({
     ShieldAlertIcon,
     CogIcon,
     AccountCogIcon,
+    LoginIcon,
   },
   setup() {
     const { categoryHeaders, fetchCategories, getAllCategoriesFlat } = useCategories()
@@ -334,6 +341,7 @@ export default defineComponent({
         expand: t('forum', 'Expand'),
         collapse: t('forum', 'Collapse'),
         guestLabel: t('forum', '(Guest)'),
+        login: t('forum', 'Log in'),
       },
     }
   },
@@ -369,6 +377,10 @@ export default defineComponent({
     }
   },
   computed: {
+    loginUrl(): string {
+      const returnUrl = window.location.pathname + window.location.search + window.location.hash
+      return generateUrl('/login?redirect_url={url}', { url: returnUrl })
+    },
     activeCategoryIds(): Set<number> {
       const ids = new Set<number>()
       const allCats = this.getAllCategoriesFlat()
@@ -577,5 +589,21 @@ export default defineComponent({
 
 .sidebar-footer {
   padding: 16px;
+}
+
+.guest-login-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-radius: var(--border-radius-element, 4px);
+  color: var(--color-main-text);
+  font-size: 14px;
+  text-decoration: none;
+
+  &:hover {
+    background-color: var(--color-background-hover);
+  }
 }
 </style>

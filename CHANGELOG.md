@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.38.0](https://github.com/chenasraf/nextcloud-forum/compare/v0.37.1...v0.38.0) (2026-04-03)
+
+
+### Features
+
+* add log in link for guests ([15e5e84](https://github.com/chenasraf/nextcloud-forum/commit/15e5e849d4892d831c5edaee3c0c4785a334ad6d))
+* improve post accessibility for screen readers ([1c2c2ac](https://github.com/chenasraf/nextcloud-forum/commit/1c2c2acf2cdfa8f3f7646893ab269c4641ea6c26))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([bf3826e](https://github.com/chenasraf/nextcloud-forum/commit/bf3826e5cdcad5406df00a85ad79e03e16c58fb0))
+* missing guest info ([3fb8393](https://github.com/chenasraf/nextcloud-forum/commit/3fb839397a55cd6152d93718ce4ff13b2d4e78b4))
+
 ## [0.37.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.37.0...v0.37.1) (2026-04-02)
 
 

@@ -11,6 +11,8 @@ OC.L10N.register(
     "Search" : "Søk",
     "Home" : "Heim",
     "Dashboard" : "Skrivebord",
+    "Accounts" : "Accounts",
+    "Log in" : "Logg inn",
     "Upload failed" : "Feil ved opplasting",
     "Close" : "Lat att",
     "Category" : "Kategori",

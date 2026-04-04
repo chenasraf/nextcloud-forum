@@ -22,6 +22,7 @@ OC.L10N.register(
     "Search" : "Пошук",
     "Home" : "Дадому",
     "Dashboard" : "Панэль кіравання",
+    "Accounts" : "Уліковыя запісы",
     "Roles & Teams" : "Ролі і каманды",
     "Categories" : "Катэгорыі",
     "Moderation" : "Мадэрацыя",
@@ -121,6 +122,7 @@ OC.L10N.register(
     "Actions" : "Дзеянні",
     "No teams found" : "Каманд не знойдзена",
     "Members" : "Удзельнікі",
+    "Loading accounts …" : "Загрузка ўліковых запісаў …",
     "Roles" : "Ролі",
     "Status" : "Статус",
     "Active" : "Актыўны"

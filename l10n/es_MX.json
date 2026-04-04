@@ -14,8 +14,10 @@
     "Bookmarks" : "Marcadores",
     "Preferences" : "Preferencias",
     "Dashboard" : "Tablero de control",
+    "Accounts" : "Cuentas",
     "Categories" : "Categorías",
     "Collapse" : "Colapsar",
+    "Log in" : "Ingresar",
     "Hello world!" : "¡Hola mundo!",
     "List" : "Lista",
     "Insert emoji" : "Insertar emoticono",
@@ -89,6 +91,7 @@
     "Actions" : "Acciones",
     "No teams found" : "No se encontraron equipos",
     "Members" : "Miembros",
+    "Loading accounts …" : "Cargando cuentas ...",
     "Joined" : "Se ha unido",
     "Active" : "Activo"
 },"pluralForm" :"nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"

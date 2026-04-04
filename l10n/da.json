@@ -14,9 +14,11 @@
     "Bookmarks" : "Bogmærker",
     "Preferences" : "Indstillinger",
     "Dashboard" : "Dashboard",
+    "Accounts" : "Konti",
     "Categories" : "Kategorier",
     "Expand" : "Udvid",
     "Collapse" : "Sammenfold",
+    "Log in" : "Log på",
     "Hello world!" : "Hej verden!",
     "Code" : "Kode",
     "Quote" : "Citat",
@@ -102,6 +104,7 @@
     "Actions" : "Handlinger",
     "No teams found" : "Ingen teams fundet",
     "Members" : "Medlemmer",
+    "Loading accounts …" : "Indlæser konti ...",
     "Joined" : "Forbind",
     "Status" : "Status"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"

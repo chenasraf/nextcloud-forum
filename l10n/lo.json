@@ -14,10 +14,12 @@
     "Home" : "ໜ້າຫຼັກ",
     "Bookmarks" : "Bookmarks",
     "Preferences" : "ການຕັ້ງຄ່າ",
+    "Accounts" : "ບັນຊີ",
     "Categories" : "ໝວດໝູ່",
     "Moderation" : "Moderation",
     "Expand" : "Expand",
     "Collapse" : "Collapse",
+    "Log in" : "ເຂົ້າລະບົບ",
     "Hello world!" : "ສະບາຍດີ",
     "Code" : "ລະຫັດ",
     "Quote" : "ໃບສະເໜີລາຄາ",
@@ -110,6 +112,7 @@
     "No description" : "ບໍ່ມີຄຳອະທິບາຍ",
     "No teams found" : "No teams found",
     "Members" : "ສະມາຊິກ",
+    "Loading accounts …" : "Loading accounts …",
     "Status" : "ສະຖານະ",
     "Active" : "ກຳລັງໃຊ້ງານ"
 },"pluralForm" :"nplurals=1; plural=0;"

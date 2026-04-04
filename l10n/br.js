@@ -9,6 +9,7 @@ OC.L10N.register(
     "Home" : "Degemer",
     "Preferences" : "Penndibaboù",
     "Dashboard" : "Taolenn-stur",
+    "Accounts" : "Kontoù",
     "Categories" : "Rummadoù",
     "Hello world!" : "Hello world!",
     "List" : "Roll",

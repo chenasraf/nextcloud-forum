@@ -31,8 +31,10 @@ OC.L10N.register(
     "Bookmarks" : "Marcadores",
     "Preferences" : "Preferências",
     "Dashboard" : "Painel de controle",
+    "Accounts" : "Contas",
     "Categories" : "Categorias",
     "Collapse" : "Expandir",
+    "Log in" : "Iniciar sessão",
     "Hello world!" : "Olá, mundo!",
     "Font size" : "Tamanho do tipo de letra",
     "List" : "Lista",
@@ -105,6 +107,7 @@ OC.L10N.register(
     "Actions" : "Ações",
     "No teams found" : "Nenhum grupo encontrado",
     "Members" : "Membros",
+    "Loading accounts …" : "A carregar contas ...",
     "Joined" : "Aderiu"
 },
 "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

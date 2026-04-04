@@ -16,6 +16,7 @@ OC.L10N.register(
     "Bookmarks" : "Отметки",
     "Preferences" : "Предпочитания",
     "Dashboard" : "Табло",
+    "Accounts" : "Профили",
     "Categories" : "Категории",
     "Moderation" : "Модериране /Наблюдаване/",
     "Expand" : "Разгъване",
@@ -105,6 +106,7 @@ OC.L10N.register(
     "Actions" : "Действия",
     "No description" : "Без описание",
     "Members" : "Членове",
+    "Loading accounts …" : "Сметките се зареждат...",
     "Joined" : "Присъединен",
     "Status" : "Състояние",
     "Active" : "Активен"

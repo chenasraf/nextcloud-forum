@@ -7,6 +7,7 @@ OC.L10N.register(
     "Forum" : "Forum",
     "Search" : "Axtarış",
     "Home" : "Ev",
+    "Accounts" : "Accounts",
     "Categories" : "Kateqoriyalar",
     "Collapse" : "Yığılma",
     "Upload failed" : "Yüklənmədə səhv baş verdi",

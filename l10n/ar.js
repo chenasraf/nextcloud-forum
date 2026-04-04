@@ -17,6 +17,7 @@ OC.L10N.register(
     "Bookmarks" : "الإشارات المرجعية Bookmarks",
     "Preferences" : "التفضيلات",
     "Dashboard" : "الرئيسية",
+    "Accounts" : "الحسابات",
     "Categories" : "التصنيفات",
     "Moderation" : "الإدارة",
     "Expand" : "توسيع",
@@ -105,6 +106,7 @@ OC.L10N.register(
     "No description" : "بدون وصف",
     "No teams found" : "لا يوجد أي فريق",
     "Members" : "الاعضاء",
+    "Loading accounts …" : "تحميل الحسابات ...",
     "Status" : "الحاله",
     "Active" : "نَشِط"
 },

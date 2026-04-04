@@ -15,6 +15,7 @@
     "Home" : "Aniciu",
     "Preferences" : "Preferencies",
     "Dashboard" : "Panel",
+    "Accounts" : "Cuentes",
     "Categories" : "Categories",
     "Expand" : "Espander",
     "Collapse" : "Contrayer",
@@ -91,6 +92,7 @@
     "Actions" : "Aiciones",
     "No teams found" : "Nun s'atopó nengún equipu",
     "Members" : "Miembros",
+    "Loading accounts …" : "Cargando les cuentes…",
     "Status" : "Estáu",
     "Active" : "Activa"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"

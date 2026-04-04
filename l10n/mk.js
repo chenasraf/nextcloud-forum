@@ -15,6 +15,7 @@ OC.L10N.register(
     "Home" : "Дома",
     "Preferences" : "Перформанси",
     "Dashboard" : "Табла",
+    "Accounts" : "Сметки",
     "Categories" : "Категории",
     "Collapse" : "Собери",
     "Hello world!" : "Здраво свету!",
@@ -84,6 +85,7 @@ OC.L10N.register(
     "Actions" : "Акции",
     "No teams found" : "Не се пронајдени тимови",
     "Members" : "Членови",
+    "Loading accounts …" : "Вчитување на сметки ...",
     "Joined" : "Приклучен",
     "Status" : "Статус",
     "Active" : "Активно"

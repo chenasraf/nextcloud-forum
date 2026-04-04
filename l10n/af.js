@@ -7,6 +7,7 @@ OC.L10N.register(
     "Search" : "Soek",
     "Home" : "Tuis",
     "Bookmarks" : "Boekmerke",
+    "Accounts" : "Accounts",
     "Collapse" : "Vou In",
     "Hello world!" : "Hallo wêreld!",
     "Category" : "Kategorie",

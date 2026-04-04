@@ -17,6 +17,7 @@ OC.L10N.register(
     "Bookmarks" : "Adreces d'interès",
     "Preferences" : "Preferències",
     "Dashboard" : "Tauler",
+    "Accounts" : "Comptes",
     "Categories" : "Categories",
     "Moderation" : "Moderació",
     "Expand" : "Expandeix",
@@ -113,6 +114,7 @@ OC.L10N.register(
     "Actions" : "Accions",
     "No teams found" : "No s'ha trobat cap equip",
     "Members" : "Membres",
+    "Loading accounts …" : "S'estan carregant els comptes …",
     "Joined" : "Unit",
     "Active" : "Actiu"
 },

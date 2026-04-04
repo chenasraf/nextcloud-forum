@@ -16,8 +16,10 @@ OC.L10N.register(
     "Bookmarks" : "Marcadores",
     "Preferences" : "Preferencias",
     "Dashboard" : "Tablero de control",
+    "Accounts" : "Cuentas",
     "Categories" : "Categorías",
     "Collapse" : "Colapsar",
+    "Log in" : "Ingresar",
     "Hello world!" : "¡Hola mundo!",
     "List" : "Lista",
     "Insert emoji" : "Insertar emoticono",
@@ -91,6 +93,7 @@ OC.L10N.register(
     "Actions" : "Acciones",
     "No teams found" : "No se encontraron equipos",
     "Members" : "Miembros",
+    "Loading accounts …" : "Cargando cuentas ...",
     "Joined" : "Se ha unido",
     "Active" : "Activo"
 },

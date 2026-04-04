@@ -17,6 +17,7 @@ OC.L10N.register(
     "Home" : "Aniciu",
     "Preferences" : "Preferencies",
     "Dashboard" : "Panel",
+    "Accounts" : "Cuentes",
     "Categories" : "Categories",
     "Expand" : "Espander",
     "Collapse" : "Contrayer",
@@ -93,6 +94,7 @@ OC.L10N.register(
     "Actions" : "Aiciones",
     "No teams found" : "Nun s'atopó nengún equipu",
     "Members" : "Miembros",
+    "Loading accounts …" : "Cargando les cuentes…",
     "Status" : "Estáu",
     "Active" : "Activa"
 },

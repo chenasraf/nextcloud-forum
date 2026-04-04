@@ -13,9 +13,11 @@
     "Bookmarks" : "Bókamerki",
     "Preferences" : "Kjörstillingar",
     "Dashboard" : "Stjórnborð",
+    "Accounts" : "Notandaaðgangar",
     "Categories" : "Flokkar",
     "Expand" : "Fletta út",
     "Collapse" : "Fella saman",
+    "Log in" : "Skrá inn",
     "Hello world!" : "Halló heimur!",
     "Code" : "Kóði",
     "Font size" : "Leturstærð",
@@ -95,6 +97,7 @@
     "Actions" : "Aðgerðir",
     "No teams found" : "Engin teymi fundust",
     "Members" : "Meðlimir",
+    "Loading accounts …" : "Hleð inn notendaaðgöngum...",
     "Joined" : "Gekk inn",
     "Active" : "Virkur"
 },"pluralForm" :"nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);"

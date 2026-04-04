@@ -6,6 +6,8 @@ OC.L10N.register(
     "General" : "සමාන්‍යය",
     "Search" : "සොයන්න",
     "Home" : "මුල් පිටුව",
+    "Accounts" : "Accounts",
+    "Log in" : "පිවිසෙන්න",
     "Close" : "වසන්න",
     "Category" : "ප්‍රවර්ගය",
     "Change color" : "වර්ණය වෙනස් කරන්න",

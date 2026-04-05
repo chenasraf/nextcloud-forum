@@ -29,6 +29,7 @@ OC.L10N.register(
     "Expand" : "Разгарнуць",
     "Collapse" : "Згарнуць",
     "(Guest)" : "(Госць)",
+    "Log in" : "Увайсці",
     "Hello world!" : "Hello world!",
     "Code" : "Код",
     "Font size" : "Памер шрыфта",

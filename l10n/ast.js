@@ -21,6 +21,7 @@ OC.L10N.register(
     "Categories" : "Categories",
     "Expand" : "Espander",
     "Collapse" : "Contrayer",
+    "Log in" : "Aniciar la sesión",
     "Hello world!" : "¡Hola, mundu!",
     "Code" : "Códigu",
     "List" : "Llista",

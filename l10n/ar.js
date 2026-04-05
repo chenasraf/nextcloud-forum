@@ -22,6 +22,7 @@ OC.L10N.register(
     "Moderation" : "الإدارة",
     "Expand" : "توسيع",
     "Collapse" : "طوي",
+    "Log in" : "تسجيل الدخول",
     "Hello world!" : "مرحبا بالعالم!",
     "Code" : "الرمز",
     "Quote" : "عرض الأسعار",

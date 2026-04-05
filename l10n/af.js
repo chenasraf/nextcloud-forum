@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bookmarks" : "Boekmerke",
     "Accounts" : "Accounts",
     "Collapse" : "Vou In",
+    "Log in" : "Teken Aan",
     "Hello world!" : "Hallo wêreld!",
     "Category" : "Kategorie",
     "Account" : "Rekening",

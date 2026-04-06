@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.38.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.38.1...v0.38.2) (2026-04-06)
+
+
+### Bug Fixes
+
+* allow closing all dialogs by outside click ([95a9c2e](https://github.com/chenasraf/nextcloud-forum/commit/95a9c2ef21d0af3bede08951980ad40a4a00e778))
+
 ## [0.38.1](https://github.com/chenasraf/nextcloud-forum/compare/v0.38.0...v0.38.1) (2026-04-06)
 
 

@@ -104,7 +104,12 @@
       />
 
       <!-- Edit Roles Dialog -->
-      <NcDialog v-if="editingUserId !== null" :name="strings.editRolesTitle" @close="cancelEdit">
+      <NcDialog
+        v-if="editingUserId !== null"
+        :name="strings.editRolesTitle"
+        close-on-click-outside
+        @close="cancelEdit"
+      >
         <div class="edit-roles-dialog">
           <NcSelect
             v-model="editingRoles"

@@ -3,6 +3,7 @@
     :name="strings.title"
     :open="open"
     size="large"
+    close-on-click-outside
     @update:open="$emit('update:open', $event)"
   >
     <!-- Loading -->

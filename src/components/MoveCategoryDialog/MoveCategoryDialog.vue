@@ -1,5 +1,11 @@
 <template>
-  <NcDialog :name="strings.title" :open="open" @update:open="handleClose" size="small">
+  <NcDialog
+    :name="strings.title"
+    :open="open"
+    close-on-click-outside
+    @update:open="handleClose"
+    size="small"
+  >
     <div class="move-category-dialog">
       <p class="dialog-description">{{ strings.description }}</p>
 

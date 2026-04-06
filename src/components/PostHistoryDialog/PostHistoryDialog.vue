@@ -1,5 +1,11 @@
 <template>
-  <NcDialog :name="strings.title" :open="open" @update:open="handleClose" size="large">
+  <NcDialog
+    :name="strings.title"
+    :open="open"
+    close-on-click-outside
+    @update:open="handleClose"
+    size="large"
+  >
     <div class="post-history-dialog">
       <!-- Loading state -->
       <div v-if="loading" class="loading-state" aria-live="polite" aria-busy="true">

@@ -107,6 +107,7 @@
       :open="uploadDialog"
       :name="uploadError ? strings.uploadError : strings.uploadingFile"
       :can-close="!!uploadError"
+      close-on-click-outside
       @update:open="uploadDialog = $event"
       size="small"
     >

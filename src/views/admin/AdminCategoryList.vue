@@ -175,6 +175,7 @@
       <NcDialog
         v-if="deleteDialog.show"
         :name="strings.deleteDialogTitle"
+        close-on-click-outside
         @close="deleteDialog.show = false"
       >
         <div class="delete-dialog-content">
@@ -257,6 +258,7 @@
       <NcDialog
         v-if="deleteHeaderDialog.show"
         :name="strings.deleteHeaderTitle"
+        close-on-click-outside
         @close="deleteHeaderDialog.show = false"
       >
         <div class="delete-dialog-content">

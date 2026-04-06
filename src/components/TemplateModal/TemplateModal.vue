@@ -9,6 +9,7 @@
     "
     size="normal"
     :open="open"
+    close-on-click-outside
     @update:open="handleClose"
   >
     <!-- List View -->

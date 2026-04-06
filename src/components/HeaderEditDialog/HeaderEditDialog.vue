@@ -2,6 +2,7 @@
   <NcDialog
     :name="isEditing ? strings.editTitle : strings.createTitle"
     :open="open"
+    close-on-click-outside
     @update:open="handleClose"
     size="small"
   >

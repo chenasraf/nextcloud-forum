@@ -1,5 +1,11 @@
 <template>
-  <NcDialog :name="title" :open="open" size="large" @update:open="$emit('update:open', $event)">
+  <NcDialog
+    :name="title"
+    :open="open"
+    size="large"
+    close-on-click-outside
+    @update:open="$emit('update:open', $event)"
+  >
     <!-- Loading -->
     <div v-if="loading" class="center mt-16 mb-16">
       <NcLoadingIcon :size="32" />

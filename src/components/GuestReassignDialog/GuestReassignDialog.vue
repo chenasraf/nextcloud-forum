@@ -1,5 +1,11 @@
 <template>
-  <NcDialog :name="strings.title" :open="open" size="normal" @update:open="handleClose">
+  <NcDialog
+    :name="strings.title"
+    :open="open"
+    size="normal"
+    close-on-click-outside
+    @update:open="handleClose"
+  >
     <div class="guest-reassign-dialog">
       <p class="description">
         {{ strings.description }}

@@ -153,6 +153,7 @@
       <NcDialog
         v-if="deleteDialog.show"
         :name="strings.deleteDialogTitle"
+        close-on-click-outside
         @close="deleteDialog.show = false"
       >
         <div class="delete-dialog-content">
@@ -174,6 +175,7 @@
       <NcDialog
         v-if="editDialog.show"
         :name="editDialog.isEditing ? strings.editBBCodeTitle : strings.createBBCodeTitle"
+        close-on-click-outside
         @close="editDialog.show = false"
       >
         <div class="bbcode-dialog-content">

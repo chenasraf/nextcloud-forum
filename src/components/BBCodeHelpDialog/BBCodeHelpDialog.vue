@@ -1,5 +1,11 @@
 <template>
-  <NcDialog :name="strings.title" size="large" :open="open" @update:open="handleClose">
+  <NcDialog
+    :name="strings.title"
+    size="large"
+    :open="open"
+    close-on-click-outside
+    @update:open="handleClose"
+  >
     <div class="bbcode-help">
       <!-- Built-in BBCodes Section -->
       <section class="bbcode-section">

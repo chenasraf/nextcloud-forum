@@ -45,7 +45,6 @@ vi.mock('@/components/SearchPostResult', () =>
 
 import SearchView from '../SearchView.vue'
 import { ocs } from '@/axios'
-import { showError } from '@nextcloud/dialogs'
 
 const mockOcsGet = vi.mocked(ocs.get)
 

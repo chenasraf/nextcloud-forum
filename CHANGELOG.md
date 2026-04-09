@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.38.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.38.2...v0.38.3) (2026-04-09)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([658f345](https://github.com/chenasraf/nextcloud-forum/commit/658f345d60727ecd301e48e331f39c749c380668))
+* show childless headers on admin category page ([7566679](https://github.com/chenasraf/nextcloud-forum/commit/7566679d99348c04be7a6366481bd900f1bcc0ce))
+
 ## [0.38.2](https://github.com/chenasraf/nextcloud-forum/compare/v0.38.1...v0.38.2) (2026-04-06)
 
 

@@ -309,6 +309,21 @@ test-docker:
 test-frontend:
 	$(pnpm_cmd) vitest run
 
+info_xsd_url=https://apps.nextcloud.com/schema/apps/info.xsd
+info_xsd=$(build_tools_directory)/info.xsd
+
+$(info_xsd):
+	@mkdir -p $(build_tools_directory)
+	curl -sS -o $(info_xsd) $(info_xsd_url)
+
+# lint-appinfo:
+#   - Validate appinfo/info.xml against the Nextcloud App Store XSD schema
+.PHONY: lint-appinfo
+lint-appinfo: $(info_xsd)
+	@echo "\x1b[33mValidating appinfo/info.xml against Nextcloud schema...\x1b[0m"
+	@xmllint --noout --schema $(info_xsd) appinfo/info.xml
+	@echo "\x1b[32mappinfo/info.xml is valid.\x1b[0m"
+
 # lint:
 #   - Lint JS via pnpm and PHP via composer script "lint"
 .PHONY: lint

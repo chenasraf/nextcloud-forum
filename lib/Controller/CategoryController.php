@@ -106,13 +106,10 @@ class CategoryController extends OCSController {
 				$categoriesByHeader[$headerId][] = $categoryData;
 			}
 
-			// Build result with nested categories (only include headers that have accessible categories)
+			// Build result with nested categories
 			$result = [];
 			foreach ($headers as $header) {
 				$categories = $categoriesByHeader[$header->getId()] ?? [];
-				if (empty($categories)) {
-					continue;
-				}
 				$headerData = $header->jsonSerialize();
 				$headerData['categories'] = $categories;
 				$result[] = $headerData;

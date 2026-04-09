@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.38.4](https://github.com/chenasraf/nextcloud-forum/compare/v0.38.3...v0.38.4) (2026-04-09)
+
+
+### Bug Fixes
+
+* add/update error notifications across the app ([dd5f682](https://github.com/chenasraf/nextcloud-forum/commit/dd5f682186cae047c94aa452dbf1aaa95fc6bf42))
+* re-apply possibly failed category migrations ([a933d45](https://github.com/chenasraf/nextcloud-forum/commit/a933d451bdda818f6203934fc6b4852e3ddf3bf8))
+
 ## [0.38.3](https://github.com/chenasraf/nextcloud-forum/compare/v0.38.2...v0.38.3) (2026-04-09)
 
 

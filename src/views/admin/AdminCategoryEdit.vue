@@ -239,6 +239,7 @@ import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 import { isAdminRole, isModeratorRole, isDefaultRole, isGuestRole } from '@/constants'
 import { useCategories } from '@/composables/useCategories'
 import type { Category, CategoryPerm, CatHeader, Role, Team } from '@/types'
@@ -796,9 +797,10 @@ export default defineComponent({
 
         // Navigate back to category list
         this.$router.push('/admin/categories')
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to save category', e)
-        // TODO: Show error notification
+        const message = e?.response?.data?.error || e?.response?.data?.message || e?.message || ''
+        showError(t('forum', 'Failed to save category') + (message ? `: ${message}` : ''))
       } finally {
         this.submitting = false
       }

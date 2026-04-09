@@ -229,6 +229,7 @@ import CategoryPermissionsTable, {
 } from '@/components/CategoryPermissionsTable'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 import { isAdminRole, isGuestRole, isDefaultRole, systemRoleFallbackColors } from '@/constants'
 import { usePublicSettings } from '@/composables/usePublicSettings'
 import type { Role, CategoryHeader } from '@/types'
@@ -607,9 +608,9 @@ export default defineComponent({
 
         // Navigate back to role list
         this.$router.push('/admin/roles')
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to save role', e)
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to save role'))
       } finally {
         this.submitting = false
       }

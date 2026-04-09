@@ -80,6 +80,7 @@ import SortCalendarDescendingIcon from '@icons/SortCalendarDescending.vue'
 import SortCalendarAscendingIcon from '@icons/SortCalendarAscending.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -211,8 +212,9 @@ export default defineComponent({
         this.restoring = id
         await ocs.post(`/moderation/threads/${id}/restore`)
         await this.loadData()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to restore thread', e)
+        showError(t('forum', 'Failed to restore thread'))
       } finally {
         this.restoring = null
       }
@@ -223,8 +225,9 @@ export default defineComponent({
         this.restoring = id
         await ocs.post(`/moderation/replies/${id}/restore`)
         await this.loadData()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to restore reply', e)
+        showError(t('forum', 'Failed to restore reply'))
       } finally {
         this.restoring = null
       }

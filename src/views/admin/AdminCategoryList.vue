@@ -351,6 +351,7 @@ import DeleteIcon from '@icons/Delete.vue'
 import InformationIcon from '@icons/Information.vue'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 import { useCategories } from '@/composables/useCategories'
 import type { CategoryHeader, Category, CatHeader } from '@/types'
 
@@ -559,9 +560,9 @@ export default defineComponent({
 
         this.deleteDialog.show = false
         this.refresh()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to delete category', e)
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to delete category'))
       }
     },
 
@@ -619,9 +620,9 @@ export default defineComponent({
 
         this.deleteHeaderDialog.show = false
         this.refresh()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to delete header', e)
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to delete header'))
       }
     },
 

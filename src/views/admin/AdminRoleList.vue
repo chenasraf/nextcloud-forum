@@ -186,6 +186,7 @@ import PageHeader from '@/components/PageHeader'
 import AppToolbar from '@/components/AppToolbar'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 import type { Role, Team } from '@/types'
 
 export default defineComponent({
@@ -342,9 +343,9 @@ export default defineComponent({
       try {
         await ocs.delete(`/roles/${roleId}`)
         await this.refresh()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to delete role', e)
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to delete role'))
       }
     },
   },

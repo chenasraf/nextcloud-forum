@@ -988,7 +988,7 @@ export default defineComponent({
         if (replyForm && typeof replyForm.setSubmitting === 'function') {
           replyForm.setSubmitting(false)
         }
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to submit reply'))
       }
     },
 

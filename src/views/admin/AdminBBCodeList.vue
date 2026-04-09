@@ -277,6 +277,7 @@ import PageHeader from '@/components/PageHeader'
 import AppToolbar from '@/components/AppToolbar'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 
 interface BBCode {
   id: number
@@ -471,9 +472,9 @@ export default defineComponent({
 
         this.editDialog.show = false
         this.refresh()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to save BBCode', e)
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to save BBCode'))
       } finally {
         this.editDialog.submitting = false
       }
@@ -485,9 +486,9 @@ export default defineComponent({
           enabled: !bbcode.enabled,
         })
         this.refresh()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to toggle BBCode', e)
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to toggle BBCode'))
       }
     },
 
@@ -503,9 +504,9 @@ export default defineComponent({
         await ocs.delete(`/bbcodes/${this.deleteDialog.bbcode.id}`)
         this.deleteDialog.show = false
         this.refresh()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to delete BBCode', e)
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to delete BBCode'))
       }
     },
   },

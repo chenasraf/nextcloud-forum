@@ -59,6 +59,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import NcTextArea from '@nextcloud/vue/components/NcTextArea'
 import { t } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 import { ocs } from '@/axios'
 import type { CatHeader } from '@/types'
 
@@ -177,9 +178,10 @@ export default defineComponent({
 
         this.$emit('saved', savedHeader)
         this.$emit('update:open', false)
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to save header', e)
-        // TODO: Show error notification
+        const message = e?.response?.data?.error || e?.response?.data?.message || e?.message || ''
+        showError(t('forum', 'Failed to save header') + (message ? `: ${message}` : ''))
       } finally {
         this.submitting = false
       }

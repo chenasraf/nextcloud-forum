@@ -160,6 +160,7 @@ import TextBoxIcon from '@icons/TextBox.vue'
 import ArrowDownIcon from '@icons/ArrowDown.vue'
 import Pagination from '@/components/Pagination'
 import { t } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 import { ocs } from '@/axios'
 import type { Template } from '@/types'
 
@@ -354,8 +355,9 @@ export default defineComponent({
         this.currentView = 'list'
         this.editingTemplate = null
         await this.fetchTemplates()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to save template:', e)
+        showError(t('forum', 'Failed to save template'))
       } finally {
         this.saving = false
       }
@@ -373,8 +375,9 @@ export default defineComponent({
         if (this.currentPage > this.totalPages) {
           this.currentPage = this.totalPages
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to delete template:', e)
+        showError(t('forum', 'Failed to delete template'))
       }
     },
 

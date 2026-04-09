@@ -153,6 +153,7 @@ import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
+import { showError } from '@nextcloud/dialogs'
 import { isGuestRole } from '@/constants'
 import type { Role } from '@/types'
 
@@ -330,9 +331,9 @@ export default defineComponent({
         }
 
         this.cancelEdit()
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to save roles', e)
-        // TODO: Show error notification
+        showError(t('forum', 'Failed to save roles'))
       }
     },
   },

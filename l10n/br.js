@@ -11,6 +11,7 @@ OC.L10N.register(
     "Dashboard" : "Taolenn-stur",
     "Accounts" : "Kontoù",
     "Categories" : "Rummadoù",
+    "Log in" : "Kennaskañ",
     "Hello world!" : "Hello world!",
     "List" : "Roll",
     "Upload failed" : "Pellkasaden c'hwitet",

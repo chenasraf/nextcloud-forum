@@ -77,6 +77,7 @@ OC.L10N.register(
     "Expand" : "Rozbalit",
     "Collapse" : "Sbalit",
     "(Guest)" : "(host)",
+    "Log in" : "Přihlásit se",
     "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings." : "{bStart}Upozornění:{bEnd} Přiložené soubory budou viditelné komukoli na fóru, nezávisle na nastavení sdílení souboru.",
     "Drop file here to upload" : "Soubor sem nahrajete přetažením",
     "Hello world!" : "Dobrý den světe!",

@@ -22,6 +22,7 @@ OC.L10N.register(
     "Moderation" : "Moderació",
     "Expand" : "Expandeix",
     "Collapse" : "Replega",
+    "Log in" : "Inicia la sessió",
     "Hello world!" : "Hola a tothom!",
     "Code" : "Codi",
     "Quote" : "Pressupost",

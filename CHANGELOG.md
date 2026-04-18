@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.38.6](https://github.com/chenasraf/nextcloud-forum/compare/v0.38.5...v0.38.6) (2026-04-18)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([638e1c8](https://github.com/chenasraf/nextcloud-forum/commit/638e1c8951df959363f0ff1c0ed36d5d745e3874))
+
 ## [0.38.5](https://github.com/chenasraf/nextcloud-forum/compare/v0.38.4...v0.38.5) (2026-04-14)
 
 

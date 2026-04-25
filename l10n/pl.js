@@ -95,6 +95,7 @@ OC.L10N.register(
     "Privacy" : "Prywatność",
     "Enable" : "Włącz",
     "Disable" : "Wyłącz",
+    "This action cannot be undone." : "Tej operacji nie można cofnąć.",
     "Tag" : "Etykieta",
     "Description" : "Opis",
     "Enabled" : "Włączone",

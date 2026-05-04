@@ -59,6 +59,7 @@
     "Are you sure you want to discard your changes?" : "Ar tikrai norite atmesti pakeitimus?",
     "Current version" : "Dabartinė versija",
     "Version {index}" : "Versija {index}",
+    "Add reaction" : "Pridėti reakciją",
     "React with {emoji}" : "Reaguoti naudojant {emoji}",
     "Uncategorized" : "Nekategorizuotas",
     "_%n reply_::_%n replies_" : ["%n atsakymas","%n atsakymai","%n atsakymų","%n atsakymų"],

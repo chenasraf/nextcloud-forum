@@ -81,7 +81,7 @@ OC.L10N.register(
     "Draft saved" : "Juodraštis įrašytas",
     "Unsaved changes" : "Neįrašyti pakeitimai",
     "Back to home" : "Atgal į pradžią",
-    "Refresh" : "Įkelti iš naujo",
+    "Refresh" : "Atnaujinti",
     "An unexpected error occurred" : "Įvyko netikėta klaida",
     "In {category}" : "{category}",
     "Error" : "Klaida",

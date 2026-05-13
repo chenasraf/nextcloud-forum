@@ -93,6 +93,7 @@ OC.L10N.register(
     "Move thread" : "Verplaats draadje",
     "Notifications" : "Meldingen",
     "Files" : "Bestanden",
+    "Browse" : "Bladeren",
     "Signature" : "Handtekening",
     "Privacy" : "Privacy",
     "Enable" : "Inschakelen",

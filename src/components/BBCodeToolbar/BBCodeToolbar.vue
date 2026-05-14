@@ -131,8 +131,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue'
-import TemplateModal from '@/components/TemplateModal'
+import { defineAsyncComponent, defineComponent, type PropType } from 'vue'
+const TemplateModal = defineAsyncComponent(() => import('@/components/TemplateModal'))
 import TextBoxIcon from '@icons/TextBox.vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcActions from '@nextcloud/vue/components/NcActions'

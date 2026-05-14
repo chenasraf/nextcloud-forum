@@ -47,13 +47,16 @@ vi.mock('@/components/BBCodeHelpDialog', () =>
   }),
 )
 
-vi.mock('@/components/TemplateModal', () =>
-  createComponentMock('TemplateModal', {
+vi.mock('@/components/TemplateModal', () => ({
+  __esModule: true,
+  __isTeleport: false,
+  default: {
+    name: 'TemplateModal',
     template: '<div class="template-modal-mock" v-if="open" />',
     props: ['open', 'editorContext'],
     emits: ['update:open', 'insert'],
-  }),
-)
+  },
+}))
 
 vi.mock('@icons/TextBox.vue', () => createIconMock('TextBoxIcon'))
 vi.mock('@icons/ArrowDown.vue', () => createIconMock('ArrowDownIcon'))

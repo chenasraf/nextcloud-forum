@@ -55,6 +55,7 @@ OC.L10N.register(
     "Direct link copied to clipboard" : "Povezava je kopirana v odložišče.",
     "Save" : "Shrani",
     "Current version" : "Trenutna različica",
+    "Version {index}" : "Različica {index}",
     "React with {emoji}" : "Odzovi se z {emoji}",
     "Uncategorized" : "Neopredeljeno",
     "Templates" : "Predloge",

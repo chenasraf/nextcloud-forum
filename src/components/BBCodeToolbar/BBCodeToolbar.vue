@@ -147,7 +147,6 @@ import {
   getEditorState,
   setCursorPosition,
   editorStateToSelection,
-  extractRelativePathFromFilePicker,
 } from '@/utils/bbcode'
 import { generateUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
@@ -507,13 +506,13 @@ export default defineComponent({
           .setType(1) // TYPE_FILE
           .build()
 
-        const path = await picker.pick()
+        const nodes = await picker.pickNodes()
+        const node = Array.isArray(nodes) ? nodes[0] : undefined
+        const fileId = node?.fileid
 
-        if (!path) {
+        if (!fileId) {
           return
         }
-
-        const fileId = extractRelativePathFromFilePicker(path)
 
         const state = getEditorState(this.textareaRef, this.modelValue)
         if (!state) {
@@ -633,7 +632,7 @@ export default defineComponent({
 
         // Upload file
         const davPath = `/remote.php/dav/files/${user.uid}/${uploadDirectory}/${file.name}`
-        await webDav.put(davPath, file, {
+        const uploadResponse = await webDav.put(davPath, file, {
           headers: {
             'Content-Type': file.type || 'application/octet-stream',
           },
@@ -650,11 +649,17 @@ export default defineComponent({
           return
         }
 
-        // Use the bbcode utility to insert the attachment tag
-        const filePath = `${uploadDirectory}/${file.name}`
+        // Prefer the file ID returned by the server; fall back to the path
+        // if for some reason the header is missing. The OC-FileId header is
+        // the federated form (20-char zero-padded numeric ID + instance ID,
+        // e.g. "00000220oco7mnbdyixw") — extract the leading numeric portion.
+        const fileIdHeader =
+          uploadResponse?.headers?.['oc-fileid'] ?? uploadResponse?.headers?.['OC-FileId']
+        const numericId = fileIdHeader ? String(fileIdHeader).match(/^0*(\d+)/)?.[1] : undefined
+        const fileRef = numericId ?? `${uploadDirectory}/${file.name}`
         const result = insertTextAtSelection(
           editorStateToSelection(state),
-          `[attachment]${filePath}[/attachment]`,
+          `[attachment]${fileRef}[/attachment]`,
         )
 
         // Emit the insert event

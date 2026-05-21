@@ -83,7 +83,7 @@ class FileController extends Controller {
 		try {
 			$post = $this->postMapper->find($postId);
 
-			// Verify the file path is in the post content
+			// Verify the file reference is in the post content
 			$attachmentTag = '[attachment]' . $filePath . '[/attachment]';
 			if (strpos($post->getContent(), $attachmentTag) === false) {
 				return new DataResponse(['error' => 'File not attached to this post'], Http::STATUS_FORBIDDEN);
@@ -93,8 +93,8 @@ class FileController extends Controller {
 			$authorId = $post->getAuthorId();
 			$userFolder = $this->rootFolder->getUserFolder($authorId);
 
-			// Get the file
-			$file = $userFolder->get($filePath);
+			// Resolve by file ID (numeric) or path (legacy)
+			$file = $this->resolveAttachment($userFolder, $filePath);
 
 			if (!($file instanceof \OCP\Files\File)) {
 				return new DataResponse(['error' => 'Invalid file'], Http::STATUS_BAD_REQUEST);
@@ -137,7 +137,7 @@ class FileController extends Controller {
 		try {
 			$post = $this->postMapper->find($postId);
 
-			// Verify the file path is in the post content
+			// Verify the file reference is in the post content
 			$attachmentTag = '[attachment]' . $filePath . '[/attachment]';
 			if (strpos($post->getContent(), $attachmentTag) === false) {
 				return new DataResponse(['error' => 'File not attached to this post'], Http::STATUS_FORBIDDEN);
@@ -147,8 +147,8 @@ class FileController extends Controller {
 			$authorId = $post->getAuthorId();
 			$userFolder = $this->rootFolder->getUserFolder($authorId);
 
-			// Get the file
-			$file = $userFolder->get($filePath);
+			// Resolve by file ID (numeric) or path (legacy)
+			$file = $this->resolveAttachment($userFolder, $filePath);
 
 			if (!($file instanceof \OCP\Files\File)) {
 				return new DataResponse(['error' => 'Invalid file'], Http::STATUS_BAD_REQUEST);
@@ -171,6 +171,34 @@ class FileController extends Controller {
 			$this->logger->error('Error serving preview: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Error loading preview'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * Resolve an attachment reference (numeric file ID, federated `%020d<instance>`
+	 * form, or legacy path) to a Node within the given user folder.
+	 *
+	 * @throws NotFoundException
+	 */
+	private function resolveAttachment(\OCP\Files\Folder $userFolder, string $ref): \OCP\Files\Node {
+		$fileId = $this->parseFileId($ref);
+		if ($fileId !== null) {
+			$nodes = $userFolder->getById($fileId);
+			if (empty($nodes)) {
+				throw new NotFoundException('File ID not accessible: ' . $ref);
+			}
+			return $nodes[0];
+		}
+		return $userFolder->get($ref);
+	}
+
+	private function parseFileId(string $ref): ?int {
+		if (ctype_digit($ref)) {
+			return (int)$ref;
+		}
+		if (preg_match('/^0*(\d+)[A-Za-z0-9]+$/', $ref, $m) === 1) {
+			return (int)$m[1];
+		}
+		return null;
 	}
 
 	/**

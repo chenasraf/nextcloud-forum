@@ -379,35 +379,38 @@ class BBCodeService {
 	/**
 	 * Render an attachment BBCode tag
 	 *
-	 * @param string $filePath The file path from the BBCode tag
+	 * Accepts either a numeric file ID (preferred, survives moves/renames) or
+	 * a legacy path relative to the author's user folder.
+	 *
+	 * @param string $fileRef The file ID or path from the BBCode tag
 	 * @param string|null $authorId The post author's user ID for ownership verification
 	 * @param int|null $postId The post ID for generating proxy URLs
 	 * @return string The rendered HTML for the attachment
 	 */
-	private function renderAttachment(string $filePath, ?string $authorId, ?int $postId): string {
-		$filePath = trim($filePath);
+	private function renderAttachment(string $fileRef, ?string $authorId, ?int $postId): string {
+		$fileRef = trim($fileRef);
 
-		if (empty($filePath)) {
-			$this->logger->warning('Empty file path in attachment tag');
+		if (empty($fileRef)) {
+			$this->logger->warning('Empty file reference in attachment tag');
 			return '<span class="attachment-error">Invalid attachment</span>';
 		}
 
 		if (empty($authorId)) {
-			$this->logger->warning('Attachment rendering attempted without author ID: ' . $filePath);
+			$this->logger->warning('Attachment rendering attempted without author ID: ' . $fileRef);
 			return '<span class="attachment-error">Attachment unavailable</span>';
 		}
 
 		if (empty($postId)) {
-			$this->logger->warning('Attachment rendering attempted without post ID: ' . $filePath);
+			$this->logger->warning('Attachment rendering attempted without post ID: ' . $fileRef);
 			return '<span class="attachment-error">Attachment unavailable</span>';
 		}
 
 		try {
 			$userFolder = $this->rootFolder->getUserFolder($authorId);
-			$file = $userFolder->get($filePath);
+			$file = $this->resolveAttachmentNode($userFolder, $fileRef);
 
 			if (!($file instanceof \OCP\Files\File)) {
-				$this->logger->warning('Attachment path is not a file: ' . $filePath);
+				$this->logger->warning('Attachment reference is not a file: ' . $fileRef);
 				return '<span class="attachment-error">Invalid attachment</span>';
 			}
 
@@ -420,11 +423,11 @@ class BBCodeService {
 				'mimeType' => $this->esc($mimeType),
 				'downloadUrl' => $this->esc($this->urlGenerator->linkToRouteAbsolute(
 					'forum.file.download',
-					['postId' => $postId, 'filePath' => $filePath]
+					['postId' => $postId, 'filePath' => $fileRef]
 				)),
 				'previewUrl' => $this->esc($this->urlGenerator->linkToRouteAbsolute(
 					'forum.file.preview',
-					['postId' => $postId, 'filePath' => $filePath, 'x' => 1920, 'y' => 1080]
+					['postId' => $postId, 'filePath' => $fileRef, 'x' => 1920, 'y' => 1080]
 				)),
 				'fileSize' => $this->formatFileSize($file->getSize()),
 				'iconClass' => $this->getFileIconClass($mimeType),
@@ -439,12 +442,46 @@ class BBCodeService {
 
 			return $html;
 		} catch (NotFoundException $e) {
-			$this->logger->warning('Attachment file not found: ' . $filePath);
+			$this->logger->warning('Attachment not found: ' . $fileRef);
 			return '<span class="attachment-error">Attachment not found</span>';
 		} catch (\Exception $e) {
 			$this->logger->error('Error rendering attachment: ' . $e->getMessage());
 			return '<span class="attachment-error">Error loading attachment</span>';
 		}
+	}
+
+	/**
+	 * Resolve an attachment reference to a Node within the given user folder.
+	 * Numeric references (bare or federated `%020d<instance>` form) are looked
+	 * up by file ID; everything else is treated as a path.
+	 *
+	 * @throws NotFoundException
+	 */
+	private function resolveAttachmentNode(\OCP\Files\Folder $userFolder, string $fileRef): \OCP\Files\Node {
+		$fileId = $this->parseFileId($fileRef);
+		if ($fileId !== null) {
+			$nodes = $userFolder->getById($fileId);
+			if (empty($nodes)) {
+				throw new NotFoundException('File ID not accessible to author: ' . $fileRef);
+			}
+			return $nodes[0];
+		}
+		return $userFolder->get($fileRef);
+	}
+
+	/**
+	 * Parse a numeric file ID from a bare or federated reference.
+	 * Returns null if the reference is not numeric (i.e. is a legacy path).
+	 */
+	private function parseFileId(string $fileRef): ?int {
+		if (ctype_digit($fileRef)) {
+			return (int)$fileRef;
+		}
+		// Federated form: 20-char zero-padded numeric ID followed by an instance suffix
+		if (preg_match('/^0*(\d+)[A-Za-z0-9]+$/', $fileRef, $m) === 1) {
+			return (int)$m[1];
+		}
+		return null;
 	}
 
 	/**

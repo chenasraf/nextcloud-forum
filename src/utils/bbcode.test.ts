@@ -12,7 +12,6 @@ import {
   getEditorStateFromTextarea,
   getEditorState,
   editorStateToSelection,
-  extractRelativePathFromFilePicker,
   type TextSelection,
   type EditorState,
 } from './bbcode'
@@ -634,48 +633,6 @@ describe('bbcode utilities', () => {
       expect(selection.text).toBe('Hello')
       expect(selection.start).toBe(5)
       expect(selection.end).toBe(5)
-    })
-  })
-
-  describe('extractRelativePathFromFilePicker', () => {
-    it('extracts relative path from standard Nextcloud path', () => {
-      const path = '/admin/files/Documents/report.pdf'
-      expect(extractRelativePathFromFilePicker(path)).toBe('Documents/report.pdf')
-    })
-
-    it('handles nested directories', () => {
-      const path = '/user123/files/Projects/2024/Q1/data.csv'
-      expect(extractRelativePathFromFilePicker(path)).toBe('Projects/2024/Q1/data.csv')
-    })
-
-    it('handles file in root of files directory', () => {
-      const path = '/admin/files/document.txt'
-      expect(extractRelativePathFromFilePicker(path)).toBe('document.txt')
-    })
-
-    it('returns original path if not matching expected format', () => {
-      const path = '/some/other/path/file.txt'
-      expect(extractRelativePathFromFilePicker(path)).toBe('/some/other/path/file.txt')
-    })
-
-    it('returns original path if too short', () => {
-      const path = '/admin'
-      expect(extractRelativePathFromFilePicker(path)).toBe('/admin')
-    })
-
-    it('handles empty path parts correctly', () => {
-      const path = '/admin/files/'
-      expect(extractRelativePathFromFilePicker(path)).toBe('')
-    })
-
-    it('handles path with special characters', () => {
-      const path = '/admin/files/My Documents/file (1).pdf'
-      expect(extractRelativePathFromFilePicker(path)).toBe('My Documents/file (1).pdf')
-    })
-
-    it('handles path with unicode characters', () => {
-      const path = '/admin/files/文档/报告.pdf'
-      expect(extractRelativePathFromFilePicker(path)).toBe('文档/报告.pdf')
     })
   })
 })

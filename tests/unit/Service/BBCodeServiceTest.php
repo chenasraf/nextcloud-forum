@@ -381,6 +381,42 @@ class BBCodeServiceTest extends TestCase {
 		$this->assertStringNotContainsString('<img', $result);
 	}
 
+	public function testParseAttachmentByFileIdResolvesViaGetById(): void {
+		$bbCode = $this->createAttachmentBBCode();
+
+		$file = $this->createMock(\OCP\Files\File::class);
+		$file->method('getName')->willReturn('shared.pdf');
+		$file->method('getMimeType')->willReturn('application/pdf');
+		$file->method('getSize')->willReturn(1024);
+		$file->method('getId')->willReturn(12345);
+
+		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder->expects($this->once())
+			->method('getById')
+			->with(12345)
+			->willReturn([$file]);
+		$userFolder->expects($this->never())->method('get');
+		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
+		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/file');
+
+		$result = $this->service->parse('[attachment]12345[/attachment]', [$bbCode], 'alice', 1);
+
+		$this->assertStringContainsString('class="attachment attachment-file"', $result);
+		$this->assertStringContainsString('shared.pdf', $result);
+	}
+
+	public function testParseAttachmentByMissingFileIdReturnsNotFound(): void {
+		$bbCode = $this->createAttachmentBBCode();
+
+		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder->method('getById')->willReturn([]);
+		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
+
+		$result = $this->service->parse('[attachment]99999[/attachment]', [$bbCode], 'alice', 1);
+
+		$this->assertStringContainsString('Attachment not found', $result);
+	}
+
 	public function testAttachmentTypeDispatchSelectsCorrectRenderer(): void {
 		$bbCode = $this->createAttachmentBBCode();
 

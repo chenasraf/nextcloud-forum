@@ -613,21 +613,3 @@ export function editorStateToSelection(state: EditorState): TextSelection {
     end: state.end,
   }
 }
-
-/**
- * Extract relative path from Nextcloud file picker path
- *
- * File picker returns: /username/files/path/to/file.pdf
- * We need: path/to/file.pdf (relative to user's files directory)
- *
- * @param path - The full path from file picker
- * @returns The relative path
- */
-export function extractRelativePathFromFilePicker(path: string): string {
-  const pathParts = path.split('/')
-  if (pathParts.length >= 3 && pathParts[2] === 'files') {
-    // Remove first 3 parts: ['', 'username', 'files']
-    return pathParts.slice(3).join('/')
-  }
-  return path
-}

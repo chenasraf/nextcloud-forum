@@ -158,7 +158,7 @@ vi.mock('@nextcloud/dialogs', () => ({
   getFilePickerBuilder: vi.fn(() => ({
     setMultiSelect: vi.fn().mockReturnThis(),
     setType: vi.fn().mockReturnThis(),
-    build: vi.fn(() => ({ pick: vi.fn() })),
+    build: vi.fn(() => ({ pick: vi.fn(), pickNodes: vi.fn() })),
   })),
   FilePickerType: { TYPE_FILE: 1 },
 }))

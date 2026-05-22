@@ -685,7 +685,15 @@ export default defineComponent({
       try {
         // Ensure the shared prefs cache is populated before reading from it.
         await useUserPreferences().fetchUserPreferences()
-        const { upload_directory, use_category_upload_path, upload_behavior } = this.userPrefs
+        const {
+          upload_directory,
+          upload_directory_resolved_path,
+          use_category_upload_path,
+          upload_behavior,
+        } = this.userPrefs
+        // Prefer the server-resolved path (file-ID based, per-user) and fall
+        // back to the legacy string for installs that haven't migrated yet.
+        const defaultPath = upload_directory_resolved_path || upload_directory
 
         if (upload_behavior === 'prompt') {
           const destination = await this.promptForUploadDestination()
@@ -697,12 +705,10 @@ export default defineComponent({
         }
 
         const usingCategoryPath = !!(use_category_upload_path && this.categoryUploadPath)
-        const primaryPath = usingCategoryPath
-          ? (this.categoryUploadPath as string)
-          : upload_directory
+        const primaryPath = usingCategoryPath ? (this.categoryUploadPath as string) : defaultPath
 
         await this.uploadFileTo(file, primaryPath, {
-          allowFallback: usingCategoryPath ? upload_directory : false,
+          allowFallback: usingCategoryPath ? defaultPath : false,
         })
       } catch (error) {
         console.error('Error uploading file:', error)

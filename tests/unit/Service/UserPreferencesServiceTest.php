@@ -8,6 +8,7 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Service\UserPreferencesService;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -19,12 +20,15 @@ class UserPreferencesServiceTest extends TestCase {
 	private IConfig $config;
 	/** @var ForumUserMapper&MockObject */
 	private ForumUserMapper $forumUserMapper;
+	/** @var IRootFolder&MockObject */
+	private IRootFolder $rootFolder;
 	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 
 	protected function setUp(): void {
 		$this->config = $this->createMock(IConfig::class);
 		$this->forumUserMapper = $this->createMock(ForumUserMapper::class);
+		$this->rootFolder = $this->createMock(IRootFolder::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		// By default, mock no forum user (no signature)
@@ -34,6 +38,7 @@ class UserPreferencesServiceTest extends TestCase {
 		$this->service = new UserPreferencesService(
 			$this->config,
 			$this->forumUserMapper,
+			$this->rootFolder,
 			$this->logger
 		);
 	}
@@ -42,7 +47,7 @@ class UserPreferencesServiceTest extends TestCase {
 		$userId = 'user1';
 
 		// Only config-based preferences (signature is from forum_users)
-		$this->config->expects($this->exactly(6))
+		$this->config->expects($this->exactly(7))
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $appId, $key, $default) use ($userId) {
 				$this->assertEquals($userId, $uid);
@@ -52,6 +57,7 @@ class UserPreferencesServiceTest extends TestCase {
 					UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => 'true',
 					UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS => 'false',
 					UserPreferencesService::PREF_UPLOAD_DIRECTORY => 'Forum',
+					UserPreferencesService::PREF_UPLOAD_DIRECTORY_FOLDER_ID => '',
 					UserPreferencesService::PREF_HIDE_EDIT_HISTORY => 'false',
 					UserPreferencesService::PREF_USE_CATEGORY_UPLOAD_PATH => 'true',
 					UserPreferencesService::PREF_UPLOAD_BEHAVIOR => 'configured',
@@ -62,7 +68,8 @@ class UserPreferencesServiceTest extends TestCase {
 		$result = $this->service->getAllPreferences($userId);
 
 		$this->assertIsArray($result);
-		$this->assertCount(7, $result);
+		// 8 stored keys + 1 derived `upload_directory_resolved_path` = 9
+		$this->assertCount(9, $result);
 		$this->assertTrue($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS]);
 		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS]);
 		$this->assertEquals('Forum', $result[UserPreferencesService::PREF_UPLOAD_DIRECTORY]);
@@ -70,6 +77,7 @@ class UserPreferencesServiceTest extends TestCase {
 		$this->assertFalse($result[UserPreferencesService::PREF_HIDE_EDIT_HISTORY]);
 		$this->assertTrue($result[UserPreferencesService::PREF_USE_CATEGORY_UPLOAD_PATH]);
 		$this->assertEquals('configured', $result[UserPreferencesService::PREF_UPLOAD_BEHAVIOR]);
+		$this->assertEquals('Forum', $result['upload_directory_resolved_path']);
 	}
 
 	public function testGetPreferenceReturnsCorrectValue(): void {
@@ -152,7 +160,7 @@ class UserPreferencesServiceTest extends TestCase {
 				}
 			});
 
-		$this->config->expects($this->exactly(6))
+		$this->config->expects($this->exactly(7))
 			->method('getUserValue')
 			->willReturnCallback(function ($uid, $appId, $key, $default) use ($userId) {
 				$this->assertEquals($userId, $uid);
@@ -162,6 +170,7 @@ class UserPreferencesServiceTest extends TestCase {
 					UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => 'false',
 					UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS => 'false',
 					UserPreferencesService::PREF_UPLOAD_DIRECTORY => 'Documents',
+					UserPreferencesService::PREF_UPLOAD_DIRECTORY_FOLDER_ID => '',
 					UserPreferencesService::PREF_HIDE_EDIT_HISTORY => 'false',
 					UserPreferencesService::PREF_USE_CATEGORY_UPLOAD_PATH => 'true',
 					UserPreferencesService::PREF_UPLOAD_BEHAVIOR => 'configured',
@@ -172,7 +181,7 @@ class UserPreferencesServiceTest extends TestCase {
 		$result = $this->service->updatePreferences($userId, $preferences);
 
 		$this->assertIsArray($result);
-		$this->assertCount(7, $result);
+		$this->assertCount(9, $result);
 		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS]);
 		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS]);
 		$this->assertEquals('Documents', $result[UserPreferencesService::PREF_UPLOAD_DIRECTORY]);
@@ -180,6 +189,7 @@ class UserPreferencesServiceTest extends TestCase {
 		$this->assertFalse($result[UserPreferencesService::PREF_HIDE_EDIT_HISTORY]);
 		$this->assertTrue($result[UserPreferencesService::PREF_USE_CATEGORY_UPLOAD_PATH]);
 		$this->assertEquals('configured', $result[UserPreferencesService::PREF_UPLOAD_BEHAVIOR]);
+		$this->assertEquals('Documents', $result['upload_directory_resolved_path']);
 	}
 
 	public function testUpdatePreferencesThrowsExceptionForInvalidKey(): void {

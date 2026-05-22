@@ -10,6 +10,7 @@ namespace OCA\Forum\Service;
 use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Db\ForumUserMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
+use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use Psr\Log\LoggerInterface;
 
@@ -20,8 +21,11 @@ class UserPreferencesService {
 	/** Preference key for auto-subscribing to threads when replying */
 	public const PREF_AUTO_SUBSCRIBE_REPLIED_THREADS = 'auto_subscribe_replied_threads';
 
-	/** Preference key for upload directory path */
+	/** Preference key for upload directory path (legacy, kept as a fallback label) */
 	public const PREF_UPLOAD_DIRECTORY = 'upload_directory';
+
+	/** Preference key for the upload directory's Nextcloud file ID (authoritative) */
+	public const PREF_UPLOAD_DIRECTORY_FOLDER_ID = 'upload_directory_folder_id';
 
 	/** Preference key for user signature (stored in forum_users table) */
 	public const PREF_SIGNATURE = 'signature';
@@ -40,6 +44,7 @@ class UserPreferencesService {
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => true,
 		self::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS => false,
 		self::PREF_UPLOAD_DIRECTORY => 'Forum',
+		self::PREF_UPLOAD_DIRECTORY_FOLDER_ID => null,
 		self::PREF_SIGNATURE => '',
 		self::PREF_HIDE_EDIT_HISTORY => false,
 		self::PREF_USE_CATEGORY_UPLOAD_PATH => true,
@@ -51,6 +56,7 @@ class UserPreferencesService {
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS,
 		self::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS,
 		self::PREF_UPLOAD_DIRECTORY,
+		self::PREF_UPLOAD_DIRECTORY_FOLDER_ID,
 		self::PREF_SIGNATURE,
 		self::PREF_HIDE_EDIT_HISTORY,
 		self::PREF_USE_CATEGORY_UPLOAD_PATH,
@@ -65,6 +71,7 @@ class UserPreferencesService {
 	public function __construct(
 		private IConfig $config,
 		private ForumUserMapper $forumUserMapper,
+		private IRootFolder $rootFolder,
 		private LoggerInterface $logger,
 	) {
 	}
@@ -82,7 +89,45 @@ class UserPreferencesService {
 			$preferences[$key] = $this->getPreference($userId, $key);
 		}
 
+		// Derived field: resolve the upload directory's file ID against the
+		// requesting user's folder so each user gets their own path. Falls
+		// back to the legacy string path when no ID is set or the ID is not
+		// accessible to this user. Read-only — not writable via PUT.
+		$preferences['upload_directory_resolved_path'] = $this->resolveUploadDirectory(
+			$userId,
+			$preferences[self::PREF_UPLOAD_DIRECTORY_FOLDER_ID] ?? null,
+			$preferences[self::PREF_UPLOAD_DIRECTORY] ?? self::DEFAULTS[self::PREF_UPLOAD_DIRECTORY],
+		);
+
 		return $preferences;
+	}
+
+	/**
+	 * Resolve the active upload-directory path for the given user.
+	 *
+	 * Preference order:
+	 *   1. If a folder file ID is stored and accessible to the user, use the
+	 *      relative path of that node in the user's folder.
+	 *   2. Otherwise (no ID, lookup fails, or no access), fall back to the
+	 *      legacy `upload_directory` string value — which always exists with
+	 *      a sensible default of 'Forum'.
+	 */
+	public function resolveUploadDirectory(string $userId, mixed $folderId, string $fallback): string {
+		if ($folderId !== null && $folderId !== '' && (is_int($folderId) || ctype_digit((string)$folderId))) {
+			try {
+				$userFolder = $this->rootFolder->getUserFolder($userId);
+				$nodes = $userFolder->getById((int)$folderId);
+				if (!empty($nodes)) {
+					$relPath = $userFolder->getRelativePath($nodes[0]->getPath());
+					if ($relPath !== null && $relPath !== '') {
+						return ltrim($relPath, '/');
+					}
+				}
+			} catch (\Exception $e) {
+				$this->logger->debug('Could not resolve upload folder ' . $folderId . ' for user ' . $userId . ': ' . $e->getMessage());
+			}
+		}
+		return $fallback !== '' ? $fallback : (string)self::DEFAULTS[self::PREF_UPLOAD_DIRECTORY];
 	}
 
 	/**

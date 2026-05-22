@@ -8,7 +8,13 @@ import { ocs } from '@/axios'
 export interface UserPreferences {
   auto_subscribe_created_threads: boolean
   auto_subscribe_replied_threads: boolean
+  /** Legacy fallback label for the upload directory (string path). */
   upload_directory: string
+  /** Authoritative Nextcloud file ID of the upload directory. May be null on
+   *  legacy installs — lazily populated when the user picks via the browser. */
+  upload_directory_folder_id: number | null
+  /** Server-derived, per-user resolution of the upload directory. Read-only. */
+  upload_directory_resolved_path?: string
   signature: string
   hide_edit_history: boolean
   use_category_upload_path: boolean
@@ -20,6 +26,8 @@ const DEFAULTS: UserPreferences = {
   auto_subscribe_created_threads: true,
   auto_subscribe_replied_threads: false,
   upload_directory: 'Forum',
+  upload_directory_folder_id: null,
+  upload_directory_resolved_path: 'Forum',
   signature: '',
   hide_edit_history: false,
   use_category_upload_path: true,
@@ -103,7 +111,10 @@ export function useUserPreferences() {
     savePreferences,
     refresh,
     uploadBehavior: computed(() => preferences.value.upload_behavior),
-    uploadDirectory: computed(() => preferences.value.upload_directory),
+    /** Per-user resolved upload directory — use this for actual uploads. */
+    uploadDirectory: computed(
+      () => preferences.value.upload_directory_resolved_path ?? preferences.value.upload_directory,
+    ),
     useCategoryUploadPath: computed(() => preferences.value.use_category_upload_path),
   }
 }

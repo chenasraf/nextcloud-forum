@@ -87,8 +87,9 @@
               <label class="preference-label">{{ strings.uploadDirectoryLabel }}</label>
               <div class="directory-input-group">
                 <NcTextField
-                  v-model="formData.upload_directory"
-                  :placeholder="strings.uploadDirectoryLabel"
+                  :model-value="displayedUploadDirectory"
+                  :placeholder="strings.uploadDirectoryPlaceholder"
+                  :readonly="true"
                   class="directory-input"
                 />
                 <NcButton @click="browseDirectory">
@@ -258,9 +259,10 @@ export default defineComponent({
         filesTitle: t('forum', 'Files'),
         filesDesc: t('forum', 'Configure file upload settings'),
         uploadDirectoryLabel: t('forum', 'Upload directory'),
+        uploadDirectoryPlaceholder: t('forum', 'Pick a folder …'),
         uploadDirectoryHint: t(
           'forum',
-          'Files attached to threads or replies will be uploaded to this directory in your Nextcloud files',
+          'Files attached to threads or replies will be uploaded to this directory in your Nextcloud files. The path resolves to your own files; other users will see the same folder at its location in their own files.',
         ),
         uploadBehaviorLabel: t('forum', 'Upload behavior'),
         uploadBehaviorConfigured: t('forum', 'Always upload to chosen directory'),
@@ -304,9 +306,15 @@ export default defineComponent({
         this.formData.auto_subscribe_replied_threads !==
           this.originalData.auto_subscribe_replied_threads ||
         this.formData.upload_directory !== this.originalData.upload_directory ||
+        this.formData.upload_directory_folder_id !== this.originalData.upload_directory_folder_id ||
         this.formData.signature !== this.originalData.signature ||
-        this.formData.hide_edit_history !== this.originalData.hide_edit_history
+        this.formData.hide_edit_history !== this.originalData.hide_edit_history ||
+        this.formData.use_category_upload_path !== this.originalData.use_category_upload_path ||
+        this.formData.upload_behavior !== this.originalData.upload_behavior
       )
+    },
+    displayedUploadDirectory(): string {
+      return this.formData.upload_directory_resolved_path ?? this.formData.upload_directory ?? ''
     },
     signaturesEnabled(): boolean {
       return this.publicSettings?.enable_signatures ?? true
@@ -383,13 +391,26 @@ export default defineComponent({
           .allowDirectories()
           .build()
 
-        const path = await picker.pick()
-        if (path) {
-          // Remove leading slash if present to make it relative to user's root
-          this.formData.upload_directory = path.startsWith('/') ? path.substring(1) : path
+        const nodes = await picker.pickNodes()
+        const node = Array.isArray(nodes) ? nodes[0] : undefined
+        const fileId = node?.fileid
+        if (!fileId) {
+          return
         }
+
+        const rawPath =
+          (node as { path?: string }).path ?? (node as { source?: string }).source ?? ''
+        const relPath = rawPath.startsWith('/') ? rawPath.substring(1) : rawPath
+
+        // Store both: the file ID is authoritative; the string path is a
+        // human-readable label/fallback that gets cached on the server.
+        this.formData.upload_directory_folder_id = fileId
+        this.formData.upload_directory = relPath
+        this.formData.upload_directory_resolved_path = relPath
       } catch (e) {
-        console.error('Failed to pick directory', e)
+        if (e instanceof Error && !e.message.includes('No nodes selected')) {
+          console.error('Failed to pick directory', e)
+        }
       }
     },
   },

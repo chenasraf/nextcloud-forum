@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.1.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.0.3...v1.1.0) (2026-05-26)
+
+
+### Features
+
+* **attachments:** per-category upload folder by file ID ([ba8c99d](https://github.com/chenasraf/nextcloud-forum/commit/ba8c99d38d60d2be7a1d03bb5076682c90eb568c))
+* **attachments:** use file IDs for stable attachments ([156bde7](https://github.com/chenasraf/nextcloud-forum/commit/156bde70cdbf5aa88b0db2c8430357c94647affa))
+* **preferences:** resolve upload directory by file ID ([d9c6bf3](https://github.com/chenasraf/nextcloud-forum/commit/d9c6bf3763d6d6861d428e0fe956c23b9a2decc3))
+* **preferences:** upload behavior — configured vs prompt ([a9fdbbd](https://github.com/chenasraf/nextcloud-forum/commit/a9fdbbdf1aff97da5a9e1d40a31d7978951a8624))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([1982300](https://github.com/chenasraf/nextcloud-forum/commit/1982300be3ae94f8d41f9b2e96537a1051513b32))
+* **l10n:** Update translations from Transifex ([bc7b9bd](https://github.com/chenasraf/nextcloud-forum/commit/bc7b9bd270e8bf21179d55702566037e7dc57f72))
+* **l10n:** Update translations from Transifex ([e958bba](https://github.com/chenasraf/nextcloud-forum/commit/e958bbaedace44c1c75c89b0e2c6c3a7014e0c31))
+* **l10n:** Update translations from Transifex ([1e332eb](https://github.com/chenasraf/nextcloud-forum/commit/1e332ebdccdd269bc87af7f31476585155e37ac6))
+* **l10n:** Update translations from Transifex ([8ce1fae](https://github.com/chenasraf/nextcloud-forum/commit/8ce1faee0eda76f25fa9e42d6c33c3e07c514e8c))
+* **l10n:** Update translations from Transifex ([26f6e65](https://github.com/chenasraf/nextcloud-forum/commit/26f6e65ef1cc4ff37fbb1b3eb047d6530ecdbefc))
+* **l10n:** Update translations from Transifex ([febe06b](https://github.com/chenasraf/nextcloud-forum/commit/febe06bfd8c067aaf26768ec7c221587bb89dbc9))
+
 ## [1.0.3](https://github.com/chenasraf/nextcloud-forum/compare/v1.0.2...v1.0.3) (2026-05-17)
 
 

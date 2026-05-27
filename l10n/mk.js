@@ -19,6 +19,7 @@ OC.L10N.register(
     "Categories" : "Категории",
     "Moderation" : "Модерација",
     "Collapse" : "Собери",
+    "Log in" : "Најава",
     "Hello world!" : "Здраво свету!",
     "Font size" : "Големина на фонт",
     "List" : "Листа",

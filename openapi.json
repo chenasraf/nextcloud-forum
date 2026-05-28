@@ -389,6 +389,12 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Whether signatures are displayed on posts"
+                                    },
+                                    "count_subcategory_in_category_counts": {
+                                        "type": "boolean",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Whether to include subcategory threads/replies in parent category counts"
                                     }
                                 }
                             }

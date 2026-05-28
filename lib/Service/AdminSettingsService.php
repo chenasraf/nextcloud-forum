@@ -33,6 +33,9 @@ class AdminSettingsService {
 	/** Setting key for enabling signatures on posts */
 	public const SETTING_ENABLE_SIGNATURES = 'enable_signatures';
 
+	/** Setting key for whether category counts include subcategory threads/replies */
+	public const SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS = 'count_subcategory_in_category_counts';
+
 	/** @var array<string> List of valid setting keys */
 	private const VALID_KEYS = [
 		self::SETTING_TITLE,
@@ -42,6 +45,7 @@ class AdminSettingsService {
 		self::SETTING_PUBLIC_EDIT_HISTORY,
 		self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE,
 		self::SETTING_ENABLE_SIGNATURES,
+		self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS,
 	];
 
 	public function __construct(
@@ -66,6 +70,7 @@ class AdminSettingsService {
 			self::SETTING_PUBLIC_EDIT_HISTORY => true,
 			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => false,
 			self::SETTING_ENABLE_SIGNATURES => true,
+			self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => true,
 			default => null,
 		};
 	}
@@ -104,7 +109,8 @@ class AdminSettingsService {
 			self::SETTING_IS_INITIALIZED,
 			self::SETTING_PUBLIC_EDIT_HISTORY,
 			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE,
-			self::SETTING_ENABLE_SIGNATURES => $this->config->getAppValueBool($key, $default, true),
+			self::SETTING_ENABLE_SIGNATURES,
+			self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => $this->config->getAppValueBool($key, $default, true),
 			default => $this->config->getAppValueString($key, $default, true),
 		};
 	}
@@ -147,7 +153,8 @@ class AdminSettingsService {
 
 		if ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED
 			|| $key === self::SETTING_PUBLIC_EDIT_HISTORY || $key === self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE
-			|| $key === self::SETTING_ENABLE_SIGNATURES) {
+			|| $key === self::SETTING_ENABLE_SIGNATURES
+			|| $key === self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS) {
 			$this->config->setAppValueBool($key, (bool)$value, true);
 		} else {
 			$this->config->setAppValueString($key, (string)$value, true);

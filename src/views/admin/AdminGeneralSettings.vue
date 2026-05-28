@@ -85,6 +85,18 @@
           </div>
         </FormSection>
 
+        <FormSection :title="strings.categoryCountsTitle" :subtitle="strings.categoryCountsDesc">
+          <div class="form-group">
+            <NcCheckboxRadioSwitch
+              v-model="formData.count_subcategory_in_category_counts"
+              type="switch"
+            >
+              {{ strings.countSubcategoryInCategoryCounts }}
+            </NcCheckboxRadioSwitch>
+            <p class="hint">{{ strings.countSubcategoryInCategoryCountsHint }}</p>
+          </div>
+        </FormSection>
+
         <!-- Actions -->
         <div class="form-actions">
           <NcButton :disabled="saving || !hasChanges" @click="resetForm">
@@ -132,6 +144,7 @@ interface Settings {
   public_edit_history: boolean
   allow_edit_history_user_override: boolean
   enable_signatures: boolean
+  count_subcategory_in_category_counts: boolean
 }
 
 export default defineComponent({
@@ -168,6 +181,7 @@ export default defineComponent({
         public_edit_history: true,
         allow_edit_history_user_override: false,
         enable_signatures: true,
+        count_subcategory_in_category_counts: true,
       } as Settings,
       formData: {
         title: '',
@@ -176,6 +190,7 @@ export default defineComponent({
         public_edit_history: true,
         allow_edit_history_user_override: false,
         enable_signatures: true,
+        count_subcategory_in_category_counts: true,
       } as Settings,
 
       strings: {
@@ -218,6 +233,19 @@ export default defineComponent({
           'forum',
           'When enabled, accounts can set a signature in their preferences that appears at the bottom of their posts.',
         ),
+        categoryCountsTitle: t('forum', 'Category counts'),
+        categoryCountsDesc: t(
+          'forum',
+          'Configure how thread and reply counts are calculated for categories',
+        ),
+        countSubcategoryInCategoryCounts: t(
+          'forum',
+          'Count subcategory threads/replies in category counts',
+        ),
+        countSubcategoryInCategoryCountsHint: t(
+          'forum',
+          'When enabled, category cards will show total threads/replies from all subcategories combined. When disabled, only the threads/replies from the category itself will be counted.',
+        ),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
         saveSuccess: t('forum', 'Settings saved'),
@@ -233,7 +261,9 @@ export default defineComponent({
         this.formData.public_edit_history !== this.originalData.public_edit_history ||
         this.formData.allow_edit_history_user_override !==
           this.originalData.allow_edit_history_user_override ||
-        this.formData.enable_signatures !== this.originalData.enable_signatures
+        this.formData.enable_signatures !== this.originalData.enable_signatures ||
+        this.formData.count_subcategory_in_category_counts !==
+          this.originalData.count_subcategory_in_category_counts
       )
     },
   },

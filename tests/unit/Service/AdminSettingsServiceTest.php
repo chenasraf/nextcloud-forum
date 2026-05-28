@@ -49,7 +49,7 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->exactly(5))
+		$this->config->expects($this->exactly(6))
 			->method('getAppValueBool')
 			->willReturnCallback(function ($key, $default, $lazy) {
 				return match ($key) {
@@ -58,6 +58,7 @@ class AdminSettingsServiceTest extends TestCase {
 					AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY => true,
 					AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => false,
 					AdminSettingsService::SETTING_ENABLE_SIGNATURES => true,
+					AdminSettingsService::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => true,
 					default => $default,
 				};
 			});
@@ -65,7 +66,7 @@ class AdminSettingsServiceTest extends TestCase {
 		$result = $this->service->getAllSettings();
 
 		$this->assertIsArray($result);
-		$this->assertCount(7, $result);
+		$this->assertCount(8, $result);
 		$this->assertEquals('My Forum', $result[AdminSettingsService::SETTING_TITLE]);
 		$this->assertEquals('Welcome!', $result[AdminSettingsService::SETTING_SUBTITLE]);
 		$this->assertTrue($result[AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS]);
@@ -73,6 +74,7 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->assertTrue($result[AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY]);
 		$this->assertFalse($result[AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE]);
 		$this->assertTrue($result[AdminSettingsService::SETTING_ENABLE_SIGNATURES]);
+		$this->assertTrue($result[AdminSettingsService::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS]);
 	}
 
 	public function testGetSettingReturnsCorrectStringValue(): void {
@@ -189,7 +191,7 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->exactly(5))
+		$this->config->expects($this->exactly(6))
 			->method('getAppValueBool')
 			->willReturnCallback(function ($key, $default, $lazy) {
 				return match ($key) {
@@ -240,7 +242,7 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
-		$this->config->expects($this->exactly(5))
+		$this->config->expects($this->exactly(6))
 			->method('getAppValueBool')
 			->willReturnCallback(function ($key, $default, $lazy) {
 				return match ($key) {

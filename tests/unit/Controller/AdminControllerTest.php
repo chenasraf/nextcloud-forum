@@ -116,6 +116,8 @@ class AdminControllerTest extends TestCase {
 			AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS => true,
 			AdminSettingsService::SETTING_PUBLIC_EDIT_HISTORY => false,
 			AdminSettingsService::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => true,
+			AdminSettingsService::SETTING_ENABLE_SIGNATURES => false,
+			AdminSettingsService::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => false,
 		];
 
 		$this->settingsService->expects($this->once())
@@ -129,6 +131,8 @@ class AdminControllerTest extends TestCase {
 			true,
 			false,
 			true,
+			false,
+			false,
 		);
 
 		$this->assertEquals(200, $response->getStatus());

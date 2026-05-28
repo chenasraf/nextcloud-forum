@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
@@ -16,6 +17,7 @@ class StatsService {
 		private IDBConnection $db,
 		private IUserManager $userManager,
 		private LoggerInterface $logger,
+		private AdminSettingsService $adminSettings,
 	) {
 	}
 
@@ -197,25 +199,33 @@ class StatsService {
 	 * @return void
 	 */
 	public function rebuildCategoryStats(int $categoryId): void {
-		// Count non-deleted threads in this category
+		$includeSubcategories = (bool)$this->adminSettings->getSetting(
+			AdminSettingsService::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS
+		);
+
+		$categoryIds = $includeSubcategories
+			? $this->collectDescendantCategoryIds($categoryId)
+			: [$categoryId];
+
+		// Count non-deleted threads in these categories
 		$threadQb = $this->db->getQueryBuilder();
 		$threadQb->select($threadQb->func()->count('*', 'count'))
 			->from('forum_threads')
-			->where($threadQb->expr()->eq('category_id', $threadQb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+			->where($threadQb->expr()->in('category_id', $threadQb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)))
 			->andWhere($threadQb->expr()->isNull('deleted_at'));
 		$threadResult = $threadQb->executeQuery();
 		$threadCount = (int)($threadResult->fetchOne() ?? 0);
 		$threadResult->closeCursor();
 
-		// Count non-deleted posts in non-deleted threads in this category (excluding first posts)
+		// Count non-deleted posts in non-deleted threads in these categories (excluding first posts)
 		$postQb = $this->db->getQueryBuilder();
 		$postQb->select($postQb->func()->count('*', 'count'))
 			->from('forum_posts', 'p')
 			->innerJoin('p', 'forum_threads', 't', $postQb->expr()->eq('p.thread_id', 't.id'))
-			->where($postQb->expr()->eq('t.category_id', $postQb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)))
+			->where($postQb->expr()->in('t.category_id', $postQb->createNamedParameter($categoryIds, IQueryBuilder::PARAM_INT_ARRAY)))
 			->andWhere($postQb->expr()->isNull('p.deleted_at'))
 			->andWhere($postQb->expr()->isNull('t.deleted_at'))
-			->andWhere($postQb->expr()->eq('p.is_first_post', $postQb->createNamedParameter(false, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_BOOL)));
+			->andWhere($postQb->expr()->eq('p.is_first_post', $postQb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
 		$postResult = $postQb->executeQuery();
 		$postCount = (int)($postResult->fetchOne() ?? 0);
 		$postResult->closeCursor();
@@ -223,10 +233,41 @@ class StatsService {
 		// Update category stats
 		$updateQb = $this->db->getQueryBuilder();
 		$updateQb->update('forum_categories')
-			->set('thread_count', $updateQb->createNamedParameter($threadCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
-			->set('post_count', $updateQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
-			->where($updateQb->expr()->eq('id', $updateQb->createNamedParameter($categoryId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));
+			->set('thread_count', $updateQb->createNamedParameter($threadCount, IQueryBuilder::PARAM_INT))
+			->set('post_count', $updateQb->createNamedParameter($postCount, IQueryBuilder::PARAM_INT))
+			->where($updateQb->expr()->eq('id', $updateQb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT)));
 		$updateQb->executeStatement();
+	}
+
+	/**
+	 * Collect the given category ID plus all of its descendant category IDs.
+	 *
+	 * @param int $categoryId
+	 * @return list<int>
+	 */
+	private function collectDescendantCategoryIds(int $categoryId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id', 'parent_id')->from('forum_categories');
+		$result = $qb->executeQuery();
+		$childrenByParent = [];
+		while ($row = $result->fetch()) {
+			if ($row['parent_id'] === null) {
+				continue;
+			}
+			$childrenByParent[(int)$row['parent_id']][] = (int)$row['id'];
+		}
+		$result->closeCursor();
+
+		$ids = [$categoryId];
+		$queue = [$categoryId];
+		while ($queue) {
+			$current = array_shift($queue);
+			foreach ($childrenByParent[$current] ?? [] as $childId) {
+				$ids[] = $childId;
+				$queue[] = $childId;
+			}
+		}
+		return $ids;
 	}
 
 	/**

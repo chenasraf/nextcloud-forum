@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.1.0...v1.2.0) (2026-05-28)
+
+
+### Features
+
+* **settings:** add toggle to include subcategory threads in category counts ([8e60a13](https://github.com/chenasraf/nextcloud-forum/commit/8e60a138a62c313b91a4c9d8ec5e513ec2062de5))
+
+
+### Bug Fixes
+
+* **categories:** hide headers with no accessible categories ([ca299e7](https://github.com/chenasraf/nextcloud-forum/commit/ca299e708c480b2016f3d09f88e29e70769f002e))
+* **l10n:** Update translations from Transifex ([a8756f8](https://github.com/chenasraf/nextcloud-forum/commit/a8756f8e0f871dbcb5601a7e62fc91dccaeac118))
+
 ## [1.1.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.0.3...v1.1.0) (2026-05-26)
 
 

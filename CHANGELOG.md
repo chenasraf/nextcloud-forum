@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.1](https://github.com/chenasraf/nextcloud-forum/compare/v1.2.0...v1.2.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([36900dc](https://github.com/chenasraf/nextcloud-forum/commit/36900dceb3554589a966d61583825b0c2022c53e))
+* **l10n:** Update translations from Transifex ([b08b18c](https://github.com/chenasraf/nextcloud-forum/commit/b08b18c6aa4f3b979858fb05263f592e136a02e9))
+* **l10n:** Update translations from Transifex ([2d0f2fd](https://github.com/chenasraf/nextcloud-forum/commit/2d0f2fd991fce40de14b4f314d296504b5a3c464))
+* **l10n:** Update translations from Transifex ([83f7b72](https://github.com/chenasraf/nextcloud-forum/commit/83f7b726891b658afd751a4b4f66bbecf903a2f7))
+* **l10n:** Update translations from Transifex ([fe652ef](https://github.com/chenasraf/nextcloud-forum/commit/fe652efaebdc736c2bfc5e0c02b7f2c1e0320c9b))
+* **l10n:** Update translations from Transifex ([ce703d0](https://github.com/chenasraf/nextcloud-forum/commit/ce703d0925790a9fad1d233d731e0bf1571371c1))
+* **l10n:** Update translations from Transifex ([9db496c](https://github.com/chenasraf/nextcloud-forum/commit/9db496c1c02d427bce5477b2488a4e781283ba00))
+* **l10n:** Update translations from Transifex ([b32f96e](https://github.com/chenasraf/nextcloud-forum/commit/b32f96ec73f5c0985c2a6ca97d14d7b7b3cf0540))
+* **l10n:** Update translations from Transifex ([60f5077](https://github.com/chenasraf/nextcloud-forum/commit/60f50775cfa859ab47915d3e99f9bdfa943ec74d))
+* **preferences:** drop derived keys from PUT body to avoid 400 ([b3a969a](https://github.com/chenasraf/nextcloud-forum/commit/b3a969add879e996b039f8a05175ee4bfcd0ee2c))
+
 ## [1.2.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.1.0...v1.2.0) (2026-05-28)
 
 

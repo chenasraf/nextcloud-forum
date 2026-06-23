@@ -1,6 +1,7 @@
 OC.L10N.register(
     "forum",
     {
+    "Admin" : "관리자",
     "User" : "사용자",
     "General" : "일반",
     "Support" : "지원",

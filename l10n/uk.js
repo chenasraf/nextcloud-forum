@@ -63,6 +63,8 @@ OC.L10N.register(
     "React with {emoji}" : "Відреагувати з {emoji}",
     "_%n reply_::_%n replies_" : ["%n відповідь","%n відповідей","%n відповідей","%n відповідей"],
     "Templates" : "Шаблони",
+    "Add template" : "Додати шаблон",
+    "Edit template" : "Редагувати шаблон",
     "Name" : "Ім'я",
     "Template name" : "Ім'я шаблону",
     "Content" : "Вміст",

@@ -98,6 +98,7 @@ OC.L10N.register(
     "Tag" : "Tagg",
     "Description" : "Beskrivning",
     "Enabled" : "Aktiverad",
+    "Parent" : "Förälder",
     "Permissions" : "Behörigheter",
     "Preview" : "Förhandsgranskning",
     "Attachments" : "Bilagor",

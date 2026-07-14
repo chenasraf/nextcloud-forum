@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.4](https://github.com/chenasraf/nextcloud-forum/compare/v1.2.3...v1.2.4) (2026-07-14)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([2de3263](https://github.com/chenasraf/nextcloud-forum/commit/2de3263b4a74474fbd9cfdd466d3912abf8fb6ad))
+* **l10n:** Update translations from Transifex ([725744b](https://github.com/chenasraf/nextcloud-forum/commit/725744b5259a674098aeb2974595f1895ee42f56))
+* **l10n:** Update translations from Transifex ([f4dc512](https://github.com/chenasraf/nextcloud-forum/commit/f4dc5122fa7bf24ca1e99870f3693ba7c73a9509))
+* **l10n:** Update translations from Transifex ([90520e7](https://github.com/chenasraf/nextcloud-forum/commit/90520e7cc1336353fee7dfb549814409bd53ee4c))
+* **l10n:** Update translations from Transifex ([aef9ea7](https://github.com/chenasraf/nextcloud-forum/commit/aef9ea76c710fda23f6fbc35f2b914628cc7acd0))
+* **l10n:** Update translations from Transifex ([658ee35](https://github.com/chenasraf/nextcloud-forum/commit/658ee3597a18459e8c240303aad12067272ae857))
+* **l10n:** Update translations from Transifex ([c0e50b0](https://github.com/chenasraf/nextcloud-forum/commit/c0e50b00ac152bfb50a11c798348d8372573c16e))
+* **l10n:** Update translations from Transifex ([59f3d0c](https://github.com/chenasraf/nextcloud-forum/commit/59f3d0cd91cc78fd47b57aead6becf6e03510050))
+* **l10n:** Update translations from Transifex ([3eae8c9](https://github.com/chenasraf/nextcloud-forum/commit/3eae8c91d89fe61b3717ed4bc71d95acdd3d5ee8))
+* **l10n:** Update translations from Transifex ([0dee0c3](https://github.com/chenasraf/nextcloud-forum/commit/0dee0c33832b3438050154cc75d1406f5db83a89))
+* **upload:** respect Nextcloud base path for WebDAV uploads ([6e6d6dc](https://github.com/chenasraf/nextcloud-forum/commit/6e6d6dc40db150d82e3afe0baa7252a9e60c70da)), closes [#309](https://github.com/chenasraf/nextcloud-forum/issues/309)
+
 ## [1.2.3](https://github.com/chenasraf/nextcloud-forum/compare/v1.2.2...v1.2.3) (2026-07-02)
 
 

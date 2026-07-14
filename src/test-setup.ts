@@ -40,6 +40,7 @@ vi.mock('@nextcloud/l10n', () => ({
 // Mock @nextcloud/router globally
 vi.mock('@nextcloud/router', () => ({
   generateUrl: (path: string) => path,
+  generateRemoteUrl: (service: string) => `/remote.php/${service}`,
 }))
 
 // Mock @nextcloud/vue/functions/isDarkTheme globally (defaults to light theme)

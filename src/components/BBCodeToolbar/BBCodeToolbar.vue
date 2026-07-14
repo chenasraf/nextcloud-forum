@@ -154,7 +154,7 @@ import {
   setCursorPosition,
   editorStateToSelection,
 } from '@/utils/bbcode'
-import { generateUrl } from '@nextcloud/router'
+import { generateUrl, generateRemoteUrl } from '@nextcloud/router'
 import { getCurrentUser } from '@nextcloud/auth'
 import FormatBoldIcon from '@icons/FormatBold.vue'
 import FormatItalicIcon from '@icons/FormatItalic.vue'
@@ -764,7 +764,7 @@ export default defineComponent({
 
       const attempt = async (path: string) => {
         await this.ensureDirectoryExists(user.uid, path)
-        const davPath = `/remote.php/dav/files/${user.uid}/${path}/${file.name}`
+        const davPath = generateRemoteUrl(`dav/files/${user.uid}/${path}/${file.name}`)
         return webDav.put(davPath, file, {
           headers: {
             'Content-Type': file.type || 'application/octet-stream',
@@ -840,7 +840,7 @@ export default defineComponent({
     async ensureDirectoryExists(userId: string, path: string): Promise<void> {
       // Try to create the directory
       // If it already exists, the request will fail but that's ok
-      const davPath = `/remote.php/dav/files/${userId}/${path}`
+      const davPath = generateRemoteUrl(`dav/files/${userId}/${path}`)
       try {
         await webDav.request({
           method: 'MKCOL',

@@ -26,6 +26,7 @@ OC.L10N.register(
     "Insert emoji" : "Вметни емотикон",
     "Upload failed" : "Прикачувањето не успеа",
     "Close" : "Затвори",
+    "Threads" : "Нишки",
     "Allow" : "Дозволи",
     "Change color" : "Промени боја",
     "Account" : "Сметка",

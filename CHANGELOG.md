@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.5](https://github.com/chenasraf/nextcloud-forum/compare/v1.2.4...v1.2.5) (2026-07-17)
+
+
+### Bug Fixes
+
+* **bbcode:** patch PHP 8.4 implicit nullable deprecation in generateTag ([fa3bf1b](https://github.com/chenasraf/nextcloud-forum/commit/fa3bf1b5246d66a1a0795eb24805ddae4a47146a)), closes [#311](https://github.com/chenasraf/nextcloud-forum/issues/311)
+* **l10n:** Update translations from Transifex ([215bdfc](https://github.com/chenasraf/nextcloud-forum/commit/215bdfc04d1ee82ec680c9aa7c1e989432f81a52))
+
 ## [1.2.4](https://github.com/chenasraf/nextcloud-forum/compare/v1.2.3...v1.2.4) (2026-07-14)
 
 

@@ -31,7 +31,8 @@
   },
   "require": {
     "php": "^8.1",
-    "chriskonnertz/bbcode": "^1.1"
+    "chriskonnertz/bbcode": "^1.1",
+    "cweagans/composer-patches": "^1.7"
   },
   "require-dev": {
     "bamarni/composer-bin-plugin": "^1.8",
@@ -40,7 +41,8 @@
   },
   "config": {
     "allow-plugins": {
-      "bamarni/composer-bin-plugin": true
+      "bamarni/composer-bin-plugin": true,
+      "cweagans/composer-patches": true
     },
     "optimize-autoloader": true,
     "sort-packages": true,
@@ -52,6 +54,12 @@
     "bamarni-bin": {
       "bin-links": true,
       "forward-command": true
+    },
+    "composer-exit-on-patch-failure": true,
+    "patches": {
+      "chriskonnertz/bbcode": {
+        "Fix PHP 8.4 implicitly nullable parameter deprecation in generateTag() (#311)": "patches/bbcode-explicit-nullable-generateTag.patch"
+      }
     }
   }
 }

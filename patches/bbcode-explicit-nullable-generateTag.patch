@@ -1,0 +1,15 @@
+Fix PHP 8.4 deprecation: implicitly nullable parameter $openingTag in generateTag().
+
+See https://github.com/chenasraf/nextcloud-forum/issues/311
+
+--- a/src/ChrisKonnertz/BBCode/BBCode.php
++++ b/src/ChrisKonnertz/BBCode/BBCode.php
+@@ -282,7 +282,7 @@
+      * @param  Tag[]    $openTags   Array with tags that are opned but not closed
+      * @return string
+      */
+-    protected function generateTag(Tag $tag, &$html, Tag $openingTag = null, array $openTags = [])
++    protected function generateTag(Tag $tag, &$html, ?Tag $openingTag = null, array $openTags = [])
+     {
+         $code = null;
+

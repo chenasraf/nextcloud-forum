@@ -30,6 +30,7 @@ OC.L10N.register(
     "Font size" : "字体大小",
     "List" : "列表",
     "Insert emoji" : "插入 emoji",
+    "Upload failed" : "上传失败",
     "Close" : "关闭",
     "Failed to upload file" : "无法上传文件",
     "Threads" : "帖子‌",

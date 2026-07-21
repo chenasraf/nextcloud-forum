@@ -124,6 +124,7 @@ export default defineComponent({
   },
   methods: {
     n,
+    t,
     highlightQuery(text: string, query: string): string {
       if (!query || !text) {
         return this.escapeHtml(text)

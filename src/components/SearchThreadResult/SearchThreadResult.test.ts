@@ -50,6 +50,29 @@ describe('SearchThreadResult', () => {
       })
       expect(wrapper.find('.author').text()).toContain('Deleted account')
     })
+
+    // Regression: issue #318. When a thread has a reply, `lastReply` is set and the
+    // template renders the "Last reply by" line, which calls t(). t() must be exposed
+    // as a method, otherwise the whole card throws "t is not a function" while the
+    // search still counts the thread.
+    it('should render the card and last reply line when the thread has a reply', () => {
+      const thread = createMockThread({
+        postCount: 1,
+        lastReplyAuthorId: 'admin',
+        lastReplyAt: 1784648477,
+        lastReply: {
+          postId: 5057,
+          author: createMockUser({ userId: 'admin', displayName: 'Admin' }),
+          createdAt: 1784648477,
+        },
+      })
+      const wrapper = mount(SearchThreadResult, {
+        props: { thread, query: 'test' },
+      })
+      expect(wrapper.find('.search-thread-result').exists()).toBe(true)
+      expect(wrapper.find('.last-reply').exists()).toBe(true)
+      expect(wrapper.find('.last-reply').text()).toContain('Admin')
+    })
   })
 
   describe('badges', () => {

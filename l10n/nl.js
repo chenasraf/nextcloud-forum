@@ -38,6 +38,7 @@ OC.L10N.register(
     "Failed to upload file" : "Kon bestand niet uploaden",
     "Threads" : "Draden",
     "Category" : "Categorie",
+    "Can view" : "Zichtbaar",
     "Allow" : "Toestaan",
     "Change color" : "Wijzigen kleur",
     "Account" : "Account",

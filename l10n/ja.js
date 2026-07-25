@@ -31,6 +31,7 @@ OC.L10N.register(
     "Close" : "閉じる",
     "Threads" : "スレッド",
     "Category" : "カテゴリー",
+    "Can view" : "閲覧可能",
     "Allow" : "許可",
     "Pick a color" : "色を選択",
     "Change color" : "色を変える",

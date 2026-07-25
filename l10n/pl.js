@@ -33,6 +33,7 @@ OC.L10N.register(
     "Failed to upload file" : "Nie udało się wysłać pliku",
     "Threads" : "Wątki",
     "Category" : "Kategoria",
+    "Can view" : "Może wyświetlać",
     "Allow" : "Akceptuj",
     "Change color" : "Zmień kolor",
     "Account" : "Konto",

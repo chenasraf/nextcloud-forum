@@ -107,6 +107,7 @@ export interface Post {
 
 export interface ForumUser {
   userId: string
+  email?: string | null
   postCount: number
   threadCount: number
   lastPostAt: number | null

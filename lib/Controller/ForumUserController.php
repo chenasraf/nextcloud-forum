@@ -126,6 +126,13 @@ class ForumUserController extends OCSController {
 			$roles = $this->roleMapper->findByUserId($userId);
 			$data['roles'] = array_map(fn ($role) => $role->jsonSerialize(), $roles);
 
+			// Email visibility follows Nextcloud semantics: the primary email
+			// can never be scoped private, so any authenticated viewer may see
+			// it. Unauthenticated guests never receive the field.
+			if ($this->userSession->getUser() !== null) {
+				$data['email'] = $this->userService->getUserEmailById($userId);
+			}
+
 			return new DataResponse($data);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching forum user: ' . $e->getMessage());

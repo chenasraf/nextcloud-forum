@@ -155,6 +155,56 @@ class ForumUserControllerTest extends TestCase {
 		$this->assertEquals([], $data['roles']);
 	}
 
+	public function testShowIncludesEmailForAuthenticatedViewer(): void {
+		$viewer = $this->createMock(IUser::class);
+		$viewer->method('getUID')->willReturn('viewer');
+		$this->userSession->method('getUser')->willReturn($viewer);
+
+		$this->forumUserMapper->method('find')
+			->with('user1')
+			->willReturn($this->createForumUser(1, 'user1', 10));
+		$this->userService->method('getUserEmailById')
+			->with('user1')
+			->willReturn('user1@example.com');
+
+		$response = $this->controller->show('user1');
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('user1@example.com', $response->getData()['email']);
+	}
+
+	public function testShowOmitsEmailForUnauthenticatedViewer(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+
+		$this->forumUserMapper->method('find')
+			->with('user1')
+			->willReturn($this->createForumUser(1, 'user1', 10));
+
+		$response = $this->controller->show('user1');
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertArrayNotHasKey('email', $response->getData());
+	}
+
+	public function testShowReturnsNullEmailWhenTargetUserHasNone(): void {
+		$viewer = $this->createMock(IUser::class);
+		$viewer->method('getUID')->willReturn('viewer');
+		$this->userSession->method('getUser')->willReturn($viewer);
+
+		$this->forumUserMapper->method('find')
+			->with('user1')
+			->willReturn($this->createForumUser(1, 'user1', 10));
+		$this->userService->method('getUserEmailById')
+			->with('user1')
+			->willReturn(null);
+
+		$response = $this->controller->show('user1');
+
+		$data = $response->getData();
+		$this->assertArrayHasKey('email', $data);
+		$this->assertNull($data['email']);
+	}
+
 	public function testCreateForumUserSuccessfully(): void {
 		$nextcloudUserId = 'new-user';
 		$createdUser = $this->createForumUser(1, $nextcloudUserId, 0);

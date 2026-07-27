@@ -380,4 +380,60 @@ class AdminControllerTest extends TestCase {
 
 		$this->assertEquals(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
 	}
+
+	// ── Users list tests ─────────────────────────────────────────────
+
+	public function testUsersIncludesEmailForEachUser(): void {
+		$alice = $this->createMock(IUser::class);
+		$alice->method('getUID')->willReturn('alice');
+		$bob = $this->createMock(IUser::class);
+		$bob->method('getUID')->willReturn('bob');
+
+		$this->forumUserMapper->method('findAll')->willReturn([]);
+		$this->userManager->method('callForAllUsers')
+			->willReturnCallback(function (callable $callback) use ($alice, $bob): void {
+				$callback($alice);
+				$callback($bob);
+			});
+		$this->userService->method('enrichMultipleUsers')
+			->with(['alice', 'bob'])
+			->willReturn([
+				'alice' => ['displayName' => 'Alice', 'isDeleted' => false, 'roles' => []],
+				'bob' => ['displayName' => 'Bob', 'isDeleted' => false, 'roles' => []],
+			]);
+		$this->userService->method('getUserEmail')
+			->willReturnCallback(
+				fn (IUser $user): ?string => $user->getUID() === 'alice' ? 'alice@example.com' : null,
+			);
+
+		$response = $this->controller->users();
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$users = $response->getData()['users'];
+		$this->assertCount(2, $users);
+		$this->assertSame('alice', $users[0]['userId']);
+		$this->assertSame('alice@example.com', $users[0]['email']);
+		$this->assertSame('bob', $users[1]['userId']);
+		$this->assertNull($users[1]['email']);
+	}
+
+	public function testUsersEmailKeyIsAlwaysPresent(): void {
+		$carol = $this->createMock(IUser::class);
+		$carol->method('getUID')->willReturn('carol');
+
+		$this->forumUserMapper->method('findAll')->willReturn([]);
+		$this->userManager->method('callForAllUsers')
+			->willReturnCallback(function (callable $callback) use ($carol): void {
+				$callback($carol);
+			});
+		$this->userService->method('enrichMultipleUsers')
+			->willReturn(['carol' => ['displayName' => 'Carol', 'isDeleted' => false, 'roles' => []]]);
+		$this->userService->method('getUserEmail')->willReturn(null);
+
+		$response = $this->controller->users();
+
+		$users = $response->getData()['users'];
+		$this->assertArrayHasKey('email', $users[0]);
+		$this->assertNull($users[0]['email']);
+	}
 }

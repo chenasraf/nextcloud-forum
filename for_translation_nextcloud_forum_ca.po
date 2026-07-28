@@ -1,0 +1,3022 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Nextcloud package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# omar.maciasmolina <omar.maciasmolina@gmail.com>, 2025
+# Joan Marcè i Igual <jmigual0@gmail.com>, 2025
+# Jaume Batlle Brugal <Jaumetbb@gmail.com>, 2025
+# Kintu, 2025
+# Assumpta, 2025
+# Rafael Carreras <rcarreras@fsfe.org>, 2025
+# Nextcloud Bot <bot@nextcloud.com>, 2025
+# Ferran López <flg@tuta.io>, 2025
+# caos30 <sergio.cero@gmail.com>, 2025
+# Toni Hermoso Pulido <toniher@softcatala.cat>, 2025
+# cc400de65db5542ce571ec20afb75777_f96835c, 2025
+# Pràctiques bTactic <practiques@btactic.com>, 2026
+# Andy Scherzinger <info@andy-scherzinger.de>, 2026
+# Joas Schilling, 2026
+# Jordi Sanfeliu <jordi@fibranet.cat>, 2026
+# Lluís Forns Puigmartí, 2026
+# Leandro Navarro <leandro@pangea.org>, 2026
+# Marc Riera <marcriera@softcatala.org>, 2026
+# Davidmp <medipas@gmail.com>, 2026
+# Néfix Estrada <nefixestrada@gmail.com>, 2026
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Nextcloud 3.14159\n"
+"Report-Msgid-Bugs-To: translations\\@example.com\n"
+"POT-Creation-Date: 2026-07-28 02:37+0000\n"
+"PO-Revision-Date: 2026-07-28 16:39+0000\n"
+"Last-Translator: Néfix Estrada <nefixestrada@gmail.com>, 2026\n"
+"Language-Team: Catalan (https://app.transifex.com/nextcloud/teams/64236/ca/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ca\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: /app/master/lib/Dashboard/RecentActivityWidget.php:35
+msgid "Recent Forum activity"
+msgstr "Activitat recent del fòrum"
+
+#: /app/master/lib/Dashboard/RecentActivityWidget.php:63
+msgid "More activity"
+msgstr "Més activitat"
+
+#: /app/master/lib/Dashboard/RecentActivityWidget.php:99
+#: /app/master/lib/Dashboard/RecentActivityWidget.php:108
+#, php-format
+msgid "%1$s (Guest)"
+msgstr "%1$s (convidat)"
+
+#: /app/master/lib/Dashboard/RecentActivityWidget.php:101
+#, php-format
+msgid "New thread by %1$s"
+msgstr "Fil nou de %1$s"
+
+#: /app/master/lib/Dashboard/RecentActivityWidget.php:110
+#, php-format
+msgid "Reply by %1$s"
+msgstr "Resposta de %1$s"
+
+#: /app/master/lib/Dashboard/RecentActivityWidget.php:124
+msgid "No recent forum activity"
+msgstr "No hi ha activitat recent al fòrum"
+
+#: /app/master/lib/Dashboard/TopActivityWidget.php:33
+msgid "Top Forum activity"
+msgstr "Activitat destacada del fòrum"
+
+#: /app/master/lib/Dashboard/TopActivityWidget.php:61
+#: /app/master/lib/Dashboard/TopCategoriesWidget.php:61
+#: /app/master/lib/Dashboard/TopThreadsWidget.php:61
+msgid "Browse forum"
+msgstr "Navega pel fòrum"
+
+#: /app/master/lib/Dashboard/TopActivityWidget.php:78
+#: /app/master/lib/Dashboard/TopCategoriesWidget.php:75
+#: /app/master/specialVueFakeDummyForL10nScript.js:8460
+#: /app/master/specialVueFakeDummyForL10nScript.js:8840
+msgid "%n thread"
+msgid_plural "%n threads"
+msgstr[0] "%n fil"
+msgstr[1] "%n fils"
+
+#. TRANSLATORS
+#. aster/src/components/SearchThreadResult/SearchThreadResult.vue:49
+#: /app/master/lib/Dashboard/TopActivityWidget.php:95
+#: /app/master/lib/Dashboard/TopThreadsWidget.php:75
+#: /app/master/specialVueFakeDummyForL10nScript.js:4327
+#: /app/master/specialVueFakeDummyForL10nScript.js:6326
+msgid "%n view"
+msgid_plural "%n views"
+msgstr[0] "%n visualització"
+msgstr[1] "%n visualitzacions"
+
+#: /app/master/lib/Dashboard/TopActivityWidget.php:105
+msgid "No forum activity"
+msgstr "No hi ha activitat al fòrum"
+
+#: /app/master/lib/Dashboard/TopCategoriesWidget.php:33
+msgid "Top Forum categories"
+msgstr "Categories destacades del fòrum"
+
+#: /app/master/lib/Dashboard/TopCategoriesWidget.php:84
+#: /app/master/specialVueFakeDummyForL10nScript.js:2074
+msgid "No categories available"
+msgstr "No hi ha cap categoria disponible"
+
+#: /app/master/lib/Dashboard/TopThreadsWidget.php:33
+msgid "Top Forum threads"
+msgstr "Fils destacats del fòrum"
+
+#: /app/master/lib/Dashboard/TopThreadsWidget.php:84
+msgid "No threads available"
+msgstr "No hi ha cap fil disponible"
+
+#: /app/master/lib/Migration/SeedHelper.php:361
+msgid "Admin"
+msgstr "Administració"
+
+#: /app/master/lib/Migration/SeedHelper.php:362
+msgid "Administrator role with full permissions"
+msgstr "Rol d'administració amb tots els permisos"
+
+#: /app/master/lib/Migration/SeedHelper.php:375
+msgid "Moderator"
+msgstr "Moderació"
+
+#: /app/master/lib/Migration/SeedHelper.php:376
+msgid "Moderator role with elevated permissions"
+msgstr "Rol de moderació amb permisos elevats"
+
+#: /app/master/lib/Migration/SeedHelper.php:389
+msgid "User"
+msgstr "Usuari"
+
+#: /app/master/lib/Migration/SeedHelper.php:390
+msgid "Default user role with basic permissions"
+msgstr "Rol d'usuari per defecte amb permisos bàsics"
+
+#: /app/master/lib/Migration/SeedHelper.php:403
+#: /app/master/lib/Service/UserService.php:83
+#: /app/master/lib/Service/UserService.php:181
+msgid "Guest"
+msgstr "Convidat"
+
+#: /app/master/lib/Migration/SeedHelper.php:404
+msgid "Guest role for unauthenticated users with read-only access"
+msgstr ""
+"Rol de convidat per a usuaris no autenticats amb accés només de lectura"
+
+#: /app/master/lib/Migration/SeedHelper.php:667
+msgid "General"
+msgstr "General"
+
+#: /app/master/lib/Migration/SeedHelper.php:668
+msgid "General discussion categories"
+msgstr "Categories de discussió general"
+
+#: /app/master/lib/Migration/SeedHelper.php:743
+msgid "General discussions"
+msgstr "Discussions generals"
+
+#: /app/master/lib/Migration/SeedHelper.php:744
+msgid "A place for general conversations and discussions"
+msgstr "Un espai per a converses i discussions generals"
+
+#: /app/master/lib/Migration/SeedHelper.php:775
+msgid "Support"
+msgstr "Suport"
+
+#: /app/master/lib/Migration/SeedHelper.php:776
+msgid "Ask questions about the forum, provide feedback or report issues."
+msgstr ""
+"Feu preguntes sobre el fòrum, doneu la vostra opinió o informeu de "
+"problemes."
+
+#: /app/master/lib/Migration/SeedHelper.php:971
+#: /app/master/lib/Migration/SeedHelper.php:972
+msgid "Inline code"
+msgstr "Codi en línia"
+
+#: /app/master/lib/Migration/SeedHelper.php:980
+msgid "Spoiler title"
+msgstr "Títol de l'espòiler"
+
+#: /app/master/lib/Migration/SeedHelper.php:980
+msgid "Hidden content"
+msgstr "Contingut ocult"
+
+#: /app/master/lib/Migration/SeedHelper.php:981
+msgid "Spoilers"
+msgstr "Espòilers"
+
+#: /app/master/lib/Migration/SeedHelper.php:990
+#: /app/master/specialVueFakeDummyForL10nScript.js:1332
+msgid "Attachment"
+msgstr "Adjunt"
+
+#: /app/master/lib/Migration/SeedHelper.php:1247
+msgid "Welcome to the Nextcloud Forums!"
+msgstr "Us donem la benvinguda als fòrums del Nextcloud!"
+
+#: /app/master/lib/Migration/SeedHelper.php:1248
+msgid ""
+"This is a community-driven forum built right into your Nextcloud instance. "
+"Here you can discuss topics, share ideas and collaborate with other users."
+msgstr ""
+"Aquest és un fòrum comunitari integrat directament a la vostra instància del"
+" Nextcloud. Aquí podeu debatre temes, compartir idees i col·laborar amb "
+"altres usuaris."
+
+#: /app/master/lib/Migration/SeedHelper.php:1250
+msgid "Features:"
+msgstr "Característiques:"
+
+#: /app/master/lib/Migration/SeedHelper.php:1252
+msgid "Create and reply to threads"
+msgstr "Crear fils i respondre-hi"
+
+#: /app/master/lib/Migration/SeedHelper.php:1253
+msgid "Organize discussions by categories"
+msgstr "Organitzar les discussions per categories"
+
+#: /app/master/lib/Migration/SeedHelper.php:1254
+msgid "Use BBCode for rich text formatting"
+msgstr "Utilitzar BBCode per donar format enriquit al text"
+
+#: /app/master/lib/Migration/SeedHelper.php:1255
+msgid "Attach files from your Nextcloud storage"
+msgstr "Adjuntar fitxers de l'emmagatzematge del Nextcloud"
+
+#: /app/master/lib/Migration/SeedHelper.php:1256
+msgid "React to posts"
+msgstr "Reaccionar a les publicacions"
+
+#: /app/master/lib/Migration/SeedHelper.php:1257
+msgid "Track read/unread threads"
+msgstr "Fer un seguiment dels fils llegits i per llegir"
+
+#: /app/master/lib/Migration/SeedHelper.php:1259
+msgid "BBCode examples:"
+msgstr "Exemples de BBCode:"
+
+#: /app/master/lib/Migration/SeedHelper.php:1261
+msgid "Bold text"
+msgstr "Text en negreta"
+
+#: /app/master/lib/Migration/SeedHelper.php:1261
+#: /app/master/lib/Migration/SeedHelper.php:1262
+#: /app/master/lib/Migration/SeedHelper.php:1263
+#, php-format
+msgid "Use %1$stext%2$s"
+msgstr "Utilitzeu %1$stext%2$s"
+
+#: /app/master/lib/Migration/SeedHelper.php:1262
+msgid "Italic text"
+msgstr "Text en cursiva"
+
+#: /app/master/lib/Migration/SeedHelper.php:1263
+msgid "Underlined text"
+msgstr "Text subratllat"
+
+#: /app/master/lib/Migration/SeedHelper.php:1265
+msgid ""
+"Feel free to start a new discussion or reply to existing threads. Happy "
+"posting!"
+msgstr ""
+"No dubteu a començar una discussió nova o a respondre als fils existents. "
+"Que gaudiu del fòrum!"
+
+#: /app/master/lib/Migration/SeedHelper.php:1275
+msgid "Welcome to Nextcloud Forums"
+msgstr "Us donem la benvinguda als fòrums del Nextcloud"
+
+#: /app/master/lib/Notification/Notifier.php:33
+#: /app/master/lib/Sections/AdminSection.php:26
+#: /app/master/lib/Service/AdminSettingsService.php:66
+#: /app/master/specialAppInfoFakeDummyForL10nScript.php:2
+#: /app/master/specialVueFakeDummyForL10nScript.js:5191
+#: /app/master/specialVueFakeDummyForL10nScript.js:8947
+msgid "Forum"
+msgstr "Fòrum"
+
+#: /app/master/lib/Notification/Notifier.php:61
+msgid "{count} new reply in {thread}"
+msgid_plural "{count} new replies in {thread}"
+msgstr[0] "{count} resposta nova a {thread}"
+msgstr[1] "{count} respostes noves a {thread}"
+
+#: /app/master/lib/Notification/Notifier.php:91
+msgid "{user} mentioned you in {thread}"
+msgstr "{user} us ha mencionat a {thread}"
+
+#: /app/master/lib/Service/AdminSettingsService.php:67
+#: /app/master/specialVueFakeDummyForL10nScript.js:5194
+msgid "Welcome to the forum!"
+msgstr "Us donem la benvinguda al fòrum!"
+
+#: /app/master/lib/Service/UserService.php:48
+msgid "Deleted user"
+msgstr "Usuari suprimit"
+
+#: /app/master/specialAppInfoFakeDummyForL10nScript.php:3
+msgid "A community-driven forum built right into your Nextcloud instance"
+msgstr ""
+"Un fòrum comunitari integrat directament a la vostra instància del Nextcloud"
+
+#: /app/master/specialAppInfoFakeDummyForL10nScript.php:4
+msgid ""
+"Create discussions, share ideas, and collaborate with your community directly in Nextcloud.\n"
+"\n"
+"**Key features:**\n"
+"- **Threaded Discussions** - Create and reply to organized discussion threads with pagination\n"
+"- **Category Organization** - Structure your forum with customizable categories, headers, colors, and drag-and-drop reordering\n"
+"- **Rich Text Formatting** - BBCode formatting with built-in and custom tags, toolbar with overflow menu\n"
+"- **File Attachments** - Attach files from your Nextcloud storage or upload via drag-and-drop\n"
+"- **Notifications** - Subscribe to threads and get notified on replies and @mentions\n"
+"- **Post Reactions** - React to posts with emoji reactions\n"
+"- **Read/Unread Tracking** - Track unread posts at thread and category level\n"
+"- **Bookmarks** - Save threads for quick access\n"
+"- **Search** - Advanced search with boolean operators and category filtering\n"
+"- **User Profiles** - View post history, statistics, and role badges\n"
+"- **Roles and Teams** - Fine-grained permissions per role or Nextcloud Team, per category\n"
+"- **Guest Access** - Optional public access for unauthenticated visitors with configurable permissions\n"
+"- **Edit History** - View post revision history with configurable visibility and per-account privacy controls\n"
+"- **Reusable Templates** - Save and insert frequently used content snippets\n"
+"- **Signatures** - BBCode-formatted signatures on posts\n"
+"- **Thread Drafts** - Auto-saved drafts per category\n"
+"- **Dashboard Widgets** - Recent activity, top threads, and top categories on the Nextcloud dashboard\n"
+"- **Direct Post Links** - Link directly to a specific post within a thread\n"
+"- **Moderation Tools** - Pin, lock, hide, and move threads; review and restore deleted content\n"
+"- **Management Tools** - Manage categories, roles, BBCodes, and forum settings with granular permissions\n"
+"- **Server Administration** - Repair seeds, rebuild statistics, and assign roles from the Nextcloud admin panel\n"
+"\n"
+"**Perfect for:**\n"
+"- Team discussions and collaboration\n"
+"- Community forums\n"
+"- Support channels\n"
+"- Knowledge bases\n"
+"- Project discussions\n"
+"- Internal communication\n"
+"\n"
+"The forum integrates seamlessly with your Nextcloud instance, using your existing accounts and teams for authentication and access control."
+msgstr ""
+"Creeu discussions, compartiu idees i col·laboreu amb la vostra comunitat directament al Nextcloud.\n"
+"\n"
+"**Característiques principals:**\n"
+"- **Discussions en fils** - Creeu fils de discussió organitzats amb paginació i responeu-hi\n"
+"- **Organització per categories** - Estructureu el fòrum amb categories personalitzables, capçaleres, colors i reordenació arrossegant i deixant anar\n"
+"- **Format de text enriquit** - Formatació BBCode amb etiquetes integrades i personalitzades, i barra d'eines amb menú addicional\n"
+"- **Fitxers adjunts** - Adjunteu fitxers de l'emmagatzematge del Nextcloud o pugeu-los arrossegant i deixant anar\n"
+"- **Notificacions** - Subscriviu-vos a fils i rebeu notificacions de respostes i mencions amb @\n"
+"- **Reaccions a les publicacions** - Reaccioneu a les publicacions amb emojis\n"
+"- **Seguiment de llegit/per llegir** - Feu un seguiment de les publicacions per llegir en l'àmbit de fil i de categoria\n"
+"- **Adreces d'interès** - Deseu fils per accedir-hi ràpidament\n"
+"- **Cerca** - Cerca avançada amb operadors booleans i filtratge per categories\n"
+"- **Perfils d'usuari** - Vegeu l'historial de publicacions, les estadístiques i les insígnies de rol\n"
+"- **Rols i equips** - Permisos detallats per rol o per equip del Nextcloud, per categoria\n"
+"- **Accés de convidats** - Accés públic opcional per a visitants no autenticats amb permisos configurables\n"
+"- **Historial d'edicions** - Vegeu l'historial de revisions de les publicacions amb visibilitat configurable i controls de privadesa per compte\n"
+"- **Plantilles reutilitzables** - Deseu i inseriu fragments de contingut d'ús freqüent\n"
+"- **Signatures** - Signatures amb format BBCode a les publicacions\n"
+"- **Esborranys de fils** - Esborranys desats automàticament per categoria\n"
+"- **Ginys del tauler** - Activitat recent, fils destacats i categories destacades al tauler del Nextcloud\n"
+"- **Enllaços directes a publicacions** - Enllaceu directament a una publicació concreta dins d'un fil\n"
+"- **Eines de moderació** - Fixeu, bloquegeu, amagueu i moveu fils; reviseu i restaureu contingut suprimit\n"
+"- **Eines de gestió** - Gestioneu categories, rols, BBCodes i paràmetres del fòrum amb permisos detallats\n"
+"- **Administració del servidor** - Repareu les dades inicials, reconstruïu les estadístiques i assigneu rols des del tauler d'administració del Nextcloud\n"
+"\n"
+"**Perfecte per a:**\n"
+"- Discussions i col·laboració en equip\n"
+"- Fòrums comunitaris\n"
+"- Canals de suport\n"
+"- Bases de coneixement\n"
+"- Discussions de projectes\n"
+"- Comunicació interna\n"
+"\n"
+"El fòrum s'integra perfectament amb la vostra instància del Nextcloud i utilitza els comptes i equips existents per a l'autenticació i el control d'accés."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:61
+msgid "Forum server administration"
+msgstr "Administració del servidor del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:62
+msgid "Database Initial Data"
+msgstr "Dades inicials de la base de dades"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:65
+msgid ""
+"Restore default forum data (roles, categories, permissions, BBCodes). This "
+"is safe to run multiple times as it will skip data that already exists."
+msgstr ""
+"Restaura les dades per defecte del fòrum (rols, categories, permisos, "
+"BBCodes). És segur executar-ho diverses vegades, ja que ometrà les dades que"
+" ja existeixin."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:67
+msgid "Repair Database Initial Data"
+msgstr "Repara les dades inicials de la base de dades"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:68
+#: /app/master/specialVueFakeDummyForL10nScript.js:73
+msgid "Rebuild Statistics"
+msgstr "Reconstrueix les estadístiques"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:71
+msgid ""
+"Recalculate all forum statistics including account post counts, thread "
+"counts, and category counters. Use this if statistics appear incorrect or "
+"out of sync."
+msgstr ""
+"Recalcula totes les estadístiques del fòrum, incloent-hi els recomptes de "
+"publicacions dels comptes, els recomptes de fils i els comptadors de "
+"categories. Utilitzeu-ho si les estadístiques semblen incorrectes o "
+"dessincronitzades."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:74
+msgid "Account Roles"
+msgstr "Rols dels comptes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:77
+msgid ""
+"Assign forum roles to accounts. This allows you to grant administrative or "
+"moderator privileges to specific accounts."
+msgstr ""
+"Assigneu rols del fòrum als comptes. Això us permet concedir privilegis "
+"d'administració o de moderació a comptes concrets."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:79
+msgid "Account ID"
+msgstr "ID del compte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:80
+msgid "Enter account ID"
+msgstr "Introduïu l'ID del compte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:81
+msgid "Role"
+msgstr "Rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:82
+msgid "Select a role"
+msgstr "Seleccioneu un rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:83
+msgid "Assign Role"
+msgstr "Assigna el rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:110
+msgid "Failed to fetch roles"
+msgstr "No s'han pogut obtenir els rols"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:416
+#: /app/master/specialVueFakeDummyForL10nScript.js:5020
+#: /app/master/specialVueFakeDummyForL10nScript.js:5183
+#: /app/master/specialVueFakeDummyForL10nScript.js:5318
+#: /app/master/specialVueFakeDummyForL10nScript.js:5611
+#: /app/master/specialVueFakeDummyForL10nScript.js:5870
+#: /app/master/specialVueFakeDummyForL10nScript.js:6320
+#: /app/master/specialVueFakeDummyForL10nScript.js:7446
+#: /app/master/specialVueFakeDummyForL10nScript.js:7716
+#: /app/master/specialVueFakeDummyForL10nScript.js:8433
+#: /app/master/specialVueFakeDummyForL10nScript.js:9309
+#: /app/master/specialVueFakeDummyForL10nScript.js:9909
+msgid "Loading …"
+msgstr "S'està carregant…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:417
+#: /app/master/specialVueFakeDummyForL10nScript.js:419
+#: /app/master/specialVueFakeDummyForL10nScript.js:6088
+#: /app/master/specialVueFakeDummyForL10nScript.js:6090
+#: /app/master/specialVueFakeDummyForL10nScript.js:9115
+msgid "Search"
+msgstr "Cerca"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:418
+msgid "Home"
+msgstr "Inici"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:420
+#: /app/master/specialVueFakeDummyForL10nScript.js:5021
+msgid "Bookmarks"
+msgstr "Adreces d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:421
+#: /app/master/specialVueFakeDummyForL10nScript.js:7186
+msgid "Preferences"
+msgstr "Preferències"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:422
+msgid "Management"
+msgstr "Gestió"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:423
+msgid "Dashboard"
+msgstr "Tauler"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:424
+msgid "Forum settings"
+msgstr "Paràmetres del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:425
+#: /app/master/specialVueFakeDummyForL10nScript.js:8828
+msgid "Accounts"
+msgstr "Comptes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:426
+msgid "Roles & Teams"
+msgstr "Rols i equips"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:427
+#: /app/master/specialVueFakeDummyForL10nScript.js:8431
+#: /app/master/specialVueFakeDummyForL10nScript.js:8831
+msgid "Categories"
+msgstr "Categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:428
+msgid "BBCodes"
+msgstr "BBCodes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:429
+#: /app/master/specialVueFakeDummyForL10nScript.js:9111
+#: /app/master/specialVueFakeDummyForL10nScript.js:9343
+msgid "Moderation"
+msgstr "Moderació"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:430
+msgid "Expand"
+msgstr "Expandeix"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:431
+msgid "Collapse"
+msgstr "Replega"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:432
+msgid "(Guest)"
+msgstr "(Convidat)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:433
+msgid "Log in"
+msgstr "Inicia la sessió"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:779
+msgid ""
+"{bStart}Please note:{bEnd} Attached files will be visible to anyone in the "
+"forum, regardless of the file's sharing settings."
+msgstr ""
+"{bStart}Tingueu en compte:{bEnd} els fitxers adjunts seran visibles per a "
+"qualsevol persona del fòrum, independentment dels paràmetres de compartició "
+"del fitxer."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:783
+msgid "Drop file here to upload"
+msgstr "Deixeu anar el fitxer aquí per pujar-lo"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1038
+msgid "Hello world!"
+msgstr "Hola a tothom!"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1039
+msgid "Hello moon!"
+msgstr "Hola, lluna!"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1050
+msgid "Font style bold"
+msgstr "Estil de lletra negreta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1055
+msgid "Font style italic"
+msgstr "Estil de lletra cursiva"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1060
+msgid "Font style struck through"
+msgstr "Estil de lletra ratllada"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1065
+msgid "Font style underlined"
+msgstr "Estil de lletra subratllada"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1070
+msgid "Code"
+msgstr "Codi"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1075
+msgid "Email (clickable)"
+msgstr "Adreça electrònica (clicable)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1080
+msgid "URL (clickable)"
+msgstr "URL (clicable)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1085
+msgid "Image (not clickable)"
+msgstr "Imatge (no clicable)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1090
+msgid "Quote"
+msgstr "Cita"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1095
+msgid "Embedded YouTube video"
+msgstr "Vídeo de YouTube incrustat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1100
+msgid "Font (name)"
+msgstr "Lletra tipogràfica (nom)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1105
+msgid "Font size"
+msgstr "Mida de la lletra"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1110
+msgid "Font color"
+msgstr "Color de la lletra"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1115
+msgid "Align left"
+msgstr "Alinea a l'esquerra"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1120
+msgid "Align center"
+msgstr "Alinea al centre"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1125
+msgid "Align right"
+msgstr "Alinea a la dreta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1130
+msgid "List"
+msgstr "Llista"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1135
+msgid "List item within a list"
+msgstr "Element d'una llista"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1140
+msgid "List item within a list (alias)"
+msgstr "Element d'una llista (àlies)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1146
+#: /app/master/specialVueFakeDummyForL10nScript.js:1330
+#: /app/master/specialVueFakeDummyForL10nScript.js:7445
+msgid "BBCode help"
+msgstr "Ajuda del BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1147
+msgid "Built-in BBCodes"
+msgstr "BBCodes integrats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1148
+msgid "These BBCodes are available by default."
+msgstr "Aquests BBCodes estan disponibles per defecte."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1149
+msgid "Custom BBCodes"
+msgstr "BBCodes personalitzats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1152
+msgid ""
+"These BBCodes are custom to this forum and configured by administrators."
+msgstr ""
+"Aquests BBCodes són específics d'aquest fòrum i els configura "
+"l'administració."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1154
+#: /app/master/specialVueFakeDummyForL10nScript.js:7483
+msgid "Example"
+msgstr "Exemple"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1155
+#: /app/master/specialVueFakeDummyForL10nScript.js:7460
+msgid "Replacement"
+msgstr "Substitució"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1156
+msgid "Loading custom BBCodes …"
+msgstr "S'estan carregant els BBCodes personalitzats…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1157
+msgid "No custom BBCodes configured."
+msgstr "No hi ha cap BBCode personalitzat configurat."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1201
+msgid "Failed to load custom BBCodes"
+msgstr "No s'han pogut carregar els BBCodes personalitzats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1331
+msgid "Insert emoji"
+msgstr "Insereix un emoji"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1333
+msgid "Pick file from Nextcloud"
+msgstr "Tria un fitxer del Nextcloud"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1334
+msgid "Upload file to Nextcloud"
+msgstr "Puja un fitxer al Nextcloud"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1337
+msgid "Upload file to Nextcloud (choose destination)"
+msgstr "Puja un fitxer al Nextcloud (trieu la destinació)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1339
+msgid "Uploading file …"
+msgstr "S'està pujant el fitxer…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1340
+msgid "Upload failed"
+msgstr "S'ha produït un error durant la pujada"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1341
+#: /app/master/specialVueFakeDummyForL10nScript.js:3643
+msgid "Close"
+msgstr "Tanca"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1342
+msgid "More formatting options"
+msgstr "Més opcions de format"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1343
+msgid "Insert template"
+msgstr "Insereix una plantilla"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1602
+msgid "Pick a file to attach"
+msgstr "Trieu un fitxer per adjuntar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1790
+#: /app/master/specialVueFakeDummyForL10nScript.js:1910
+msgid "Failed to upload file"
+msgstr "No s'ha pogut pujar el fitxer"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1796
+msgid "Select upload destination"
+msgstr "Seleccioneu la destinació de la pujada"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:1835
+msgid "User not authenticated"
+msgstr "L'usuari no està autenticat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2003
+#: /app/master/specialVueFakeDummyForL10nScript.js:4457
+#: /app/master/specialVueFakeDummyForL10nScript.js:5875
+#: /app/master/specialVueFakeDummyForL10nScript.js:8829
+msgid "Threads"
+msgstr "Fils"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2004
+#: /app/master/specialVueFakeDummyForL10nScript.js:4458
+#: /app/master/specialVueFakeDummyForL10nScript.js:4659
+#: /app/master/specialVueFakeDummyForL10nScript.js:5874
+#: /app/master/specialVueFakeDummyForL10nScript.js:8830
+#: /app/master/specialVueFakeDummyForL10nScript.js:10102
+msgid "Replies"
+msgstr "Respostes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2005
+msgid "No description available"
+msgstr "No hi ha cap descripció disponible"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2006
+msgid "New activity"
+msgstr "Activitat nova"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2067
+msgid "Category"
+msgstr "Categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2068
+#: /app/master/specialVueFakeDummyForL10nScript.js:7743
+msgid "Can view"
+msgstr "Pot veure"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2069
+#: /app/master/specialVueFakeDummyForL10nScript.js:7748
+msgid "Can post"
+msgstr "Pot publicar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2070
+#: /app/master/specialVueFakeDummyForL10nScript.js:7753
+msgid "Can reply"
+msgstr "Pot respondre"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2071
+#: /app/master/specialVueFakeDummyForL10nScript.js:7758
+msgid "Can moderate"
+msgstr "Pot moderar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2072
+msgid "Allow"
+msgstr "Permet"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2073
+msgid "Allow All"
+msgstr "Permet-ho tot"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2077
+msgid "{bStart}View:{bEnd} Allows seeing the category and its threads."
+msgstr "{bStart}Veure:{bEnd} permet veure la categoria i els seus fils."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2083
+msgid "{bStart}Post:{bEnd} Allows creating new threads in the category."
+msgstr "{bStart}Publicar:{bEnd} permet crear fils nous a la categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2089
+msgid ""
+"{bStart}Reply:{bEnd} Allows replying to existing threads in the category."
+msgstr ""
+"{bStart}Respondre:{bEnd} permet respondre als fils existents de la "
+"categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2095
+msgid ""
+"{bStart}Moderate:{bEnd} Allows editing and deleting posts, pinning, locking,"
+" and moving threads in the category."
+msgstr ""
+"{bStart}Moderar:{bEnd} permet editar i suprimir publicacions, i fixar, "
+"bloquejar i moure fils de la categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2241
+msgid "Pick a color"
+msgstr "Trieu un color"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2242
+msgid "Change color"
+msgstr "Canvia el color"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2243
+msgid "No color selected"
+msgstr "No s'ha seleccionat cap color"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2314
+msgid "Assign guest posts to account"
+msgstr "Assigna les publicacions del convidat a un compte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2317
+msgid ""
+"All posts and threads by this guest will be reassigned to the selected "
+"account."
+msgstr ""
+"Totes les publicacions i fils d'aquest convidat es reassignaran al compte "
+"seleccionat."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2319
+msgid "Search for an account …"
+msgstr "Cerqueu un compte…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2320
+#: /app/master/specialVueFakeDummyForL10nScript.js:10101
+msgid "Account"
+msgstr "Compte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2321
+#: /app/master/specialVueFakeDummyForL10nScript.js:10099
+msgid "No accounts found"
+msgstr "No s'ha trobat cap compte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2322
+msgid "Type to search for an account"
+msgstr "Escriviu per cercar un compte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2323
+#: /app/master/specialVueFakeDummyForL10nScript.js:2478
+#: /app/master/specialVueFakeDummyForL10nScript.js:2960
+#: /app/master/specialVueFakeDummyForL10nScript.js:3551
+#: /app/master/specialVueFakeDummyForL10nScript.js:3907
+#: /app/master/specialVueFakeDummyForL10nScript.js:4452
+#: /app/master/specialVueFakeDummyForL10nScript.js:4731
+#: /app/master/specialVueFakeDummyForL10nScript.js:7226
+#: /app/master/specialVueFakeDummyForL10nScript.js:7465
+#: /app/master/specialVueFakeDummyForL10nScript.js:7735
+#: /app/master/specialVueFakeDummyForL10nScript.js:8456
+#: /app/master/specialVueFakeDummyForL10nScript.js:8992
+#: /app/master/specialVueFakeDummyForL10nScript.js:9365
+#: /app/master/specialVueFakeDummyForL10nScript.js:9918
+#: /app/master/specialVueFakeDummyForL10nScript.js:10114
+msgid "Cancel"
+msgstr "Cancel·la"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2324
+msgid "Reassign"
+msgstr "Reassigna"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2325
+msgid "Reassigning …"
+msgstr "S'està reassignant…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2326
+msgid "Guest posts reassigned successfully"
+msgstr "Les publicacions del convidat s'han reassignat correctament"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2327
+msgid "Failed to reassign guest posts"
+msgstr "No s'han pogut reassignar les publicacions del convidat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2469
+msgid "Create category header"
+msgstr "Crea una capçalera de categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2470
+msgid "Edit category header"
+msgstr "Edita la capçalera de categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2471
+msgid "Header name"
+msgstr "Nom de la capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2472
+msgid "Enter header name"
+msgstr "Introduïu el nom de la capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2473
+msgid "Header description"
+msgstr "Descripció de la capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2474
+msgid "Enter header description (optional)"
+msgstr "Introduïu la descripció de la capçalera (opcional)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2475
+#: /app/master/specialVueFakeDummyForL10nScript.js:7732
+msgid "Sort order"
+msgstr "Ordre"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2477
+#: /app/master/specialVueFakeDummyForL10nScript.js:7734
+msgid "Lower numbers appear first"
+msgstr "Els números més baixos apareixen primer"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2479
+#: /app/master/specialVueFakeDummyForL10nScript.js:7495
+#: /app/master/specialVueFakeDummyForL10nScript.js:7736
+#: /app/master/specialVueFakeDummyForL10nScript.js:9366
+msgid "Create"
+msgstr "Crea"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2480
+#: /app/master/specialVueFakeDummyForL10nScript.js:7494
+#: /app/master/specialVueFakeDummyForL10nScript.js:7737
+#: /app/master/specialVueFakeDummyForL10nScript.js:9367
+#: /app/master/specialVueFakeDummyForL10nScript.js:9919
+msgid "Update"
+msgstr "Actualitza"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2547
+msgid "Failed to save header"
+msgstr "No s'ha pogut desar la capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2601
+msgid "Forum setup required"
+msgstr "Cal configurar el fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2602
+msgid "Select the accounts that should have the forum admin role."
+msgstr ""
+"Seleccioneu els comptes que han de tenir el rol d'administració del fòrum."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2603
+msgid "Forum admin accounts:"
+msgstr "Comptes d'administració del fòrum:"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2604
+msgid "Select accounts …"
+msgstr "Seleccioneu comptes…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2605
+msgid "All other accounts will receive the default role."
+msgstr "La resta de comptes rebran el rol per defecte."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2606
+msgid "Initialize forum"
+msgstr "Inicialitza el fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2607
+msgid "Initializing …"
+msgstr "S'està inicialitzant…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2608
+msgid "Forum not set up"
+msgstr "El fòrum no està configurat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2611
+msgid ""
+"The forum has not been set up yet. Please contact an administration member "
+"to complete the setup."
+msgstr ""
+"El fòrum encara no s'ha configurat. Contacteu amb un membre de "
+"l'administració per completar la configuració."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2703
+#: /app/master/specialVueFakeDummyForL10nScript.js:10108
+msgid "Deleted"
+msgstr "Suprimit"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2704
+msgid "Restore"
+msgstr "Restaura"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2705
+msgid "Error loading content"
+msgstr "S'ha produït un error en carregar el contingut"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2706
+#: /app/master/specialVueFakeDummyForL10nScript.js:5026
+#: /app/master/specialVueFakeDummyForL10nScript.js:5322
+#: /app/master/specialVueFakeDummyForL10nScript.js:5872
+#: /app/master/specialVueFakeDummyForL10nScript.js:6102
+#: /app/master/specialVueFakeDummyForL10nScript.js:6324
+#: /app/master/specialVueFakeDummyForL10nScript.js:7191
+#: /app/master/specialVueFakeDummyForL10nScript.js:7448
+#: /app/master/specialVueFakeDummyForL10nScript.js:7718
+#: /app/master/specialVueFakeDummyForL10nScript.js:8435
+#: /app/master/specialVueFakeDummyForL10nScript.js:8826
+#: /app/master/specialVueFakeDummyForL10nScript.js:8943
+#: /app/master/specialVueFakeDummyForL10nScript.js:9311
+#: /app/master/specialVueFakeDummyForL10nScript.js:9735
+#: /app/master/specialVueFakeDummyForL10nScript.js:9911
+#: /app/master/specialVueFakeDummyForL10nScript.js:10098
+msgid "Retry"
+msgstr "Torna-ho a provar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2707
+msgid "No deleted content"
+msgstr "No hi ha contingut suprimit"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2708
+msgid "There is no deleted content to review."
+msgstr "No hi ha cap contingut suprimit per revisar."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2745
+msgid "Deleted reply"
+msgstr "Resposta suprimida"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2746
+#: /app/master/specialVueFakeDummyForL10nScript.js:4089
+#: /app/master/specialVueFakeDummyForL10nScript.js:5882
+msgid "In thread"
+msgstr "Al fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2747
+msgid "Restore reply"
+msgstr "Restaura la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2820
+msgid "Restore thread"
+msgstr "Restaura el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2956
+msgid "Move thread to category"
+msgstr "Mou el fil a una categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2957
+msgid "Select the category to move this thread to:"
+msgstr "Seleccioneu la categoria on voleu moure aquest fil:"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2958
+msgid "Select a category …"
+msgstr "Seleccioneu una categoria…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2959
+msgid "Loading categories …"
+msgstr "S'estan carregant les categories…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2961
+msgid "Move"
+msgstr "Mou"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2964
+msgid "Cannot move to a category header. Please select a category instead."
+msgstr ""
+"No es pot moure a una capçalera de categories. Seleccioneu una categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:2966
+msgid "This thread is already in this category."
+msgstr "Aquest fil ja és en aquesta categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3026
+msgid "Failed to load categories"
+msgstr "No s'han pogut carregar les categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3072
+#: /app/master/specialVueFakeDummyForL10nScript.js:5820
+msgid "Page not found"
+msgstr "No s'ha trobat la pàgina"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3073
+#: /app/master/specialVueFakeDummyForL10nScript.js:5821
+msgid "The page you are looking for could not be found."
+msgstr "No s'ha pogut trobar la pàgina que cerqueu."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3082
+#: /app/master/specialVueFakeDummyForL10nScript.js:5608
+#: /app/master/specialVueFakeDummyForL10nScript.js:5868
+#: /app/master/specialVueFakeDummyForL10nScript.js:6315
+#: /app/master/specialVueFakeDummyForL10nScript.js:7188
+#: /app/master/specialVueFakeDummyForL10nScript.js:7712
+#: /app/master/specialVueFakeDummyForL10nScript.js:9305
+#: /app/master/specialVueFakeDummyForL10nScript.js:9906
+msgid "Back"
+msgstr "Enrere"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3083
+msgid "Go to home"
+msgstr "Ves a l'inici"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3206
+msgid "Pagination"
+msgstr "Paginació"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3207
+msgid "First page"
+msgstr "Primera pàgina"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3208
+msgid "Previous page"
+msgstr "Pàgina anterior"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3209
+msgid "Next page"
+msgstr "Pàgina següent"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3210
+msgid "Last page"
+msgstr "Última pàgina"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3211
+msgid "Go to page {page}"
+msgstr "Ves a la pàgina {page}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3355
+#: /app/master/specialVueFakeDummyForL10nScript.js:4092
+msgid "Edited"
+msgstr "Editat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3356
+msgid "Quote reply"
+msgstr "Cita la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3357
+#: /app/master/specialVueFakeDummyForL10nScript.js:4454
+#: /app/master/specialVueFakeDummyForL10nScript.js:7450
+#: /app/master/specialVueFakeDummyForL10nScript.js:8437
+#: /app/master/specialVueFakeDummyForL10nScript.js:9746
+msgid "Edit"
+msgstr "Edita"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3358
+#: /app/master/specialVueFakeDummyForL10nScript.js:4455
+#: /app/master/specialVueFakeDummyForL10nScript.js:7451
+#: /app/master/specialVueFakeDummyForL10nScript.js:8438
+#: /app/master/specialVueFakeDummyForL10nScript.js:9747
+msgid "Delete"
+msgstr "Suprimeix"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3359
+msgid "View edit history"
+msgstr "Mostra l'historial d'edicions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3362
+msgid ""
+"Are you sure you want to delete this post? This action cannot be undone."
+msgstr ""
+"Segur que voleu suprimir aquesta publicació? Aquesta acció no es pot desfer."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3364
+#: /app/master/specialVueFakeDummyForL10nScript.js:4663
+msgid "Unread"
+msgstr "Per llegir"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3365
+msgid "Direct link"
+msgstr "Enllaç directe"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3366
+msgid "Direct link copied to clipboard"
+msgstr "S'ha copiat l'enllaç directe al porta-retalls"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3367
+msgid "Assign to account"
+msgstr "Assigna a un compte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3550
+msgid "Edit your reply …"
+msgstr "Editeu la resposta…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3552
+#: /app/master/specialVueFakeDummyForL10nScript.js:4453
+#: /app/master/specialVueFakeDummyForL10nScript.js:7225
+#: /app/master/specialVueFakeDummyForL10nScript.js:8991
+#: /app/master/specialVueFakeDummyForL10nScript.js:10113
+msgid "Save"
+msgstr "Desa"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3553
+msgid "Are you sure you want to discard your changes?"
+msgstr "Segur que voleu descartar els canvis?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3641
+#: /app/master/specialVueFakeDummyForL10nScript.js:8959
+msgid "Edit history"
+msgstr "Historial d'edicions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3642
+msgid "Loading history …"
+msgstr "S'està carregant l'historial…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3644
+msgid "This post has no edit history."
+msgstr "Aquesta publicació no té historial d'edicions."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3645
+msgid "Current version"
+msgstr "Versió actual"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3646
+msgid "Edited by"
+msgstr "Editat per"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3673
+msgid "Failed to load edit history"
+msgstr "No s'ha pogut carregar l'historial d'edicions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3686
+msgid "Version {index}"
+msgstr "Versió {index}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3723
+msgid "Add reaction"
+msgstr "Afegeix una reacció"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3841
+msgid "React with {emoji}"
+msgstr "Reacciona amb {emoji}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3845
+msgid "You reacted with {emoji}"
+msgstr "Heu reaccionat amb {emoji}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3851
+msgid "You and %n other reacted with {emoji}"
+msgid_plural "You and %n others reacted with {emoji}"
+msgstr[0] "Vós i %n persona més heu reaccionat amb {emoji}"
+msgstr[1] "Vós i %n persones més heu reaccionat amb {emoji}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3856
+msgid "%n person reacted with {emoji}"
+msgid_plural "%n people reacted with {emoji}"
+msgstr[0] "%n persona ha reaccionat amb {emoji}"
+msgstr[1] "%n persones han reaccionat amb {emoji}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3906
+msgid "Write your reply …"
+msgstr "Escriviu la resposta…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3908
+msgid "Submit reply"
+msgstr "Envia la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:3909
+msgid "Are you sure you want to discard your reply?"
+msgstr "Segur que voleu descartar la resposta?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4090
+msgid "Thread unavailable"
+msgstr "El fil no està disponible"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4091
+#: /app/master/specialVueFakeDummyForL10nScript.js:4241
+msgid "Deleted account"
+msgstr "Compte suprimit"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4238
+#: /app/master/specialVueFakeDummyForL10nScript.js:4661
+#: /app/master/specialVueFakeDummyForL10nScript.js:6327
+msgid "Pinned thread"
+msgstr "Fil fixat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4239
+#: /app/master/specialVueFakeDummyForL10nScript.js:4662
+#: /app/master/specialVueFakeDummyForL10nScript.js:6328
+msgid "Locked thread"
+msgstr "Fil bloquejat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4240
+msgid "Uncategorized"
+msgstr "Sense categoria"
+
+#. TRANSLATORS
+#. aster/src/components/SearchThreadResult/SearchThreadResult.vue:62
+#: /app/master/specialVueFakeDummyForL10nScript.js:4323
+#: /app/master/specialVueFakeDummyForL10nScript.js:4664
+msgid "Last reply by {name}"
+msgstr "Darrera resposta de {name}"
+
+#. TRANSLATORS
+#. aster/src/components/SearchThreadResult/SearchThreadResult.vue:45
+#: /app/master/specialVueFakeDummyForL10nScript.js:4325
+#: /app/master/specialVueFakeDummyForL10nScript.js:8461
+#: /app/master/specialVueFakeDummyForL10nScript.js:8841
+msgid "%n reply"
+msgid_plural "%n replies"
+msgstr[0] "%n resposta"
+msgstr[1] "%n respostes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4442
+msgid "Templates"
+msgstr "Plantilles"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4443
+msgid "Add template"
+msgstr "Afegeix una plantilla"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4444
+msgid "Edit template"
+msgstr "Edita la plantilla"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4445
+msgid "No templates yet"
+msgstr "Encara no hi ha cap plantilla"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4446
+msgid "Loading templates …"
+msgstr "S'estan carregant les plantilles…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4447
+#: /app/master/specialVueFakeDummyForL10nScript.js:7722
+#: /app/master/specialVueFakeDummyForL10nScript.js:9313
+#: /app/master/specialVueFakeDummyForL10nScript.js:9740
+#: /app/master/specialVueFakeDummyForL10nScript.js:9741
+msgid "Name"
+msgstr "Nom"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4448
+msgid "Template name"
+msgstr "Nom de la plantilla"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4449
+msgid "Content"
+msgstr "Contingut"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4450
+msgid "Template content (BBCode) …"
+msgstr "Contingut de la plantilla (BBCode)…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4451
+msgid "Show in:"
+msgstr "Mostra a:"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4456
+msgid "Are you sure you want to delete this template?"
+msgstr "Segur que voleu suprimir aquesta plantilla?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4459
+msgid "Both"
+msgstr "Tots dos"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4460
+msgid "Threads & replies"
+msgstr "Fils i respostes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4461
+msgid "Neither (disabled)"
+msgstr "Cap (inhabilitat)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4462
+msgid "Insert"
+msgstr "Insereix"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4530
+msgid "Failed to load templates"
+msgstr "No s'han pogut carregar les plantilles"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4589
+msgid "Failed to save template"
+msgstr "No s'ha pogut desar la plantilla"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4609
+msgid "Failed to delete template"
+msgstr "No s'ha pogut suprimir la plantilla"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4660
+msgid "Views"
+msgstr "Visualitzacions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4728
+msgid "Title"
+msgstr "Títol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4729
+msgid "Enter thread title …"
+msgstr "Introduïu el títol del fil…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4730
+msgid "Write your thread content …"
+msgstr "Escriviu el contingut del fil…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4732
+msgid "Create thread"
+msgstr "Crea el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4733
+msgid "Are you sure you want to discard this thread?"
+msgstr "Segur que voleu descartar aquest fil?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4734
+msgid "Saving draft …"
+msgstr "S'està desant l'esborrany…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4735
+msgid "Draft saved"
+msgstr "S'ha desat l'esborrany"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:4736
+msgid "Unsaved changes"
+msgstr "Hi ha canvis sense desar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5018
+msgid "Back to home"
+msgstr "Torna a l'inici"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5019
+#: /app/master/specialVueFakeDummyForL10nScript.js:5182
+#: /app/master/specialVueFakeDummyForL10nScript.js:5316
+#: /app/master/specialVueFakeDummyForL10nScript.js:5869
+#: /app/master/specialVueFakeDummyForL10nScript.js:6318
+msgid "Refresh"
+msgstr "Actualitza"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5022
+msgid "Your bookmarked threads"
+msgstr "Els fils que teniu a les adreces d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5023
+msgid "Error loading bookmarks"
+msgstr "S'ha produït un error en carregar les adreces d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5024
+msgid "No bookmarks yet"
+msgstr "Encara no hi ha cap adreça d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5025
+msgid "Bookmark threads to quickly find them later."
+msgstr ""
+"Afegiu fils a les adreces d'interès per trobar-los ràpidament més tard."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5041
+#: /app/master/specialVueFakeDummyForL10nScript.js:5377
+#: /app/master/specialVueFakeDummyForL10nScript.js:6453
+#: /app/master/specialVueFakeDummyForL10nScript.js:7290
+#: /app/master/specialVueFakeDummyForL10nScript.js:7520
+#: /app/master/specialVueFakeDummyForL10nScript.js:8072
+#: /app/master/specialVueFakeDummyForL10nScript.js:8858
+#: /app/master/specialVueFakeDummyForL10nScript.js:9026
+#: /app/master/specialVueFakeDummyForL10nScript.js:9174
+#: /app/master/specialVueFakeDummyForL10nScript.js:9457
+#: /app/master/specialVueFakeDummyForL10nScript.js:9808
+#: /app/master/specialVueFakeDummyForL10nScript.js:9823
+#: /app/master/specialVueFakeDummyForL10nScript.js:9990
+#: /app/master/specialVueFakeDummyForL10nScript.js:10162
+msgid "An unexpected error occurred"
+msgstr "S'ha produït un error inesperat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5076
+msgid "Failed to load bookmarks"
+msgstr "No s'han pogut carregar les adreces d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5184
+msgid "No categories yet"
+msgstr "Encara no hi ha cap categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5185
+msgid "Categories will appear here once they are created."
+msgstr "Les categories apareixeran aquí quan es creïn."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5246
+#: /app/master/specialVueFakeDummyForL10nScript.js:5396
+#: /app/master/specialVueFakeDummyForL10nScript.js:5675
+msgid "Category not found"
+msgstr "No s'ha trobat la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5247
+msgid "The category you are looking for does not exist or has been removed."
+msgstr "La categoria que cerqueu no existeix o s'ha eliminat."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5315
+#: /app/master/specialVueFakeDummyForL10nScript.js:5341
+msgid "Back to categories"
+msgstr "Torna a les categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5317
+msgid "New thread"
+msgstr "Fil nou"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5319
+#: /app/master/specialVueFakeDummyForL10nScript.js:5612
+#: /app/master/specialVueFakeDummyForL10nScript.js:7717
+msgid "Error loading category"
+msgstr "S'ha produït un error en carregar la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5320
+msgid "No threads yet"
+msgstr "Encara no hi ha cap fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5321
+msgid "Be the first to start a discussion in this category."
+msgstr "Comenceu la primera discussió d'aquesta categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5323
+msgid "Subcategories"
+msgstr "Subcategories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5338
+msgid "Back to {name}"
+msgstr "Torna a {name}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5391
+msgid "No category ID or slug provided"
+msgstr "No s'ha proporcionat cap ID o slug de categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5427
+msgid "Failed to load threads"
+msgstr "No s'han pogut carregar els fils"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5609
+msgid "Create New Thread"
+msgstr "Crea un fil nou"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5610
+msgid "In {category}"
+msgstr "A {category}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5613
+msgid "Creating thread …"
+msgstr "S'està creant el fil…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5614
+msgid "Thread created"
+msgstr "S'ha creat el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5615
+msgid "Failed to create thread"
+msgstr "No s'ha pogut crear el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5641
+msgid "No category specified"
+msgstr "No s'ha especificat cap categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5665
+msgid "You do not have permission to create threads in this category."
+msgstr "No teniu permís per crear fils en aquesta categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5871
+msgid "Error"
+msgstr "Error"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5873
+#: /app/master/specialVueFakeDummyForL10nScript.js:9744
+msgid "Created"
+msgstr "Creació"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5876
+msgid "Threads ({count})"
+msgstr "Fils ({count})"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5877
+msgid "Replies ({count})"
+msgstr "Respostes ({count})"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5878
+msgid "No threads"
+msgstr "Cap fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5879
+msgid "This account has not created any threads yet"
+msgstr "Aquest compte encara no ha creat cap fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5880
+msgid "No replies"
+msgstr "Cap resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5881
+msgid "This account has not written any replies yet"
+msgstr "Aquest compte encara no ha escrit cap resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:5931
+msgid "Failed to load profile"
+msgstr "No s'ha pogut carregar el perfil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6089
+msgid "Enter search query …"
+msgstr "Introduïu la consulta de cerca…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6091
+msgid "Search in threads"
+msgstr "Cerca als fils"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6092
+msgid "Search in replies"
+msgstr "Cerca a les respostes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6093
+msgid "Syntax help"
+msgstr "Ajuda de la sintaxi"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6094
+msgid "Search syntax"
+msgstr "Sintaxi de cerca"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6095
+msgid "Match exact phrase"
+msgstr "Coincidència exacta de la frase"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6096
+msgid "Both terms required"
+msgstr "Es requereixen tots dos termes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6097
+msgid "Either term matches"
+msgstr "Coincideix qualsevol dels termes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6098
+msgid "Group conditions with parentheses"
+msgstr "Agrupa condicions amb parèntesis"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6099
+msgid "Exclude term from results"
+msgstr "Exclou un terme dels resultats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6100
+msgid "Searching …"
+msgstr "S'està cercant…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6101
+msgid "Search Error"
+msgstr "Error de cerca"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6103
+msgid "Enter a search query"
+msgstr "Introduïu una consulta de cerca"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6104
+msgid "Use the search box above to find threads and replies"
+msgstr "Utilitzeu el quadre de cerca de dalt per trobar fils i respostes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6105
+msgid "No results found"
+msgstr "No s'ha trobat cap resultat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6106
+msgid "Try different keywords or check your syntax"
+msgstr "Proveu amb altres paraules clau o reviseu la sintaxi"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6107
+msgid "%n thread found"
+msgid_plural "%n threads found"
+msgstr[0] "S'ha trobat %n fil"
+msgstr[1] "S'han trobat %n fils"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6108
+msgid "%n reply found"
+msgid_plural "%n replies found"
+msgstr[0] "S'ha trobat %n resposta"
+msgstr[1] "S'han trobat %n respostes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6130
+msgid "Please enter a search query"
+msgstr "Introduïu una consulta de cerca"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6135
+msgid "Please select at least one search scope"
+msgstr "Seleccioneu almenys un àmbit de cerca"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6166
+msgid "Failed to search"
+msgstr "No s'ha pogut fer la cerca"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6203
+#: /app/master/specialVueFakeDummyForL10nScript.js:6435
+msgid "Thread not found"
+msgstr "No s'ha trobat el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6204
+msgid "The thread you are looking for does not exist or has been removed."
+msgstr "El fil que cerqueu no existeix o s'ha eliminat."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6317
+msgid "Back to {category}"
+msgstr "Torna a {category}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6319
+msgid "Reply"
+msgstr "Respon"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6321
+msgid "Error loading thread"
+msgstr "S'ha produït un error en carregar el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6322
+msgid "No replies yet"
+msgstr "Encara no hi ha cap resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6323
+msgid "Be the first to reply in this thread."
+msgstr "Escriviu la primera resposta d'aquest fil."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6325
+msgid "by"
+msgstr "per"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6329
+msgid "This thread is locked. Only moderators can add replies."
+msgstr ""
+"Aquest fil està bloquejat. Només la moderació pot afegir-hi respostes."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6330
+msgid "You do not have permission to reply in this category."
+msgstr "No teniu permís per respondre en aquesta categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6331
+msgid "You must be signed in to reply to this thread."
+msgstr "Heu d'haver iniciat la sessió per respondre en aquest fil."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6332
+msgid "Sign in to reply"
+msgstr "Inicieu la sessió per respondre"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6333
+msgid "Lock thread"
+msgstr "Bloqueja el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6334
+msgid "Unlock thread"
+msgstr "Desbloqueja el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6335
+msgid "Pin thread"
+msgstr "Fixa el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6336
+msgid "Unpin thread"
+msgstr "Deixa de fixar el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6337
+msgid "Thread locked"
+msgstr "S'ha bloquejat el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6338
+msgid "Thread unlocked"
+msgstr "S'ha desbloquejat el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6339
+msgid "Thread pinned"
+msgstr "S'ha fixat el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6340
+msgid "Thread unpinned"
+msgstr "S'ha deixat de fixar el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6341
+msgid "Subscribe"
+msgstr "Subscriu-m'hi"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6342
+msgid "Subscribed"
+msgstr "Subscrit"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6343
+msgid "Subscribed to thread"
+msgstr "Us heu subscrit al fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6344
+msgid "Unsubscribed from thread"
+msgstr "S'ha cancel·lat la subscripció al fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6345
+msgid "Bookmark"
+msgstr "Afegeix a les adreces d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6346
+msgid "Remove bookmark"
+msgstr "Suprimeix l'adreça d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6347
+msgid "Thread bookmarked"
+msgstr "S'ha afegit el fil a les adreces d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6348
+msgid "Bookmark removed"
+msgstr "S'ha suprimit l'adreça d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6349
+msgid "Edit title"
+msgstr "Edita el títol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6350
+msgid "Save title"
+msgstr "Desa el títol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6351
+msgid "Thread title updated"
+msgstr "S'ha actualitzat el títol del fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6352
+msgid "Move thread"
+msgstr "Mou el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6353
+msgid "Thread moved successfully"
+msgstr "S'ha mogut el fil correctament"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6430
+msgid "No thread ID or slug provided"
+msgstr "No s'ha proporcionat cap ID o slug de fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6548
+msgid "Failed to load replies"
+msgstr "No s'han pogut carregar les respostes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6701
+msgid "Thread updated"
+msgstr "S'ha actualitzat el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6701
+msgid "Reply updated"
+msgstr "S'ha actualitzat la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6707
+msgid "Failed to update thread"
+msgstr "No s'ha pogut actualitzar el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6708
+msgid "Failed to update reply"
+msgstr "No s'ha pogut actualitzar la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6734
+msgid "Thread deleted"
+msgstr "S'ha suprimit el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6748
+msgid "Reply deleted"
+msgstr "S'ha suprimit la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6752
+msgid "Failed to delete reply"
+msgstr "No s'ha pogut suprimir la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6871
+msgid "Failed to submit reply"
+msgstr "No s'ha pogut enviar la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6894
+msgid "Failed to update thread lock status"
+msgstr "No s'ha pogut actualitzar l'estat de bloqueig del fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6912
+msgid "Failed to update thread pin status"
+msgstr "No s'ha pogut actualitzar l'estat de fixació del fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6933
+msgid "Failed to update subscription"
+msgstr "No s'ha pogut actualitzar la subscripció"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:6958
+msgid "Failed to update bookmark"
+msgstr "No s'ha pogut actualitzar l'adreça d'interès"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7078
+msgid "Failed to update thread title"
+msgstr "No s'ha pogut actualitzar el títol del fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7101
+msgid "Failed to move thread"
+msgstr "No s'ha pogut moure el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7187
+msgid "Customize your forum experience"
+msgstr "Personalitzeu la vostra experiència al fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7189
+msgid "Loading preferences …"
+msgstr "S'estan carregant les preferències…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7190
+msgid "Error loading preferences"
+msgstr "S'ha produït un error en carregar les preferències"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7192
+msgid "Notifications"
+msgstr "Notificacions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7193
+msgid "Configure how you receive notifications"
+msgstr "Configureu com rebeu les notificacions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7194
+msgid "Auto-subscribe to threads I create"
+msgstr "Subscriu-me automàticament als fils que creï"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7197
+msgid ""
+"When enabled, you will automatically receive notifications for replies to "
+"threads you create"
+msgstr ""
+"Quan està habilitat, rebreu automàticament notificacions de les respostes "
+"als fils que creeu"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7199
+msgid "Auto-subscribe to threads I reply to"
+msgstr "Subscriu-me automàticament als fils on respongui"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7202
+msgid ""
+"When enabled, you will automatically receive notifications for new replies "
+"in threads you have replied to"
+msgstr ""
+"Quan està habilitat, rebreu automàticament notificacions de les respostes "
+"noves als fils on hàgiu respost"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7204
+msgid "Files"
+msgstr "Fitxers"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7205
+msgid "Configure file upload settings"
+msgstr "Configureu els paràmetres de pujada de fitxers"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7206
+msgid "Upload directory"
+msgstr "Directori de pujada"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7207
+#: /app/master/specialVueFakeDummyForL10nScript.js:7785
+msgid "Pick a folder …"
+msgstr "Trieu una carpeta…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7210
+msgid ""
+"Files attached to threads or replies will be uploaded to this directory in "
+"your Nextcloud files. The path resolves to your own files; other users will "
+"see the same folder at its location in their own files."
+msgstr ""
+"Els fitxers adjuntats a fils o respostes es pujaran a aquest directori dels "
+"vostres fitxers del Nextcloud. El camí es resol als vostres propis fitxers; "
+"els altres usuaris veuran la mateixa carpeta a la ubicació corresponent dels"
+" seus propis fitxers."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7212
+msgid "Upload behavior"
+msgstr "Comportament de les pujades"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7213
+msgid "Always upload to chosen directory"
+msgstr "Puja sempre al directori triat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7214
+msgid "Always prompt for upload location"
+msgstr "Demana sempre la ubicació de pujada"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7217
+msgid ""
+"Whether attachment uploads use your configured directory or ask you to pick "
+"a destination each time"
+msgstr ""
+"Determina si les pujades d'adjunts utilitzen el directori configurat o si se"
+" us demana que trieu una destinació cada vegada"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7219
+msgid "Use category-specific paths when available"
+msgstr "Utilitza camins específics de la categoria quan estiguin disponibles"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7222
+msgid ""
+"When a category has its own attachments folder configured, uploads in that "
+"category go there instead of your default upload directory"
+msgstr ""
+"Quan una categoria té configurada la seva pròpia carpeta d'adjunts, les "
+"pujades en aquesta categoria hi van en lloc del vostre directori de pujada "
+"per defecte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7224
+#: /app/master/specialVueFakeDummyForL10nScript.js:7794
+msgid "Browse"
+msgstr "Navega"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7227
+msgid "Preferences saved"
+msgstr "S'han desat les preferències"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7228
+#: /app/master/specialVueFakeDummyForL10nScript.js:7233
+msgid "Signature"
+msgstr "Signatura"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7231
+msgid "Your signature appears at the bottom of your threads or replies"
+msgstr "La signatura apareix al final dels vostres fils o respostes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7234
+msgid "You can use BBCode formatting in your signature"
+msgstr "Podeu utilitzar format BBCode a la signatura"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7235
+msgid "Enter your signature …"
+msgstr "Introduïu la signatura…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7236
+msgid "Privacy"
+msgstr "Privadesa"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7237
+msgid "Control the visibility of your activity"
+msgstr "Controleu la visibilitat de la vostra activitat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7238
+msgid "Hide my edit history from other accounts"
+msgstr "Amaga el meu historial d'edicions als altres comptes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7241
+msgid ""
+"When enabled, other accounts cannot view the edit history of your posts. "
+"Administration and moderators can always view edit history."
+msgstr ""
+"Quan està habilitat, els altres comptes no poden veure l'historial "
+"d'edicions de les vostres publicacions. L'administració i la moderació "
+"sempre poden veure l'historial d'edicions."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7316
+msgid "Failed to save preferences"
+msgstr "No s'han pogut desar les preferències"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7333
+msgid "Select upload directory"
+msgstr "Seleccioneu el directori de pujada"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7443
+#: /app/master/specialVueFakeDummyForL10nScript.js:9341
+msgid "BBCode management"
+msgstr "Gestió de BBCodes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7444
+msgid "Manage custom BBCode tags for formatting"
+msgstr "Gestioneu les etiquetes BBCode personalitzades per donar format"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7447
+msgid "Error loading BBCodes"
+msgstr "S'ha produït un error en carregar els BBCodes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7449
+#: /app/master/specialVueFakeDummyForL10nScript.js:7467
+msgid "Create BBCode"
+msgstr "Crea un BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7452
+msgid "Enable"
+msgstr "Habilita"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7453
+msgid "Disable"
+msgstr "Inhabilita"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7454
+msgid "Enabled BBCodes"
+msgstr "BBCodes habilitats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7455
+msgid "These BBCode tags are currently active"
+msgstr "Aquestes etiquetes BBCode estan actives actualment"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7456
+msgid "Disabled BBCodes"
+msgstr "BBCodes inhabilitats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7457
+msgid "These BBCode tags are currently inactive"
+msgstr "Aquestes etiquetes BBCode estan inactives actualment"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7458
+msgid "No enabled BBCodes"
+msgstr "No hi ha cap BBCode habilitat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7459
+msgid "Parses Inner"
+msgstr "Analitza el contingut intern"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7461
+#: /app/master/specialVueFakeDummyForL10nScript.js:7466
+msgid "Delete BBCode"
+msgstr "Suprimeix el BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7463
+msgid "Are you sure you want to delete the BBCode tag [{tag}]?"
+msgstr "Segur que voleu suprimir l'etiqueta BBCode [{tag}]?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7464
+msgid "This action cannot be undone."
+msgstr "Aquesta acció no es pot desfer."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7468
+msgid "Edit BBCode"
+msgstr "Edita el BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7469
+msgid "Tag"
+msgstr "Etiqueta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7470
+msgid "e.g., b, i, url, color"
+msgstr "p. ex., b, i, url, color"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7471
+msgid "The BBCode tag name (without brackets)"
+msgstr "El nom de l'etiqueta BBCode (sense claudàtors)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7472
+msgid "HTML replacement"
+msgstr "Substitució HTML"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7475
+msgid "e.g., {strongStart}{content}{strongEnd}"
+msgstr "p. ex., {strongStart}{content}{strongEnd}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7481
+msgid "Use {content} for the tag content and {paramName} for parameters"
+msgstr ""
+"Utilitzeu {content} per al contingut de l'etiqueta i {paramName} per als "
+"paràmetres"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7484
+msgid "e.g., {tagStart}Hello world{tagEnd}"
+msgstr "p. ex., {tagStart}Hola, món{tagEnd}"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7488
+msgid "Example usage of this BBCode tag"
+msgstr "Exemple d'ús d'aquesta etiqueta BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7489
+#: /app/master/specialVueFakeDummyForL10nScript.js:7730
+#: /app/master/specialVueFakeDummyForL10nScript.js:9314
+#: /app/master/specialVueFakeDummyForL10nScript.js:9743
+msgid "Description"
+msgstr "Descripció"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7490
+msgid "Brief description of what this BBCode does"
+msgstr "Descripció breu del que fa aquest BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7491
+msgid "Enabled"
+msgstr "Habilitat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7492
+msgid "Parse inner content"
+msgstr "Analitza el contingut intern"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7493
+msgid "If enabled, BBCode tags inside this tag will also be parsed"
+msgstr ""
+"Si està habilitat, també s'analitzaran les etiquetes BBCode dins d'aquesta "
+"etiqueta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7582
+msgid "Failed to save BBCode"
+msgstr "No s'ha pogut desar el BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7596
+msgid "Failed to toggle BBCode"
+msgstr "No s'ha pogut commutar el BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7614
+msgid "Failed to delete BBCode"
+msgstr "No s'ha pogut suprimir el BBCode"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7713
+#: /app/master/specialVueFakeDummyForL10nScript.js:8436
+msgid "Create category"
+msgstr "Crea una categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7714
+msgid "Edit category"
+msgstr "Edita la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7715
+msgid "Configure category details"
+msgstr "Configureu els detalls de la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7719
+#: /app/master/specialVueFakeDummyForL10nScript.js:9312
+msgid "Basic information"
+msgstr "Informació bàsica"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7720
+msgid "Parent"
+msgstr "Categoria pare"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7721
+msgid "-- Select a parent --"
+msgstr "-- Seleccioneu una categoria pare --"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7723
+msgid "Enter category name"
+msgstr "Introduïu el nom de la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7724
+msgid "Slug"
+msgstr "Slug"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7726
+msgid "URL-friendly identifier (e.g., \"{slug}\")"
+msgstr "Identificador apte per a URL (p. ex., «{slug}»)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7729
+msgid "Slug cannot be changed after category creation"
+msgstr "L'slug no es pot canviar després de crear la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7731
+msgid "Enter category description (optional)"
+msgstr "Introduïu la descripció de la categoria (opcional)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7738
+msgid "Permissions"
+msgstr "Permisos"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7741
+msgid "Control which roles and teams can access and moderate this category"
+msgstr ""
+"Controleu quins rols i equips poden accedir a aquesta categoria i moderar-la"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7746
+msgid "Select roles or teams that can view this category and its threads"
+msgstr ""
+"Seleccioneu els rols o equips que poden veure aquesta categoria i els seus "
+"fils"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7751
+msgid "Select roles or teams that can create new threads in this category"
+msgstr ""
+"Seleccioneu els rols o equips que poden crear fils nous en aquesta categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7756
+msgid "Select roles or teams that can reply to threads in this category"
+msgstr ""
+"Seleccioneu els rols o equips que poden respondre als fils d'aquesta "
+"categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7761
+msgid ""
+"Select roles or teams that can moderate (edit/delete) content in this "
+"category"
+msgstr ""
+"Seleccioneu els rols o equips que poden moderar (editar/suprimir) el "
+"contingut d'aquesta categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7763
+msgid "Select roles or teams …"
+msgstr "Seleccioneu rols o equips…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7764
+msgid "Design"
+msgstr "Disseny"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7765
+msgid "Customize the appearance of this category"
+msgstr "Personalitzeu l'aparença d'aquesta categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7766
+msgid "Category color"
+msgstr "Color de la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7767
+msgid "Text color"
+msgstr "Color del text"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7768
+msgid "Dark text"
+msgstr "Text fosc"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7769
+msgid "Light text"
+msgstr "Text clar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7770
+msgid "Preview"
+msgstr "Previsualitza"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7771
+msgid "Hide subcategories on category card"
+msgstr "Amaga les subcategories a la targeta de la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7774
+msgid ""
+"When enabled, child categories will not appear as links on this category's "
+"card on the home page"
+msgstr ""
+"Quan està habilitat, les categories filles no apareixeran com a enllaços a "
+"la targeta d'aquesta categoria a la pàgina d'inici"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7776
+msgid "Attachments"
+msgstr "Adjunts"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7777
+msgid "Configure where uploads in this category are stored"
+msgstr "Configureu on s'emmagatzemen les pujades d'aquesta categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7778
+msgid "Use default attachments path"
+msgstr "Utilitza el camí d'adjunts per defecte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7781
+msgid "Uploads in this category land in each user's personal upload directory"
+msgstr ""
+"Les pujades d'aquesta categoria van al directori de pujada personal de cada "
+"usuari"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7783
+msgid "Use category-specific attachment path"
+msgstr "Utilitza un camí d'adjunts específic de la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7784
+msgid "Category attachments folder"
+msgstr "Carpeta d'adjunts de la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7788
+msgid ""
+"The shown path is resolved to your own files. Other admins will see the same"
+" folder at the location it appears in their own files."
+msgstr ""
+"El camí mostrat es resol als vostres propis fitxers. Els altres "
+"administradors veuran la mateixa carpeta a la ubicació on aparegui als seus "
+"propis fitxers."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:7792
+msgid ""
+"This folder must be accessible to every user who uploads in this category. "
+"If a user cannot write to it, their upload will fall back to their personal "
+"default path."
+msgstr ""
+"Aquesta carpeta ha de ser accessible per a tots els usuaris que pugin "
+"fitxers en aquesta categoria. Si un usuari no hi pot escriure, la seva "
+"pujada anirà al seu camí personal per defecte."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8187
+msgid "Pick a folder"
+msgstr "Trieu una carpeta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8263
+msgid "Failed to save category"
+msgstr "No s'ha pogut desar la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8432
+msgid "Manage forum categories and organization"
+msgstr "Gestioneu les categories i l'organització del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8434
+msgid "Error loading categories"
+msgstr "S'ha produït un error en carregar les categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8439
+msgid "No categories in this header"
+msgstr "No hi ha cap categoria en aquesta capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8440
+#: /app/master/specialVueFakeDummyForL10nScript.js:8457
+msgid "Delete category"
+msgstr "Suprimeix la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8442
+msgid "Are you sure you want to delete the category \"{name}\"?"
+msgstr "Segur que voleu suprimir la categoria «{name}»?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8446
+msgid "This category contains %n thread."
+msgid_plural "This category contains %n threads."
+msgstr[0] "Aquesta categoria conté %n fil."
+msgstr[1] "Aquesta categoria conté %n fils."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8450
+msgid "What should happen to the threads?"
+msgstr "Què cal fer amb els fils?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8451
+msgid "Move threads to another category"
+msgstr "Mou els fils a una altra categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8452
+msgid "Delete all threads (soft delete)"
+msgstr "Suprimeix tots els fils (supressió recuperable)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8453
+msgid "Threads will be hidden but not permanently deleted"
+msgstr "Els fils s'amagaran, però no se suprimiran permanentment"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8454
+msgid "Select target category"
+msgstr "Seleccioneu la categoria de destinació"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8455
+msgid "-- Select a category --"
+msgstr "-- Seleccioneu una categoria --"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8458
+msgid "Create header"
+msgstr "Crea una capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8459
+msgid "%n category"
+msgid_plural "%n categories"
+msgstr[0] "%n categoria"
+msgstr[1] "%n categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8462
+#: /app/master/specialVueFakeDummyForL10nScript.js:8473
+msgid "Delete header"
+msgstr "Suprimeix la capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8464
+msgid "Are you sure you want to delete the header \"{name}\"?"
+msgstr "Segur que voleu suprimir la capçalera «{name}»?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8468
+msgid "This header contains %n category."
+msgid_plural "This header contains %n categories."
+msgstr[0] "Aquesta capçalera conté %n categoria."
+msgstr[1] "Aquesta capçalera conté %n categories."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8472
+msgid "This action cannot be undone"
+msgstr "Aquesta acció no es pot desfer"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8474
+msgid "What should happen to the categories?"
+msgstr "Què cal fer amb les categories?"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8475
+msgid "Move categories to another header"
+msgstr "Mou les categories a una altra capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8476
+msgid "Delete all categories"
+msgstr "Suprimeix totes les categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8479
+msgid "All categories and their threads will be permanently deleted"
+msgstr "Totes les categories i els seus fils se suprimiran permanentment"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8481
+msgid "Select target header"
+msgstr "Seleccioneu la capçalera de destinació"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8482
+msgid "-- Select a header --"
+msgstr "-- Seleccioneu una capçalera --"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8483
+msgid "Move up"
+msgstr "Mou amunt"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8484
+msgid "Move down"
+msgstr "Mou avall"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8580
+msgid "Failed to delete category"
+msgstr "No s'ha pogut suprimir la categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8640
+msgid "Failed to delete header"
+msgstr "No s'ha pogut suprimir la capçalera"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8822
+msgid "Management dashboard"
+msgstr "Tauler de gestió"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8823
+msgid "Overview of forum activity and statistics"
+msgstr "Resum de l'activitat i les estadístiques del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8824
+msgid "Loading statistics …"
+msgstr "S'estan carregant les estadístiques…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8825
+msgid "Error loading dashboard"
+msgstr "S'ha produït un error en carregar el tauler"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8827
+msgid "Total statistics"
+msgstr "Estadístiques totals"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8832
+msgid "Recent activity (last 7 days)"
+msgstr "Activitat recent (darrers 7 dies)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8833
+msgid "New accounts"
+msgstr "Comptes nous"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8834
+msgid "New threads"
+msgstr "Fils nous"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8835
+msgid "New replies"
+msgstr "Respostes noves"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8836
+msgid "Top contributors"
+msgstr "Principals col·laboradors"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8837
+msgid "No contributors yet"
+msgstr "Encara no hi ha col·laboradors"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8838
+msgid "Last 7 days"
+msgstr "Darrers 7 dies"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8839
+msgid "All time"
+msgstr "Total"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8939
+msgid "General settings"
+msgstr "Paràmetres generals"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8940
+msgid "Configure general forum settings"
+msgstr "Configureu els paràmetres generals del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8941
+msgid "Loading settings …"
+msgstr "S'estan carregant els paràmetres…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8942
+msgid "Error loading settings"
+msgstr "S'ha produït un error en carregar els paràmetres"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8944
+msgid "Appearance"
+msgstr "Aparença"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8945
+msgid "Customize how your forum looks to people"
+msgstr "Personalitzeu l'aspecte del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8946
+msgid "Forum title"
+msgstr "Títol del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8948
+msgid "Displayed at the top of the forum home page"
+msgstr "Es mostra a la part superior de la pàgina d'inici del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8949
+msgid "Forum subtitle"
+msgstr "Subtítol del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8950
+msgid "Welcome to the forum"
+msgstr "Us donem la benvinguda al fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8951
+msgid "A brief description shown below the title"
+msgstr "Una descripció breu que es mostra sota el títol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8952
+msgid "Access control"
+msgstr "Control d'accés"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8953
+msgid "Manage who can access the forum"
+msgstr "Gestioneu qui pot accedir al fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8954
+msgid "Allow guest access"
+msgstr "Permet l'accés de convidats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8957
+msgid ""
+"When enabled, unauthenticated users can view forum content in read-only mode"
+msgstr ""
+"Quan està habilitat, els usuaris no autenticats poden veure el contingut del"
+" fòrum en mode de només lectura"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8960
+msgid "Control who can view the edit history of posts"
+msgstr "Controleu qui pot veure l'historial d'edicions de les publicacions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8961
+msgid "Allow all accounts to view edit history"
+msgstr "Permet que tots els comptes vegin l'historial d'edicions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8964
+msgid ""
+"When enabled, any account can view the edit history of any post. When "
+"disabled, only post owners can view their own edit history. Administration "
+"and moderators can always view edit history."
+msgstr ""
+"Quan està habilitat, qualsevol compte pot veure l'historial d'edicions de "
+"qualsevol publicació. Quan està inhabilitat, només els propietaris de la "
+"publicació poden veure el seu propi historial d'edicions. L'administració i "
+"la moderació sempre poden veure l'historial d'edicions."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8966
+msgid "Allow accounts to hide their own edit history"
+msgstr "Permet que els comptes amaguin el seu propi historial d'edicions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8969
+msgid ""
+"When enabled, accounts can choose to hide their edit history from other "
+"accounts in their preferences."
+msgstr ""
+"Quan està habilitat, els comptes poden triar a les preferències amagar el "
+"seu historial d'edicions als altres comptes."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8971
+msgid "Posts"
+msgstr "Publicacions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8972
+msgid "Configure posting features"
+msgstr "Configureu les funcions de publicació"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8973
+msgid "Enable signatures"
+msgstr "Habilita les signatures"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8976
+msgid ""
+"When enabled, accounts can set a signature in their preferences that appears"
+" at the bottom of their posts."
+msgstr ""
+"Quan està habilitat, els comptes poden definir a les preferències una "
+"signatura que apareix al final de les seves publicacions."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8978
+msgid "Category counts"
+msgstr "Recomptes de les categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8981
+msgid "Configure how thread and reply counts are calculated for categories"
+msgstr ""
+"Configureu com es calculen els recomptes de fils i respostes de les "
+"categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8985
+msgid "Count subcategory threads/replies in category counts"
+msgstr ""
+"Compta els fils i respostes de les subcategories en els recomptes de la "
+"categoria"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8989
+msgid ""
+"When enabled, category cards will show total threads/replies from all "
+"subcategories combined. When disabled, only the threads/replies from the "
+"category itself will be counted."
+msgstr ""
+"Quan està habilitat, les targetes de categoria mostraran el total de fils i "
+"respostes de totes les subcategories combinades. Quan està inhabilitat, "
+"només es comptaran els fils i respostes de la mateixa categoria."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:8993
+msgid "Settings saved"
+msgstr "S'han desat els paràmetres"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9051
+msgid "Failed to save settings"
+msgstr "No s'han pogut desar els paràmetres"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9112
+msgid "Review and restore deleted content"
+msgstr "Reviseu i restaureu el contingut suprimit"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9113
+msgid "Deleted threads"
+msgstr "Fils suprimits"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9114
+msgid "Deleted replies"
+msgstr "Respostes suprimides"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9116
+msgid "Search deleted content …"
+msgstr "Cerqueu contingut suprimit…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9117
+msgid "Newest first"
+msgstr "Més nou primer"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9118
+msgid "Oldest first"
+msgstr "Més antic primer"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9210
+msgid "Failed to restore thread"
+msgstr "No s'ha pogut restaurar el fil"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9223
+msgid "Failed to restore reply"
+msgstr "No s'ha pogut restaurar la resposta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9306
+#: /app/master/specialVueFakeDummyForL10nScript.js:9738
+msgid "Create role"
+msgstr "Crea un rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9307
+msgid "Edit role"
+msgstr "Edita el rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9308
+msgid "Configure role permissions and category access"
+msgstr "Configureu els permisos del rol i l'accés a les categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9310
+msgid "Error loading role"
+msgstr "S'ha produït un error en carregar el rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9315
+msgid "Enter role name"
+msgstr "Introduïu el nom del rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9316
+msgid "Enter role description (optional)"
+msgstr "Introduïu la descripció del rol (opcional)"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9317
+msgid "System role names cannot be changed"
+msgstr "Els noms dels rols del sistema no es poden canviar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9318
+msgid "Colors"
+msgstr "Colors"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9319
+msgid "Set colors for this role badge"
+msgstr "Definiu els colors de la insígnia d'aquest rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9320
+msgid "Light mode color"
+msgstr "Color del mode clar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9321
+msgid "Dark mode color"
+msgstr "Color del mode fosc"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9324
+msgid "Reset"
+msgstr "Reinicialitza"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9325
+msgid "Role permissions"
+msgstr "Permisos del rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9326
+msgid "Set global permissions for this role"
+msgstr "Definiu els permisos globals d'aquest rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9327
+msgid "Dashboard and forum settings"
+msgstr "Tauler i paràmetres del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9330
+msgid "Allow access to the management dashboard and forum settings"
+msgstr "Permet l'accés al tauler de gestió i als paràmetres del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9332
+#: /app/master/specialVueFakeDummyForL10nScript.js:10094
+msgid "Account management"
+msgstr "Gestió de comptes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9333
+msgid "Allow viewing accounts and assigning roles"
+msgstr "Permet veure els comptes i assignar rols"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9334
+msgid "Roles and teams management"
+msgstr "Gestió de rols i equips"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9337
+msgid "Allow creating, editing and deleting roles and team permissions"
+msgstr "Permet crear, editar i suprimir rols i permisos d'equips"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9339
+msgid "Category management"
+msgstr "Gestió de categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9340
+msgid "Allow creating, editing and deleting categories"
+msgstr "Permet crear, editar i suprimir categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9342
+msgid "Allow creating, editing and deleting custom BBCodes"
+msgstr "Permet crear, editar i suprimir BBCodes personalitzats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9346
+msgid ""
+"Allow access to the moderation page to review and restore deleted content"
+msgstr ""
+"Permet l'accés a la pàgina de moderació per revisar i restaurar el contingut"
+" suprimit"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9348
+#: /app/master/specialVueFakeDummyForL10nScript.js:9916
+msgid "Category permissions"
+msgstr "Permisos de les categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9349
+msgid "Set which categories this role can access"
+msgstr "Definiu a quines categories pot accedir aquest rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9350
+msgid "Admin role must have all permissions enabled"
+msgstr "El rol d'administració ha de tenir tots els permisos habilitats"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9351
+msgid "Admin role has full access to all categories"
+msgstr "El rol d'administració té accés complet a totes les categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9352
+msgid "Guest role cannot have management permissions"
+msgstr "El rol de convidat no pot tenir permisos de gestió"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9353
+msgid "Guest role cannot moderate categories"
+msgstr "El rol de convidat no pot moderar categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9356
+msgid ""
+"You can control which categories guests can view using the checkboxes below."
+msgstr ""
+"Podeu controlar quines categories poden veure els convidats amb les caselles"
+" de selecció de sota."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9358
+msgid "Guest access is currently disabled"
+msgstr "L'accés de convidats està inhabilitat actualment"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9361
+msgid ""
+"Guest users will not be able to access the forum until guest access is "
+"enabled in the forum settings."
+msgstr ""
+"Els usuaris convidats no podran accedir al fòrum fins que s'habiliti l'accés"
+" de convidats als paràmetres del fòrum."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9363
+msgid "Go to forum settings"
+msgstr "Ves als paràmetres del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9364
+msgid "Default role cannot moderate categories"
+msgstr "El rol per defecte no pot moderar categories"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9632
+msgid "Failed to save role"
+msgstr "No s'ha pogut desar el rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9731
+msgid "Role management"
+msgstr "Gestió de rols"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9732
+msgid "Create and manage forum roles and permissions"
+msgstr "Creeu i gestioneu els rols i permisos del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9733
+msgid "Loading roles …"
+msgstr "S'estan carregant els rols…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9734
+msgid "Error loading roles"
+msgstr "S'ha produït un error en carregar els rols"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9736
+msgid "No roles found"
+msgstr "No s'ha trobat cap rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9737
+msgid "Create your first role to get started"
+msgstr "Creeu el primer rol per començar"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9739
+msgid "ID"
+msgstr "ID"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9742
+msgid "Owner"
+msgstr "Propietari"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9745
+#: /app/master/specialVueFakeDummyForL10nScript.js:10106
+msgid "Actions"
+msgstr "Accions"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9748
+msgid "No description"
+msgstr "Sense descripció"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9752
+msgid ""
+"Are you sure you want to delete the role \"{name}\"? This action cannot be "
+"undone."
+msgstr ""
+"Segur que voleu suprimir el rol «{name}»? Aquesta acció no es pot desfer."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9755
+msgid "System roles cannot be deleted"
+msgstr "Els rols del sistema no es poden suprimir"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9756
+msgid "Team permissions"
+msgstr "Permisos dels equips"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9757
+msgid "Manage category permissions for Nextcloud Teams"
+msgstr "Gestioneu els permisos de les categories per als equips del Nextcloud"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9758
+msgid "Loading teams …"
+msgstr "S'estan carregant els equips…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9759
+msgid "Error loading teams"
+msgstr "S'ha produït un error en carregar els equips"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9760
+msgid "No teams found"
+msgstr "No s'ha trobat cap equip"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9761
+msgid "Members"
+msgstr "Membres"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9762
+msgid "No Nextcloud Teams are available"
+msgstr "No hi ha cap equip del Nextcloud disponible"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9858
+msgid "Failed to delete role"
+msgstr "No s'ha pogut suprimir el rol"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9907
+msgid "Edit team"
+msgstr "Edita l'equip"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9908
+msgid "Configure category permissions for this team"
+msgstr "Configureu els permisos de les categories per a aquest equip"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9910
+msgid "Error loading team"
+msgstr "S'ha produït un error en carregar l'equip"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9914
+msgid ""
+"Editing category permissions for this team. Team membership is managed via "
+"Nextcloud Teams."
+msgstr ""
+"Esteu editant els permisos de les categories d'aquest equip. La pertinença a"
+" l'equip es gestiona mitjançant els equips del Nextcloud."
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:9917
+msgid "Set which categories this team can access"
+msgstr "Definiu a quines categories pot accedir aquest equip"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10095
+msgid "Manage forum accounts, roles and permissions"
+msgstr "Gestioneu els comptes, rols i permisos del fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10096
+msgid "Loading accounts …"
+msgstr "S'estan carregant els comptes…"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10097
+msgid "Error loading accounts"
+msgstr "S'ha produït un error en carregar els comptes"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10100
+msgid "There are no forum accounts yet"
+msgstr "Encara no hi ha cap compte al fòrum"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10103
+msgid "Roles"
+msgstr "Rols"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10104
+msgid "Joined"
+msgstr "Data d'alta"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10105
+msgid "Status"
+msgstr "Estat"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10107
+msgid "Active"
+msgstr "Actiu"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10109
+msgid "No roles"
+msgstr "Sense rols"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10110
+msgid "Select roles"
+msgstr "Seleccioneu rols"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10111
+msgid "Edit roles"
+msgstr "Edita els rols"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10112
+msgid "Edit account roles"
+msgstr "Edita els rols del compte"
+
+#: /app/master/specialVueFakeDummyForL10nScript.js:10224
+msgid "Failed to save roles"
+msgstr "No s'han pogut desar els rols"

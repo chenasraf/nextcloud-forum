@@ -3,6 +3,7 @@
 
 /vendor/
 /vendor-bin/*/vendor/
+/patches.lock.json
 
 /.php-cs-fixer.cache
 /tests/.phpunit.cache

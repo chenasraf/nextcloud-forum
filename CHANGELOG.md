@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.2.6...v1.3.0) (2026-07-29)
+
+
+### Features
+
+* **profile:** show account email on the profile page ([#326](https://github.com/chenasraf/nextcloud-forum/issues/326)) ([39650ae](https://github.com/chenasraf/nextcloud-forum/commit/39650ae77550276f4f2e908d2a94440b3e232517))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([d726c5b](https://github.com/chenasraf/nextcloud-forum/commit/d726c5b2fc1d5fb974b85d2a6b3e12a2a5ede6e7))
+* **l10n:** Update translations from Transifex ([061bcb3](https://github.com/chenasraf/nextcloud-forum/commit/061bcb3140fc66f2813507c38b083207a3c9fb11))
+* **l10n:** Update translations from Transifex ([7348c83](https://github.com/chenasraf/nextcloud-forum/commit/7348c83a5b99686b8328fe440cbbd1ef3beece40))
+* **l10n:** Update translations from Transifex ([f799ea1](https://github.com/chenasraf/nextcloud-forum/commit/f799ea195279a2d0296e31524fbb3fd87969216c))
+
 ## [1.2.6](https://github.com/chenasraf/nextcloud-forum/compare/v1.2.5...v1.2.6) (2026-07-21)
 
 

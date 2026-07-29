@@ -78,6 +78,12 @@
                 }}</span>
                 <span class="meta-value">{{ forumUser?.postCount || 0 }}</span>
               </span>
+              <template v-if="forumUser?.email">
+                <span class="meta-divider">·</span>
+                <span class="meta-item">
+                  <a :href="`mailto:${forumUser.email}`">{{ forumUser.email }}</a>
+                </span>
+              </template>
             </div>
           </div>
         </div>

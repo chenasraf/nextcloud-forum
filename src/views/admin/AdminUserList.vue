@@ -39,6 +39,11 @@
           </UserInfo>
         </template>
 
+        <template #cell-email="{ row }">
+          <a v-if="row.email" :href="`mailto:${row.email}`">{{ row.email }}</a>
+          <span v-else class="muted">—</span>
+        </template>
+
         <template #cell-posts="{ row }">
           <div class="post-stats">
             <div class="stat-item">
@@ -160,6 +165,7 @@ import type { Role } from '@/types'
 interface AdminUser {
   userId: string
   displayName: string
+  email: string | null
   postCount: number
   threadCount: number
   createdAt: number
@@ -211,6 +217,7 @@ export default defineComponent({
         emptyTitle: t('forum', 'No accounts found'),
         emptyDesc: t('forum', 'There are no forum accounts yet'),
         user: t('forum', 'Account'),
+        email: t('forum', 'Email'),
         posts: t('forum', 'Replies'),
         roles: t('forum', 'Roles'),
         joined: t('forum', 'Joined'),
@@ -240,6 +247,7 @@ export default defineComponent({
     tableColumns(): TableColumn[] {
       return [
         { key: 'user', label: this.strings.user, minWidth: '200px' },
+        { key: 'email', label: this.strings.email, minWidth: '180px' },
         { key: 'posts', label: this.strings.posts, minWidth: '160px' },
         { key: 'roles', label: this.strings.roles, minWidth: '150px' },
         { key: 'joined', label: this.strings.joined, minWidth: '120px' },

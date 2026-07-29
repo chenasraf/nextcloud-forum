@@ -138,10 +138,13 @@ class AdminController extends OCSController {
 				$forumUsersByUserId[$forumUser->getUserId()] = $forumUser;
 			}
 
-			// Collect all user IDs first
+			// Collect all user IDs and emails first (the IUser is only
+			// available inside this callback)
 			$userIds = [];
-			$this->userManager->callForAllUsers(function ($user) use (&$userIds) {
+			$emailsByUserId = [];
+			$this->userManager->callForAllUsers(function ($user) use (&$userIds, &$emailsByUserId) {
 				$userIds[] = $user->getUID();
+				$emailsByUserId[$user->getUID()] = $this->userService->getUserEmail($user);
 			});
 
 			// Enrich all users at once for performance (includes roles)
@@ -156,6 +159,7 @@ class AdminController extends OCSController {
 				$userData = [
 					'userId' => $userId,
 					'displayName' => $userInfo['displayName'],
+					'email' => $emailsByUserId[$userId] ?? null,
 					'postCount' => $forumUser ? $forumUser->getPostCount() : 0,
 					'threadCount' => $forumUser ? $forumUser->getThreadCount() : 0,
 					'createdAt' => $forumUser ? $forumUser->getCreatedAt() : 0,

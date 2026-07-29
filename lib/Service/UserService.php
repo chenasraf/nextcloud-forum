@@ -12,8 +12,11 @@ use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\UserRoleMapper;
+use OCP\Accounts\IAccountManager;
+use OCP\Accounts\PropertyDoesNotExistException;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IL10N;
+use OCP\IUser;
 use OCP\IUserManager;
 
 /**
@@ -31,6 +34,7 @@ class UserService {
 		private AdminSettingsService $adminSettingsService,
 		private GuestService $guestService,
 		private IL10N $l10n,
+		private IAccountManager $accountManager,
 	) {
 	}
 
@@ -46,6 +50,40 @@ class UserService {
 
 		// User doesn't exist in Nextcloud - return generic deleted user name
 		return $this->l10n->t('Deleted user');
+	}
+
+	/**
+	 * Get the email address of a user, honoring the Nextcloud account scope
+	 * Returns null if the user has no email or has it scoped as private
+	 */
+	public function getUserEmail(IUser $user): ?string {
+		try {
+			$property = $this->accountManager->getAccount($user)
+				->getProperty(IAccountManager::PROPERTY_EMAIL);
+			if ($property->getScope() === IAccountManager::SCOPE_PRIVATE) {
+				// Nextcloud never allows a private scope on the primary email,
+				// but legacy data could still carry it - never expose those
+				return null;
+			}
+		} catch (PropertyDoesNotExistException) {
+			// No explicit account property: treat as the default visible scope
+		}
+
+		$email = $user->getEMailAddress();
+		return ($email === null || $email === '') ? null : $email;
+	}
+
+	/**
+	 * Get the email address for a Nextcloud user ID
+	 * Returns null if the user does not exist in Nextcloud
+	 */
+	public function getUserEmailById(string $userId): ?string {
+		$user = $this->userManager->get($userId);
+		if ($user === null) {
+			return null;
+		}
+
+		return $this->getUserEmail($user);
 	}
 
 	/**

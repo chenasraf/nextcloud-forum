@@ -125,6 +125,7 @@ OC.L10N.register(
     "No teams found" : "Nem találhatók csapatok",
     "Members" : "Tagok",
     "Loading accounts …" : "Fiókok betöltése…",
+    "Email" : "E-mail",
     "Joined" : "Csatlakozott",
     "Status" : "Állapot",
     "Active" : "Aktív"

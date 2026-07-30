@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "Hesaplar yükleniyor…",
     "Error loading accounts" : "Hesaplar yüklenirken sorun çıktı",
     "There are no forum accounts yet" : "Henüz bir forum hesabı yok",
+    "Email" : "E-posta",
     "Roles" : "Roller",
     "Joined" : "Katıldı",
     "Status" : "Durum",

@@ -113,6 +113,7 @@ OC.L10N.register(
     "No teams found" : "チームは見つかりませんでした",
     "Members" : "メンバー",
     "Loading accounts …" : "アカウントを読み込み中 ...",
+    "Email" : "メール",
     "Joined" : "参加",
     "Status" : "ステータス",
     "Active" : "有効"

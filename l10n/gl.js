@@ -466,6 +466,7 @@ OC.L10N.register(
     "No teams found" : "Non se atopou ningún equipo",
     "Members" : "Membros",
     "Loading accounts …" : "Cargando as contas…",
+    "Email" : "Correo-e",
     "Roles" : "Roles",
     "Joined" : "Uniuse",
     "Status" : "Estado",

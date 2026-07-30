@@ -66,6 +66,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Actions" : "Veprimet",
     "Members" : "Anëtar",
+    "Email" : "Emaili",
     "Joined" : "I lidhur",
     "Status" : "Statusi"
 },

@@ -439,6 +439,7 @@ OC.L10N.register(
     "No description" : "No description",
     "No teams found" : "Hakuna timu zilizopatikana",
     "Members" : "Wanachama",
+    "Email" : "Barua pepe",
     "Roles" : "Majukumu",
     "Status" : "Wadhifa/hadhi/hali",
     "Active" : "Inayotumika"

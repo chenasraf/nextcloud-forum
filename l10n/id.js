@@ -447,6 +447,7 @@ OC.L10N.register(
     "No teams found" : "Tidak ada tim yang ditemukan",
     "Members" : "Anggota",
     "Loading accounts …" : "Memuat akun …",
+    "Email" : "Email",
     "Roles" : "Peran",
     "Joined" : "Bergabung",
     "Status" : "Status",

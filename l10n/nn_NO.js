@@ -43,6 +43,7 @@ OC.L10N.register(
     "Newest first" : "Nyaste fyrst",
     "Oldest first" : "Eldste fyrst",
     "ID" : "ID",
-    "Actions" : "Handlingar"
+    "Actions" : "Handlingar",
+    "Email" : "Epost"
 },
 "nplurals=2; plural=(n != 1);");

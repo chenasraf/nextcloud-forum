@@ -115,6 +115,7 @@ OC.L10N.register(
     "No teams found" : "Ez da lantalderik aurkitu",
     "Members" : "Partaideak",
     "Loading accounts …" : "Kontuak kargatzen ...",
+    "Email" : "Posta elektronikoa",
     "Joined" : "Batu da",
     "Status" : "Egoera",
     "Active" : "Aktibo"

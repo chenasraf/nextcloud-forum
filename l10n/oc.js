@@ -70,6 +70,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Actions" : "Accions",
     "Members" : "Membres",
+    "Email" : "Adreiça electronica",
     "Status" : "Estat",
     "Active" : "Activa"
 },

@@ -67,6 +67,7 @@ OC.L10N.register(
     "Reset" : "Qayta tiklash",
     "Owner" : "Egasi",
     "Actions" : "Faolliklar",
+    "Email" : "E-pochta",
     "Status" : "Holat"
 },
 "nplurals=1; plural=0;");

@@ -56,6 +56,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Owner" : "เจ้าของ",
     "Actions" : "การกระทำ",
+    "Email" : "อีเมล",
     "Status" : "สถานะ"
 },
 "nplurals=1; plural=0;");

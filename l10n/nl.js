@@ -137,6 +137,7 @@ OC.L10N.register(
     "No teams found" : "Geen teams gevonden",
     "Members" : "Leden",
     "Loading accounts …" : "Laden van accounts …",
+    "Email" : "E-mail",
     "Joined" : "Toegetreden",
     "Status" : "Status",
     "Active" : "Actief"

@@ -41,6 +41,7 @@
     "Newest first" : "Nyaste fyrst",
     "Oldest first" : "Eldste fyrst",
     "ID" : "ID",
-    "Actions" : "Handlingar"
+    "Actions" : "Handlingar",
+    "Email" : "Epost"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

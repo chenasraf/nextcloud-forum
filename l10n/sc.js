@@ -85,6 +85,7 @@ OC.L10N.register(
     "ID" : "ID",
     "Actions" : "Atziones",
     "Members" : "Membros",
+    "Email" : "Posta eletrònica",
     "Joined" : "As atzèdidu",
     "Status" : "Status",
     "Active" : "Ativu"

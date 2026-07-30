@@ -66,6 +66,7 @@ OC.L10N.register(
     "Owner" : "Posedanto",
     "Actions" : "Agoj",
     "Members" : "Membroj",
+    "Email" : "Retpoŝtadreso",
     "Joined" : "Membriĝinta"
 },
 "nplurals=2; plural=(n != 1);");

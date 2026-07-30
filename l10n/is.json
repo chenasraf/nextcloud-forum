@@ -99,6 +99,7 @@
     "No teams found" : "Engin teymi fundust",
     "Members" : "Meðlimir",
     "Loading accounts …" : "Hleð inn notendaaðgöngum...",
+    "Email" : "Tölvupóstur",
     "Joined" : "Gekk inn",
     "Active" : "Virkur"
 },"pluralForm" :"nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);"

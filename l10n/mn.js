@@ -106,6 +106,7 @@ OC.L10N.register(
     "No teams found" : "Баг олдсонгүй",
     "Members" : "–ì–∏—à“Ø“Ø–¥",
     "Loading accounts …" : "Бүртгэлүүдийг ачаалж байна …",
+    "Email" : "–¶–∞—Ö–∏–º —à—É—É–¥–∞–Ω",
     "Joined" : "нэгдсэн",
     "Status" : "Төлөв",
     "Active" : "Идэвхтэй"

@@ -125,6 +125,7 @@ OC.L10N.register(
     "No teams found" : "Каманд не знойдзена",
     "Members" : "Удзельнікі",
     "Loading accounts …" : "Загрузка ўліковых запісаў …",
+    "Email" : "Электронная пошта",
     "Roles" : "Ролі",
     "Status" : "Статус",
     "Active" : "Актыўны"

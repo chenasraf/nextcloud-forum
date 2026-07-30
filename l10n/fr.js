@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "Chargement des comptes…",
     "Error loading accounts" : "Échec de chargement des comptes",
     "There are no forum accounts yet" : "Il n'y a pas de compte dans le forum pour le moment",
+    "Email" : "E-mail",
     "Roles" : "Rôles",
     "Joined" : "A rejoint",
     "Status" : "Statut",

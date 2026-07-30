@@ -122,6 +122,7 @@ OC.L10N.register(
     "No teams found" : "No teams found",
     "Members" : "ສະມາຊິກ",
     "Loading accounts …" : "Loading accounts …",
+    "Email" : "ອີເມວ",
     "Status" : "ສະຖານະ",
     "Active" : "ກຳລັງໃຊ້ງານ"
 },

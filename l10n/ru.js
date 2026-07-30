@@ -296,6 +296,7 @@ OC.L10N.register(
     "No teams found" : "Группы не найдены",
     "Members" : "Участники",
     "Loading accounts …" : "Загрузка учётных записей",
+    "Email" : "Электронная почта",
     "Roles" : "Роли",
     "Joined" : "Присоединился(ась)",
     "Status" : "Статус",

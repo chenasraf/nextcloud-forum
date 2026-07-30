@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "Cuntais á lódáil…",
     "Error loading accounts" : "Earráid ag luchtú cuntas",
     "There are no forum accounts yet" : "Níl aon chuntais fóram ann fós",
+    "Email" : "Ríomhphost",
     "Roles" : "Róil",
     "Joined" : "Chuaigh isteach",
     "Status" : "Stádas",

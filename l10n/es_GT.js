@@ -58,6 +58,7 @@ OC.L10N.register(
     "Owner" : "Dueño",
     "Actions" : "Acciones",
     "Members" : "Miembros",
+    "Email" : "Correo electrónico",
     "Joined" : "Se ha unido"
 },
 "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

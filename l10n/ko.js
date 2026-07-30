@@ -102,6 +102,7 @@ OC.L10N.register(
     "No description" : "설명 없음",
     "Members" : "구성원",
     "Loading accounts …" : "계정 불러오는 중 ...",
+    "Email" : "이메일",
     "Joined" : "등록함",
     "Status" : "상태",
     "Active" : "활성화"

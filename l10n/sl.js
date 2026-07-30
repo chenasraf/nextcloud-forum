@@ -111,6 +111,7 @@ OC.L10N.register(
     "No teams found" : "Ni oblikovanih skupin",
     "Members" : "Člani",
     "Loading accounts …" : "Poteka nalaganje računov ...",
+    "Email" : "Elektronski naslov",
     "Joined" : "Pridružen",
     "Status" : "Stanje",
     "Active" : "Dejavno"

@@ -89,6 +89,7 @@ OC.L10N.register(
     "Owner" : "Īpašnieks",
     "Actions" : "Darbības",
     "No teams found" : "Netika atrasta neviena komanda",
-    "Members" : "Dalībnieki"
+    "Members" : "Dalībnieki",
+    "Email" : "E-pasts"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2);");

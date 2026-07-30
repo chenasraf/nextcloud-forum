@@ -597,6 +597,7 @@ OC.L10N.register(
     "Manage forum accounts, roles and permissions" : "Gerenciar contas, funções e permissões do fórum",
     "Loading accounts …" : "A carregar contas ...",
     "There are no forum accounts yet" : "Ainda não há contas no fórum",
+    "Email" : "E-mail",
     "Roles" : "Funções",
     "Joined" : "Aderiu",
     "Status" : "Status",

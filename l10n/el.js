@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "Γίνεται φόρτωση λογαριασμών …",
     "Error loading accounts" : "Σφάλμα κατά τη φόρτωση των λογαριασμών",
     "There are no forum accounts yet" : "Δεν υπάρχουν λογαριασμοί φόρουμ ακόμα",
+    "Email" : "Διεύθυνση ηλ. ταχυδρομείου",
     "Roles" : "Ρόλοι",
     "Joined" : "Εγγραφή",
     "Status" : "Κατάσταση",

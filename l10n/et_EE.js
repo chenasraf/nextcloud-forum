@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "Laadin kasutajakontosid…",
     "Error loading accounts" : "Viga kasutajakontode laadimisel",
     "There are no forum accounts yet" : "Foormis pole veel kasutajakontosid",
+    "Email" : "E-post",
     "Roles" : "Rollid",
     "Joined" : "Liitus",
     "Status" : "Olek",

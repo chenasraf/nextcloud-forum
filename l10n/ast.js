@@ -96,6 +96,7 @@ OC.L10N.register(
     "No teams found" : "Nun s'atopó nengún equipu",
     "Members" : "Miembros",
     "Loading accounts …" : "Cargando les cuentes…",
+    "Email" : "Direición de corréu electrónicu",
     "Status" : "Estáu",
     "Active" : "Activa"
 },

@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "Läser in konton …",
     "Error loading accounts" : "Det gick inte att läsa in konton",
     "There are no forum accounts yet" : "Det finns inga forumkonton än",
+    "Email" : "E-post",
     "Roles" : "Roller",
     "Joined" : "Gick med",
     "Status" : "Status",

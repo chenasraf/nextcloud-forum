@@ -47,6 +47,7 @@ OC.L10N.register(
     "Oldest first" : "An hini kozhoñ da gentañ",
     "ID" : "ID",
     "Actions" : "Oberoù",
+    "Email" : "Postel",
     "Status" : "Statud",
     "Active" : "O labourat"
 },

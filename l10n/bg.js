@@ -108,6 +108,7 @@ OC.L10N.register(
     "No description" : "Без описание",
     "Members" : "Членове",
     "Loading accounts …" : "Сметките се зареждат...",
+    "Email" : "Имейл",
     "Joined" : "Присъединен",
     "Status" : "Състояние",
     "Active" : "Активен"

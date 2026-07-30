@@ -446,6 +446,7 @@ OC.L10N.register(
     "No teams found" : "ھېچقانداق كوماندا تېپىلمىدى",
     "Members" : "ئەزالار",
     "Loading accounts …" : "ھېسابات يۈكلەۋاتىدۇ…",
+    "Email" : "تورخەت",
     "Roles" : "روللار",
     "Joined" : "قوشۇلغان",
     "Status" : "ھالەت",

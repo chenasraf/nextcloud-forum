@@ -90,6 +90,7 @@ OC.L10N.register(
     "Owner" : "Owner",
     "Actions" : "Actions",
     "Members" : "Members",
+    "Email" : "Email",
     "Status" : "Status",
     "Active" : "Active"
 },

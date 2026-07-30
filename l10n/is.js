@@ -101,6 +101,7 @@ OC.L10N.register(
     "No teams found" : "Engin teymi fundust",
     "Members" : "Meðlimir",
     "Loading accounts …" : "Hleð inn notendaaðgöngum...",
+    "Email" : "Tölvupóstur",
     "Joined" : "Gekk inn",
     "Active" : "Virkur"
 },

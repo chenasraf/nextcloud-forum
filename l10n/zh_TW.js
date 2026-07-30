@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "少女祈禱中...",
     "Error loading accounts" : "載入帳號時發生錯誤",
     "There are no forum accounts yet" : "目前尚無論壇帳號",
+    "Email" : "電子郵件",
     "Roles" : "角色",
     "Joined" : "已加入",
     "Status" : "狀態",

@@ -87,6 +87,7 @@ OC.L10N.register(
     "Owner" : "Người sở hữu",
     "Actions" : "Hành động",
     "Members" : "Thành viên",
+    "Email" : "Thư điện tử",
     "Joined" : "Đã tham gia",
     "Active" : "Hoạt động"
 },

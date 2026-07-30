@@ -64,6 +64,7 @@
     "ID" : "ID",
     "Actions" : "Veprimet",
     "Members" : "Anëtar",
+    "Email" : "Emaili",
     "Joined" : "I lidhur",
     "Status" : "Statusi"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"

@@ -54,6 +54,7 @@
     "ID" : "ID",
     "Owner" : "เจ้าของ",
     "Actions" : "การกระทำ",
+    "Email" : "อีเมล",
     "Status" : "สถานะ"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

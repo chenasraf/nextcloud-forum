@@ -93,6 +93,7 @@ OC.L10N.register(
     "No teams found" : "Не се пронајдени тимови",
     "Members" : "Членови",
     "Loading accounts …" : "Вчитување на сметки ...",
+    "Email" : "Е-пошта",
     "Joined" : "Приклучен",
     "Status" : "Статус",
     "Active" : "Активно"

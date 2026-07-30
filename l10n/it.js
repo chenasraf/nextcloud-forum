@@ -122,6 +122,7 @@ OC.L10N.register(
     "No teams found" : "Nessun  team trovato",
     "Members" : "Partecipanti",
     "Loading accounts …" : "Caricamento account in corso...",
+    "Email" : "Email",
     "Joined" : "Partecipata",
     "Status" : "Stato",
     "Active" : "Attivo"

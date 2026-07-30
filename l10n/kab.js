@@ -130,6 +130,7 @@ OC.L10N.register(
     "No description" : "Ulac aglam",
     "Members" : "Imedrawen",
     "Error loading accounts" : "Tuccḍa deg usali n imiḍanen",
+    "Email" : "Imayl",
     "Roles" : "Ilugan",
     "Joined" : "Izeddi da seg ass n",
     "Status" : "Addad",

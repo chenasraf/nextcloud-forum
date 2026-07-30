@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "正在加载帳戶 ...",
     "Error loading accounts" : "載入帳戶時發生錯誤",
     "There are no forum accounts yet" : "目前尚無論壇帳戶",
+    "Email" : "電郵地址",
     "Roles" : "角色",
     "Joined" : "已加入",
     "Status" : "狀態",

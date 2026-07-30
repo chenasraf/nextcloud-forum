@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "در حال بارگذاری حساب‌ها …",
     "Error loading accounts" : "خطا در بارگذاری حساب‌ها",
     "There are no forum accounts yet" : "هنوز هیچ حساب انجمنی وجود ندارد",
+    "Email" : "ایمیل",
     "Roles" : "نقش‌ها",
     "Joined" : "عضو شده",
     "Status" : "وضعیت",

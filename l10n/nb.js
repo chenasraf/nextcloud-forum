@@ -112,6 +112,7 @@ OC.L10N.register(
     "No teams found" : "Ingen lag funnet",
     "Members" : "Medlemmer",
     "Loading accounts …" : "Laster kontoer…",
+    "Email" : "E-post",
     "Joined" : "Ble med",
     "Status" : "Status",
     "Active" : "Aktiv"

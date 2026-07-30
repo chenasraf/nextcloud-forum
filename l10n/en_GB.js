@@ -626,6 +626,7 @@ OC.L10N.register(
     "Loading accounts …" : "Loading accounts …",
     "Error loading accounts" : "Error loading accounts",
     "There are no forum accounts yet" : "There are no forum accounts yet",
+    "Email" : "Email",
     "Roles" : "Roles",
     "Joined" : "Joined",
     "Status" : "Status",

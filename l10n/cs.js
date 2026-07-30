@@ -545,6 +545,7 @@ OC.L10N.register(
     "Set which categories this team can access" : "Nastavte ke kterým kategoriím může tento tým přistupovat",
     "Loading accounts …" : "Načítání účtů …",
     "Error loading accounts" : "Chyba při načítání účtů",
+    "Email" : "E-mail",
     "Roles" : "Role",
     "Joined" : "Připojený",
     "Status" : "Stav",

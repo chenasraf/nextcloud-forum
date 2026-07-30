@@ -339,6 +339,7 @@ OC.L10N.register(
     "Owner" : "בעלות",
     "Actions" : "פעולות",
     "Members" : "חברים",
+    "Email" : "דוא״ל",
     "Roles" : "תפקידים",
     "Active" : "פעיל"
 },

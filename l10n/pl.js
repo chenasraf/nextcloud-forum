@@ -123,6 +123,7 @@ OC.L10N.register(
     "No teams found" : "Nie znaleziono żadnych zespołów",
     "Members" : "Członkowie",
     "Loading accounts …" : "Wczytywanie kont...",
+    "Email" : "E-mail",
     "Joined" : "Dołączył",
     "Status" : "Status",
     "Active" : "Aktywne"

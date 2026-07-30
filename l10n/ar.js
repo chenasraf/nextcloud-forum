@@ -109,6 +109,7 @@ OC.L10N.register(
     "No teams found" : "لا يوجد أي فريق",
     "Members" : "الاعضاء",
     "Loading accounts …" : "تحميل الحسابات ...",
+    "Email" : "البريد الإلكتروني",
     "Status" : "الحاله",
     "Active" : "نَشِط"
 },

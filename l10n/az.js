@@ -37,6 +37,7 @@ OC.L10N.register(
     "Settings saved" : "Parametrlər yaddaşa verildi",
     "Reset" : "Sıfırla",
     "Actions" : "İşlər",
+    "Email" : "Email",
     "Status" : "Status"
 },
 "nplurals=2; plural=(n != 1);");

@@ -82,6 +82,7 @@ OC.L10N.register(
     "Owner" : "Proprietar",
     "Actions" : "Acțiuni",
     "Members" : "Membri",
+    "Email" : "E-mail",
     "Joined" : "Alăturat",
     "Active" : "Activ"
 },

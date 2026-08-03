@@ -102,6 +102,7 @@ OC.L10N.register(
     "Replies" : "Ответы",
     "No description available" : "Описание отсутствует",
     "Category" : "Категория",
+    "Can view" : "Доступно для просмотра",
     "Allow" : "Разрешить",
     "Pick a color" : "Выберите цвет",
     "Change color" : "Изменить цвет",

@@ -489,7 +489,7 @@
     "What should happen to the threads?" : "O que deve acontecer com os fios?",
     "Move threads to another category" : "Mova os fios para outra categoria",
     "Delete all threads (soft delete)" : "Excluir todos os fios (soft delete/exclusão lógica)",
-    "Threads will be hidden but not permanently deleted" : "Os fios serão ocultados, mas não excluídos permanentemente",
+    "Threads will be hidden but not permanently deleted" : "Os fios serão ocultos, mas não excluídos permanentemente",
     "Select target category" : "Selecione a categoria alvo",
     "-- Select a category --" : "-- Selecione uma categoria --",
     "Create header" : "Criar cabeçalho",

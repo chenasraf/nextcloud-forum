@@ -58,5 +58,10 @@
     "vite-plugin-checker": "^0.14.5",
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.8"
+  },
+  "pnpm": {
+    "overrides": {
+      "brace-expansion": "2.1.3"
+    }
   }
 }

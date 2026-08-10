@@ -38,6 +38,7 @@ OC.L10N.register(
     "Failed to upload file" : "Не вдалося завантажити файл",
     "Threads" : "Гілки",
     "Category" : "Категорія",
+    "Can view" : "Може переглядати",
     "Allow" : "Дозволити",
     "Pick a color" : "Виберіть колір",
     "Change color" : "Змінити колір",

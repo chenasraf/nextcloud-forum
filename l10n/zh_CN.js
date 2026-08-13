@@ -79,6 +79,7 @@ OC.L10N.register(
     "Searching …" : "正在搜索…",
     "No results found" : "未找到结果",
     "Back to {category}" : "返回 {category}",
+    "Reply" : "回复",
     "by" : "由",
     "Subscribe" : "订阅",
     "Subscribed" : "已订阅",

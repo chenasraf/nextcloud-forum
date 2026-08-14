@@ -32,6 +32,7 @@ OC.L10N.register(
     "Close" : "Itxi",
     "Failed to upload file" : "Fitxategia kargatzeak huts egin du",
     "Category" : "Kategoria",
+    "Can view" : "Ikus dezake",
     "Allow" : "Baimendu",
     "Change color" : "Aldatu kolorea",
     "Account" : "Kontua",

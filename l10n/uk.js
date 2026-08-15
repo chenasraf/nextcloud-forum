@@ -53,6 +53,8 @@ OC.L10N.register(
     "Move" : "Перемістити",
     "Page not found" : "Сторінку не знайдено",
     "Back" : "Назад",
+    "Previous page" : "Назад",
+    "Next page" : "Вперед",
     "Edit" : "Редагувати",
     "Delete" : "Видалити",
     "Unread" : "Непрочитане",

@@ -96,6 +96,24 @@
 		</UndefinedDocblockClass>
 
 		<!--
+			Db\Entity subclasses document every field type via class-level @method
+			getX()/setX() annotations and are hydrated by the Entity base through
+			those setters, not the constructor. psalm wants a redundant per-property
+			@var and reports the properties as unset in the constructor; both are
+			artefacts of the Entity pattern rather than real type gaps.
+		-->
+		<MissingPropertyType>
+			<errorLevel type="suppress">
+				<directory name="lib/Db" />
+			</errorLevel>
+		</MissingPropertyType>
+		<PropertyNotSetInConstructor>
+			<errorLevel type="suppress">
+				<directory name="lib/Db" />
+			</errorLevel>
+		</PropertyNotSetInConstructor>
+
+		<!--
 			OCP\Files\IRootFolder's stub (nextcloud/ocp) transitively references the
 			internal OC\Hooks\Emitter, which is not part of the public stubs. Injecting
 			IRootFolder is legitimate; the missing internal class is a stub-only gap.

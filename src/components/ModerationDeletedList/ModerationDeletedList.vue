@@ -57,7 +57,7 @@
             <div class="deleted-item-actions">
               <NcButton
                 variant="primary"
-                :disabled="restoring === item.id"
+                :disabled="restoring === item.id || deleting === item.id"
                 @click.stop="$emit('restore', item)"
               >
                 <template #icon>
@@ -65,6 +65,17 @@
                   <DeleteRestoreIcon v-else :size="20" />
                 </template>
                 {{ strings.restore }}
+              </NcButton>
+              <NcButton
+                variant="error"
+                :disabled="restoring === item.id || deleting === item.id"
+                @click.stop="$emit('delete', item)"
+              >
+                <template #icon>
+                  <NcLoadingIcon v-if="deleting === item.id" :size="20" />
+                  <DeleteForeverIcon v-else :size="20" />
+                </template>
+                {{ strings.deletePermanently }}
               </NcButton>
             </div>
           </div>
@@ -93,6 +104,7 @@ import ThreadCard from '@/components/ThreadCard'
 import PostCard from '@/components/PostCard'
 import Pagination from '@/components/Pagination'
 import DeleteRestoreIcon from '@icons/DeleteRestore.vue'
+import DeleteForeverIcon from '@icons/DeleteForever.vue'
 import { t } from '@nextcloud/l10n'
 
 export default defineComponent({
@@ -106,6 +118,7 @@ export default defineComponent({
     PostCard,
     Pagination,
     DeleteRestoreIcon,
+    DeleteForeverIcon,
   },
   props: {
     mode: { type: String as () => 'threads' | 'replies', required: true },
@@ -117,8 +130,9 @@ export default defineComponent({
     loading: { type: Boolean, default: false },
     error: { type: String, default: null },
     restoring: { type: Number, default: null },
+    deleting: { type: Number, default: null },
   },
-  emits: ['view', 'restore', 'retry', 'update:page'],
+  emits: ['view', 'restore', 'delete', 'retry', 'update:page'],
   computed: {
     maxPages(): number {
       return Math.ceil(this.total / this.perPage)
@@ -127,6 +141,7 @@ export default defineComponent({
       return {
         deleted: t('forum', 'Deleted'),
         restore: t('forum', 'Restore'),
+        deletePermanently: t('forum', 'Delete permanently'),
         errorTitle: t('forum', 'Error loading content'),
         retry: t('forum', 'Retry'),
         emptyTitle: t('forum', 'No deleted content'),

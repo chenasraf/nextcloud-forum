@@ -49,8 +49,10 @@
         :loading="loading"
         :error="error"
         :restoring="restoring"
+        :deleting="deleting"
         @view="handleView"
         @restore="handleRestore"
+        @delete="handleDelete"
         @retry="loadData"
         @update:page="goToPage"
       />
@@ -61,8 +63,10 @@
         :thread-id="dialogThreadId"
         :thread-title="dialogThreadTitle"
         :restoring="restoring === dialogThreadId"
+        :deleting="deleting === dialogThreadId"
         @update:open="showThreadDialog = $event"
         @restore="restoreThread"
+        @delete="deleteThread"
       />
     </div>
   </PageWrapper>
@@ -109,6 +113,7 @@ export default defineComponent({
       search: '',
       sort: 'newest' as 'newest' | 'oldest',
       restoring: null as number | null,
+      deleting: null as number | null,
 
       // Dialogs
       showThreadDialog: false,
@@ -123,6 +128,13 @@ export default defineComponent({
         searchPlaceholder: t('forum', 'Search deleted content …'),
         newestFirst: t('forum', 'Newest first'),
         oldestFirst: t('forum', 'Oldest first'),
+        confirmDeleteThread: t(
+          'forum',
+          'Permanently delete this thread and all its replies? This cannot be undone.',
+        ),
+        confirmDeleteReply: t('forum', 'Permanently delete this reply? This cannot be undone.'),
+        deleteThreadError: t('forum', 'Failed to permanently delete thread'),
+        deleteReplyError: t('forum', 'Failed to permanently delete reply'),
       },
     }
   },
@@ -230,6 +242,57 @@ export default defineComponent({
         showError(t('forum', 'Failed to restore reply'))
       } finally {
         this.restoring = null
+      }
+    },
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    handleDelete(item: any): void {
+      if (this.activeTab === 'threads') {
+        this.deleteThreadById(item.id)
+      } else {
+        this.deleteReplyById(item.id)
+      }
+    },
+
+    async deleteThread(): Promise<void> {
+      if (!this.dialogThreadId) return
+      const id = this.dialogThreadId
+      const deleted = await this.deleteThreadById(id)
+      if (deleted) {
+        this.showThreadDialog = false
+        this.dialogThreadId = null
+      }
+    },
+
+    async deleteThreadById(id: number): Promise<boolean> {
+      if (!window.confirm(this.strings.confirmDeleteThread)) return false
+      try {
+        this.deleting = id
+        await ocs.delete(`/moderation/threads/${id}`)
+        await this.loadData()
+        return true
+      } catch (e: any) {
+        console.error('Failed to permanently delete thread', e)
+        showError(this.strings.deleteThreadError)
+        return false
+      } finally {
+        this.deleting = null
+      }
+    },
+
+    async deleteReplyById(id: number): Promise<boolean> {
+      if (!window.confirm(this.strings.confirmDeleteReply)) return false
+      try {
+        this.deleting = id
+        await ocs.delete(`/moderation/replies/${id}`)
+        await this.loadData()
+        return true
+      } catch (e: any) {
+        console.error('Failed to permanently delete reply', e)
+        showError(this.strings.deleteReplyError)
+        return false
+      } finally {
+        this.deleting = null
       }
     },
   },

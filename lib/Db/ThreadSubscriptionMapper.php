@@ -131,6 +131,18 @@ class ThreadSubscriptionMapper extends QBMapper {
 	}
 
 	/**
+	 * Permanently delete all subscriptions for a thread, across all users
+	 *
+	 * @return int Number of subscriptions removed
+	 */
+	public function deleteByThreadId(int $threadId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
+
+	/**
 	 * @return array<ThreadSubscription>
 	 */
 	public function findAll(): array {

@@ -541,6 +541,46 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
+	 * Get all post IDs for a thread, including deleted posts
+	 *
+	 * @return array<int>
+	 */
+	public function findIdsByThreadId(int $threadId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)));
+		$result = $qb->executeQuery();
+		$ids = array_map(static fn ($row) => (int)$row['id'], $result->fetchAll());
+		$result->closeCursor();
+		return $ids;
+	}
+
+	/**
+	 * Permanently delete all posts in a thread, including deleted posts
+	 *
+	 * @return int Number of posts removed
+	 */
+	public function deleteByThreadId(int $threadId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
+
+	/**
+	 * Permanently delete a single post by ID
+	 *
+	 * @return int Number of posts removed
+	 */
+	public function deleteById(int $postId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
+
+	/**
 	 * Find all posts for a thread, including deleted posts
 	 *
 	 * @return array<Post>

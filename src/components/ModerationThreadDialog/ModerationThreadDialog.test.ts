@@ -6,6 +6,7 @@ import ModerationThreadDialog from './ModerationThreadDialog.vue'
 // Uses global mocks for @nextcloud/l10n, NcButton, NcDialog, NcLoadingIcon from test-setup.ts
 
 vi.mock('@icons/DeleteRestore.vue', () => createIconMock('DeleteRestoreIcon'))
+vi.mock('@icons/DeleteForever.vue', () => createIconMock('DeleteForeverIcon'))
 
 vi.mock('@/components/PostCard', () =>
   createComponentMock('PostCard', {

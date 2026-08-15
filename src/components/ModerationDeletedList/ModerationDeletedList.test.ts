@@ -7,6 +7,7 @@ import ModerationDeletedList from './ModerationDeletedList.vue'
 // Uses global mocks for @nextcloud/l10n, NcButton, NcEmptyContent, NcLoadingIcon, NcDateTime from test-setup.ts
 
 vi.mock('@icons/DeleteRestore.vue', () => createIconMock('DeleteRestoreIcon'))
+vi.mock('@icons/DeleteForever.vue', () => createIconMock('DeleteForeverIcon'))
 
 vi.mock('@/components/ThreadCard', () =>
   createComponentMock('ThreadCard', {
@@ -182,6 +183,54 @@ describe('ModerationDeletedList', () => {
       const items = [mockThread({ id: 1, deletedAt: 1000 })]
       const wrapper = mountWith({ ...defaultProps, items, total: 1, restoring: 1 })
       expect(wrapper.find('.nc-loading-icon').exists()).toBe(true)
+    })
+  })
+
+  describe('delete permanently action', () => {
+    it('should show delete permanently button for each item', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 1 })
+      const deleteButton = wrapper
+        .findAll('button')
+        .find((b) => b.text().includes('Delete permanently'))
+      expect(deleteButton).toBeDefined()
+    })
+
+    it('should emit delete when delete permanently button is clicked', async () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 1 })
+      const deleteButton = wrapper
+        .findAll('button')
+        .find((b) => b.text().includes('Delete permanently'))
+      await deleteButton?.trigger('click')
+      expect(wrapper.emitted('delete')).toBeTruthy()
+      expect(wrapper.emitted('delete')![0]).toEqual([items[0]])
+    })
+
+    it('should not emit view when delete button is clicked in threads mode', async () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, mode: 'threads', items, total: 1 })
+      const deleteButton = wrapper
+        .findAll('button')
+        .find((b) => b.text().includes('Delete permanently'))
+      await deleteButton?.trigger('click')
+      expect(wrapper.emitted('view')).toBeFalsy()
+    })
+
+    it('should disable delete button when deleting that item', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 1, deleting: 1 })
+      const deleteButton = wrapper
+        .findAll('button')
+        .find((b) => b.text().includes('Delete permanently'))
+      expect(deleteButton?.attributes('disabled')).toBeDefined()
+    })
+
+    it('should disable restore button when deleting that item', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 1, deleting: 1 })
+      const restoreButton = wrapper.findAll('button').find((b) => b.text().includes('Restore'))
+      expect(restoreButton?.attributes('disabled')).toBeDefined()
     })
   })
 

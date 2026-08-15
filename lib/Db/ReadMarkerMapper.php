@@ -211,6 +211,19 @@ class ReadMarkerMapper extends QBMapper {
 	}
 
 	/**
+	 * Permanently delete all thread read markers for a thread, across all users
+	 *
+	 * @return int Number of markers removed
+	 */
+	public function deleteByThreadId(int $threadId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('marker_type', $qb->createNamedParameter(ReadMarker::TYPE_THREAD, IQueryBuilder::PARAM_STR)))
+			->andWhere($qb->expr()->eq('entity_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
+
+	/**
 	 * @return array<ReadMarker>
 	 */
 	public function findAll(): array {

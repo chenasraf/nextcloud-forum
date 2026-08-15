@@ -220,6 +220,37 @@ class BookmarkMapper extends QBMapper {
 	}
 
 	/**
+	 * Permanently delete all bookmarks for an entity, across all users
+	 *
+	 * @return int Number of bookmarks removed
+	 */
+	public function deleteByEntity(string $entityType, int $entityId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('entity_type', $qb->createNamedParameter($entityType, IQueryBuilder::PARAM_STR)))
+			->andWhere($qb->expr()->eq('entity_id', $qb->createNamedParameter($entityId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
+
+	/**
+	 * Permanently delete all bookmarks for the given entity IDs of a type, across all users
+	 *
+	 * @param array<int> $entityIds
+	 * @return int Number of bookmarks removed
+	 */
+	public function deleteByEntityTypeAndIds(string $entityType, array $entityIds): int {
+		if (empty($entityIds)) {
+			return 0;
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('entity_type', $qb->createNamedParameter($entityType, IQueryBuilder::PARAM_STR)))
+			->andWhere($qb->expr()->in('entity_id', $qb->createNamedParameter($entityIds, IQueryBuilder::PARAM_INT_ARRAY)));
+		return $qb->executeStatement();
+	}
+
+	/**
 	 * @return array<Bookmark>
 	 */
 	public function findAll(): array {

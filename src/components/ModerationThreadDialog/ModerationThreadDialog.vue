@@ -54,7 +54,14 @@
     </div>
 
     <template #actions>
-      <NcButton variant="primary" :disabled="restoring" @click="$emit('restore')">
+      <NcButton variant="error" :disabled="restoring || deleting" @click="$emit('delete')">
+        <template #icon>
+          <NcLoadingIcon v-if="deleting" :size="20" />
+          <DeleteForeverIcon v-else :size="20" />
+        </template>
+        {{ strings.deletePermanently }}
+      </NcButton>
+      <NcButton variant="primary" :disabled="restoring || deleting" @click="$emit('restore')">
         <template #icon>
           <NcLoadingIcon v-if="restoring" :size="20" />
           <DeleteRestoreIcon v-else :size="20" />
@@ -73,6 +80,7 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import PostCard from '@/components/PostCard'
 import Pagination from '@/components/Pagination'
 import DeleteRestoreIcon from '@icons/DeleteRestore.vue'
+import DeleteForeverIcon from '@icons/DeleteForever.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
 
@@ -87,14 +95,16 @@ export default defineComponent({
     PostCard,
     Pagination,
     DeleteRestoreIcon,
+    DeleteForeverIcon,
   },
   props: {
     open: { type: Boolean, required: true },
     threadId: { type: Number, default: null },
     threadTitle: { type: String, default: '' },
     restoring: { type: Boolean, default: false },
+    deleting: { type: Boolean, default: false },
   },
-  emits: ['update:open', 'restore'],
+  emits: ['update:open', 'restore', 'delete'],
   data() {
     return {
       loading: false,
@@ -109,6 +119,7 @@ export default defineComponent({
       totalReplies: 0,
       strings: {
         restoreThread: t('forum', 'Restore thread'),
+        deletePermanently: t('forum', 'Delete permanently'),
       },
     }
   },

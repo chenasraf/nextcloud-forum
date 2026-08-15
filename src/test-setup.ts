@@ -61,7 +61,7 @@ vi.mock('@nextcloud/vue/components/NcButton', () => ({
   default: {
     name: 'NcButton',
     template:
-      '<button :disabled="disabled" :href="href" @click="$emit(\'click\')"><slot /><slot name="icon" /></button>',
+      '<button :disabled="disabled" :href="href" @click="$emit(\'click\', $event)"><slot /><slot name="icon" /></button>',
     props: ['variant', 'disabled', 'ariaLabel', 'title', 'href'],
   },
 }))

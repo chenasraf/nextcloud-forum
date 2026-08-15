@@ -171,6 +171,31 @@ class ModerationController extends OCSController {
 	}
 
 	/**
+	 * Permanently delete a soft-deleted thread and all associated data
+	 *
+	 * @param int $id Thread ID
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 *
+	 * 200: Thread permanently deleted
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessModeration')]
+	#[ApiRoute(verb: 'DELETE', url: '/api/moderation/threads/{id}')]
+	public function destroyThread(int $id): DataResponse {
+		try {
+			$this->moderationService->permanentlyDeleteThread($id);
+			return new DataResponse(['success' => true]);
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
+		} catch (\InvalidArgumentException $e) {
+			return new DataResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		} catch (\Exception $e) {
+			$this->logger->error('Error permanently deleting thread: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to permanently delete thread'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * List deleted replies
 	 *
 	 * @param int<1, 100> $limit Maximum results per page
@@ -290,6 +315,31 @@ class ModerationController extends OCSController {
 		} catch (\Exception $e) {
 			$this->logger->error('Error restoring reply: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to restore reply'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Permanently delete a soft-deleted reply and all associated data
+	 *
+	 * @param int $id Post ID
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
+	 *
+	 * 200: Reply permanently deleted
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessModeration')]
+	#[ApiRoute(verb: 'DELETE', url: '/api/moderation/replies/{id}')]
+	public function destroyReply(int $id): DataResponse {
+		try {
+			$this->moderationService->permanentlyDeleteReply($id);
+			return new DataResponse(['success' => true]);
+		} catch (DoesNotExistException $e) {
+			return new DataResponse(['error' => 'Reply not found'], Http::STATUS_NOT_FOUND);
+		} catch (\InvalidArgumentException $e) {
+			return new DataResponse(['error' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		} catch (\Exception $e) {
+			$this->logger->error('Error permanently deleting reply: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to permanently delete reply'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}
 }

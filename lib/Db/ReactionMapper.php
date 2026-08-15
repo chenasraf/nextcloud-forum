@@ -117,4 +117,21 @@ class ReactionMapper extends QBMapper {
 			);
 		return $this->findEntity($qb);
 	}
+
+	/**
+	 * Permanently delete all reactions for the given post IDs
+	 *
+	 * @param array<int> $postIds
+	 * @return int Number of reactions removed
+	 */
+	public function deleteByPostIds(array $postIds): int {
+		if (empty($postIds)) {
+			return 0;
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->in('post_id', $qb->createNamedParameter($postIds, IQueryBuilder::PARAM_INT_ARRAY)));
+		return $qb->executeStatement();
+	}
 }

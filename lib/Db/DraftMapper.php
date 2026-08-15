@@ -173,6 +173,19 @@ class DraftMapper extends QBMapper {
 	}
 
 	/**
+	 * Permanently delete all drafts of a type for a parent, across all users
+	 *
+	 * @return int Number of drafts removed
+	 */
+	public function deleteByEntityTypeAndParentId(string $entityType, int $parentId): int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->eq('entity_type', $qb->createNamedParameter($entityType, IQueryBuilder::PARAM_STR)))
+			->andWhere($qb->expr()->eq('parent_id', $qb->createNamedParameter($parentId, IQueryBuilder::PARAM_INT)));
+		return $qb->executeStatement();
+	}
+
+	/**
 	 * Count drafts for a user by entity type
 	 */
 	public function countByUserAndType(string $userId, string $entityType): int {

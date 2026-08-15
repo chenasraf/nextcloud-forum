@@ -26,6 +26,7 @@ use OCP\AppFramework\Db\Entity;
  */
 class Bookmark extends Entity implements JsonSerializable {
 	public const ENTITY_TYPE_THREAD = 'thread';
+	public const ENTITY_TYPE_POST = 'post';
 
 	protected $userId;
 	protected $entityType;

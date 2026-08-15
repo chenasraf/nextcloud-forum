@@ -71,4 +71,22 @@ class PostHistoryMapper extends QBMapper {
 			);
 		$qb->executeStatement();
 	}
+
+	/**
+	 * Delete all history entries for the given post IDs
+	 *
+	 * @param array<int> $postIds
+	 */
+	public function deleteByPostIds(array $postIds): void {
+		if (empty($postIds)) {
+			return;
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where(
+				$qb->expr()->in('post_id', $qb->createNamedParameter($postIds, IQueryBuilder::PARAM_INT_ARRAY))
+			);
+		$qb->executeStatement();
+	}
 }

@@ -149,7 +149,6 @@ class BBCodeController extends OCSController {
 			$bbcode->setIsBuiltin(false); // User-created BBCodes are never builtin
 			$bbcode->setCreatedAt(time());
 
-			/** @var \OCA\Forum\Db\BBCode */
 			$createdBBCode = $this->bbCodeMapper->insert($bbcode);
 			return new DataResponse($createdBBCode->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -203,7 +202,6 @@ class BBCodeController extends OCSController {
 				$bbcode->setParseInner($parseInner);
 			}
 
-			/** @var \OCA\Forum\Db\BBCode */
 			$updatedBBCode = $this->bbCodeMapper->update($bbcode);
 			return new DataResponse($updatedBBCode->jsonSerialize());
 		} catch (DoesNotExistException $e) {

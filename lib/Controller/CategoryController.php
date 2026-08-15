@@ -250,7 +250,6 @@ class CategoryController extends OCSController {
 			$category->setCreatedAt(time());
 			$category->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Category */
 			$createdCategory = $this->categoryMapper->insert($category);
 			return new DataResponse($this->serializeWithResolvedPath($createdCategory), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -351,7 +350,6 @@ class CategoryController extends OCSController {
 			}
 			$category->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Category */
 			$updatedCategory = $this->categoryMapper->update($category);
 			return new DataResponse($this->serializeWithResolvedPath($updatedCategory));
 		} catch (DoesNotExistException $e) {

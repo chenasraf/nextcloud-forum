@@ -226,7 +226,6 @@ class ThreadController extends OCSController {
 			// Increment view count only if requested
 			if ($incrementView === '1') {
 				$thread->setViewCount($thread->getViewCount() + 1);
-				/** @var \OCA\Forum\Db\Thread */
 				$thread = $this->threadMapper->update($thread);
 			}
 
@@ -258,7 +257,6 @@ class ThreadController extends OCSController {
 			// Increment view count only if requested
 			if ($incrementView === '1') {
 				$thread->setViewCount($thread->getViewCount() + 1);
-				/** @var \OCA\Forum\Db\Thread */
 				$thread = $this->threadMapper->update($thread);
 			}
 
@@ -342,7 +340,6 @@ class ThreadController extends OCSController {
 			$thread->setCreatedAt(time());
 			$thread->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Thread */
 			$createdThread = $this->threadMapper->insert($thread);
 
 			// Create the initial post
@@ -355,7 +352,6 @@ class ThreadController extends OCSController {
 			$post->setCreatedAt(time());
 			$post->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Post */
 			$createdPost = $this->postMapper->insert($post);
 
 			// Update thread with post count and last post
@@ -497,7 +493,6 @@ class ThreadController extends OCSController {
 			}
 			$thread->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Thread */
 			$updatedThread = $this->threadMapper->update($thread);
 			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
 		} catch (DoesNotExistException $e) {
@@ -557,7 +552,6 @@ class ThreadController extends OCSController {
 			$thread->setCategoryId($categoryId);
 			$thread->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Thread */
 			$updatedThread = $this->threadMapper->update($thread);
 
 			// Update category counts for both old and new categories
@@ -604,7 +598,6 @@ class ThreadController extends OCSController {
 			$thread->setIsLocked($locked);
 			$thread->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Thread */
 			$updatedThread = $this->threadMapper->update($thread);
 			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
 		} catch (DoesNotExistException $e) {
@@ -633,7 +626,6 @@ class ThreadController extends OCSController {
 			$thread->setIsPinned($pinned);
 			$thread->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Thread */
 			$updatedThread = $this->threadMapper->update($thread);
 			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
 		} catch (DoesNotExistException $e) {

@@ -81,7 +81,6 @@ class TemplateController extends OCSController {
 			$template->setCreatedAt($now);
 			$template->setUpdatedAt($now);
 
-			/** @var Template */
 			$created = $this->templateMapper->insert($template);
 			return new DataResponse($created->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -132,7 +131,6 @@ class TemplateController extends OCSController {
 			}
 			$template->setUpdatedAt(time());
 
-			/** @var Template */
 			$updated = $this->templateMapper->update($template);
 			return new DataResponse($updated->jsonSerialize());
 		} catch (DoesNotExistException $e) {

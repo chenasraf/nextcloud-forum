@@ -334,7 +334,6 @@ class PostController extends OCSController {
 			$post->setCreatedAt(time());
 			$post->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Post */
 			$createdPost = $this->postMapper->insert($post);
 
 			// User-only operations (read markers, forum user stats, auto-subscribe)
@@ -463,7 +462,6 @@ class PostController extends OCSController {
 			}
 			$post->setUpdatedAt(time());
 
-			/** @var \OCA\Forum\Db\Post */
 			$updatedPost = $this->postMapper->update($post);
 
 			// Handle mention notification changes (notify new mentions, remove old ones)

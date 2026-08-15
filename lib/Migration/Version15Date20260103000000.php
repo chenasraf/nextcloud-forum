@@ -43,7 +43,6 @@ class Version15Date20260103000000 extends SimpleMigrationStep {
 	 * @return ISchemaWrapper|null
 	 */
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
-		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
 		// Add unique index on role_type to prevent future duplicates

@@ -28,7 +28,6 @@ class Version5Date20251121190637 extends SimpleMigrationStep {
 	 * @return null|ISchemaWrapper
 	 */
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
-		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
 		// No schema changes needed, only data seeding repair in postSchemaChange

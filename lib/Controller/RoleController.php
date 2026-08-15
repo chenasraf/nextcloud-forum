@@ -125,7 +125,6 @@ class RoleController extends OCSController {
 			$role->setCanAccessModeration($canAccessModeration);
 			$role->setCreatedAt(time());
 
-			/** @var \OCA\Forum\Db\Role */
 			$createdRole = $this->roleMapper->insert($role);
 			return new DataResponse($createdRole->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -210,7 +209,6 @@ class RoleController extends OCSController {
 				}
 			}
 
-			/** @var \OCA\Forum\Db\Role */
 			$updatedRole = $this->roleMapper->update($role);
 			return new DataResponse($updatedRole->jsonSerialize());
 		} catch (DoesNotExistException $e) {

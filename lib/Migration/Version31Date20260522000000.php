@@ -20,7 +20,6 @@ use OCP\Migration\SimpleMigrationStep;
  */
 class Version31Date20260522000000 extends SimpleMigrationStep {
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
-		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
 		if (!$schema->hasTable('forum_categories')) {

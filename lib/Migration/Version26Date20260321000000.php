@@ -27,7 +27,6 @@ class Version26Date20260321000000 extends SimpleMigrationStep {
 	}
 
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
-		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
 		if (!$schema->hasTable('forum_threads')) {

@@ -33,7 +33,6 @@ class Version18Date20260214000000 extends SimpleMigrationStep {
 	 * @return ISchemaWrapper|null
 	 */
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
-		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
 		if (!$schema->hasTable('forum_read_markers')) {

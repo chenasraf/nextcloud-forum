@@ -97,7 +97,6 @@ class CatHeaderController extends OCSController {
 			$header->setSortOrder($sortOrder);
 			$header->setCreatedAt(time());
 
-			/** @var \OCA\Forum\Db\CatHeader */
 			$createdHeader = $this->catHeaderMapper->insert($header);
 			return new DataResponse($createdHeader->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -134,7 +133,6 @@ class CatHeaderController extends OCSController {
 				$header->setSortOrder($sortOrder);
 			}
 
-			/** @var \OCA\Forum\Db\CatHeader */
 			$updatedHeader = $this->catHeaderMapper->update($header);
 			return new DataResponse($updatedHeader->jsonSerialize());
 		} catch (DoesNotExistException $e) {

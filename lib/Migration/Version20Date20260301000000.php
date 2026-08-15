@@ -32,7 +32,6 @@ class Version20Date20260301000000 extends SimpleMigrationStep {
 	 * @return ISchemaWrapper|null
 	 */
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
-		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
 		if (!$schema->hasTable('forum_category_perms')) {

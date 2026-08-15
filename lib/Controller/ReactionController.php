@@ -119,7 +119,6 @@ class ReactionController extends OCSController {
 			$reaction->setReactionType($reactionType);
 			$reaction->setCreatedAt(time());
 
-			/** @var \OCA\Forum\Db\Reaction */
 			$createdReaction = $this->reactionMapper->insert($reaction);
 			return new DataResponse($createdReaction->jsonSerialize(), Http::STATUS_CREATED);
 		} catch (\Exception $e) {
@@ -185,7 +184,6 @@ class ReactionController extends OCSController {
 				$reaction->setReactionType($reactionType);
 				$reaction->setCreatedAt(time());
 
-				/** @var \OCA\Forum\Db\Reaction */
 				$createdReaction = $this->reactionMapper->insert($reaction);
 				return new DataResponse([
 					'action' => 'added',

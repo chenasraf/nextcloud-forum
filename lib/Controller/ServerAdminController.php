@@ -119,6 +119,7 @@ class ServerAdminController extends OCSController {
 	#[ApiRoute(verb: 'POST', url: '/api/server-admin/repair-seeds')]
 	public function repairSeeds(): DataResponse {
 		try {
+			/** @var list<string> $messages */
 			$messages = [];
 			$migrationOutput = new class($messages) implements IOutput {
 				/** @var array<string> */
@@ -153,6 +154,7 @@ class ServerAdminController extends OCSController {
 			SeedHelper::seedAll($migrationOutput, true);
 
 			$this->logger->info('Forum repair seeds completed successfully');
+			/** @var list<string> $messages */
 			return new DataResponse([
 				'success' => true,
 				'message' => implode("\n", $messages),

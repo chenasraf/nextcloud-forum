@@ -30,7 +30,7 @@ class PageController extends Controller {
 	/**
 	 * Main app page
 	 *
-	 * @return TemplateResponse<Http::STATUS_OK,array{}>|PublicTemplateResponse<Http::STATUS_OK,array{}>
+	 * @return TemplateResponse<Http::STATUS_OK,array{}>|PublicTemplateResponse<array{},Http::STATUS_OK>
 	 *
 	 * 200: OK
 	 */
@@ -43,8 +43,6 @@ class PageController extends Controller {
 			'script' => Application::getViteEntryScript('app.ts'),
 			'style' => Application::getViteEntryScript('style.css'),
 		];
-
-		$response = null;
 
 		if ($user) {
 			$response = new TemplateResponse(Application::APP_ID, 'app', $templateData);
@@ -66,7 +64,7 @@ class PageController extends Controller {
 	/**
 	 * Main app page - catch all route
 	 *
-	 * @return TemplateResponse<Http::STATUS_OK,array{}>|PublicTemplateResponse<Http::STATUS_OK,array{}>
+	 * @return TemplateResponse<Http::STATUS_OK,array{}>|PublicTemplateResponse<array{},Http::STATUS_OK>
 	 *
 	 * 200: OK
 	 */

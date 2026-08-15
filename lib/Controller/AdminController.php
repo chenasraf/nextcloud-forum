@@ -88,14 +88,25 @@ class AdminController extends OCSController {
 			));
 			$enrichedUsers = $this->userService->enrichMultipleUsers($allContributorIds);
 
+			/**
+			 * @param array<array{userId: string, postCount: int, threadCount: int}> $contributors
+			 * @return list<array<string, mixed>>
+			 */
 			$enrichContributors = function (array $contributors) use ($enrichedUsers): array {
-				return array_map(function ($c) use ($enrichedUsers) {
-					$userData = $enrichedUsers[$c['userId']] ?? null;
-					$c['displayName'] = $userData['displayName'] ?? $c['userId'];
-					$c['isGuest'] = $userData['isGuest'] ?? false;
-					$c['roles'] = $userData['roles'] ?? [];
-					return $c;
-				}, $contributors);
+				return array_map(
+					/**
+					 * @param array{userId: string, postCount: int, threadCount: int} $c
+					 * @return array<string, mixed>
+					 */
+					function (array $c) use ($enrichedUsers): array {
+						$userData = $enrichedUsers[$c['userId']] ?? [];
+						$c['displayName'] = $userData['displayName'] ?? $c['userId'];
+						$c['isGuest'] = $userData['isGuest'] ?? false;
+						$c['roles'] = $userData['roles'] ?? [];
+						return $c;
+					},
+					$contributors,
+				);
 			};
 
 			return new DataResponse([
@@ -426,10 +437,10 @@ class AdminController extends OCSController {
 
 			// Update the target user's forum user stats
 			if ($postCounts['replies'] > 0) {
-				$this->forumUserMapper->incrementPostCount($targetUserId, $postCounts['replies']);
+				$this->forumUserMapper->incrementPostCount($targetUserId, (int)$postCounts['replies']);
 			}
 			if ($postCounts['threads'] > 0) {
-				$this->forumUserMapper->incrementThreadCount($targetUserId, $postCounts['threads']);
+				$this->forumUserMapper->incrementThreadCount($targetUserId, (int)$postCounts['threads']);
 			}
 
 			$this->logger->info("Reassigned {$postsReassigned} posts and {$threadsReassigned} threads from guest '{$guestAuthorId}' to user '{$targetUserId}'");

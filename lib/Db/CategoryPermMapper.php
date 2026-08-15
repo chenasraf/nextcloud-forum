@@ -109,7 +109,9 @@ class CategoryPermMapper extends QBMapper {
 			->where($qb->expr()->eq('role_type', $qb->createNamedParameter(Role::ROLE_TYPE_ADMIN, IQueryBuilder::PARAM_STR)));
 		$result = $qb->executeQuery();
 		$adminRoleIds = [];
-		while ($row = $result->fetch()) {
+		/** @var list<array{id: int|string}> $rows */
+		$rows = $result->fetchAll();
+		foreach ($rows as $row) {
 			$adminRoleIds[] = (string)$row['id'];
 		}
 		$result->closeCursor();

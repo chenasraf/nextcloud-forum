@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Db\ForumUserMapper;
 use OCA\Forum\Db\Role;
@@ -112,8 +113,8 @@ class UserService {
 	 *
 	 * @param string $userId
 	 * @param array|null $roles Optional pre-fetched roles array
-	 * @param array|null $bbcodes Optional pre-fetched BBCode definitions for parsing signatures
-	 * @return array{userId: string, displayName: string, isDeleted: bool, roles: array, signature: ?string, signatureRaw: ?string}
+	 * @param BBCode[]|null $bbcodes Optional pre-fetched BBCode definitions for parsing signatures
+	 * @return array{userId: string, displayName: string, isDeleted: bool, isGuest?: true, roles: array, signature: ?string, signatureRaw: ?string}
 	 */
 	public function enrichUserData(string $userId, ?array $roles = null, ?array $bbcodes = null): array {
 		// Handle guest authors
@@ -188,8 +189,8 @@ class UserService {
 	 *
 	 * @param array<string> $userIds
 	 * @param array<string, array> $rolesMap Optional pre-fetched roles map (userId => roles[])
-	 * @param array|null $bbcodes Optional pre-fetched BBCode definitions for parsing signatures
-	 * @return array<string, array{userId: string, displayName: string, isDeleted: bool, roles: array, signature: ?string, signatureRaw: ?string}>
+	 * @param BBCode[]|null $bbcodes Optional pre-fetched BBCode definitions for parsing signatures
+	 * @return array<string, array{userId: string, displayName: string, isDeleted: bool, isGuest?: true, roles: array, signature: ?string, signatureRaw: ?string}>
 	 */
 	public function enrichMultipleUsers(array $userIds, ?array $rolesMap = null, ?array $bbcodes = null): array {
 		$result = [];
@@ -250,7 +251,7 @@ class UserService {
 
 				$signatureRaw = $signaturesMap[$userId] ?? null;
 				$signature = null;
-				if ($signaturesEnabled && $signatureRaw !== null && $signatureRaw !== '') {
+				if ($signaturesEnabled && $signatureRaw !== null && $signatureRaw !== '' && $bbcodes !== null) {
 					$signature = $this->bbCodeService->parse($signatureRaw, $bbcodes);
 				}
 
@@ -338,6 +339,8 @@ class UserService {
 		// Use IUserManager to search users
 		// The search method searches both user ID and display name
 		// Request one extra result in case we need to exclude the current user
+		// Note: searchDisplayName would match display name only; search() also matches user ID, which is required here
+		/** @psalm-suppress DeprecatedMethod */
 		$users = $this->userManager->search($search, $excludeUserId !== null ? $limit + 1 : $limit);
 
 		foreach ($users as $user) {

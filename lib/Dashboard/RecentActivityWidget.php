@@ -93,6 +93,7 @@ class RecentActivityWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget {
 
 			if ($entry['type'] === 'thread') {
 				$authorId = $thread->getAuthorId();
+				/** @var array{userId: string, displayName: string, isDeleted: bool, roles: array, signature: ?string, signatureRaw: ?string, isGuest?: bool}|null $authorData */
 				$authorData = $enrichedAuthors[$authorId] ?? null;
 				$displayName = $authorData['displayName'] ?? $authorId;
 				if (!empty($authorData['isGuest'])) {
@@ -102,6 +103,7 @@ class RecentActivityWidget implements IAPIWidgetV2, IIconWidget, IButtonWidget {
 			} else {
 				$post = $entry['item'];
 				$authorId = $post->getAuthorId();
+				/** @var array{userId: string, displayName: string, isDeleted: bool, roles: array, signature: ?string, signatureRaw: ?string, isGuest?: bool}|null $authorData */
 				$authorData = $enrichedAuthors[$authorId] ?? null;
 				$displayName = $authorData['displayName'] ?? $authorId;
 				if (!empty($authorData['isGuest'])) {

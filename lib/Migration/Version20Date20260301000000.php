@@ -87,7 +87,12 @@ class Version20Date20260301000000 extends SimpleMigrationStep {
 			->from('forum_category_perms');
 		$result = $qb->executeQuery();
 
-		while ($row = $result->fetch()) {
+		while (true) {
+			/** @var array{id: int|string, role_id: int|string}|false $row */
+			$row = $result->fetch();
+			if ($row === false) {
+				break;
+			}
 			$update = $this->db->getQueryBuilder();
 			$update->update('forum_category_perms')
 				->set('target_type', $update->createNamedParameter('role'))

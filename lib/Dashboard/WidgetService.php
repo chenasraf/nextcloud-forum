@@ -89,7 +89,7 @@ class WidgetService {
 		}
 
 		// Sort by createdAt descending
-		usort($activity, fn ($a, $b) => $b['createdAt'] <=> $a['createdAt']);
+		usort($activity, fn (array $a, array $b): int => $b['createdAt'] <=> $a['createdAt']);
 
 		return array_slice($activity, 0, $limit);
 	}

@@ -9,6 +9,7 @@ namespace OCA\Forum\Service;
 
 use OCA\Forum\Db\BookmarkMapper;
 use OCA\Forum\Db\CategoryMapper;
+use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IUserSession;
@@ -29,9 +30,9 @@ class ThreadEnrichmentService {
 	/**
 	 * Enrich thread data with author, category info, and subscription status
 	 *
-	 * @param mixed $thread Thread entity or array
+	 * @param Thread|array<string, mixed> $thread Thread entity or array
 	 * @param array|null $author Optional pre-loaded author data
-	 * @return array Enriched thread data
+	 * @return array<array-key, mixed> Enriched thread data
 	 */
 	public function enrichThread(mixed $thread, ?array $author = null, ?array $lastReply = null): array {
 		if (!is_array($thread)) {
@@ -40,7 +41,7 @@ class ThreadEnrichmentService {
 
 		// Add author object (includes display name, deleted status, and roles)
 		if ($author === null) {
-			$thread['author'] = $this->userService->enrichUserData($thread['authorId']);
+			$thread['author'] = $this->userService->enrichUserData((string)$thread['authorId']);
 		} else {
 			$thread['author'] = $author;
 		}
@@ -50,7 +51,7 @@ class ThreadEnrichmentService {
 
 		// Add category information (slug and name) for navigation
 		try {
-			$category = $this->categoryMapper->find($thread['categoryId']);
+			$category = $this->categoryMapper->find((int)$thread['categoryId']);
 			$thread['categorySlug'] = $category->getSlug();
 			$thread['categoryName'] = $category->getName();
 		} catch (DoesNotExistException $e) {
@@ -63,8 +64,8 @@ class ThreadEnrichmentService {
 		try {
 			$user = $this->userSession->getUser();
 			if ($user) {
-				$thread['isSubscribed'] = $this->threadSubscriptionMapper->isUserSubscribed($user->getUID(), $thread['id']);
-				$thread['isBookmarked'] = $this->bookmarkMapper->isThreadBookmarked($user->getUID(), $thread['id']);
+				$thread['isSubscribed'] = $this->threadSubscriptionMapper->isUserSubscribed($user->getUID(), (int)$thread['id']);
+				$thread['isBookmarked'] = $this->bookmarkMapper->isThreadBookmarked($user->getUID(), (int)$thread['id']);
 			} else {
 				$thread['isSubscribed'] = false;
 				$thread['isBookmarked'] = false;

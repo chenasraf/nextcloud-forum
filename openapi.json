@@ -9417,15 +9417,21 @@
                                                     ],
                                                     "properties": {
                                                         "threads": {
-                                                            "type": "object",
-                                                            "additionalProperties": {
-                                                                "type": "object"
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": "object"
+                                                                }
                                                             }
                                                         },
                                                         "posts": {
-                                                            "type": "object",
-                                                            "additionalProperties": {
-                                                                "type": "object"
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": "object"
+                                                                }
                                                             }
                                                         },
                                                         "threadCount": {

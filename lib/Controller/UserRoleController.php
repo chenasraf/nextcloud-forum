@@ -57,6 +57,7 @@ class UserRoleController extends OCSController {
 			foreach ($userRoles as $userRole) {
 				try {
 					$role = $this->roleMapper->find($userRole->getRoleId());
+					/** @var array<string, mixed> $roleData */
 					$roleData = $role->jsonSerialize();
 					$roleData['userRoleId'] = $userRole->getId();
 					$result[] = $roleData;
@@ -131,7 +132,9 @@ class UserRoleController extends OCSController {
 				return new DataResponse(['error' => 'Failed to assign role'], Http::STATUS_INTERNAL_SERVER_ERROR);
 			}
 
-			return new DataResponse($createdUserRole->jsonSerialize(), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $createdUserRole->jsonSerialize();
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Role not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

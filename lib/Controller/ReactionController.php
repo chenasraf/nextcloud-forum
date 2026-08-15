@@ -86,7 +86,9 @@ class ReactionController extends OCSController {
 	public function show(int $id): DataResponse {
 		try {
 			$reaction = $this->reactionMapper->find($id);
-			return new DataResponse($reaction->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $reaction->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Reaction not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -120,7 +122,9 @@ class ReactionController extends OCSController {
 			$reaction->setCreatedAt(time());
 
 			$createdReaction = $this->reactionMapper->insert($reaction);
-			return new DataResponse($createdReaction->jsonSerialize(), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $createdReaction->jsonSerialize();
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating reaction: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create reaction'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -185,9 +189,11 @@ class ReactionController extends OCSController {
 				$reaction->setCreatedAt(time());
 
 				$createdReaction = $this->reactionMapper->insert($reaction);
+				/** @var array<string, mixed> $reactionData */
+				$reactionData = $createdReaction->jsonSerialize();
 				return new DataResponse([
 					'action' => 'added',
-					'reaction' => $createdReaction->jsonSerialize()
+					'reaction' => $reactionData
 				]);
 			}
 		} catch (\Exception $e) {

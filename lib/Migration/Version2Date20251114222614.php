@@ -143,6 +143,8 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 
 	/**
 	 * Rebuild user stats - handles both old (forum_user_stats) and new (forum_users) table names
+	 *
+	 * @return array{users: int, created: int, updated: int}
 	 */
 	private function rebuildAllUserStatsLegacy(): array {
 		// Get all user IDs from Nextcloud
@@ -247,6 +249,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 			->orderBy('p.created_at', 'DESC')
 			->setMaxResults(1);
 		$lastPostResult = $lastPostQb->executeQuery();
+		/** @var int|string|false $lastPostAt */
 		$lastPostAt = $lastPostResult->fetchOne();
 		$lastPostResult->closeCursor();
 
@@ -256,12 +259,13 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 			->from($tableName)
 			->where($checkQb->expr()->eq('user_id', $checkQb->createNamedParameter($userId)));
 		$checkResult = $checkQb->executeQuery();
+		/** @var array<string, mixed>|false $exists */
 		$exists = $checkResult->fetch();
 		$checkResult->closeCursor();
 
 		$timestamp = time();
 
-		if ($exists) {
+		if ($exists !== false) {
 			// Update existing record
 			$updateQb = $this->db->getQueryBuilder();
 			$updateQb->update($tableName)
@@ -270,7 +274,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 				->set('updated_at', $updateQb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT))
 				->where($updateQb->expr()->eq('user_id', $updateQb->createNamedParameter($userId)));
 
-			if ($lastPostAt) {
+			if ($lastPostAt !== false) {
 				$updateQb->set('last_post_at', $updateQb->createNamedParameter((int)$lastPostAt, IQueryBuilder::PARAM_INT));
 			}
 
@@ -284,7 +288,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 					'user_id' => $insertQb->createNamedParameter($userId),
 					'thread_count' => $insertQb->createNamedParameter($threadCount, IQueryBuilder::PARAM_INT),
 					'post_count' => $insertQb->createNamedParameter($postCount, IQueryBuilder::PARAM_INT),
-					'last_post_at' => $insertQb->createNamedParameter($lastPostAt ? (int)$lastPostAt : null, IQueryBuilder::PARAM_INT),
+					'last_post_at' => $insertQb->createNamedParameter($lastPostAt !== false ? (int)$lastPostAt : null, IQueryBuilder::PARAM_INT),
 					'created_at' => $insertQb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT),
 					'updated_at' => $insertQb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT),
 				]);
@@ -301,7 +305,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 					->set('updated_at', $updateQb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT))
 					->where($updateQb->expr()->eq('user_id', $updateQb->createNamedParameter($userId)));
 
-				if ($lastPostAt) {
+				if ($lastPostAt !== false) {
 					$updateQb->set('last_post_at', $updateQb->createNamedParameter((int)$lastPostAt, IQueryBuilder::PARAM_INT));
 				}
 
@@ -326,6 +330,7 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 			$qb->select('id', 'author_id')
 				->from('forum_threads');
 			$result = $qb->executeQuery();
+			/** @var list<array{id: int|string, author_id: string}> $threads */
 			$threads = $result->fetchAll();
 			$result->closeCursor();
 
@@ -340,10 +345,11 @@ class Version2Date20251114222614 extends SimpleMigrationStep {
 					->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
 					->andWhere($qb->expr()->eq('user_id', $qb->createNamedParameter($authorId)));
 				$result = $qb->executeQuery();
+				/** @var array<string, mixed>|false $exists */
 				$exists = $result->fetch();
 				$result->closeCursor();
 
-				if (!$exists) {
+				if ($exists === false) {
 					// Subscribe the author to their thread
 					$qb = $this->db->getQueryBuilder();
 					$qb->insert('forum_thread_subs')

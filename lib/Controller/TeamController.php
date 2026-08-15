@@ -65,39 +65,42 @@ class TeamController extends OCSController {
 			$circlesManager->startSuperSession();
 
 			$probe = new \OCA\Circles\Model\Probes\CircleProbe();
-			$probe->filterHiddenCircles()
-				->filterBackendCircles()
-				->filterPersonalCircles()
-				->filterSingleCircles();
+			$probe->filterHiddenCircles();
+			$probe->filterBackendCircles();
+			$probe->filterPersonalCircles();
+			$probe->filterSingleCircles();
 
+			/** @var list<\OCA\Circles\Model\Circle> $circles */
 			$circles = $circlesManager->getCircles($probe);
 
-			$result = array_map(function ($circle) {
+			$result = array_map(function (\OCA\Circles\Model\Circle $circle): array {
 				$owner = '';
 				$ownerDisplayName = '';
 				if ($circle->hasOwner()) {
-					$owner = $circle->getOwner()->getUserId();
-					$ownerDisplayName = $circle->getOwner()->getDisplayName();
+					/** @var \OCA\Circles\Model\Member $circleOwner */
+					$circleOwner = $circle->getOwner();
+					$owner = (string)$circleOwner->getUserId();
+					$ownerDisplayName = (string)$circleOwner->getDisplayName();
 				}
 				return [
-					'id' => $circle->getSingleId(),
-					'displayName' => $circle->getDisplayName() ?: $circle->getName(),
+					'id' => (string)$circle->getSingleId(),
+					'displayName' => (string)($circle->getDisplayName() ?: $circle->getName()),
 					'owner' => $owner,
 					'ownerDisplayName' => $ownerDisplayName,
-					'memberCount' => $circle->getPopulation(),
+					'memberCount' => (int)$circle->getPopulation(),
 				];
 			}, $circles);
 
 			// Sort by owner display name, then by team display name
-			usort($result, function ($a, $b) {
-				$ownerCmp = strcasecmp($a['ownerDisplayName'], $b['ownerDisplayName']);
+			usort($result, function (array $a, array $b): int {
+				$ownerCmp = strcasecmp((string)$a['ownerDisplayName'], (string)$b['ownerDisplayName']);
 				if ($ownerCmp !== 0) {
 					return $ownerCmp;
 				}
-				return strcasecmp($a['displayName'], $b['displayName']);
+				return strcasecmp((string)$a['displayName'], (string)$b['displayName']);
 			});
 
-			return new DataResponse(array_slice(array_values($result), $offset, $limit));
+			return new DataResponse(array_slice($result, $offset, $limit));
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching teams: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch teams'], Http::STATUS_INTERNAL_SERVER_ERROR);

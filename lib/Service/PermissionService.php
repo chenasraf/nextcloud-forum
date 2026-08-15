@@ -321,6 +321,7 @@ class PermissionService {
 	 */
 	protected function getUserCircleIds(string $userId): ?array {
 		// Cache circle IDs per-request to avoid repeated Circles API calls
+		/** @var array<string, list<string>|null> $cache */
 		static $cache = [];
 		if (array_key_exists($userId, $cache)) {
 			return $cache[$userId];
@@ -333,19 +334,21 @@ class PermissionService {
 			}
 
 			$circlesManager = \OCP\Server::get(\OCA\Circles\CirclesManager::class);
+			/** @var \OCA\Circles\Model\FederatedUser $federatedUser */
 			$federatedUser = $circlesManager->getFederatedUser($userId, \OCA\Circles\Model\Member::TYPE_USER);
 			$circlesManager->startSession($federatedUser);
 
 			try {
 				$probe = new \OCA\Circles\Model\Probes\CircleProbe();
-				$probe->mustBeMember()
-					->filterHiddenCircles()
-					->filterBackendCircles()
-					->filterPersonalCircles()
-					->filterSingleCircles();
+				$probe->mustBeMember();
+				$probe->filterHiddenCircles();
+				$probe->filterBackendCircles();
+				$probe->filterPersonalCircles();
+				$probe->filterSingleCircles();
 
+				/** @var list<\OCA\Circles\Model\Circle> $circles */
 				$circles = $circlesManager->getCircles($probe);
-				$cache[$userId] = array_map(fn ($c) => $c->getSingleId(), $circles);
+				$cache[$userId] = array_map(static fn (\OCA\Circles\Model\Circle $c): string => (string)$c->getSingleId(), $circles);
 			} finally {
 				$circlesManager->stopSession();
 			}

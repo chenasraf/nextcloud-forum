@@ -100,11 +100,13 @@ class BookmarkMapper extends QBMapper {
 			);
 
 		$result = $qb->executeQuery();
+		/** @var list<array{entity_id: int|string}> $rows */
+		$rows = $result->fetchAll();
+		$result->closeCursor();
 		$entityIds = [];
-		while ($row = $result->fetch()) {
+		foreach ($rows as $row) {
 			$entityIds[] = (int)$row['entity_id'];
 		}
-		$result->closeCursor();
 		return $entityIds;
 	}
 

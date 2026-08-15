@@ -106,6 +106,7 @@ class ModerationController extends OCSController {
 	public function getDeletedThread(int $id, int $postLimit = 20, int $postOffset = 0): DataResponse {
 		try {
 			$thread = $this->threadMapper->findIncludingDeleted($id);
+			/** @var array<string, mixed> $data */
 			$data = $thread->jsonSerialize();
 
 			// Enrich thread author
@@ -159,7 +160,9 @@ class ModerationController extends OCSController {
 	public function restoreThread(int $id): DataResponse {
 		try {
 			$thread = $this->moderationService->restoreThread($id);
-			return new DataResponse(['success' => true, 'thread' => $thread->jsonSerialize()]);
+			/** @var array<string, mixed> $threadData */
+			$threadData = $thread->jsonSerialize();
+			return new DataResponse(['success' => true, 'thread' => $threadData]);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\InvalidArgumentException $e) {
@@ -270,6 +273,7 @@ class ModerationController extends OCSController {
 	public function getDeletedReply(int $id): DataResponse {
 		try {
 			$post = $this->postMapper->findIncludingDeleted($id);
+			/** @var array<string, mixed> $data */
 			$data = $this->postEnrichmentService->enrichPost($post);
 
 			// Add thread context
@@ -307,7 +311,9 @@ class ModerationController extends OCSController {
 	public function restoreReply(int $id): DataResponse {
 		try {
 			$post = $this->moderationService->restorePost($id);
-			return new DataResponse(['success' => true, 'post' => $post->jsonSerialize()]);
+			/** @var array<string, mixed> $postData */
+			$postData = $post->jsonSerialize();
+			return new DataResponse(['success' => true, 'post' => $postData]);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Reply not found'], Http::STATUS_NOT_FOUND);
 		} catch (\InvalidArgumentException $e) {

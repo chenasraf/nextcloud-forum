@@ -94,6 +94,7 @@ class StatsService {
 			->orderBy('p.created_at', 'DESC')
 			->setMaxResults(1);
 		$lastPostResult = $lastPostQb->executeQuery();
+		/** @var string|false $lastPostAt */
 		$lastPostAt = $lastPostResult->fetchOne();
 		$lastPostResult->closeCursor();
 
@@ -103,12 +104,13 @@ class StatsService {
 			->from('forum_users')
 			->where($checkQb->expr()->eq('user_id', $checkQb->createNamedParameter($userId)));
 		$checkResult = $checkQb->executeQuery();
+		/** @var array{user_id: string}|false $exists */
 		$exists = $checkResult->fetch();
 		$checkResult->closeCursor();
 
 		$timestamp = time();
 
-		if ($exists) {
+		if ($exists !== false) {
 			// Update existing record
 			$updateQb = $this->db->getQueryBuilder();
 			$updateQb->update('forum_users')
@@ -117,7 +119,7 @@ class StatsService {
 				->set('updated_at', $updateQb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 				->where($updateQb->expr()->eq('user_id', $updateQb->createNamedParameter($userId)));
 
-			if ($lastPostAt) {
+			if ($lastPostAt !== false) {
 				$updateQb->set('last_post_at', $updateQb->createNamedParameter((int)$lastPostAt, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT));
 			}
 
@@ -131,7 +133,7 @@ class StatsService {
 					'user_id' => $insertQb->createNamedParameter($userId),
 					'thread_count' => $insertQb->createNamedParameter($threadCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 					'post_count' => $insertQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
-					'last_post_at' => $insertQb->createNamedParameter($lastPostAt ? (int)$lastPostAt : null, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
+					'last_post_at' => $insertQb->createNamedParameter($lastPostAt !== false ? (int)$lastPostAt : null, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 					'created_at' => $insertQb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 					'updated_at' => $insertQb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT),
 				]);
@@ -153,7 +155,7 @@ class StatsService {
 					->set('updated_at', $updateQb->createNamedParameter($timestamp, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 					->where($updateQb->expr()->eq('user_id', $updateQb->createNamedParameter($userId)));
 
-				if ($lastPostAt) {
+				if ($lastPostAt !== false) {
 					$updateQb->set('last_post_at', $updateQb->createNamedParameter((int)$lastPostAt, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT));
 				}
 
@@ -175,7 +177,12 @@ class StatsService {
 			->from('forum_categories');
 		$result = $qb->executeQuery();
 		$categoryIds = [];
-		while ($row = $result->fetch()) {
+		while (true) {
+			/** @var array{id: string}|false $row */
+			$row = $result->fetch();
+			if ($row === false) {
+				break;
+			}
 			$categoryIds[] = (int)$row['id'];
 		}
 		$result->closeCursor();
@@ -250,7 +257,12 @@ class StatsService {
 		$qb->select('id', 'parent_id')->from('forum_categories');
 		$result = $qb->executeQuery();
 		$childrenByParent = [];
-		while ($row = $result->fetch()) {
+		while (true) {
+			/** @var array{id: string, parent_id: string|null}|false $row */
+			$row = $result->fetch();
+			if ($row === false) {
+				break;
+			}
 			if ($row['parent_id'] === null) {
 				continue;
 			}
@@ -283,7 +295,12 @@ class StatsService {
 			->where($qb->expr()->isNull('deleted_at'));
 		$result = $qb->executeQuery();
 		$threadIds = [];
-		while ($row = $result->fetch()) {
+		while (true) {
+			/** @var array{id: string}|false $row */
+			$row = $result->fetch();
+			if ($row === false) {
+				break;
+			}
 			$threadIds[] = (int)$row['id'];
 		}
 		$result->closeCursor();
@@ -327,6 +344,7 @@ class StatsService {
 			->orderBy('created_at', 'DESC')
 			->setMaxResults(1);
 		$lastPostResult = $lastPostQb->executeQuery();
+		/** @var array{id: string}|false $lastPost */
 		$lastPost = $lastPostResult->fetch();
 		$lastPostResult->closeCursor();
 
@@ -340,6 +358,7 @@ class StatsService {
 			->orderBy('created_at', 'DESC')
 			->setMaxResults(1);
 		$lastReplyResult = $lastReplyQb->executeQuery();
+		/** @var array{author_id: string, created_at: string}|false $lastReply */
 		$lastReply = $lastReplyResult->fetch();
 		$lastReplyResult->closeCursor();
 
@@ -348,15 +367,15 @@ class StatsService {
 		$updateQb->update('forum_threads')
 			->set('post_count', $updateQb->createNamedParameter($postCount, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT))
 			->set('last_post_id', $updateQb->createNamedParameter(
-				$lastPost ? (int)$lastPost['id'] : null,
+				$lastPost !== false ? (int)$lastPost['id'] : null,
 				\OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
 			))
 			->set('last_reply_author_id', $updateQb->createNamedParameter(
-				$lastReply ? $lastReply['author_id'] : null,
+				$lastReply !== false ? $lastReply['author_id'] : null,
 				\OCP\DB\QueryBuilder\IQueryBuilder::PARAM_STR
 			))
 			->set('last_reply_at', $updateQb->createNamedParameter(
-				$lastReply ? (int)$lastReply['created_at'] : null,
+				$lastReply !== false ? (int)$lastReply['created_at'] : null,
 				\OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT
 			))
 			->where($updateQb->expr()->eq('id', $updateQb->createNamedParameter($threadId, \OCP\DB\QueryBuilder\IQueryBuilder::PARAM_INT)));

@@ -35,8 +35,8 @@ class SetRole extends Command {
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
-		$username = $input->getArgument('username');
-		$roleIdentifier = $input->getArgument('role');
+		$username = (string)$input->getArgument('username');
+		$roleIdentifier = (string)$input->getArgument('role');
 
 		// Check if user exists
 		$user = $this->userManager->get($username);
@@ -46,7 +46,6 @@ class SetRole extends Command {
 		}
 
 		// Find role by ID (if numeric) or by name (case insensitive)
-		$role = null;
 		if (is_numeric($roleIdentifier)) {
 			// Try to find by ID
 			try {

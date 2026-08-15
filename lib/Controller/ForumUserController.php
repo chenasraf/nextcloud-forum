@@ -114,6 +114,7 @@ class ForumUserController extends OCSController {
 
 			try {
 				$forumUser = $this->forumUserMapper->find($userId);
+				/** @var array<string, mixed> $data */
 				$data = $forumUser->jsonSerialize();
 			} catch (DoesNotExistException $e) {
 				if (!$isMe) {
@@ -154,7 +155,9 @@ class ForumUserController extends OCSController {
 	public function create(string $userId): DataResponse {
 		try {
 			$forumUser = $this->forumUserMapper->createOrUpdate($userId);
-			return new DataResponse($forumUser->jsonSerialize(), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $forumUser->jsonSerialize();
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating forum user: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create forum user'], Http::STATUS_INTERNAL_SERVER_ERROR);

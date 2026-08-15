@@ -91,9 +91,10 @@ class CategoryMapper extends QBMapper {
 		$qb->select($qb->func()->count('*', 'count'))
 			->from($this->getTableName());
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**

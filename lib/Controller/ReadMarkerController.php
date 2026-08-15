@@ -120,7 +120,9 @@ class ReadMarkerController extends OCSController {
 			}
 
 			$marker = $this->readMarkerMapper->findByUserAndThread($user->getUID(), $threadId);
-			return new DataResponse($marker->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $marker->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Read marker not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -154,7 +156,9 @@ class ReadMarkerController extends OCSController {
 					$user->getUID(),
 					$categoryId
 				);
-				return new DataResponse($marker->jsonSerialize());
+				/** @var array<string, mixed> $data */
+				$data = $marker->jsonSerialize();
+				return new DataResponse($data);
 			}
 
 			// Thread marker (default)
@@ -180,7 +184,9 @@ class ReadMarkerController extends OCSController {
 				// Don't fail the request if notification dismissal fails
 			}
 
-			return new DataResponse($marker->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $marker->jsonSerialize();
+			return new DataResponse($data);
 		} catch (\Exception $e) {
 			$this->logger->error('Error marking as read: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to mark as read'], Http::STATUS_INTERNAL_SERVER_ERROR);

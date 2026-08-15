@@ -27,6 +27,7 @@ class QueryParser {
 	private const TOKEN_EXCLUDE = 'EXCLUDE';
 	private const TOKEN_EOF = 'EOF';
 
+	/** @var array<array{type: string, value: string}> */
 	private array $tokens = [];
 	private int $position = 0;
 
@@ -202,6 +203,8 @@ class QueryParser {
 
 	/**
 	 * Get the current token
+	 *
+	 * @return array{type: string, value: string}
 	 */
 	private function currentToken(): array {
 		if ($this->position >= count($this->tokens)) {

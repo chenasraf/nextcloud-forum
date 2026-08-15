@@ -24,9 +24,9 @@ class PostEnrichmentService {
 	/**
 	 * Enrich post content with parsed BBCode, author data, and reactions
 	 *
-	 * @param mixed $post Post entity or array
-	 * @param array $bbcodes Optional pre-loaded BBCode definitions
-	 * @param array $reactions Post reactions
+	 * @param \OCA\Forum\Db\Post|array<string, mixed> $post Post entity or array
+	 * @param array<\OCA\Forum\Db\BBCode> $bbcodes Optional pre-loaded BBCode definitions
+	 * @param array<\OCA\Forum\Db\Reaction> $reactions Post reactions
 	 * @param string|null $currentUserId Current user ID for reaction status
 	 * @param array|null $author Optional pre-loaded author data
 	 * @param int|null $categoryId Category ID for permission checks
@@ -43,16 +43,17 @@ class PostEnrichmentService {
 		if (!is_array($post)) {
 			$post = $post->jsonSerialize();
 		}
+		/** @var array<string, mixed> $post */
 
 		// Parse BBCode content
 		if (empty($bbcodes)) {
 			$bbcodes = $this->bbCodeMapper->findAllEnabled();
 		}
-		$post['content'] = $this->bbCodeService->parse($post['content'], $bbcodes, $post['authorId'], $post['id']);
+		$post['content'] = $this->bbCodeService->parse((string)$post['content'], $bbcodes, (string)$post['authorId'], (int)$post['id']);
 
 		// Add author object (includes display name, deleted status, and roles)
 		if ($author === null) {
-			$post['author'] = $this->userService->enrichUserData($post['authorId']);
+			$post['author'] = $this->userService->enrichUserData((string)$post['authorId']);
 		} else {
 			$post['author'] = $author;
 		}
@@ -64,7 +65,7 @@ class PostEnrichmentService {
 		if ($categoryId !== null && !empty($post['isEdited'])) {
 			$post['canViewHistory'] = $this->editHistoryVisibilityService->canViewEditHistory(
 				$currentUserId,
-				$post['authorId'],
+				(string)$post['authorId'],
 				$categoryId,
 			);
 		} else {
@@ -82,6 +83,7 @@ class PostEnrichmentService {
 	 * @return array<array{emoji: string, count: int, userIds: string[], hasReacted: bool}>
 	 */
 	private function groupReactions(array $reactions, ?string $currentUserId): array {
+		/** @var array<string, array{emoji: string, count: int, userIds: list<string>, hasReacted: bool}> $groups */
 		$groups = [];
 
 		foreach ($reactions as $reaction) {
@@ -100,19 +102,23 @@ class PostEnrichmentService {
 			$groups[$emoji]['count']++;
 			$groups[$emoji]['userIds'][] = $userId;
 
-			if ($currentUserId && $userId === $currentUserId) {
+			if ($currentUserId !== null && $userId === $currentUserId) {
 				$groups[$emoji]['hasReacted'] = true;
 			}
 		}
 
 		// Convert to array and sort by count (descending), then alphabetically
 		$result = array_values($groups);
-		usort($result, function ($a, $b) {
-			if ($a['count'] !== $b['count']) {
-				return $b['count'] - $a['count'];
-			}
-			return strcmp($a['emoji'], $b['emoji']);
-		});
+		usort($result, /**
+			 * @param array{emoji: string, count: int, userIds: list<string>, hasReacted: bool} $a
+			 * @param array{emoji: string, count: int, userIds: list<string>, hasReacted: bool} $b
+			 */
+			function (array $a, array $b): int {
+				if ($a['count'] !== $b['count']) {
+					return $b['count'] - $a['count'];
+				}
+				return strcmp($a['emoji'], $b['emoji']);
+			});
 
 		return $result;
 	}

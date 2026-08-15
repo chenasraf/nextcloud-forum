@@ -63,14 +63,14 @@ class PostHistoryService {
 
 		// Parse BBCode content for current version
 		$postData['content'] = $this->bbCodeService->parse(
-			$postData['content'],
+			(string)$postData['content'],
 			$bbcodes,
-			$postData['authorId'],
-			$postData['id']
+			(string)$postData['authorId'],
+			(int)$postData['id']
 		);
 
 		// Add author data to current version
-		$postData['author'] = $this->userService->enrichUserData($postData['authorId']);
+		$postData['author'] = $this->userService->enrichUserData((string)$postData['authorId']);
 
 		// Get history entries (ordered by edited_at DESC - newest first)
 		$historyEntries = $this->postHistoryMapper->findByPostId($postId);
@@ -85,10 +85,10 @@ class PostHistoryService {
 
 			// Parse BBCode content for historical version
 			$data['content'] = $this->bbCodeService->parse(
-				$data['content'],
+				(string)$data['content'],
 				$bbcodes,
-				$postData['authorId'],
-				$postData['id']
+				(string)$postData['authorId'],
+				(int)$postData['id']
 			);
 
 			// Add editor info

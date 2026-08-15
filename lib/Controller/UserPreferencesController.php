@@ -77,6 +77,7 @@ class UserPreferencesController extends OCSController {
 			// framework params (_route, format) and derived/read-only fields
 			// like `upload_directory_resolved_path` that the frontend may
 			// round-trip from a previous GET.
+			/** @var array<string, mixed> $preferences */
 			$preferences = array_intersect_key(
 				$this->request->getParams(),
 				array_flip(UserPreferencesService::VALID_KEYS),

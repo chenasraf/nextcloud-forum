@@ -50,7 +50,7 @@ class SearchController extends OCSController {
 	 * @param int|null $categoryId Optional category ID filter
 	 * @param int<1, 200> $limit Maximum results per type
 	 * @param int $offset Results offset per type
-	 * @return DataResponse<Http::STATUS_OK, array{threads: array<string, mixed>, posts: array<string, mixed>, threadCount: int, postCount: int, query: string}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{threads: list<array<string, mixed>>, posts: list<array<string, mixed>>, threadCount: int, postCount: int, query: string}, array{}>
 	 *
 	 * 200: Search results returned
 	 */
@@ -95,15 +95,21 @@ class SearchController extends OCSController {
 				$offset
 			);
 
+			/** @var list<Thread> $threadResults */
+			$threadResults = $results['threads'];
+			/** @var list<Post> $postResults */
+			$postResults = $results['posts'];
+
 			// Collect all unique author IDs from threads, last reply authors, and posts
 			$allAuthorIds = [];
-			foreach ($results['threads'] as $thread) {
+			foreach ($threadResults as $thread) {
 				$allAuthorIds[] = $thread->getAuthorId();
-				if ($thread->getLastReplyAuthorId() !== null) {
-					$allAuthorIds[] = $thread->getLastReplyAuthorId();
+				$lastReplyAuthorId = $thread->getLastReplyAuthorId();
+				if ($lastReplyAuthorId !== null) {
+					$allAuthorIds[] = $lastReplyAuthorId;
 				}
 			}
-			foreach ($results['posts'] as $post) {
+			foreach ($postResults as $post) {
 				$allAuthorIds[] = $post->getAuthorId();
 			}
 			$allAuthorIds = array_unique($allAuthorIds);
@@ -112,7 +118,8 @@ class SearchController extends OCSController {
 			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
 
 			// Enrich threads with pre-fetched author data and last reply info
-			$enrichedThreads = array_map(function ($thread) use ($authors) {
+			/** @var list<array<string, mixed>> $enrichedThreads */
+			$enrichedThreads = array_map(function (Thread $thread) use ($authors) {
 				$lastReply = null;
 				$lastReplyAuthorId = $thread->getLastReplyAuthorId();
 				if ($lastReplyAuthorId !== null) {
@@ -123,11 +130,12 @@ class SearchController extends OCSController {
 					];
 				}
 				return $this->threadEnrichmentService->enrichThread($thread, $authors[$thread->getAuthorId()], $lastReply);
-			}, $results['threads']);
+			}, $threadResults);
 
 			// Enrich posts with pre-fetched author data and thread context
 			$perPage = 20;
-			$enrichedPosts = array_map(function ($post) use ($authors, $perPage) {
+			/** @var list<array<string, mixed>> $enrichedPosts */
+			$enrichedPosts = array_map(function (Post $post) use ($authors, $perPage) {
 				$enriched = $this->postEnrichmentService->enrichPost($post, [], [], null, $authors[$post->getAuthorId()]);
 				// Add thread info for context
 				try {
@@ -151,7 +159,7 @@ class SearchController extends OCSController {
 				}
 
 				return $enriched;
-			}, $results['posts']);
+			}, $postResults);
 
 			return new DataResponse([
 				'threads' => $enrichedThreads,

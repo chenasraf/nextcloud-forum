@@ -149,9 +149,10 @@ class PostMapper extends QBMapper {
 				$qb->expr()->eq('p.is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL))
 			);
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**
@@ -173,9 +174,10 @@ class PostMapper extends QBMapper {
 				$qb->expr()->eq('p.is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL))
 			);
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**
@@ -225,9 +227,10 @@ class PostMapper extends QBMapper {
 		}
 
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**
@@ -287,9 +290,10 @@ class PostMapper extends QBMapper {
 			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
 			->andWhere($qb->expr()->isNull('deleted_at'));
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**
@@ -331,6 +335,7 @@ class PostMapper extends QBMapper {
 			->from($this->getTableName())
 			->where($targetQb->expr()->eq('id', $targetQb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)));
 		$targetResult = $targetQb->executeQuery();
+		/** @var array{created_at: int|string}|false $targetRow */
 		$targetRow = $targetResult->fetch();
 		$targetResult->closeCursor();
 
@@ -350,9 +355,10 @@ class PostMapper extends QBMapper {
 			->andWhere($qb->expr()->lt('created_at', $qb->createNamedParameter($targetCreatedAt, IQueryBuilder::PARAM_INT)));
 
 		$result = $qb->executeQuery();
+		/** @var array{position: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['position'] ?? 0);
+		return $row === false ? 0 : (int)$row['position'];
 	}
 
 	/**
@@ -509,6 +515,7 @@ class PostMapper extends QBMapper {
 			->from($this->getTableName())
 			->where($qb->expr()->eq('author_id', $qb->createNamedParameter($authorId, IQueryBuilder::PARAM_STR)));
 		$result = $qb->executeQuery();
+		/** @var array{total: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
 
@@ -520,6 +527,7 @@ class PostMapper extends QBMapper {
 			->andWhere($qb2->expr()->eq('is_first_post', $qb2->createNamedParameter(true, IQueryBuilder::PARAM_BOOL)))
 			->andWhere($qb2->expr()->isNull('deleted_at'));
 		$result2 = $qb2->executeQuery();
+		/** @var array{count: int|string}|false $row2 */
 		$row2 = $result2->fetch();
 		$result2->closeCursor();
 
@@ -530,13 +538,14 @@ class PostMapper extends QBMapper {
 			->andWhere($qb3->expr()->eq('is_first_post', $qb3->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
 			->andWhere($qb3->expr()->isNull('deleted_at'));
 		$result3 = $qb3->executeQuery();
+		/** @var array{count: int|string}|false $row3 */
 		$row3 = $result3->fetch();
 		$result3->closeCursor();
 
 		return [
-			'total' => (int)($row['total'] ?? 0),
-			'threads' => (int)($row2['count'] ?? 0),
-			'replies' => (int)($row3['count'] ?? 0),
+			'total' => $row === false ? 0 : (int)$row['total'],
+			'threads' => $row2 === false ? 0 : (int)$row2['count'],
+			'replies' => $row3 === false ? 0 : (int)$row3['count'],
 		];
 	}
 
@@ -551,7 +560,7 @@ class PostMapper extends QBMapper {
 			->from($this->getTableName())
 			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)));
 		$result = $qb->executeQuery();
-		$ids = array_map(static fn ($row) => (int)$row['id'], $result->fetchAll());
+		$ids = array_map(static fn (array $row): int => (int)$row['id'], $result->fetchAll());
 		$result->closeCursor();
 		return $ids;
 	}

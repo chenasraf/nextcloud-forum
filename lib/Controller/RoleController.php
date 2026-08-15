@@ -70,7 +70,9 @@ class RoleController extends OCSController {
 	public function show(int $id): DataResponse {
 		try {
 			$role = $this->roleMapper->find($id);
-			return new DataResponse($role->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $role->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Role not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -126,7 +128,9 @@ class RoleController extends OCSController {
 			$role->setCreatedAt(time());
 
 			$createdRole = $this->roleMapper->insert($role);
-			return new DataResponse($createdRole->jsonSerialize(), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $createdRole->jsonSerialize();
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating role: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create role'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -210,7 +214,9 @@ class RoleController extends OCSController {
 			}
 
 			$updatedRole = $this->roleMapper->update($role);
-			return new DataResponse($updatedRole->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $updatedRole->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Role not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

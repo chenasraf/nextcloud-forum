@@ -60,7 +60,7 @@ class InitController extends OCSController {
 	/**
 	 * Run forum initialization with selected admin users
 	 *
-	 * @param list<string> $adminUserIds List of user IDs to assign the admin role
+	 * @param list<mixed> $adminUserIds List of user IDs to assign the admin role
 	 * @return DataResponse<Http::STATUS_OK, array{message: string}, array{}>|DataResponse<Http::STATUS_BAD_REQUEST, array{message: string}, array{}>|DataResponse<Http::STATUS_CONFLICT, array{message: string}, array{}>|DataResponse<Http::STATUS_INTERNAL_SERVER_ERROR, array{message: string}, array{}>
 	 *
 	 * 200: Initialization completed successfully
@@ -71,7 +71,7 @@ class InitController extends OCSController {
 	#[ApiRoute(verb: 'POST', url: '/api/init/initialize')]
 	public function initialize(array $adminUserIds = []): DataResponse {
 		// Check if already initialized
-		if ($this->settingsService->getSetting(AdminSettingsService::SETTING_IS_INITIALIZED)) {
+		if ($this->settingsService->getSetting(AdminSettingsService::SETTING_IS_INITIALIZED) === true) {
 			return new DataResponse(
 				['message' => 'Forum is already initialized'],
 				Http::STATUS_CONFLICT,

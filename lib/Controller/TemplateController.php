@@ -42,6 +42,9 @@ class TemplateController extends OCSController {
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/templates')]
 	public function index(?string $visibility = null, int $limit = 100, int $offset = 0): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 		try {
 			$templates = $this->templateMapper->findByUserId($this->userId, $visibility, $limit, $offset);
 			return new DataResponse(array_map(fn ($t) => $t->jsonSerialize(), $templates));
@@ -70,6 +73,9 @@ class TemplateController extends OCSController {
 		string $visibility = 'both',
 		int $sortOrder = 0,
 	): DataResponse {
+		if ($this->userId === null) {
+			return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
+		}
 		try {
 			$now = time();
 			$template = new Template();
@@ -82,7 +88,9 @@ class TemplateController extends OCSController {
 			$template->setUpdatedAt($now);
 
 			$created = $this->templateMapper->insert($template);
-			return new DataResponse($created->jsonSerialize(), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $created->jsonSerialize();
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating template: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create template'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -132,7 +140,9 @@ class TemplateController extends OCSController {
 			$template->setUpdatedAt(time());
 
 			$updated = $this->templateMapper->update($template);
-			return new DataResponse($updated->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $updated->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Template not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

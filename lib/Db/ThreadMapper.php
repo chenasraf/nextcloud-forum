@@ -112,9 +112,10 @@ class ThreadMapper extends QBMapper {
 				$qb->expr()->isNull('deleted_at')
 			);
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**
@@ -129,9 +130,10 @@ class ThreadMapper extends QBMapper {
 				$qb->expr()->isNull('deleted_at')
 			);
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**
@@ -171,9 +173,10 @@ class ThreadMapper extends QBMapper {
 				$qb->expr()->isNull('deleted_at')
 			);
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**
@@ -239,6 +242,7 @@ class ThreadMapper extends QBMapper {
 			->groupBy('t.category_id');
 
 		$result = $qb->executeQuery();
+		/** @var list<array{category_id: int|string, last_activity: int|string|null}> $rows */
 		$rows = $result->fetchAll();
 		$result->closeCursor();
 
@@ -267,10 +271,11 @@ class ThreadMapper extends QBMapper {
 			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
 
 		$result = $qb->executeQuery();
+		/** @var array{last_activity: int|string|null}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
 
-		return $row && $row['last_activity'] !== null ? (int)$row['last_activity'] : null;
+		return $row !== false && $row['last_activity'] !== null ? (int)$row['last_activity'] : null;
 	}
 
 	/**

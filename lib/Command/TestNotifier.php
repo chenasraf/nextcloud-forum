@@ -29,7 +29,7 @@ class TestNotifier extends Command {
 
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		try {
-			$username = $input->getArgument('username');
+			$username = (string)$input->getArgument('username');
 			$output->writeln('<info>Testing Forum Notifier...</info>');
 			$output->writeln('  Target user: ' . $username);
 

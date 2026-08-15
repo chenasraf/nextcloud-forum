@@ -94,7 +94,7 @@ class Category extends Entity implements JsonSerializable {
 			'sortOrder' => $this->getSortOrder(),
 			'color' => $this->getColor(),
 			'textColor' => $this->getTextColor(),
-			'hideChildrenOnCard' => (bool)$this->getHideChildrenOnCard(),
+			'hideChildrenOnCard' => $this->getHideChildrenOnCard(),
 			'attachmentUploadFolderId' => $this->getAttachmentUploadFolderId(),
 			'attachmentUploadResolvedPath' => $this->attachmentUploadResolvedPath,
 			'threadCount' => $this->getThreadCount(),

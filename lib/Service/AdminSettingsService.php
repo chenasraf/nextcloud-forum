@@ -94,15 +94,13 @@ class AdminSettingsService {
 	 * Get a single setting
 	 *
 	 * @param string $key The setting key
-	 * @return mixed The setting value
+	 * @return bool|string The setting value
 	 * @throws \InvalidArgumentException If the setting key is invalid
 	 */
-	public function getSetting(string $key): mixed {
+	public function getSetting(string $key): bool|string {
 		if (!in_array($key, self::VALID_KEYS, true)) {
 			throw new \InvalidArgumentException("Invalid setting key: $key");
 		}
-
-		$default = $this->getDefault($key);
 
 		return match ($key) {
 			self::SETTING_ALLOW_GUEST_ACCESS,
@@ -110,8 +108,8 @@ class AdminSettingsService {
 			self::SETTING_PUBLIC_EDIT_HISTORY,
 			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE,
 			self::SETTING_ENABLE_SIGNATURES,
-			self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => $this->config->getAppValueBool($key, $default, true),
-			default => $this->config->getAppValueString($key, $default, true),
+			self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => $this->config->getAppValueBool($key, (bool)$this->getDefault($key), true),
+			default => $this->config->getAppValueString($key, (string)$this->getDefault($key), true),
 		};
 	}
 
@@ -124,15 +122,15 @@ class AdminSettingsService {
 	 */
 	public function updateSettings(array $settings): array {
 		// Validate all keys before updating
-		foreach ($settings as $key => $value) {
+		foreach (array_keys($settings) as $key) {
 			if (!in_array($key, self::VALID_KEYS, true)) {
 				throw new \InvalidArgumentException("Invalid setting key: $key");
 			}
 		}
 
 		// Update each setting
-		foreach ($settings as $key => $value) {
-			$this->setSetting($key, $value);
+		foreach (array_keys($settings) as $key) {
+			$this->setSetting($key, $settings[$key]);
 		}
 
 		// Return all settings after update

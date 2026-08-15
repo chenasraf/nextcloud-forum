@@ -67,7 +67,9 @@ class CatHeaderController extends OCSController {
 	public function show(int $id): DataResponse {
 		try {
 			$header = $this->catHeaderMapper->find($id);
-			return new DataResponse($header->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $header->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Category header not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -98,7 +100,9 @@ class CatHeaderController extends OCSController {
 			$header->setCreatedAt(time());
 
 			$createdHeader = $this->catHeaderMapper->insert($header);
-			return new DataResponse($createdHeader->jsonSerialize(), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $createdHeader->jsonSerialize();
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating category header: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create category header'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -134,7 +138,9 @@ class CatHeaderController extends OCSController {
 			}
 
 			$updatedHeader = $this->catHeaderMapper->update($header);
-			return new DataResponse($updatedHeader->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $updatedHeader->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Category header not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

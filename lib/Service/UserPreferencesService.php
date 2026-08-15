@@ -96,7 +96,7 @@ class UserPreferencesService {
 		$preferences['upload_directory_resolved_path'] = $this->resolveUploadDirectory(
 			$userId,
 			$preferences[self::PREF_UPLOAD_DIRECTORY_FOLDER_ID] ?? null,
-			$preferences[self::PREF_UPLOAD_DIRECTORY] ?? self::DEFAULTS[self::PREF_UPLOAD_DIRECTORY],
+			(string)($preferences[self::PREF_UPLOAD_DIRECTORY] ?? self::DEFAULTS[self::PREF_UPLOAD_DIRECTORY]),
 		);
 
 		return $preferences;
@@ -124,10 +124,10 @@ class UserPreferencesService {
 					}
 				}
 			} catch (\Exception $e) {
-				$this->logger->debug('Could not resolve upload folder ' . $folderId . ' for user ' . $userId . ': ' . $e->getMessage());
+				$this->logger->debug('Could not resolve upload folder ' . (string)$folderId . ' for user ' . $userId . ': ' . $e->getMessage());
 			}
 		}
-		return $fallback !== '' ? $fallback : (string)self::DEFAULTS[self::PREF_UPLOAD_DIRECTORY];
+		return $fallback !== '' ? $fallback : self::DEFAULTS[self::PREF_UPLOAD_DIRECTORY];
 	}
 
 	/**
@@ -135,10 +135,10 @@ class UserPreferencesService {
 	 *
 	 * @param string $userId The user ID
 	 * @param string $key The preference key
-	 * @return mixed The preference value
+	 * @return bool|float|int|string|null The preference value
 	 * @throws \InvalidArgumentException If the preference key is invalid
 	 */
-	public function getPreference(string $userId, string $key): mixed {
+	public function getPreference(string $userId, string $key): bool|float|int|string|null {
 		if (!in_array($key, self::VALID_KEYS, true)) {
 			throw new \InvalidArgumentException("Invalid preference key: $key");
 		}
@@ -164,15 +164,15 @@ class UserPreferencesService {
 	 */
 	public function updatePreferences(string $userId, array $preferences): array {
 		// Validate all keys before updating
-		foreach ($preferences as $key => $value) {
+		foreach (array_keys($preferences) as $key) {
 			if (!in_array($key, self::VALID_KEYS, true)) {
 				throw new \InvalidArgumentException("Invalid preference key: $key");
 			}
 		}
 
 		// Update each preference
-		foreach ($preferences as $key => $value) {
-			$this->setPreference($userId, $key, $value);
+		foreach (array_keys($preferences) as $key) {
+			$this->setPreference($userId, $key, $preferences[$key]);
 		}
 
 		// Return all preferences after update
@@ -205,10 +205,10 @@ class UserPreferencesService {
 	/**
 	 * Parse a string value back to its proper type
 	 *
-	 * @param mixed $value The value to parse
-	 * @return mixed The parsed value
+	 * @param string $value The value to parse
+	 * @return bool|float|int|string The parsed value
 	 */
-	private function parseValue(mixed $value): mixed {
+	private function parseValue(string $value): bool|float|int|string {
 		if ($value === 'true') {
 			return true;
 		}
@@ -239,9 +239,9 @@ class UserPreferencesService {
 	 *
 	 * @param string $userId The user ID
 	 * @param string $key The preference key
-	 * @return mixed The value
+	 * @return bool|string|null The value
 	 */
-	private function getForumUserValue(string $userId, string $key): mixed {
+	private function getForumUserValue(string $userId, string $key): bool|string|null {
 		try {
 			$forumUser = $this->forumUserMapper->find($userId);
 			return match ($key) {

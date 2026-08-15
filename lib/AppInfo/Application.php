@@ -16,7 +16,6 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
-use OCP\User\Events\UserChangedEvent;
 use OCP\User\Events\UserCreatedEvent;
 use OCP\User\Events\UserDeletedEvent;
 
@@ -43,7 +42,6 @@ class Application extends App implements IBootstrap {
 		// Register user event listeners for syncing forum users with Nextcloud users
 		$context->registerEventListener(UserCreatedEvent::class, UserEventListener::class);
 		$context->registerEventListener(UserDeletedEvent::class, UserEventListener::class);
-		$context->registerEventListener(UserChangedEvent::class, UserEventListener::class);
 
 		// Register notification notifier
 		$context->registerNotifierService(Notifier::class);
@@ -69,7 +67,13 @@ class Application extends App implements IBootstrap {
 			return '';
 		}
 
-		$manifest = json_decode(file_get_contents($manifestPath), true);
+		$manifestContents = file_get_contents($manifestPath);
+		if ($manifestContents === false) {
+			return '';
+		}
+
+		/** @var array<string, array{file?: string}> $manifest */
+		$manifest = json_decode($manifestContents, true);
 
 		if (isset($manifest[$entryName]['file'])) {
 			$manifestFile = $manifest[$entryName]['file'];

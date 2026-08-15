@@ -143,8 +143,9 @@ class SeedHelper {
 	 * This handles cases where migrations partially failed or fresh installs.
 	 *
 	 * @param \OCP\Migration\IOutput|null $output Optional output for console messages
+	 * @psalm-suppress UnusedParam $output is used for optional console progress messages (false positive on this private method)
 	 */
-	private static function ensureForumUsersTable($output = null): void {
+	private static function ensureForumUsersTable(?\OCP\Migration\IOutput $output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$config = \OC::$server->get(\OCP\IConfig::class);
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
@@ -164,10 +165,9 @@ class SeedHelper {
 			}
 
 			try {
-				$platform = $db->getDatabasePlatform();
-				$platformName = $platform->getName();
+				$provider = $db->getDatabaseProvider();
 
-				if ($platformName === 'mysql' || $platformName === 'mariadb') {
+				if ($provider === \OCP\IDBConnection::PLATFORM_MYSQL || $provider === \OCP\IDBConnection::PLATFORM_MARIADB) {
 					$db->executeStatement("RENAME TABLE `{$oldTable}` TO `{$newTable}`");
 				} else {
 					// PostgreSQL, SQLite and others
@@ -210,14 +210,13 @@ class SeedHelper {
 	 * (id as primary key, user_id as unique, includes signature column)
 	 */
 	private static function createForumUsersTable(\OCP\IDBConnection $db): void {
-		$platform = $db->getDatabasePlatform();
+		$provider = $db->getDatabaseProvider();
 		$config = \OC::$server->get(\OCP\IConfig::class);
 		$prefix = $config->getSystemValueString('dbtableprefix', 'oc_');
 		$tableName = $prefix . 'forum_users';
 
-		// Use instanceof checks for reliable platform detection (getName() is deprecated)
-		if ($platform instanceof \Doctrine\DBAL\Platforms\MySQLPlatform) {
-			// MySQL and MariaDB both extend MySQLPlatform
+		if ($provider === \OCP\IDBConnection::PLATFORM_MYSQL || $provider === \OCP\IDBConnection::PLATFORM_MARIADB) {
+			// MySQL and MariaDB
 			$db->executeStatement("
 				CREATE TABLE `{$tableName}` (
 					`id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -236,7 +235,7 @@ class SeedHelper {
 					INDEX `forum_users_deleted_at_idx` (`deleted_at`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
 			");
-		} elseif ($platform instanceof \Doctrine\DBAL\Platforms\PostgreSQLPlatform) {
+		} elseif ($provider === \OCP\IDBConnection::PLATFORM_POSTGRES) {
 			$db->executeStatement("
 				CREATE TABLE \"{$tableName}\" (
 					\"id\" BIGSERIAL PRIMARY KEY,
@@ -280,16 +279,15 @@ class SeedHelper {
 	 * Check if a table exists in the database
 	 */
 	private static function tableExists(\OCP\IDBConnection $db, string $tableName): bool {
-		$platform = $db->getDatabasePlatform();
-		$platformName = $platform->getName();
+		$provider = $db->getDatabaseProvider();
 
 		try {
-			if ($platformName === 'mysql' || $platformName === 'mariadb') {
+			if ($provider === \OCP\IDBConnection::PLATFORM_MYSQL || $provider === \OCP\IDBConnection::PLATFORM_MARIADB) {
 				$result = $db->executeQuery(
 					'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = ?',
 					[$tableName]
 				);
-			} elseif ($platformName === 'postgresql') {
+			} elseif ($provider === \OCP\IDBConnection::PLATFORM_POSTGRES) {
 				$result = $db->executeQuery(
 					'SELECT COUNT(*) FROM information_schema.tables WHERE table_name = ?',
 					[$tableName]

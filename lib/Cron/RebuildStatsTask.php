@@ -24,7 +24,7 @@ class RebuildStatsTask extends TimedJob {
 		$this->setInterval(604800);
 	}
 
-	protected function run($arguments): void {
+	protected function run(mixed $argument): void {
 		$this->logger->info('Starting weekly stats rebuild');
 
 		// Rebuild forum users

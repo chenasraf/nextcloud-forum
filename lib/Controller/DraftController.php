@@ -49,7 +49,9 @@ class DraftController extends OCSController {
 
 			try {
 				$draft = $this->draftMapper->findThreadDraft($user->getUID(), $categoryId);
-				return new DataResponse(['draft' => $draft->jsonSerialize()]);
+				/** @var array<string, mixed> $draftData */
+				$draftData = $draft->jsonSerialize();
+				return new DataResponse(['draft' => $draftData]);
 			} catch (DoesNotExistException) {
 				return new DataResponse(['draft' => null]);
 			}
@@ -85,7 +87,9 @@ class DraftController extends OCSController {
 				$content
 			);
 
-			return new DataResponse(['draft' => $draft->jsonSerialize()]);
+			/** @var array<string, mixed> $draftData */
+			$draftData = $draft->jsonSerialize();
+			return new DataResponse(['draft' => $draftData]);
 		} catch (\Exception $e) {
 			$this->logger->error('Error saving thread draft: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to save thread draft'], Http::STATUS_INTERNAL_SERVER_ERROR);

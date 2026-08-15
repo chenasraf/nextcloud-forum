@@ -93,6 +93,7 @@ class Version15Date20260103000000 extends SimpleMigrationStep {
 				->orderBy('id', 'ASC');
 
 			$result = $qb->executeQuery();
+			/** @var list<array{id: int|string}> $roles */
 			$roles = $result->fetchAll();
 			$result->closeCursor();
 

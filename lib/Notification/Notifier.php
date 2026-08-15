@@ -51,9 +51,9 @@ class Notifier implements INotifier {
 		switch ($notification->getSubject()) {
 			case 'new_posts':
 				$parameters = $notification->getSubjectParameters();
-				$threadId = $parameters['threadId'] ?? 0;
-				$threadTitle = $parameters['threadTitle'] ?? 'Unknown Thread';
-				$postCount = $parameters['postCount'] ?? 1;
+				$threadId = (int)($parameters['threadId'] ?? 0);
+				$threadTitle = (string)($parameters['threadTitle'] ?? 'Unknown Thread');
+				$postCount = (int)($parameters['postCount'] ?? 1);
 
 				// Set the rich subject with thread title
 				$notification->setRichSubject(
@@ -82,9 +82,9 @@ class Notifier implements INotifier {
 				return $notification;
 			case 'mention':
 				$parameters = $notification->getSubjectParameters();
-				$threadId = $parameters['threadId'] ?? 0;
-				$threadTitle = $parameters['threadTitle'] ?? 'Unknown Thread';
-				$authorDisplayName = $parameters['authorDisplayName'] ?? 'Someone';
+				$threadId = (int)($parameters['threadId'] ?? 0);
+				$threadTitle = (string)($parameters['threadTitle'] ?? 'Unknown Thread');
+				$authorDisplayName = (string)($parameters['authorDisplayName'] ?? 'Someone');
 
 				// Set the rich subject: "{user} mentioned you in {thread}"
 				$notification->setRichSubject(
@@ -92,7 +92,7 @@ class Notifier implements INotifier {
 					[
 						'user' => [
 							'type' => 'user',
-							'id' => $parameters['authorId'] ?? '',
+							'id' => (string)($parameters['authorId'] ?? ''),
 							'name' => $authorDisplayName,
 						],
 						'thread' => [
@@ -126,9 +126,9 @@ class Notifier implements INotifier {
 		foreach ($richParams as $placeholder => $parameter) {
 			$placeholders[] = '{' . $placeholder . '}';
 			if (isset($parameter['type']) && $parameter['type'] === 'file') {
-				$replacements[] = $parameter['path'] ?? $parameter['name'] ?? '';
+				$replacements[] = (string)($parameter['path'] ?? $parameter['name'] ?? '');
 			} else {
-				$replacements[] = $parameter['name'] ?? '';
+				$replacements[] = (string)($parameter['name'] ?? '');
 			}
 		}
 

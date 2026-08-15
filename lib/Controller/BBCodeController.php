@@ -112,7 +112,9 @@ class BBCodeController extends OCSController {
 				return new DataResponse(['error' => 'Cannot access builtin BBCode'], Http::STATUS_FORBIDDEN);
 			}
 
-			return new DataResponse($bbcode->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $bbcode->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'BBCode not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -150,7 +152,9 @@ class BBCodeController extends OCSController {
 			$bbcode->setCreatedAt(time());
 
 			$createdBBCode = $this->bbCodeMapper->insert($bbcode);
-			return new DataResponse($createdBBCode->jsonSerialize(), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $createdBBCode->jsonSerialize();
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating BBCode: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create BBCode'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -203,7 +207,9 @@ class BBCodeController extends OCSController {
 			}
 
 			$updatedBBCode = $this->bbCodeMapper->update($bbcode);
-			return new DataResponse($updatedBBCode->jsonSerialize());
+			/** @var array<string, mixed> $data */
+			$data = $updatedBBCode->jsonSerialize();
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'BBCode not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

@@ -158,6 +158,7 @@ class ForumUserMapper extends QBMapper {
 			);
 
 		$result = $qb->executeQuery();
+		/** @var list<array{user_id: string, post_count: int|string, thread_count: int|string}> $rows */
 		$rows = $result->fetchAll();
 		$result->closeCursor();
 
@@ -170,8 +171,14 @@ class ForumUserMapper extends QBMapper {
 		], $rows);
 
 		// Sort by total descending, then by thread count descending (when totals are equal)
-		usort($contributors, fn ($a, $b)
-			=> $b['total'] <=> $a['total'] ?: $b['threadCount'] <=> $a['threadCount']
+		usort(
+			$contributors,
+			/**
+			 * @param array{total: int, threadCount: int, ...} $a
+			 * @param array{total: int, threadCount: int, ...} $b
+			 */
+			fn (array $a, array $b): int
+				=> $b['total'] <=> $a['total'] ?: $b['threadCount'] <=> $a['threadCount']
 		);
 
 		// Return top N (remove the total field as it was just for sorting)
@@ -199,6 +206,7 @@ class ForumUserMapper extends QBMapper {
 			->groupBy('author_id');
 
 		$postsResult = $postsQb->executeQuery();
+		/** @var list<array{author_id: string, count: int|string}> $postsRows */
 		$postsRows = $postsResult->fetchAll();
 		$postsResult->closeCursor();
 
@@ -217,6 +225,7 @@ class ForumUserMapper extends QBMapper {
 			->groupBy('author_id');
 
 		$threadsResult = $threadsQb->executeQuery();
+		/** @var list<array{author_id: string, count: int|string}> $threadsRows */
 		$threadsRows = $threadsResult->fetchAll();
 		$threadsResult->closeCursor();
 
@@ -245,8 +254,14 @@ class ForumUserMapper extends QBMapper {
 		}
 
 		// Sort by total descending, then by thread count descending (when totals are equal)
-		usort($contributors, fn ($a, $b)
-			=> $b['total'] <=> $a['total'] ?: $b['threadCount'] <=> $a['threadCount']
+		usort(
+			$contributors,
+			/**
+			 * @param array{total: int, threadCount: int, ...} $a
+			 * @param array{total: int, threadCount: int, ...} $b
+			 */
+			fn (array $a, array $b): int
+				=> $b['total'] <=> $a['total'] ?: $b['threadCount'] <=> $a['threadCount']
 		);
 
 		// Return top N (remove the total field as it was just for sorting)
@@ -266,9 +281,10 @@ class ForumUserMapper extends QBMapper {
 			->from($this->getTableName())
 			->where($qb->expr()->isNull('deleted_at'));
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**
@@ -281,9 +297,10 @@ class ForumUserMapper extends QBMapper {
 			->where($qb->expr()->gte('created_at', $qb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)))
 			->andWhere($qb->expr()->isNull('deleted_at'));
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**

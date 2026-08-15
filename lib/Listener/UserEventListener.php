@@ -34,7 +34,7 @@ class UserEventListener implements IEventListener {
 	public function handle(Event $event): void {
 		if ($event instanceof UserCreatedEvent) {
 			$this->handleUserCreated($event);
-		} elseif ($event instanceof UserDeletedEvent) {
+		} else {
 			$this->handleUserDeleted($event);
 		}
 	}

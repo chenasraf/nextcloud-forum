@@ -75,7 +75,7 @@ class NotificationService {
 	 */
 	private function createOrUpdateNotification(string $userId, int $threadId, int $postId, string $threadTitle, string $threadSlug): void {
 		// Calculate the number of unread posts
-		$postCount = $this->getUnreadPostCount($userId, $threadId, $postId);
+		$postCount = $this->getUnreadPostCount($userId, $threadId);
 
 		// Mark existing notifications for this thread/user as processed (to update them)
 		$existingNotification = $this->notificationManager->createNotification();
@@ -114,11 +114,11 @@ class NotificationService {
 	 * Get the count of unread posts for a user in a thread
 	 * Uses an efficient DB COUNT query instead of fetching all posts
 	 */
-	private function getUnreadPostCount(string $userId, int $threadId, int $latestPostId): int {
+	private function getUnreadPostCount(string $userId, int $threadId): int {
 		try {
 			// Get the user's read marker for this thread
 			$readMarker = $this->readMarkerMapper->findByUserAndThread($userId, $threadId);
-			$lastReadPostId = $readMarker->getLastReadPostId();
+			$lastReadPostId = $readMarker->getLastReadPostId() ?? 0;
 
 			// Count posts after the last read post using DB query
 			$unreadCount = $this->postMapper->countUnreadInThread($threadId, $lastReadPostId);
@@ -154,7 +154,7 @@ class NotificationService {
 			$lastPostId = $thread->getLastPostId();
 
 			// If user has read up to or past the last post, dismiss thread notifications
-			if ($lastPostId && $lastReadPostId >= $lastPostId) {
+			if ($lastPostId > 0 && $lastReadPostId >= $lastPostId) {
 				$this->dismissThreadNotifications($userId, $threadId);
 			}
 		} catch (\Exception $e) {
@@ -209,10 +209,10 @@ class NotificationService {
 		// Pattern to match @"username with spaces" or @username
 		$pattern = '/@(?:"([^"]+)"|([a-zA-Z0-9_.-]+))/';
 
-		if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
+		if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER) > 0) {
 			foreach ($matches as $match) {
 				// Get the username - either from quoted format or simple format
-				$userId = !empty($match[1]) ? $match[1] : $match[2];
+				$userId = isset($match[1]) && $match[1] !== '' ? $match[1] : $match[2];
 
 				// Verify the user exists
 				if ($this->userManager->userExists($userId)) {

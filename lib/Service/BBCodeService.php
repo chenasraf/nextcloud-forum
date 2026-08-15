@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Service;
 
 use ChrisKonnertz\BBCode\BBCode as BBCodeParser;
+use ChrisKonnertz\BBCode\Tag;
 use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
 use OCP\Files\IRootFolder;
@@ -43,7 +44,7 @@ class BBCodeService {
 		// Preprocess tags with special handlers (like attachments)
 		$specialHandlerPlaceholders = [];
 		foreach ($bbCodes as $bbCode) {
-			if (!$bbCode->getEnabled() || !$bbCode->getSpecialHandler()) {
+			if (!$bbCode->getEnabled() || ($bbCode->getSpecialHandler() ?? '') === '') {
 				continue;
 			}
 
@@ -117,7 +118,7 @@ class BBCodeService {
 			// Match [tag]content[/tag] or [tag=param]content[/tag]
 			$pattern = '/\[' . preg_quote($tag, '/') . '(=[^\]]+)?\](.*?)\[\/' . preg_quote($tag, '/') . '\]/s';
 
-			$content = preg_replace_callback($pattern, function ($matches) use (&$disabledPlaceholders, $tag) {
+			$content = preg_replace_callback($pattern, function ($matches) use (&$disabledPlaceholders) {
 				$placeholder = '___DISABLED_BBCODE_' . count($disabledPlaceholders) . '___';
 				// Store the original tag text to restore it after parsing
 				$disabledPlaceholders[$placeholder] = $matches[0];
@@ -134,7 +135,7 @@ class BBCodeService {
 			}
 
 			// Skip tags with special handlers - they're already handled above
-			if ($bbCode->getSpecialHandler()) {
+			if (($bbCode->getSpecialHandler() ?? '') !== '') {
 				continue;
 			}
 
@@ -271,15 +272,19 @@ class BBCodeService {
 			$params = $this->extractParameters($replacement);
 
 			// Add the custom tag
-			$parser->addTag($tag, function ($tagObj, &$html, $openingTag) use ($openingHtml, $closingHtml, $params) {
+			$parser->addTag($tag, function (Tag $tagObj) use ($openingHtml, $closingHtml, $params): string {
 				if ($tagObj->opening) {
 					// Opening tag - process parameters and return opening HTML
 					$result = $openingHtml;
 
 					// Replace parameters using the property value from the opening tag
 					foreach ($params as $param) {
-						// For opening tags, use $tagObj->property; $openingTag is null here
-						$value = $tagObj->property ?? '';
+						// For opening tags, use $tagObj->property; $openingTag is null here.
+						// The library documents property as string, but it is null when no
+						// parameter is present, so re-assert the nullable type.
+						/** @var string|null $property */
+						$property = $tagObj->property;
+						$value = $property ?? '';
 						// Sanitize parameter value
 						$value = $this->sanitizeParameterValue($param, $value);
 						$result = str_replace('{' . $param . '}', $value, $result);
@@ -306,7 +311,7 @@ class BBCodeService {
 	private function extractParameters(string $replacement): array {
 		$params = [];
 		// Match all {param} patterns
-		if (preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $replacement, $matches)) {
+		if (preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $replacement, $matches) > 0) {
 			foreach ($matches[1] as $param) {
 				if ($param !== 'content') {
 					$params[] = $param;
@@ -393,12 +398,12 @@ class BBCodeService {
 			return '<span class="attachment-error">Invalid attachment</span>';
 		}
 
-		if (empty($authorId)) {
+		if ($authorId === null || $authorId === '') {
 			$this->logger->warning('Attachment rendering attempted without author ID: ' . $fileRef);
 			return '<span class="attachment-error">Attachment unavailable</span>';
 		}
 
-		if (empty($postId)) {
+		if ($postId === null || $postId === 0) {
 			$this->logger->warning('Attachment rendering attempted without post ID: ' . $fileRef);
 			return '<span class="attachment-error">Attachment unavailable</span>';
 		}
@@ -427,7 +432,7 @@ class BBCodeService {
 					'forum.file.preview',
 					['postId' => $postId, 'filePath' => $fileRef, 'x' => 1920, 'y' => 1080]
 				)),
-				'fileSize' => $this->formatFileSize($file->getSize()),
+				'fileSize' => $this->formatFileSize((int)$file->getSize()),
 				'iconClass' => $this->getFileIconClass($mimeType),
 			];
 
@@ -483,7 +488,7 @@ class BBCodeService {
 	}
 
 	/**
-	 * @param array{fileName: string, previewUrl: string} $ctx
+	 * @param array{fileName: string, mimeType: string, downloadUrl: string, previewUrl: string, fileSize: string, iconClass: string} $ctx
 	 */
 	private function renderImageAttachment(array $ctx): string {
 		return sprintf(
@@ -497,7 +502,7 @@ class BBCodeService {
 	}
 
 	/**
-	 * @param array{fileName: string, downloadUrl: string, mimeType: string} $ctx
+	 * @param array{fileName: string, mimeType: string, downloadUrl: string, previewUrl: string, fileSize: string, iconClass: string} $ctx
 	 */
 	private function renderVideoAttachment(array $ctx): string {
 		return sprintf(
@@ -513,7 +518,7 @@ class BBCodeService {
 	}
 
 	/**
-	 * @param array{fileName: string, downloadUrl: string, mimeType: string} $ctx
+	 * @param array{fileName: string, mimeType: string, downloadUrl: string, previewUrl: string, fileSize: string, iconClass: string} $ctx
 	 */
 	private function renderAudioAttachment(array $ctx): string {
 		return sprintf(
@@ -529,7 +534,7 @@ class BBCodeService {
 	}
 
 	/**
-	 * @param array{fileName: string, downloadUrl: string, fileSize: string, iconClass: string} $ctx
+	 * @param array{fileName: string, mimeType: string, downloadUrl: string, previewUrl: string, fileSize: string, iconClass: string} $ctx
 	 */
 	private function renderFileAttachment(array $ctx): string {
 		return sprintf(
@@ -595,7 +600,7 @@ class BBCodeService {
 		$units = ['B', 'KB', 'MB', 'GB', 'TB'];
 		$bytes = max($bytes, 0);
 		$pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-		$pow = min($pow, count($units) - 1);
+		$pow = (int)min($pow, count($units) - 1);
 		$bytes /= (1 << (10 * $pow));
 		return round($bytes, 2) . ' ' . $units[$pow];
 	}
@@ -651,7 +656,7 @@ class BBCodeService {
 				return $matches[0];
 			}
 
-			$displayName = $user->getDisplayName() ?? $userId;
+			$displayName = $user->getDisplayName();
 			$escapedUserId = $this->esc($userId);
 			$escapedDisplayName = $this->esc($displayName);
 

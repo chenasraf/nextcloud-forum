@@ -66,7 +66,12 @@ class Version26Date20260321000000 extends SimpleMigrationStep {
 		$result = $qb->executeQuery();
 
 		$count = 0;
-		while ($row = $result->fetch()) {
+		while (true) {
+			/** @var array{id: int|string, author_id: string, created_at: int|string}|false $row */
+			$row = $result->fetch();
+			if ($row === false) {
+				break;
+			}
 			$update = $this->db->getQueryBuilder();
 			$update->update('forum_threads')
 				->set('last_reply_author_id', $update->createNamedParameter($row['author_id']))

@@ -229,7 +229,9 @@ class ThreadController extends OCSController {
 				$thread = $this->threadMapper->update($thread);
 			}
 
-			return new DataResponse($this->threadEnrichmentService->enrichThread($thread));
+			/** @var array<string, mixed> $data */
+			$data = $this->threadEnrichmentService->enrichThread($thread);
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -260,7 +262,9 @@ class ThreadController extends OCSController {
 				$thread = $this->threadMapper->update($thread);
 			}
 
-			return new DataResponse($this->threadEnrichmentService->enrichThread($thread));
+			/** @var array<string, mixed> $data */
+			$data = $this->threadEnrichmentService->enrichThread($thread);
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -380,7 +384,7 @@ class ThreadController extends OCSController {
 
 				// Auto-subscribe the thread creator to receive notifications (if preference is enabled)
 				try {
-					$autoSubscribe = $this->userPreferencesService->getPreference(
+					$autoSubscribe = (bool)$this->userPreferencesService->getPreference(
 						$user->getUID(),
 						UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS
 					);
@@ -423,7 +427,9 @@ class ThreadController extends OCSController {
 				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
 			}
 
-			return new DataResponse($createdThread->jsonSerialize(), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $createdThread->jsonSerialize();
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating thread: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create thread'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -494,7 +500,9 @@ class ThreadController extends OCSController {
 			$thread->setUpdatedAt(time());
 
 			$updatedThread = $this->threadMapper->update($thread);
-			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
+			/** @var array<string, mixed> $data */
+			$data = $this->threadEnrichmentService->enrichThread($updatedThread);
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -571,7 +579,9 @@ class ThreadController extends OCSController {
 				// Don't fail the request if category update fails
 			}
 
-			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
+			/** @var array<string, mixed> $data */
+			$data = $this->threadEnrichmentService->enrichThread($updatedThread);
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -599,7 +609,9 @@ class ThreadController extends OCSController {
 			$thread->setUpdatedAt(time());
 
 			$updatedThread = $this->threadMapper->update($thread);
-			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
+			/** @var array<string, mixed> $data */
+			$data = $this->threadEnrichmentService->enrichThread($updatedThread);
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -627,7 +639,9 @@ class ThreadController extends OCSController {
 			$thread->setUpdatedAt(time());
 
 			$updatedThread = $this->threadMapper->update($thread);
-			return new DataResponse($this->threadEnrichmentService->enrichThread($updatedThread));
+			/** @var array<string, mixed> $data */
+			$data = $this->threadEnrichmentService->enrichThread($updatedThread);
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Thread not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

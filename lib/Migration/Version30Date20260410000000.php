@@ -64,10 +64,10 @@ class Version30Date20260410000000 extends SimpleMigrationStep {
 		// Make header_id nullable via raw SQL so a failure here
 		// does not roll back the column additions above.
 		try {
-			$platform = $this->db->getDatabasePlatform();
+			$provider = $this->db->getDatabaseProvider();
 			$tableName = '*PREFIX*forum_categories';
 
-			if ($platform instanceof \Doctrine\DBAL\Platforms\PostgreSQLPlatform) {
+			if ($provider === \OCP\IDBConnection::PLATFORM_POSTGRES) {
 				$this->db->executeStatement(
 					'ALTER TABLE "' . $tableName . '" ALTER COLUMN "header_id" DROP NOT NULL'
 				);

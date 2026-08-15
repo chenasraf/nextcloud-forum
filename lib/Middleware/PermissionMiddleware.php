@@ -51,7 +51,6 @@ class PermissionMiddleware extends Middleware {
 		$user = $this->userSession->getUser();
 		$userId = $user ? $user->getUID() : null;
 		$guestAccessEnabled = $this->config->getAppValueBool('allow_guest_access', false, true);
-		$isReadOnlyMethod = in_array($this->request->getMethod(), ['GET', 'HEAD', 'OPTIONS']);
 
 		// If user is not authenticated
 		if (!$user) {
@@ -93,7 +92,7 @@ class PermissionMiddleware extends Middleware {
 	 * Attributes with no orGroup, or with different orGroups, are AND'd together.
 	 *
 	 * @param string|null $userId
-	 * @param \ReflectionAttribute[] $permissionAttrs
+	 * @param \ReflectionAttribute<RequirePermission>[] $permissionAttrs
 	 * @throws OCSForbiddenException
 	 */
 	private function checkPermissions(?string $userId, array $permissionAttrs): void {
@@ -102,7 +101,6 @@ class PermissionMiddleware extends Middleware {
 		$ungrouped = [];
 
 		foreach ($permissionAttrs as $attr) {
-			/** @var RequirePermission $permission */
 			$permission = $attr->newInstance();
 			$group = $permission->getOrGroup();
 			if ($group !== null) {
@@ -118,7 +116,7 @@ class PermissionMiddleware extends Middleware {
 		}
 
 		// OR groups: at least one in each group must pass
-		foreach ($orGroups as $group => $permissions) {
+		foreach ($orGroups as $permissions) {
 			$lastException = null;
 			$passed = false;
 			foreach ($permissions as $permission) {
@@ -187,7 +185,7 @@ class PermissionMiddleware extends Middleware {
 	 */
 	private function resolveResourceId(RequirePermission $permission): int {
 		// From route parameter (e.g., /api/categories/{id})
-		if ($param = $permission->getResourceIdParam()) {
+		if (($param = $permission->getResourceIdParam()) !== null && $param !== '') {
 			$value = $this->request->getParam($param);
 			if ($value !== null) {
 				return (int)$value;
@@ -196,7 +194,7 @@ class PermissionMiddleware extends Middleware {
 		}
 
 		// From request body (e.g., POST {categoryId: 5})
-		if ($body = $permission->getResourceIdBody()) {
+		if (($body = $permission->getResourceIdBody()) !== null && $body !== '') {
 			$data = $this->request->getParams();
 			if (isset($data[$body])) {
 				return (int)$data[$body];
@@ -205,7 +203,7 @@ class PermissionMiddleware extends Middleware {
 		}
 
 		// Derive category ID from thread ID
-		if ($threadParam = $permission->getResourceIdFromThreadId()) {
+		if (($threadParam = $permission->getResourceIdFromThreadId()) !== null && $threadParam !== '') {
 			$threadId = $this->request->getParam($threadParam);
 			if ($threadId !== null) {
 				return $this->permissionService->getCategoryIdFromThread((int)$threadId);
@@ -214,7 +212,7 @@ class PermissionMiddleware extends Middleware {
 		}
 
 		// Derive category ID from post ID
-		if ($postParam = $permission->getResourceIdFromPostId()) {
+		if (($postParam = $permission->getResourceIdFromPostId()) !== null && $postParam !== '') {
 			$postId = $this->request->getParam($postParam);
 			if ($postId !== null) {
 				return $this->permissionService->getCategoryIdFromPost((int)$postId);

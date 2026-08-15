@@ -53,9 +53,10 @@ class PostHistoryMapper extends QBMapper {
 				$qb->expr()->eq('post_id', $qb->createNamedParameter($postId, IQueryBuilder::PARAM_INT))
 			);
 		$result = $qb->executeQuery();
+		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
-		return (int)($row['count'] ?? 0);
+		return $row === false ? 0 : (int)$row['count'];
 	}
 
 	/**

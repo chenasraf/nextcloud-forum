@@ -89,6 +89,7 @@ class Version7Date20251124120000 extends SimpleMigrationStep {
 
 		foreach ($configKeys as $key) {
 			// Check if value exists in system config
+			/** @var string|null $systemValue */
 			$systemValue = $this->systemConfig->getSystemValue($key, null);
 
 			// Only migrate if:

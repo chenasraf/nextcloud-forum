@@ -95,7 +95,7 @@ class PostController extends OCSController {
 					$lastReadPostId = $readMarker->getLastReadPostId();
 
 					// Find the oldest unread reply
-					$oldestUnreadReply = $this->postMapper->findOldestUnreadReply($threadId, $lastReadPostId);
+					$oldestUnreadReply = $this->postMapper->findOldestUnreadReply($threadId, (int)$lastReadPostId);
 					if ($oldestUnreadReply !== null) {
 						// Calculate which page this reply is on
 						$position = $this->postMapper->getReplyPosition($threadId, $oldestUnreadReply->getId());
@@ -284,7 +284,9 @@ class PostController extends OCSController {
 			$post = $this->postMapper->find($id);
 			$currentUserId = $this->userSession->getUser()?->getUID();
 			$categoryId = $this->permissionService->getCategoryIdFromPost($id);
-			return new DataResponse($this->postEnrichmentService->enrichPost($post, [], [], $currentUserId, null, $categoryId));
+			/** @var array<string, mixed> $data */
+			$data = $this->postEnrichmentService->enrichPost($post, [], [], $currentUserId, null, $categoryId);
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {
@@ -358,7 +360,7 @@ class PostController extends OCSController {
 
 				// Auto-subscribe the user to the thread if preference is enabled and not already subscribed
 				try {
-					$autoSubscribe = $this->userPreferencesService->getPreference(
+					$autoSubscribe = (bool)$this->userPreferencesService->getPreference(
 						$user->getUID(),
 						UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS
 					);
@@ -372,6 +374,7 @@ class PostController extends OCSController {
 			}
 
 			// Update the thread's post count and last reply info
+			$thread = null;
 			try {
 				$thread = $this->threadMapper->find($threadId);
 				$thread->setPostCount($thread->getPostCount() + 1);
@@ -384,12 +387,14 @@ class PostController extends OCSController {
 			}
 
 			// Update the category's post count
-			try {
-				$category = $this->categoryMapper->find($thread->getCategoryId());
-				$category->setPostCount($category->getPostCount() + 1);
-				$this->categoryMapper->update($category);
-			} catch (\Exception $e) {
-				$this->logger->warning('Failed to update category post count: ' . $e->getMessage());
+			if ($thread !== null) {
+				try {
+					$category = $this->categoryMapper->find($thread->getCategoryId());
+					$category->setPostCount($category->getPostCount() + 1);
+					$this->categoryMapper->update($category);
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to update category post count: ' . $e->getMessage());
+				}
 			}
 
 			// Notify registered users about the new post
@@ -409,7 +414,9 @@ class PostController extends OCSController {
 
 			$currentUserId = $user?->getUID();
 			$categoryId = $this->permissionService->getCategoryIdFromThread($threadId);
-			return new DataResponse($this->postEnrichmentService->enrichPost($createdPost, [], [], $currentUserId, null, $categoryId), Http::STATUS_CREATED);
+			/** @var array<string, mixed> $data */
+			$data = $this->postEnrichmentService->enrichPost($createdPost, [], [], $currentUserId, null, $categoryId);
+			return new DataResponse($data, Http::STATUS_CREATED);
 		} catch (\Exception $e) {
 			$this->logger->error('Error creating post: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to create post'], Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -480,7 +487,9 @@ class PostController extends OCSController {
 				}
 			}
 
-			return new DataResponse($this->postEnrichmentService->enrichPost($updatedPost, [], [], $user->getUID(), null, $categoryId));
+			/** @var array<string, mixed> $data */
+			$data = $this->postEnrichmentService->enrichPost($updatedPost, [], [], $user->getUID(), null, $categoryId);
+			return new DataResponse($data);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Post not found'], Http::STATUS_NOT_FOUND);
 		} catch (\Exception $e) {

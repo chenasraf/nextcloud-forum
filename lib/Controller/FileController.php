@@ -104,7 +104,8 @@ class FileController extends Controller {
 
 			// Support Range requests for media files (video/audio) to enable seeking
 			if (str_starts_with($mimeType, 'video/') || str_starts_with($mimeType, 'audio/')) {
-				return $this->serveWithRangeSupport($file);
+				// serveWithRangeSupport() streams the response and exits (returns never)
+				$this->serveWithRangeSupport($file);
 			}
 
 			$response = new FileDisplayResponse($file, Http::STATUS_OK, ['Content-Type' => $mimeType]);
@@ -257,7 +258,7 @@ class FileController extends Controller {
 		$chunkSize = 1024 * 1024; // 1MB chunks
 
 		while ($remaining > 0 && !feof($handle)) {
-			$readSize = min($chunkSize, $remaining);
+			$readSize = (int)min($chunkSize, $remaining);
 			$data = fread($handle, $readSize);
 			if ($data === false) {
 				break;

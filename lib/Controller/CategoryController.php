@@ -95,8 +95,10 @@ class CategoryController extends OCSController {
 				}
 				// Walk up the parent chain to find the effective header
 				$current = $category;
-				while ($current->getParentId() !== null && isset($allCatsById[$current->getParentId()])) {
-					$current = $allCatsById[$current->getParentId()];
+				$parentId = $current->getParentId();
+				while ($parentId !== null && isset($allCatsById[$parentId])) {
+					$current = $allCatsById[$parentId];
+					$parentId = $current->getParentId();
 				}
 				$headerId = $current->getHeaderId();
 				if (!isset($categoriesByHeader[$headerId])) {
@@ -112,6 +114,7 @@ class CategoryController extends OCSController {
 			$result = [];
 			foreach ($headers as $header) {
 				$categories = $categoriesByHeader[$header->getId()] ?? [];
+				/** @var array<string, mixed> $headerData */
 				$headerData = $header->jsonSerialize();
 				$headerData['categories'] = $categories;
 				$result[] = $headerData;
@@ -235,6 +238,8 @@ class CategoryController extends OCSController {
 			}
 
 			$category = new \OCA\Forum\Db\Category();
+			// Child categories store a null header; the entity @method docblock types it as int.
+			/** @psalm-suppress PossiblyNullArgument */
 			$category->setHeaderId($headerId);
 			$category->setParentId($parentId);
 			$category->setName($name);
@@ -310,6 +315,8 @@ class CategoryController extends OCSController {
 					}
 
 					$category->setParentId($parentIdInt);
+					// Child categories store a null header; the entity @method docblock types it as int.
+					/** @psalm-suppress NullArgument */
 					$category->setHeaderId(null);
 				} else {
 					// Moving to top-level: need a headerId
@@ -411,8 +418,6 @@ class CategoryController extends OCSController {
 				$child->setUpdatedAt(time());
 				$this->categoryMapper->update($child);
 			}
-
-			$threadsAffected = 0;
 
 			// Handle threads migration or soft-delete
 			if ($migrateToCategoryId !== null) {
@@ -564,7 +569,7 @@ class CategoryController extends OCSController {
 				$categoryPerm = new CategoryPerm();
 				$categoryPerm->setCategoryId($id);
 				$categoryPerm->setTargetType(CategoryPerm::TARGET_TYPE_TEAM);
-				$categoryPerm->setTargetId((string)$teamId);
+				$categoryPerm->setTargetId($teamId);
 				$categoryPerm->setCanView($perm['canView'] ?? false);
 				$categoryPerm->setCanPost($perm['canPost'] ?? false);
 				$categoryPerm->setCanReply($perm['canReply'] ?? false);
@@ -635,6 +640,8 @@ class CategoryController extends OCSController {
 				$this->logger->debug('Could not resolve attachment upload folder ' . $folderId . ' for user: ' . $e->getMessage());
 			}
 		}
-		return $category->jsonSerialize();
+		/** @var array<string, mixed> $data */
+		$data = $category->jsonSerialize();
+		return $data;
 	}
 }

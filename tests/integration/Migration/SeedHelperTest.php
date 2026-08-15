@@ -35,6 +35,17 @@ class SeedHelperTest extends TestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
+
+		// SAFETY: this test DELETEs every forum table. It must never run against a
+		// real/live database. Require an explicit opt-in so `make test` (which shares
+		// the dev instance's DB in some setups) can never wipe real data by accident.
+		if (getenv('FORUM_ALLOW_DB_WIPE') !== '1') {
+			$this->markTestSkipped(
+				'SeedHelperTest wipes all forum tables. Set FORUM_ALLOW_DB_WIPE=1 to run it, '
+				. 'and only against a throwaway database.'
+			);
+		}
+
 		$this->db = \OC::$server->get(IDBConnection::class);
 
 		// Check if forum tables exist (they might not in local dev environment)

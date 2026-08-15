@@ -7,8 +7,14 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
          colors="true">
   <testsuites>
+    <!--
+      Only the unit suite runs here. Unit tests mock every dependency, so they
+      never touch a real database. Integration tests (tests/integration) issue
+      real DELETE/INSERT statements and MUST NOT run against a live instance —
+      run them explicitly via tests/phpunit.integration.xml against a throwaway DB.
+    -->
     <testsuite name="Forum Tests">
-      <directory suffix="Test.php">.</directory>
+      <directory suffix="Test.php">unit</directory>
     </testsuite>
   </testsuites>
 </phpunit>

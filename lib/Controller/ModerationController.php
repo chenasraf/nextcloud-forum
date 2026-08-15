@@ -199,6 +199,31 @@ class ModerationController extends OCSController {
 	}
 
 	/**
+	 * Permanently delete multiple soft-deleted threads and their associated data
+	 *
+	 * @param list<int> $ids Thread IDs to permanently delete
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, deleted: list<int>, failed: list<array{id: int, error: string}>}, array{}>
+	 *
+	 * 200: Bulk deletion processed
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessModeration')]
+	#[ApiRoute(verb: 'POST', url: '/api/moderation/threads/bulk-delete')]
+	public function bulkDestroyThreads(array $ids): DataResponse {
+		$ids = $this->normalizeIds($ids);
+		if (empty($ids)) {
+			return new DataResponse(['error' => 'No valid IDs provided'], Http::STATUS_BAD_REQUEST);
+		}
+		try {
+			$result = $this->moderationService->permanentlyDeleteThreads($ids);
+			return new DataResponse(['success' => true, 'deleted' => $result['deleted'], 'failed' => $result['failed']]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error bulk deleting threads: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to permanently delete threads'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * List deleted replies
 	 *
 	 * @param int<1, 100> $limit Maximum results per page
@@ -347,5 +372,48 @@ class ModerationController extends OCSController {
 			$this->logger->error('Error permanently deleting reply: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to permanently delete reply'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * Permanently delete multiple soft-deleted replies and their associated data
+	 *
+	 * @param list<int> $ids Post IDs to permanently delete
+	 * @return DataResponse<Http::STATUS_OK, array{success: bool, deleted: list<int>, failed: list<array{id: int, error: string}>}, array{}>
+	 *
+	 * 200: Bulk deletion processed
+	 */
+	#[NoAdminRequired]
+	#[RequirePermission('canAccessModeration')]
+	#[ApiRoute(verb: 'POST', url: '/api/moderation/replies/bulk-delete')]
+	public function bulkDestroyReplies(array $ids): DataResponse {
+		$ids = $this->normalizeIds($ids);
+		if (empty($ids)) {
+			return new DataResponse(['error' => 'No valid IDs provided'], Http::STATUS_BAD_REQUEST);
+		}
+		try {
+			$result = $this->moderationService->permanentlyDeleteReplies($ids);
+			return new DataResponse(['success' => true, 'deleted' => $result['deleted'], 'failed' => $result['failed']]);
+		} catch (\Exception $e) {
+			$this->logger->error('Error bulk deleting replies: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to permanently delete replies'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
+	 * Normalize a raw list of IDs into a de-duplicated list of positive ints
+	 *
+	 * @param mixed $ids Raw IDs from the request body
+	 * @return list<int>
+	 */
+	private function normalizeIds(mixed $ids): array {
+		if (!is_array($ids)) {
+			return [];
+		}
+		$ints = array_map(
+			static fn (mixed $id): int => is_numeric($id) ? (int)$id : 0,
+			array_values($ids),
+		);
+		$positive = array_filter($ints, static fn (int $id): bool => $id > 0);
+		return array_values(array_unique($positive));
 	}
 }

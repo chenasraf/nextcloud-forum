@@ -27,19 +27,46 @@
 
     <!-- Items -->
     <template v-else>
+      <!-- Bulk selection toolbar -->
+      <div class="selection-toolbar">
+        <NcCheckboxRadioSwitch
+          :model-value="allSelected"
+          :indeterminate="someSelected"
+          @update:model-value="toggleSelectAll"
+        >
+          {{ strings.selectAll }}
+        </NcCheckboxRadioSwitch>
+        <div v-if="selectedIds.length > 0" class="selection-actions">
+          <span class="selection-count">{{ selectedCountLabel }}</span>
+          <NcButton variant="error" :disabled="bulkDeleting" @click="$emit('bulk-delete')">
+            <template #icon>
+              <NcLoadingIcon v-if="bulkDeleting" :size="20" />
+              <DeleteForeverIcon v-else :size="20" />
+            </template>
+            {{ strings.deleteSelected }}
+          </NcButton>
+        </div>
+      </div>
+
       <ul class="item-list">
         <!-- Thread items: clickable to open preview -->
         <li
           v-for="item in items"
           :key="item.id"
           class="deleted-item-wrapper"
-          :class="{ clickable: mode === 'threads' }"
+          :class="{ clickable: mode === 'threads', selected: selectedIds.includes(item.id) }"
           :role="mode === 'threads' ? 'button' : undefined"
           :tabindex="mode === 'threads' ? 0 : undefined"
           @click="mode === 'threads' && $emit('view', item)"
           @keydown.enter="mode === 'threads' && $emit('view', item)"
         >
           <div class="deleted-item-overlay">
+            <NcCheckboxRadioSwitch
+              class="item-select"
+              :model-value="selectedIds.includes(item.id)"
+              @update:model-value="toggleSelect(item.id)"
+              @click.stop
+            />
             <span class="deleted-badge">
               {{ strings.deleted }} <NcDateTime :timestamp="item.deletedAt * 1000" />
             </span>
@@ -97,6 +124,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
+import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
@@ -105,12 +133,13 @@ import PostCard from '@/components/PostCard'
 import Pagination from '@/components/Pagination'
 import DeleteRestoreIcon from '@icons/DeleteRestore.vue'
 import DeleteForeverIcon from '@icons/DeleteForever.vue'
-import { t } from '@nextcloud/l10n'
+import { t, n } from '@nextcloud/l10n'
 
 export default defineComponent({
   name: 'ModerationDeletedList',
   components: {
     NcButton,
+    NcCheckboxRadioSwitch,
     NcDateTime,
     NcEmptyContent,
     NcLoadingIcon,
@@ -131,17 +160,31 @@ export default defineComponent({
     error: { type: String, default: null },
     restoring: { type: Number, default: null },
     deleting: { type: Number, default: null },
+    selectedIds: { type: Array as () => number[], default: () => [] },
+    bulkDeleting: { type: Boolean, default: false },
   },
-  emits: ['view', 'restore', 'delete', 'retry', 'update:page'],
+  emits: ['view', 'restore', 'delete', 'retry', 'update:page', 'update:selectedIds', 'bulk-delete'],
   computed: {
     maxPages(): number {
       return Math.ceil(this.total / this.perPage)
+    },
+    allSelected(): boolean {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return this.items.length > 0 && this.items.every((i: any) => this.selectedIds.includes(i.id))
+    },
+    someSelected(): boolean {
+      return this.selectedIds.length > 0 && !this.allSelected
+    },
+    selectedCountLabel(): string {
+      return n('forum', '%n selected', '%n selected', this.selectedIds.length)
     },
     strings() {
       return {
         deleted: t('forum', 'Deleted'),
         restore: t('forum', 'Restore'),
         deletePermanently: t('forum', 'Delete permanently'),
+        selectAll: t('forum', 'Select all'),
+        deleteSelected: t('forum', 'Delete permanently'),
         errorTitle: t('forum', 'Error loading content'),
         retry: t('forum', 'Retry'),
         emptyTitle: t('forum', 'No deleted content'),
@@ -149,10 +192,46 @@ export default defineComponent({
       }
     },
   },
+  methods: {
+    toggleSelect(id: number): void {
+      const set = new Set(this.selectedIds)
+      if (set.has(id)) {
+        set.delete(id)
+      } else {
+        set.add(id)
+      }
+      this.$emit('update:selectedIds', Array.from(set))
+    },
+    toggleSelectAll(value: boolean): void {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.$emit('update:selectedIds', value ? this.items.map((i: any) => i.id) : [])
+    },
+  },
 })
 </script>
 
 <style scoped lang="scss">
+.selection-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.selection-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.selection-count {
+  font-weight: 600;
+  color: var(--color-text-maxcontrast);
+}
+
 .item-list {
   display: flex;
   flex-direction: column;
@@ -176,6 +255,15 @@ export default defineComponent({
   &:hover {
     opacity: 1;
   }
+
+  &.selected {
+    opacity: 1;
+    border-color: var(--color-primary-element);
+  }
+}
+
+.item-select {
+  flex-shrink: 0;
 }
 
 .deleted-item-overlay {

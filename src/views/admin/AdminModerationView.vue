@@ -50,11 +50,15 @@
         :error="error"
         :restoring="restoring"
         :deleting="deleting"
+        :selected-ids="selectedIds"
+        :bulk-deleting="bulkDeleting"
         @view="handleView"
         @restore="handleRestore"
         @delete="handleDelete"
         @retry="loadData"
         @update:page="goToPage"
+        @update:selected-ids="selectedIds = $event"
+        @bulk-delete="bulkDelete"
       />
 
       <!-- Thread preview dialog -->
@@ -83,8 +87,8 @@ import ModerationThreadDialog from '@/components/ModerationThreadDialog'
 import SortCalendarDescendingIcon from '@icons/SortCalendarDescending.vue'
 import SortCalendarAscendingIcon from '@icons/SortCalendarAscending.vue'
 import { ocs } from '@/axios'
-import { t } from '@nextcloud/l10n'
-import { showError } from '@nextcloud/dialogs'
+import { t, n } from '@nextcloud/l10n'
+import { showError, showSuccess } from '@nextcloud/dialogs'
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
@@ -114,6 +118,8 @@ export default defineComponent({
       sort: 'newest' as 'newest' | 'oldest',
       restoring: null as number | null,
       deleting: null as number | null,
+      selectedIds: [] as number[],
+      bulkDeleting: false,
 
       // Dialogs
       showThreadDialog: false,
@@ -173,6 +179,8 @@ export default defineComponent({
       try {
         this.loading = true
         this.error = null
+        // Selection refers to the currently displayed page; reset it on any reload
+        this.selectedIds = []
 
         const endpoint =
           this.activeTab === 'threads' ? '/moderation/threads' : '/moderation/replies'
@@ -293,6 +301,69 @@ export default defineComponent({
         return false
       } finally {
         this.deleting = null
+      }
+    },
+
+    async bulkDelete(): Promise<void> {
+      const ids = [...this.selectedIds]
+      if (ids.length === 0) return
+
+      const confirmMsg =
+        this.activeTab === 'threads'
+          ? n(
+              'forum',
+              'Permanently delete %n selected thread and all its replies? This cannot be undone.',
+              'Permanently delete %n selected threads and all their replies? This cannot be undone.',
+              ids.length,
+            )
+          : n(
+              'forum',
+              'Permanently delete %n selected reply? This cannot be undone.',
+              'Permanently delete %n selected replies? This cannot be undone.',
+              ids.length,
+            )
+      if (!window.confirm(confirmMsg)) return
+
+      try {
+        this.bulkDeleting = true
+        const endpoint =
+          this.activeTab === 'threads'
+            ? '/moderation/threads/bulk-delete'
+            : '/moderation/replies/bulk-delete'
+        const response = await ocs.post<{
+          deleted: number[]
+          failed: { id: number; error: string }[]
+        }>(endpoint, { ids })
+
+        const deletedCount = response.data?.deleted?.length ?? 0
+        const failed = response.data?.failed ?? []
+
+        if (failed.length > 0) {
+          showError(
+            n(
+              'forum',
+              'Deleted %n item; the rest could not be removed.',
+              'Deleted %n items; the rest could not be removed.',
+              deletedCount,
+            ),
+          )
+        } else {
+          showSuccess(
+            n(
+              'forum',
+              'Permanently deleted %n item.',
+              'Permanently deleted %n items.',
+              deletedCount,
+            ),
+          )
+        }
+
+        await this.loadData()
+      } catch (e: any) {
+        console.error('Failed to bulk delete', e)
+        showError(t('forum', 'Failed to permanently delete the selected items'))
+      } finally {
+        this.bulkDeleting = false
       }
     },
   },

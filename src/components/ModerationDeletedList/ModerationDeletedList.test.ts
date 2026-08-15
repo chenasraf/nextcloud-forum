@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createIconMock, createComponentMock, RouterLinkStub } from '@/test-utils'
+import {
+  createIconMock,
+  createComponentMock,
+  createNcCheckboxRadioSwitchMock,
+  RouterLinkStub,
+} from '@/test-utils'
 import { createMockThread, createMockPost } from '@/test-mocks'
 import ModerationDeletedList from './ModerationDeletedList.vue'
 
@@ -8,6 +13,7 @@ import ModerationDeletedList from './ModerationDeletedList.vue'
 
 vi.mock('@icons/DeleteRestore.vue', () => createIconMock('DeleteRestoreIcon'))
 vi.mock('@icons/DeleteForever.vue', () => createIconMock('DeleteForeverIcon'))
+vi.mock('@nextcloud/vue/components/NcCheckboxRadioSwitch', () => createNcCheckboxRadioSwitchMock())
 
 vi.mock('@/components/ThreadCard', () =>
   createComponentMock('ThreadCard', {
@@ -231,6 +237,102 @@ describe('ModerationDeletedList', () => {
       const wrapper = mountWith({ ...defaultProps, items, total: 1, deleting: 1 })
       const restoreButton = wrapper.findAll('button').find((b) => b.text().includes('Restore'))
       expect(restoreButton?.attributes('disabled')).toBeDefined()
+    })
+  })
+
+  describe('multi-select', () => {
+    it('should render a select-all checkbox when items are present', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 1 })
+      expect(wrapper.find('.selection-toolbar').exists()).toBe(true)
+    })
+
+    it('should render a checkbox per item', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 }), mockThread({ id: 2, deletedAt: 2000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 2 })
+      expect(wrapper.findAll('.item-select')).toHaveLength(2)
+    })
+
+    it('should mark the row checkbox checked when item is selected', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 }), mockThread({ id: 2, deletedAt: 2000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 2, selectedIds: [1] })
+      const inputs = wrapper.findAll('.item-select input')
+      expect((inputs[0].element as HTMLInputElement).checked).toBe(true)
+      expect((inputs[1].element as HTMLInputElement).checked).toBe(false)
+    })
+
+    it('should emit update:selectedIds adding the id when a row checkbox is toggled on', async () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 }), mockThread({ id: 2, deletedAt: 2000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 2, selectedIds: [] })
+      await wrapper.findAll('.item-select')[0].trigger('click')
+      expect(wrapper.emitted('update:selectedIds')![0]).toEqual([[1]])
+    })
+
+    it('should emit update:selectedIds removing the id when a selected row checkbox is toggled off', async () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 }), mockThread({ id: 2, deletedAt: 2000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 2, selectedIds: [1, 2] })
+      await wrapper.findAll('.item-select')[0].trigger('click')
+      expect(wrapper.emitted('update:selectedIds')![0]).toEqual([[2]])
+    })
+
+    it('should not emit view when a row checkbox is clicked in threads mode', async () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, mode: 'threads', items, total: 1 })
+      await wrapper.find('.item-select').trigger('click')
+      expect(wrapper.emitted('view')).toBeFalsy()
+    })
+
+    it('should emit all ids when select-all is toggled on', async () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 }), mockThread({ id: 2, deletedAt: 2000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 2, selectedIds: [] })
+      await wrapper.find('.selection-toolbar .nc-checkbox').trigger('click')
+      expect(wrapper.emitted('update:selectedIds')![0]).toEqual([[1, 2]])
+    })
+
+    it('should emit empty selection when select-all is toggled off', async () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 }), mockThread({ id: 2, deletedAt: 2000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 2, selectedIds: [1, 2] })
+      await wrapper.find('.selection-toolbar .nc-checkbox').trigger('click')
+      expect(wrapper.emitted('update:selectedIds')![0]).toEqual([[]])
+    })
+
+    it('should not show the bulk delete button when nothing is selected', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 1, selectedIds: [] })
+      expect(wrapper.find('.selection-actions').exists()).toBe(false)
+    })
+
+    it('should show the bulk delete button when items are selected', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 1, selectedIds: [1] })
+      expect(wrapper.find('.selection-actions').exists()).toBe(true)
+    })
+
+    it('should emit bulk-delete when the bulk delete button is clicked', async () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({ ...defaultProps, items, total: 1, selectedIds: [1] })
+      const button = wrapper
+        .find('.selection-actions')
+        .findAll('button')
+        .find((b) => b.text().includes('Delete permanently'))
+      await button?.trigger('click')
+      expect(wrapper.emitted('bulk-delete')).toBeTruthy()
+    })
+
+    it('should disable the bulk delete button while bulk deleting', () => {
+      const items = [mockThread({ id: 1, deletedAt: 1000 })]
+      const wrapper = mountWith({
+        ...defaultProps,
+        items,
+        total: 1,
+        selectedIds: [1],
+        bulkDeleting: true,
+      })
+      const button = wrapper
+        .find('.selection-actions')
+        .findAll('button')
+        .find((b) => b.text().includes('Delete permanently'))
+      expect(button?.attributes('disabled')).toBeDefined()
     })
   })
 

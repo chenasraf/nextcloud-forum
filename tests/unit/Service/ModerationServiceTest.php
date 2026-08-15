@@ -318,4 +318,67 @@ class ModerationServiceTest extends TestCase {
 		$this->expectExceptionMessage('First posts must be deleted via thread deletion');
 		$this->service->permanentlyDeleteReply(10);
 	}
+
+	public function testPermanentlyDeleteThreadsAllSucceed(): void {
+		$this->threadMapper->method('findIncludingDeleted')
+			->willReturnCallback(function (int $id) {
+				$thread = new Thread();
+				$thread->setId($id);
+				$thread->setCategoryId(5);
+				$thread->setDeletedAt(1000);
+				return $thread;
+			});
+		$this->postMapper->method('findIdsByThreadId')->willReturn([]);
+
+		$result = $this->service->permanentlyDeleteThreads([1, 2]);
+
+		$this->assertSame([1, 2], $result['deleted']);
+		$this->assertSame([], $result['failed']);
+	}
+
+	public function testPermanentlyDeleteThreadsPartialFailure(): void {
+		// Thread 1 is soft-deleted (succeeds); thread 2 does not exist (fails).
+		$this->threadMapper->method('findIncludingDeleted')
+			->willReturnCallback(function (int $id) {
+				if ($id === 2) {
+					throw new \OCP\AppFramework\Db\DoesNotExistException('missing');
+				}
+				$thread = new Thread();
+				$thread->setId($id);
+				$thread->setCategoryId(5);
+				$thread->setDeletedAt(1000);
+				return $thread;
+			});
+		$this->postMapper->method('findIdsByThreadId')->willReturn([]);
+
+		$result = $this->service->permanentlyDeleteThreads([1, 2]);
+
+		$this->assertSame([1], $result['deleted']);
+		$this->assertCount(1, $result['failed']);
+		$this->assertSame(2, $result['failed'][0]['id']);
+	}
+
+	public function testPermanentlyDeleteThreadsEmptyList(): void {
+		$result = $this->service->permanentlyDeleteThreads([]);
+		$this->assertSame(['deleted' => [], 'failed' => []], $result);
+	}
+
+	public function testPermanentlyDeleteRepliesPartialFailure(): void {
+		// Post 10 is a deleted reply (succeeds); post 11 is a first post (fails).
+		$this->postMapper->method('findIncludingDeleted')
+			->willReturnCallback(function (int $id) {
+				$post = new Post();
+				$post->setId($id);
+				$post->setThreadId(1);
+				$post->setDeletedAt(2000);
+				$post->setIsFirstPost($id === 11);
+				return $post;
+			});
+
+		$result = $this->service->permanentlyDeleteReplies([10, 11]);
+
+		$this->assertSame([10], $result['deleted']);
+		$this->assertCount(1, $result['failed']);
+		$this->assertSame(11, $result['failed'][0]['id']);
+	}
 }

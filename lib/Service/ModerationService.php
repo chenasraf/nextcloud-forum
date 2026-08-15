@@ -187,4 +187,52 @@ class ModerationService {
 
 		$this->logger->info("Permanently deleted post $postId");
 	}
+
+	/**
+	 * Permanently delete multiple soft-deleted threads.
+	 *
+	 * Each thread is deleted independently; a failure on one does not abort the
+	 * rest. Returns the IDs that were deleted and, per failure, the ID and reason.
+	 *
+	 * @param list<int> $ids Thread IDs to permanently delete
+	 * @return array{deleted: list<int>, failed: list<array{id: int, error: string}>}
+	 */
+	public function permanentlyDeleteThreads(array $ids): array {
+		$deleted = [];
+		$failed = [];
+		foreach ($ids as $id) {
+			try {
+				$this->permanentlyDeleteThread($id);
+				$deleted[] = $id;
+			} catch (\Throwable $e) {
+				$this->logger->warning("Failed to permanently delete thread $id: " . $e->getMessage());
+				$failed[] = ['id' => $id, 'error' => $e->getMessage()];
+			}
+		}
+		return ['deleted' => $deleted, 'failed' => $failed];
+	}
+
+	/**
+	 * Permanently delete multiple soft-deleted reply posts.
+	 *
+	 * Each reply is deleted independently; a failure on one does not abort the
+	 * rest. Returns the IDs that were deleted and, per failure, the ID and reason.
+	 *
+	 * @param list<int> $ids Post IDs to permanently delete
+	 * @return array{deleted: list<int>, failed: list<array{id: int, error: string}>}
+	 */
+	public function permanentlyDeleteReplies(array $ids): array {
+		$deleted = [];
+		$failed = [];
+		foreach ($ids as $id) {
+			try {
+				$this->permanentlyDeleteReply($id);
+				$deleted[] = $id;
+			} catch (\Throwable $e) {
+				$this->logger->warning("Failed to permanently delete post $id: " . $e->getMessage());
+				$failed[] = ['id' => $id, 'error' => $e->getMessage()];
+			}
+		}
+		return ['deleted' => $deleted, 'failed' => $failed];
+	}
 }

@@ -35,7 +35,7 @@ class RebuildAllStats extends Command {
 	 * @param InputInterface $input
 	 * @param OutputInterface $output
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		$output->writeln('<info>Starting full stats rebuild...</info>');

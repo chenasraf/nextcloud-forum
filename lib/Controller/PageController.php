@@ -6,6 +6,7 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\AppInfo\Application;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;

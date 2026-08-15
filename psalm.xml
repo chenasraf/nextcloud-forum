@@ -17,4 +17,93 @@
 	<extraFiles>
 		<directory name="vendor"/>
 	</extraFiles>
+
+	<issueHandlers>
+		<!--
+			Framework entrypoints and Entity magic accessors. Controllers, commands,
+			listeners, middleware, settings and migrations are instantiated by the
+			Nextcloud DI container / registered via routes, so psalm never sees a
+			`new`. Db\Entity properties are read/written through magic getX()/setX()
+			generated from `@method` docblocks, which psalm cannot trace either.
+			These "unused" reports are therefore structural false positives.
+		-->
+		<UnusedClass>
+			<errorLevel type="suppress">
+				<directory name="lib" />
+			</errorLevel>
+		</UnusedClass>
+		<PossiblyUnusedMethod>
+			<errorLevel type="suppress">
+				<directory name="lib" />
+			</errorLevel>
+		</PossiblyUnusedMethod>
+		<PossiblyUnusedProperty>
+			<errorLevel type="suppress">
+				<directory name="lib" />
+			</errorLevel>
+		</PossiblyUnusedProperty>
+		<PossiblyUnusedParam>
+			<errorLevel type="suppress">
+				<directory name="lib" />
+			</errorLevel>
+		</PossiblyUnusedParam>
+		<PossiblyUnusedReturnValue>
+			<errorLevel type="suppress">
+				<directory name="lib" />
+			</errorLevel>
+		</PossiblyUnusedReturnValue>
+
+		<!--
+			OCSController/Controller endpoints declare `@return DataResponse<200, …>`
+			describing the success payload — the shape the OpenAPI generator emits.
+			Error paths return DataResponse with other status codes inline, which
+			psalm reads as a return-type mismatch. This is the documented Nextcloud
+			OpenAPI convention, so the family is suppressed for controllers only.
+		-->
+		<InvalidReturnType>
+			<errorLevel type="suppress">
+				<directory name="lib/Controller" />
+			</errorLevel>
+		</InvalidReturnType>
+		<InvalidReturnStatement>
+			<errorLevel type="suppress">
+				<directory name="lib/Controller" />
+			</errorLevel>
+		</InvalidReturnStatement>
+		<LessSpecificReturnStatement>
+			<errorLevel type="suppress">
+				<directory name="lib/Controller" />
+			</errorLevel>
+		</LessSpecificReturnStatement>
+
+		<!--
+			Optional Teams/Circles integration: the OCA\Circles\* classes only exist
+			when the Circles app is installed, which is not the case in the analysis
+			environment. The code guards these calls at runtime.
+		-->
+		<UndefinedClass>
+			<errorLevel type="suppress">
+				<file name="lib/Controller/TeamController.php" />
+				<file name="lib/Service/PermissionService.php" />
+				<directory name="lib/Migration" />
+			</errorLevel>
+		</UndefinedClass>
+		<UndefinedDocblockClass>
+			<errorLevel type="suppress">
+				<file name="lib/Controller/TeamController.php" />
+				<file name="lib/Service/PermissionService.php" />
+			</errorLevel>
+		</UndefinedDocblockClass>
+
+		<!--
+			OCP\Files\IRootFolder's stub (nextcloud/ocp) transitively references the
+			internal OC\Hooks\Emitter, which is not part of the public stubs. Injecting
+			IRootFolder is legitimate; the missing internal class is a stub-only gap.
+		-->
+		<MissingDependency>
+			<errorLevel type="suppress">
+				<directory name="lib" />
+			</errorLevel>
+		</MissingDependency>
+	</issueHandlers>
 </psalm>

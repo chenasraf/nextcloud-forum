@@ -27,6 +27,25 @@ if ($nextcloudBootstrap && file_exists($nextcloudBootstrap)) {
 	require_once __DIR__ . '/../vendor/autoload.php';
 	\OC_App::loadApp(OCA\Forum\AppInfo\Application::APP_ID);
 	OC_Hook::clear();
+
+	// When app repos share a parent directory (see NC_TEST_APPS_PATH), Nextcloud
+	// loads every sibling app's `vendor/autoload.php` too. Composer registers each
+	// loader with prepend=true, so the last one loaded wins — a sibling app pinned
+	// to a different PHPUnit major then shadows ours and PHPUnit dies building the
+	// suite with a class/method mismatch (e.g. TestDirectory::groups()). Find our
+	// own Composer loader (the one that resolves PHPUnit into this app's vendor)
+	// and re-prepend it so this app's vendored PHPUnit wins.
+	if (class_exists(\Composer\Autoload\ClassLoader::class, false)) {
+		$forumVendor = realpath(__DIR__ . '/../vendor');
+		foreach (\Composer\Autoload\ClassLoader::getRegisteredLoaders() as $loader) {
+			$phpunitFile = $loader->findFile(\PHPUnit\TextUI\Application::class);
+			if ($phpunitFile !== false && str_starts_with((string)realpath($phpunitFile), (string)$forumVendor)) {
+				$loader->unregister();
+				$loader->register(true);
+				break;
+			}
+		}
+	}
 } else {
 	// Cannot find Nextcloud bootstrap
 	echo "\n\033[31mError: Nextcloud bootstrap not found.\033[0m\n";

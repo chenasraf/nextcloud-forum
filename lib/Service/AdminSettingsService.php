@@ -9,7 +9,6 @@ namespace OCA\Forum\Service;
 
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\IL10N;
-use Psr\Log\LoggerInterface;
 
 class AdminSettingsService {
 	/** Setting key for forum title */
@@ -51,7 +50,6 @@ class AdminSettingsService {
 	public function __construct(
 		private IAppConfig $config,
 		private IL10N $l10n,
-		private LoggerInterface $logger,
 	) {
 	}
 

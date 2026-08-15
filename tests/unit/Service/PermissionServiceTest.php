@@ -15,18 +15,14 @@ use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\UserRole;
-use OCA\Forum\Db\UserRoleMapper;
 use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 class PermissionServiceTest extends TestCase {
 	private PermissionService $service;
-	/** @var UserRoleMapper&MockObject */
-	private UserRoleMapper $userRoleMapper;
 	/** @var RoleMapper&MockObject */
 	private RoleMapper $roleMapper;
 	/** @var CategoryPermMapper&MockObject */
@@ -37,29 +33,23 @@ class PermissionServiceTest extends TestCase {
 	private ThreadMapper $threadMapper;
 	/** @var PostMapper&MockObject */
 	private PostMapper $postMapper;
-	/** @var IUserManager&MockObject */
-	private IUserManager $userManager;
 	/** @var LoggerInterface&MockObject */
 	private LoggerInterface $logger;
 
 	protected function setUp(): void {
-		$this->userRoleMapper = $this->createMock(UserRoleMapper::class);
 		$this->roleMapper = $this->createMock(RoleMapper::class);
 		$this->categoryPermMapper = $this->createMock(CategoryPermMapper::class);
 		$this->categoryMapper = $this->createMock(CategoryMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->postMapper = $this->createMock(PostMapper::class);
-		$this->userManager = $this->createMock(IUserManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
 		$this->service = new PermissionService(
-			$this->userRoleMapper,
 			$this->roleMapper,
 			$this->categoryPermMapper,
 			$this->categoryMapper,
 			$this->threadMapper,
 			$this->postMapper,
-			$this->userManager,
 			$this->logger
 		);
 	}
@@ -841,13 +831,11 @@ class PermissionServiceTest extends TestCase {
 	private function createServiceWithCircleIds(?array $circleIds): PermissionService {
 		$service = $this->getMockBuilder(PermissionService::class)
 			->setConstructorArgs([
-				$this->userRoleMapper,
 				$this->roleMapper,
 				$this->categoryPermMapper,
 				$this->categoryMapper,
 				$this->threadMapper,
 				$this->postMapper,
-				$this->userManager,
 				$this->logger,
 			])
 			->onlyMethods(['getUserCircleIds'])

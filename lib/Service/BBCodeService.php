@@ -18,8 +18,6 @@ use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 class BBCodeService {
-	private ?BBCodeParser $parser = null;
-
 	public function __construct(
 		private BBCodeMapper $bbCodeMapper,
 		private LoggerInterface $logger,

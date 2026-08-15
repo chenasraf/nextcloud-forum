@@ -9,7 +9,6 @@ use OCP\AppFramework\Services\IAppConfig;
 use OCP\IL10N;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 
 class AdminSettingsServiceTest extends TestCase {
 	private AdminSettingsService $service;
@@ -17,13 +16,10 @@ class AdminSettingsServiceTest extends TestCase {
 	private IAppConfig $config;
 	/** @var IL10N&MockObject */
 	private IL10N $l10n;
-	/** @var LoggerInterface&MockObject */
-	private LoggerInterface $logger;
 
 	protected function setUp(): void {
 		$this->config = $this->createMock(IAppConfig::class);
 		$this->l10n = $this->createMock(IL10N::class);
-		$this->logger = $this->createMock(LoggerInterface::class);
 
 		// Mock translations
 		$this->l10n->method('t')
@@ -34,7 +30,6 @@ class AdminSettingsServiceTest extends TestCase {
 		$this->service = new AdminSettingsService(
 			$this->config,
 			$this->l10n,
-			$this->logger
 		);
 	}
 

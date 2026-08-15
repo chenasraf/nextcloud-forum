@@ -108,6 +108,10 @@ class SeedHelper {
 	 *
 	 * @param \OCP\IDBConnection $db Database connection
 	 * @param \Psr\Log\LoggerInterface $logger Logger instance
+	 *
+	 * @psalm-suppress UnusedMethod Called via self:: from seedAll(); psalm's
+	 *   dead-code pass misses static self-calls reached only from the migration
+	 *   entrypoints it cannot see as used.
 	 */
 	private static function recoverConnectionState(\OCP\IDBConnection $db, \Psr\Log\LoggerInterface $logger): void {
 		try {
@@ -208,6 +212,10 @@ class SeedHelper {
 	 * Create the forum_users table from scratch
 	 * This mirrors the final schema from Version1 + Version2 + Version8 migrations
 	 * (id as primary key, user_id as unique, includes signature column)
+	 *
+	 * @psalm-suppress UnusedMethod Called via self:: from ensureForumUsersTable();
+	 *   psalm's dead-code pass misses static self-calls reached only from the
+	 *   migration entrypoints it cannot see as used.
 	 */
 	private static function createForumUsersTable(\OCP\IDBConnection $db): void {
 		$provider = $db->getDatabaseProvider();
@@ -277,6 +285,10 @@ class SeedHelper {
 
 	/**
 	 * Check if a table exists in the database
+	 *
+	 * @psalm-suppress UnusedMethod Called via self:: from the table-rename helper;
+	 *   psalm's dead-code pass misses static self-calls reached only from the
+	 *   migration entrypoints it cannot see as used.
 	 */
 	private static function tableExists(\OCP\IDBConnection $db, string $tableName): bool {
 		$provider = $db->getDatabaseProvider();

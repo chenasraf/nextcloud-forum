@@ -13,20 +13,16 @@ use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
-use OCA\Forum\Db\UserRoleMapper;
 use OCP\AppFramework\Db\DoesNotExistException;
-use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
 
 class PermissionService {
 	public function __construct(
-		private UserRoleMapper $userRoleMapper,
 		private RoleMapper $roleMapper,
 		private CategoryPermMapper $categoryPermMapper,
 		private CategoryMapper $categoryMapper,
 		private ThreadMapper $threadMapper,
 		private PostMapper $postMapper,
-		private IUserManager $userManager,
 		private LoggerInterface $logger,
 	) {
 	}

@@ -33,6 +33,7 @@ OC.L10N.register(
     "Update" : "Agiorna",
     "Deleted" : "Cantzelladu",
     "Restore" : "Riprìstina",
+    "Delete permanently" : "Cantzella in manera definitiva",
     "Move" : "Tràmuda",
     "Page not found" : "Pàgina no agatada",
     "Back" : "In segus",

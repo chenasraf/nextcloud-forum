@@ -42,6 +42,8 @@ OC.L10N.register(
     "Update" : "Ažuriraj",
     "Deleted" : "Izbrisano",
     "Restore" : "Vrati",
+    "Delete permanently" : "Trajno izbrišite",
+    "Select all" : "Odaberi sve",
     "Retry" : "Pokušaj ponovno",
     "Move" : "Premjesti",
     "Page not found" : "Stranica nije pronađena",

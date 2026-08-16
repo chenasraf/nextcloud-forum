@@ -35,6 +35,8 @@ OC.L10N.register(
     "Update" : "Update",
     "Deleted" : "Deleted",
     "Restore" : "Restore",
+    "Delete permanently" : "Delete permanently",
+    "Select all" : "Select all",
     "Retry" : "Retry",
     "Move" : "Move",
     "Page not found" : "Page not found",

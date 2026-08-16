@@ -160,6 +160,8 @@ OC.L10N.register(
     "The forum has not been set up yet. Please contact an administration member to complete the setup." : "פורום זה עוד לא אותחל. נא ליצור קשר עם חשבון מנהל על מנת להשלים את האתחלה.",
     "Deleted" : "נמחק",
     "Restore" : "שחזור",
+    "Delete permanently" : "מחיקה לצמיתות",
+    "Select all" : "בחר הכל",
     "Retry" : "ניסיון חוזר",
     "In thread" : "בנושא",
     "Move thread to category" : "העברת שרשור לקטגוריה",

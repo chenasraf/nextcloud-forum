@@ -21,6 +21,7 @@ OC.L10N.register(
     "Cancel" : "Cancel",
     "Update" : "Hizivaat",
     "Deleted" : "Dilamet",
+    "Select all" : "Dibab pep tra",
     "Retry" : "Klaskit en dro",
     "Move" : "Diplasañ",
     "Edit" : "Embann",

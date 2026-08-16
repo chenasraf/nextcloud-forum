@@ -30,6 +30,7 @@ OC.L10N.register(
     "Update" : "Actualizar",
     "Deleted" : "Suprimit",
     "Restore" : "Restaurar",
+    "Delete permanently" : "Suprimir definitivament",
     "Retry" : "Tornar ensajar",
     "Move" : "Desplaçar",
     "Page not found" : "Pagina pas trobada",

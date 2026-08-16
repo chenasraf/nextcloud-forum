@@ -24,6 +24,8 @@ OC.L10N.register(
     "Update" : "อัปเดต",
     "Deleted" : "ลบแล้ว",
     "Restore" : "คืนค่า",
+    "Delete permanently" : "ลบแบบถาวร",
+    "Select all" : "เลือกทั้งหมด",
     "Move" : "ย้าย",
     "Page not found" : "ไม่พบหน้า",
     "Edit" : "แก้ไข",

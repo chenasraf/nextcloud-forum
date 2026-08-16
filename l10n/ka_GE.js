@@ -23,6 +23,8 @@ OC.L10N.register(
     "Update" : "განახლება",
     "Deleted" : "გაუქმდა",
     "Restore" : "აღდგენა",
+    "Delete permanently" : "სამუდამოდ წაშლა",
+    "Select all" : "ყველას არჩევა",
     "Retry" : "ვცადოთ ახლიდან",
     "Move" : "გადატანა",
     "Page not found" : "გვერდი არაა ნაპოვნი",

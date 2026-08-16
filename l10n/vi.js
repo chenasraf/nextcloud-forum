@@ -34,6 +34,8 @@ OC.L10N.register(
     "Update" : "Sửa",
     "Deleted" : "Đã xoá",
     "Restore" : "Khôi phục",
+    "Delete permanently" : "Xoá vĩnh viễn",
+    "Select all" : "Chọn tất cả",
     "Retry" : "Thử lại",
     "Move" : "Chuyển",
     "Page not found" : "Trang không tìm thấy",

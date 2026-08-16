@@ -31,6 +31,8 @@ OC.L10N.register(
     "Update" : "Actualizare",
     "Deleted" : "Șters",
     "Restore" : "Restaurare",
+    "Delete permanently" : "Șterge permanent",
+    "Select all" : "Selectează tot",
     "Retry" : "Reîncearcă",
     "Move" : "Mută",
     "Page not found" : "Pagina nu a fost găsită",

@@ -186,6 +186,7 @@ OC.L10N.register(
     "The forum has not been set up yet. Please contact an administration member to complete the setup." : "El fòrum encara no s'ha configurat. Contacteu amb un membre de l'administració per completar la configuració.",
     "Deleted" : "Suprimit",
     "Restore" : "Restaura",
+    "Select all" : "Selecciona-ho tot",
     "Error loading content" : "S'ha produït un error en carregar el contingut",
     "Retry" : "Torna-ho a provar",
     "No deleted content" : "No hi ha contingut suprimit",

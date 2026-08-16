@@ -25,6 +25,8 @@ OC.L10N.register(
     "Update" : "Ĝisdatigi",
     "Deleted" : "Forigita",
     "Restore" : "Restaŭri",
+    "Delete permanently" : "Forigi por ĉiam",
+    "Select all" : "Elekti ĉion",
     "Retry" : "Reprovi",
     "Move" : "Movi",
     "Page not found" : "Paĝo ne trovita",

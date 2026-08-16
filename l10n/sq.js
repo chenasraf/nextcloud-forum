@@ -27,6 +27,8 @@ OC.L10N.register(
     "Update" : "Përditëso",
     "Deleted" : "E fshirë",
     "Restore" : "Rikthe",
+    "Delete permanently" : "Fshije përgjithmonë",
+    "Select all" : "Zgjidhi të gjitha",
     "Retry" : "Riprovoni",
     "Move" : "Zhvendos",
     "Page not found" : "Faqja nuk u gjet ",

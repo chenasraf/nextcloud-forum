@@ -54,6 +54,7 @@ OC.L10N.register(
     "Update" : "Абнавіць",
     "Deleted" : "Выдалены",
     "Restore" : "Аднавіць",
+    "Select all" : "Выбраць усе",
     "Retry" : "Паўтарыць спробу",
     "Move" : "Перамясціць",
     "Page not found" : "Старонка не знойдзена",

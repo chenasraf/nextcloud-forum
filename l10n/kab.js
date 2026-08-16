@@ -50,6 +50,8 @@ OC.L10N.register(
     "Update" : "Leqqem",
     "Deleted" : "Yettwakkes",
     "Restore" : "Err-it-id",
+    "Delete permanently" : "Kkes-it i lebda",
+    "Select all" : "Fren-iten akk",
     "Retry" : "Ɛreḍ tikkelt-nniḍen",
     "Move" : "Senkez",
     "Page not found" : "Ulac asebter",

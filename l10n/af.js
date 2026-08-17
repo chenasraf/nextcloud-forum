@@ -18,6 +18,8 @@ OC.L10N.register(
     "Update" : "Werk by",
     "Deleted" : "Geskrap",
     "Restore" : "Herstel",
+    "Delete permanently" : "Skrap permanent",
+    "Select all" : "Kies alle",
     "Retry" : "Herprobeer",
     "Move" : "Skuif",
     "Page not found" : "Blad nie gevind nie",

@@ -41,6 +41,7 @@ OC.L10N.register(
     "_%n selected_::_%n selected_" : ["%n избрани","%n избрани"],
     "Deleted" : "Изтрито",
     "Restore" : "Възстановяне",
+    "Delete permanently" : "Изтрий завинаги",
     "Select all" : "Избери всички",
     "Retry" : "Опитай отново",
     "Move" : "Преместване",

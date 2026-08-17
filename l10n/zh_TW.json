@@ -560,6 +560,8 @@
     "Search deleted content …" : "搜尋已刪除的內容……",
     "Newest first" : "新的在前",
     "Oldest first" : "舊的在前",
+    "Permanently delete this thread and all its replies? This cannot be undone." : "要永久刪除此討論串及其所有回覆嗎？此操作無法復原。",
+    "Permanently delete this reply? This cannot be undone." : "永久刪除此回覆？此操作無法復原。",
     "Failed to restore thread" : "還原討論串失敗",
     "Failed to restore reply" : "還原回覆失敗",
     "Create role" : "建立角色",

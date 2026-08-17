@@ -36,6 +36,8 @@ OC.L10N.register(
     "Update" : "Anovar",
     "Deleted" : "Desanicióse",
     "Restore" : "Restaurar",
+    "Delete permanently" : "Desaniciar permanentemente",
+    "Select all" : "Seleicionar too",
     "Retry" : "Retentar",
     "Move" : "Mover",
     "Page not found" : "Nun s'atopó la páxina",

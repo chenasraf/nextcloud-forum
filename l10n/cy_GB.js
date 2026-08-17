@@ -21,6 +21,7 @@ OC.L10N.register(
     "Update" : "Diweddaru",
     "Deleted" : "Wedi dileu",
     "Restore" : "Adfer",
+    "Delete permanently" : "Dileu'n barhaol",
     "Retry" : "Ceisio eto",
     "Move" : "Symud",
     "Page not found" : "Heb ganfod y dudalen",

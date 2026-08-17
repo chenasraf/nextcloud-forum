@@ -171,6 +171,7 @@ OC.L10N.register(
     "_%n selected_::_%n selected_" : ["%n vybráno","%n vybrány","%n vybráno","%n vybrány"],
     "Deleted" : "Smazáno",
     "Restore" : "Obnovit",
+    "Delete permanently" : "Nevratně smazat",
     "Select all" : "Vybrat vše",
     "Retry" : "Zkusit znovu",
     "Deleted reply" : "Smazaná odpověď",

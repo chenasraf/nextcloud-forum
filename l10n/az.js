@@ -19,6 +19,8 @@ OC.L10N.register(
     "Update" : "Yenilənmə",
     "Deleted" : "Silinib",
     "Restore" : "Geri qaytar",
+    "Delete permanently" : "Həmişəlik sil",
+    "Select all" : "Hamısıı seç",
     "Move" : "Move",
     "Back" : "Geri",
     "Edit" : "Dəyişiklik et",

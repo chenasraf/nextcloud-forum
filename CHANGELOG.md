@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.4.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.3.1...v1.4.0) (2026-08-17)
+
+
+### Features
+
+* add nextcloud 35 support ([40030c8](https://github.com/chenasraf/nextcloud-forum/commit/40030c8af15e6fb74c1ef09895898f3dcb2ef11b))
+* **moderation:** bulk permanent deletion via multi-select ([89e7a37](https://github.com/chenasraf/nextcloud-forum/commit/89e7a375b998ff160b50a3a064dd982493203c6f))
+* **moderation:** permanently delete threads and replies ([addf0e2](https://github.com/chenasraf/nextcloud-forum/commit/addf0e2f1306b754f4eb480c049ce84c3bea92c0))
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([7c39514](https://github.com/chenasraf/nextcloud-forum/commit/7c39514b10165e03586e2004c79c41444efb9696))
+* **l10n:** Update translations from Transifex ([4aecf02](https://github.com/chenasraf/nextcloud-forum/commit/4aecf024941a63c80ab1e7132be9ae46006a8324))
+* **l10n:** Update translations from Transifex ([2218f24](https://github.com/chenasraf/nextcloud-forum/commit/2218f24188c9987ab9a44091d6cef54c8173cee3))
+* **l10n:** Update translations from Transifex ([8c0bb72](https://github.com/chenasraf/nextcloud-forum/commit/8c0bb72059395f702a1cf355f2e0b3feb269ee99))
+* **l10n:** Update translations from Transifex ([52ca95c](https://github.com/chenasraf/nextcloud-forum/commit/52ca95c1e20d921c5267d8b534ca7b5e6067fc5d))
+* **l10n:** Update translations from Transifex ([71aeab5](https://github.com/chenasraf/nextcloud-forum/commit/71aeab598357aa4ffd53459640e90a8acfc5b410))
+
 ## [1.3.1](https://github.com/chenasraf/nextcloud-forum/compare/v1.3.0...v1.3.1) (2026-08-07)
 
 

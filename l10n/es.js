@@ -105,6 +105,7 @@ OC.L10N.register(
     "Failed to upload file" : "Error al subir el archivo",
     "Threads" : "Hilos",
     "Category" : "Categoría",
+    "Can view" : "Puede ver",
     "Allow" : "Permitir",
     "Pick a color" : "Escoja un color",
     "Change color" : "Cambiar color",

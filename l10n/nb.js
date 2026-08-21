@@ -32,6 +32,7 @@ OC.L10N.register(
     "Upload failed" : "Opplasting mislyktes",
     "Close" : "Lukk",
     "Category" : "Kategori",
+    "Can view" : "Kan lese",
     "Allow" : "Tillatt",
     "Change color" : "Endre farge",
     "Account" : "Konto",

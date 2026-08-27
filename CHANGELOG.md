@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.1](https://github.com/chenasraf/nextcloud-forum/compare/v1.4.0...v1.4.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([733ce7c](https://github.com/chenasraf/nextcloud-forum/commit/733ce7c77c6be1d874b87c3dfd8c2bd0d61723fc))
+* **l10n:** Update translations from Transifex ([10a5c21](https://github.com/chenasraf/nextcloud-forum/commit/10a5c21700fbcb2008267852546bd4176ed4c899))
+* **l10n:** Update translations from Transifex ([65f39f1](https://github.com/chenasraf/nextcloud-forum/commit/65f39f1dfb39f7e7d43b2a48f57251c8c823ff71))
+* **l10n:** Update translations from Transifex ([49e0e5b](https://github.com/chenasraf/nextcloud-forum/commit/49e0e5bd306cd9584e944c26aa6ea31309939f80))
+* **l10n:** Update translations from Transifex ([79299dc](https://github.com/chenasraf/nextcloud-forum/commit/79299dc341d609bc90b60c998ce724dab1d2177f))
+* **preferences:** stringify defaults passed to getUserValue ([048f231](https://github.com/chenasraf/nextcloud-forum/commit/048f231b988ee12e95467c49255a2fa54b3ac29e)), closes [#336](https://github.com/chenasraf/nextcloud-forum/issues/336)
+
 ## [1.4.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.3.1...v1.4.0) (2026-08-17)
 
 

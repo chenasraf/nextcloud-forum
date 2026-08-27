@@ -149,7 +149,18 @@ class UserPreferencesService {
 		}
 
 		$default = self::DEFAULTS[$key] ?? null;
-		$value = $this->config->getUserValue($userId, Application::APP_ID, $key, $default);
+		// getUserValue() returns the default verbatim when nothing is stored, so
+		// it must be handed a string — otherwise raw bool/null defaults leak out.
+		$value = $this->config->getUserValue(
+			$userId,
+			Application::APP_ID,
+			$key,
+			$default === null ? '' : $this->stringifyValue($default),
+		);
+
+		if ($default === null && $value === '') {
+			return null;
+		}
 
 		return $this->parseValue($value);
 	}
@@ -203,12 +214,18 @@ class UserPreferencesService {
 	}
 
 	/**
-	 * Parse a string value back to its proper type
+	 * Parse a stored value back to its proper type
 	 *
-	 * @param string $value The value to parse
-	 * @return bool|float|int|string The parsed value
+	 * @param mixed $value The value to parse
+	 * @return bool|float|int|string|null The parsed value
 	 */
-	private function parseValue(string $value): bool|float|int|string {
+	private function parseValue(mixed $value): bool|float|int|string|null {
+		if ($value === null || is_bool($value) || is_int($value) || is_float($value)) {
+			return $value;
+		}
+		if (!is_string($value)) {
+			return null;
+		}
 		if ($value === 'true') {
 			return true;
 		}

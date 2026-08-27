@@ -86,12 +86,40 @@ class UserPreferencesServiceTest extends TestCase {
 
 		$this->config->expects($this->once())
 			->method('getUserValue')
-			->with($userId, Application::APP_ID, $key, true)
+			->with($userId, Application::APP_ID, $key, 'true')
 			->willReturn('false');
 
 		$result = $this->service->getPreference($userId, $key);
 
 		$this->assertFalse($result);
+	}
+
+	public function testGetPreferenceStringifiesBooleanDefault(): void {
+		$userId = 'user1';
+		$key = UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS;
+
+		// Nothing stored: getUserValue() hands back the default verbatim, so the
+		// default must already be a string.
+		$this->config->expects($this->once())
+			->method('getUserValue')
+			->willReturnCallback(function ($uid, $appId, $k, $default) {
+				$this->assertIsString($default);
+				return $default;
+			});
+
+		$this->assertTrue($this->service->getPreference($userId, $key));
+	}
+
+	public function testGetPreferenceReturnsNullForUnsetNullDefault(): void {
+		$userId = 'user1';
+		$key = UserPreferencesService::PREF_UPLOAD_DIRECTORY_FOLDER_ID;
+
+		$this->config->expects($this->once())
+			->method('getUserValue')
+			->with($userId, Application::APP_ID, $key, '')
+			->willReturnArgument(3);
+
+		$this->assertNull($this->service->getPreference($userId, $key));
 	}
 
 	public function testGetPreferenceReturnsDefaultWhenNotSet(): void {

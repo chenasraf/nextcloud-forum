@@ -243,7 +243,7 @@ test: composer
 		exit 1; \
 	fi; \
 	echo "\x1b[32mUsing Nextcloud root: $$NC_ROOT\x1b[0m"; \
-	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
+	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor-bin/phpunit/vendor/phpunit/phpunit/phpunit -c tests/phpunit.xml
 
 # test-integration:
 #   - Run only PHP integration tests (database-dependent tests)
@@ -269,7 +269,7 @@ test-integration: composer
 		exit 1; \
 	fi; \
 	echo "\x1b[32mUsing Nextcloud root: $$NC_ROOT\x1b[0m"; \
-	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor/phpunit/phpunit/phpunit -c tests/phpunit.integration.xml
+	NEXTCLOUD_ROOT="$$NC_ROOT" $(CURDIR)/vendor-bin/phpunit/vendor/phpunit/phpunit/phpunit -c tests/phpunit.integration.xml
 
 # test-docker:
 #  - Run PHP unit tests inside a Nextcloud Docker container

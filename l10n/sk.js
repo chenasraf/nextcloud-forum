@@ -34,6 +34,7 @@ OC.L10N.register(
     "Failed to upload file" : "Chyba pri nahrávaní súboru",
     "Threads" : "Vlákna",
     "Category" : "Kategória",
+    "Can view" : "Môže zobraziť",
     "Allow" : "Povoliť",
     "Change color" : "Zmeniť farbu",
     "Account" : "Účet",

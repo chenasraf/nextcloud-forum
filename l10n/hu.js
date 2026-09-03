@@ -2,6 +2,7 @@ OC.L10N.register(
     "forum",
     {
     "Admin" : "Rendszergazda",
+    "Moderator" : "Moderátor",
     "User" : "Felhasználó",
     "General" : "Általános",
     "Support" : "Támogatás",
@@ -37,6 +38,7 @@ OC.L10N.register(
     "Threads" : "Szálak",
     "No description available" : "Nincs elérhető leírás",
     "Category" : "Kategória",
+    "Can view" : "Megtekintheti",
     "Allow" : "Engedélyezés",
     "Pick a color" : "Szín kiválasztása",
     "Change color" : "Szín módosítása",

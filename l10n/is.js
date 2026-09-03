@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "Feitletraður texti",
     "Underlined text" : "Undirstrikaður texti",
     "Forum" : "Vefspjall",
+    "Role" : "Hlutverk",
     "Loading …" : "Hleð inn …",
     "Search" : "Search",
     "Home" : "Heim",
@@ -29,6 +30,7 @@ OC.L10N.register(
     "Close" : "Loka",
     "Failed to upload file" : "Mistókst að senda inn skrá",
     "Category" : "Flokkur",
+    "Can view" : "Getur skoðað",
     "Allow" : "Leyfa",
     "Change color" : "Breyta lit",
     "Account" : "Aðgangur",
@@ -106,6 +108,7 @@ OC.L10N.register(
     "Loading accounts …" : "Hleð inn notendaaðgöngum...",
     "Email" : "Tölvupóstur",
     "Joined" : "Gekk inn",
+    "Status" : "Staða",
     "Active" : "Virkur"
 },
 "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);");

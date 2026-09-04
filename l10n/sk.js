@@ -2,6 +2,7 @@ OC.L10N.register(
     "forum",
     {
     "Admin" : "Admi",
+    "Moderator" : "Moderátor",
     "User" : "Používateľ",
     "Guest" : "Hosť",
     "General" : "Všeobecné",

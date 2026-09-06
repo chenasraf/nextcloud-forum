@@ -62,6 +62,7 @@ OC.L10N.register(
     "Both" : "Bæði",
     "Insert" : "Setja inn",
     "Views" : "Skoðun",
+    "Title" : "Titill",
     "Saving draft …" : "Vista drög …",
     "Draft saved" : "Drög vistuð",
     "Unsaved changes" : "Óvistaðar breytingar",

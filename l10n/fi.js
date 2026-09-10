@@ -34,6 +34,7 @@ OC.L10N.register(
     "Failed to upload file" : "Tiedoston lähettäminen epäonnistui",
     "Threads" : "Keskusteluketjut",
     "Category" : "Kategoria",
+    "Can view" : "Voi nähdä",
     "Allow" : "Salli",
     "Pick a color" : "Valitse väri",
     "Change color" : "Vaihda väriä",

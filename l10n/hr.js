@@ -38,6 +38,7 @@ OC.L10N.register(
     "Change color" : "Promijeni boju",
     "Account" : "Račun",
     "Cancel" : "Cancel",
+    "Sort order" : "Redoslijed razvrstavanja",
     "Create" : "Stvori",
     "Update" : "Ažuriraj",
     "Deleted" : "Izbrisano",

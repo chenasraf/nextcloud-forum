@@ -29,6 +29,7 @@ OC.L10N.register(
     "Insert emoji" : "이모지 삽입",
     "Close" : "닫기",
     "Category" : "분류",
+    "Can view" : "볼 수 있음",
     "Allow" : "허용",
     "Change color" : "색깔 바꾸기",
     "Account" : "계정",

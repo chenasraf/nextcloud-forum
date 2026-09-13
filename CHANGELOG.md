@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.4.2](https://github.com/chenasraf/nextcloud-forum/compare/v1.4.1...v1.4.2) (2026-09-13)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([3fedfd7](https://github.com/chenasraf/nextcloud-forum/commit/3fedfd754ea480c5ae3f490debc72f80a0ebc482))
+* **l10n:** Update translations from Transifex ([14a927b](https://github.com/chenasraf/nextcloud-forum/commit/14a927ba22060b9feda3a618a710cfe39a990010))
+* **l10n:** Update translations from Transifex ([eb15fcb](https://github.com/chenasraf/nextcloud-forum/commit/eb15fcb0981f58679a3158ff30ae58e3fc3a3939))
+* **l10n:** Update translations from Transifex ([1c02cf3](https://github.com/chenasraf/nextcloud-forum/commit/1c02cf35a150aa35e11f28600988d706ee2eccab))
+* **l10n:** Update translations from Transifex ([1544674](https://github.com/chenasraf/nextcloud-forum/commit/154467414cc66e08d31d2cae17803d43f5363d96))
+* **l10n:** Update translations from Transifex ([571c18c](https://github.com/chenasraf/nextcloud-forum/commit/571c18ceca84061f0127be48ae9695dce0a674c5))
+* **l10n:** Update translations from Transifex ([8f67f46](https://github.com/chenasraf/nextcloud-forum/commit/8f67f46ffc3aae0d1447293711606dbbad134d8c))
+* **l10n:** Update translations from Transifex ([055c9b9](https://github.com/chenasraf/nextcloud-forum/commit/055c9b9b850ad0f14e1e9da170e3261d914ee228))
+* **l10n:** Update translations from Transifex ([9b3a085](https://github.com/chenasraf/nextcloud-forum/commit/9b3a0857870c66b991600a6be66f07a939942e01))
+* **l10n:** Update translations from Transifex ([add7f70](https://github.com/chenasraf/nextcloud-forum/commit/add7f70be2275aa4eab142e94c79ccae4061818b))
+* **l10n:** Update translations from Transifex ([1e6e8da](https://github.com/chenasraf/nextcloud-forum/commit/1e6e8dabd4a42a80e2371b7c0e73790cbbb6a273))
+* **l10n:** Update translations from Transifex ([06d7d19](https://github.com/chenasraf/nextcloud-forum/commit/06d7d1939ee697a98a1eaec6d6e71f81d66f1e4a))
+
 ## [1.4.1](https://github.com/chenasraf/nextcloud-forum/compare/v1.4.0...v1.4.1) (2026-08-27)
 
 

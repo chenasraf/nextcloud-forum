@@ -409,7 +409,7 @@ OC.L10N.register(
     "Signature" : "Signatur",
     "Your signature appears at the bottom of your threads or replies" : "Deine Signatur erscheint am Ende deiner Themen oder Antworten",
     "You can use BBCode formatting in your signature" : "Du kannst die BBCode-Formatierung in deiner Signatur verwenden",
-    "Enter your signature …" : "Gebe deine Signatur ein …",
+    "Enter your signature …" : "Gib deine Signatur ein …",
     "Privacy" : "Datenschutz",
     "Control the visibility of your activity" : "Die Sichtbarkeit deiner Aktivität kontrollieren",
     "Hide my edit history from other accounts" : "Meinen Bearbeitungsverlauf vor anderen Konten verbergen",

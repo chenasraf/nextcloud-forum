@@ -50,6 +50,8 @@ OC.L10N.register(
     "Move" : "移動",
     "Page not found" : "ページが見つかりません",
     "Back" : "戻る",
+    "Previous page" : "前のページ",
+    "Next page" : "次のページ",
     "Edit" : "編集",
     "Delete" : "削除",
     "Unread" : "未読",

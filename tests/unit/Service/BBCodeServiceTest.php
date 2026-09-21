@@ -292,7 +292,7 @@ class BBCodeServiceTest extends TestCase {
 		$file->method('getSize')->willReturn(1024 * 1024);
 		$file->method('getId')->willReturn(42);
 
-		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder = $this->createUserFolderMock();
 		$userFolder->method('get')->willReturn($file);
 		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
 		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/download');
@@ -317,7 +317,7 @@ class BBCodeServiceTest extends TestCase {
 		$file->method('getSize')->willReturn(512 * 1024);
 		$file->method('getId')->willReturn(43);
 
-		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder = $this->createUserFolderMock();
 		$userFolder->method('get')->willReturn($file);
 		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
 		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/preview');
@@ -339,7 +339,7 @@ class BBCodeServiceTest extends TestCase {
 		$file->method('getSize')->willReturn(5 * 1024 * 1024);
 		$file->method('getId')->willReturn(44);
 
-		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder = $this->createUserFolderMock();
 		$userFolder->method('get')->willReturn($file);
 		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
 		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/download');
@@ -365,7 +365,7 @@ class BBCodeServiceTest extends TestCase {
 		$file->method('getSize')->willReturn(2 * 1024 * 1024);
 		$file->method('getId')->willReturn(45);
 
-		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder = $this->createUserFolderMock();
 		$userFolder->method('get')->willReturn($file);
 		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
 		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/download');
@@ -390,7 +390,7 @@ class BBCodeServiceTest extends TestCase {
 		$file->method('getSize')->willReturn(1024);
 		$file->method('getId')->willReturn(12345);
 
-		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder = $this->createUserFolderMock();
 		$userFolder->expects($this->once())
 			->method('getById')
 			->with(12345)
@@ -408,7 +408,7 @@ class BBCodeServiceTest extends TestCase {
 	public function testParseAttachmentByMissingFileIdReturnsNotFound(): void {
 		$bbCode = $this->createAttachmentBBCode();
 
-		$userFolder = $this->createMock(\OCP\Files\Folder::class);
+		$userFolder = $this->createUserFolderMock();
 		$userFolder->method('getById')->willReturn([]);
 		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
 
@@ -434,7 +434,7 @@ class BBCodeServiceTest extends TestCase {
 			$file->method('getSize')->willReturn(1024);
 			$file->method('getId')->willReturn(1);
 
-			$userFolder = $this->createMock(\OCP\Files\Folder::class);
+			$userFolder = $this->createUserFolderMock();
 			$userFolder->method('get')->willReturn($file);
 
 			$rootFolder = $this->createMock(\OCP\Files\IRootFolder::class);
@@ -610,5 +610,18 @@ class BBCodeServiceTest extends TestCase {
 		$bbCode->setParseInner(false);
 		$bbCode->setSpecialHandler('attachment');
 		return $bbCode;
+	}
+
+	/**
+	 * IRootFolder::getUserFolder() narrowed its return type from Folder to IUserFolder in
+	 * Nextcloud 36, so the mock has to follow whichever type the running server declares.
+	 *
+	 * @return \OCP\Files\Folder&MockObject
+	 */
+	private function createUserFolderMock(): MockObject {
+		$class = interface_exists(\OCP\Files\IUserFolder::class)
+			? \OCP\Files\IUserFolder::class
+			: \OCP\Files\Folder::class;
+		return $this->createMock($class);
 	}
 }

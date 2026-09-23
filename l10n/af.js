@@ -34,6 +34,7 @@ OC.L10N.register(
     "Signature" : "Handtekening",
     "Disable" : "Deaktiveer",
     "Description" : "Beskrywing",
+    "Last 7 days" : "Laaste 7 dae",
     "Access control" : "Toegangsbeheer",
     "Settings saved" : "Instellings gestoor",
     "Newest first" : "Nuutste eerste",

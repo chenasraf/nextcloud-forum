@@ -328,6 +328,7 @@ OC.L10N.register(
     "Preview" : "תצוגה מקדימה",
     "Attachments" : "קבצים מצורפים",
     "Move down" : "להוריד למטה",
+    "Last 7 days" : "7 הימים האחרונים",
     "General settings" : "הגדרות כלליות",
     "Appearance" : "מראה",
     "Access control" : "בקרת גישה",

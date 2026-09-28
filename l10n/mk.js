@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Admin" : "Админ",
     "User" : "Корисник",
+    "Guest" : "Гостин",
     "General" : "Општо",
     "Support" : "Поддршка",
     "Bold text" : "Болдиран текст",

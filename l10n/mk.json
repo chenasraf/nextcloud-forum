@@ -1,6 +1,7 @@
 { "translations": {
     "Admin" : "Админ",
     "User" : "Корисник",
+    "Guest" : "Гостин",
     "General" : "Општо",
     "Support" : "Поддршка",
     "Bold text" : "Болдиран текст",

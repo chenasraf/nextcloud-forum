@@ -53,6 +53,8 @@ OC.L10N.register(
     "Permissions" : "Permisos",
     "Preview" : "Vista previa",
     "Attachments" : "Adjuntos",
+    "Move up" : "Mover hacia arriba",
+    "Move down" : "Mover hacia abajo",
     "All time" : "Tiempo total",
     "General settings" : "Configuraciones generales",
     "Access control" : "Control de acceso",

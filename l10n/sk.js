@@ -169,7 +169,7 @@ OC.L10N.register(
     "Header name" : "Názov hlavičky",
     "Enter header name" : "Zadajte názov hlavičky",
     "Header description" : "Popis hlavičky",
-    "Enter header description (optional)" : "Zadajte popis hlavičky (voliteľné)",
+    "Enter header description (optional)" : "Zadajte popis hlavičky (voliteľný)",
     "Sort order" : "Poradie triedenia",
     "Lower numbers appear first" : "Menšie čísla sa zobrazia ako prvé",
     "Create" : "Vytvoriť",

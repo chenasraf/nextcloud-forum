@@ -327,7 +327,7 @@ class SeedHelper {
 	 */
 	public static function seedDefaultRoles($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
-		$l = \OC::$server->getL10N('forum');
+		$l = \OCP\Server::get(\OCP\L10N\IFactory::class)->get('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$timestamp = time();
 
@@ -643,7 +643,7 @@ class SeedHelper {
 	 */
 	public static function seedCategoryHeaders($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
-		$l = \OC::$server->getL10N('forum');
+		$l = \OCP\Server::get(\OCP\L10N\IFactory::class)->get('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$timestamp = time();
 
@@ -703,7 +703,7 @@ class SeedHelper {
 	 */
 	public static function seedDefaultCategories($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
-		$l = \OC::$server->getL10N('forum');
+		$l = \OCP\Server::get(\OCP\L10N\IFactory::class)->get('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$timestamp = time();
 
@@ -964,7 +964,7 @@ class SeedHelper {
 	 */
 	public static function seedDefaultBBCodes($output = null): void {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
-		$l = \OC::$server->getL10N('forum');
+		$l = \OCP\Server::get(\OCP\L10N\IFactory::class)->get('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$timestamp = time();
 
@@ -1195,7 +1195,7 @@ class SeedHelper {
 		$db = \OC::$server->get(\OCP\IDBConnection::class);
 		$userManager = \OC::$server->get(\OCP\IUserManager::class);
 		$groupManager = \OC::$server->get(\OCP\IGroupManager::class);
-		$l = \OC::$server->getL10N('forum');
+		$l = \OCP\Server::get(\OCP\L10N\IFactory::class)->get('forum');
 		$logger = \OC::$server->get(\Psr\Log\LoggerInterface::class);
 		$timestamp = time();
 

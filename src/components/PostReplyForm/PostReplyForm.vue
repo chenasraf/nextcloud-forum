@@ -1,5 +1,5 @@
 <template>
-  <div class="post-reply-form">
+  <div class="post-reply-form" :class="{ inline }">
     <div v-if="userId || isGuest" class="reply-header">
       <UserInfo
         :user-id="userId || 'guest'"
@@ -25,7 +25,7 @@
       />
 
       <div class="reply-footer">
-        <NcButton @click="cancel" :disabled="submitting || !hasContent">
+        <NcButton @click="cancel" :disabled="submitting || (!hasContent && !inline)">
           {{ strings.cancel }}
         </NcButton>
         <NcButton @click="submitReply" :disabled="!canSubmit || submitting" variant="primary">
@@ -65,6 +65,11 @@ export default defineComponent({
     categoryUploadPath: {
       type: String as PropType<string | null>,
       default: null,
+    },
+    /** Shown under a post to answer it; Cancel always closes the form */
+    inline: {
+      type: Boolean,
+      default: false,
     },
   },
   setup() {
@@ -153,6 +158,10 @@ export default defineComponent({
   padding: 16px;
   background: var(--color-main-background);
   margin-top: 24px;
+
+  &.inline {
+    margin-top: 0;
+  }
 }
 
 .reply-header {

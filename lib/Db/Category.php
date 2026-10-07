@@ -37,6 +37,8 @@ use OCP\AppFramework\Db\Entity;
  * @method void setHideChildrenOnCard(bool $value)
  * @method int|null getAttachmentUploadFolderId()
  * @method void setAttachmentUploadFolderId(?int $value)
+ * @method int|null getMaxReplyDepth()
+ * @method void setMaxReplyDepth(?int $value)
  * @method int getCreatedAt()
  * @method void setCreatedAt(int $value)
  * @method int getUpdatedAt()
@@ -60,6 +62,7 @@ class Category extends Entity implements JsonSerializable {
 	protected $textColor;
 	protected $hideChildrenOnCard;
 	protected $attachmentUploadFolderId;
+	protected $maxReplyDepth;
 	protected $threadCount;
 	protected $postCount;
 	protected $createdAt;
@@ -77,6 +80,7 @@ class Category extends Entity implements JsonSerializable {
 		$this->addType('textColor', 'string');
 		$this->addType('hideChildrenOnCard', 'boolean');
 		$this->addType('attachmentUploadFolderId', 'integer');
+		$this->addType('maxReplyDepth', 'integer');
 		$this->addType('threadCount', 'integer');
 		$this->addType('postCount', 'integer');
 		$this->addType('createdAt', 'integer');
@@ -97,6 +101,7 @@ class Category extends Entity implements JsonSerializable {
 			'hideChildrenOnCard' => $this->getHideChildrenOnCard(),
 			'attachmentUploadFolderId' => $this->getAttachmentUploadFolderId(),
 			'attachmentUploadResolvedPath' => $this->attachmentUploadResolvedPath,
+			'maxReplyDepth' => $this->getMaxReplyDepth(),
 			'threadCount' => $this->getThreadCount(),
 			'postCount' => $this->getPostCount(),
 			'createdAt' => $this->getCreatedAt(),

@@ -263,7 +263,9 @@ class ModerationController extends OCSController {
 				}
 			}
 
-			$items = array_map(function ($post) use ($authors, $threadContext) {
+			$replyCounts = $this->postMapper->countDescendants($posts);
+
+			$items = array_map(function ($post) use ($authors, $threadContext, $replyCounts) {
 				$data = $this->postEnrichmentService->enrichPost(
 					$post,
 					[],
@@ -274,6 +276,7 @@ class ModerationController extends OCSController {
 				$ctx = $threadContext[$post->getThreadId()] ?? ['title' => null, 'slug' => null];
 				$data['threadTitle'] = $ctx['title'];
 				$data['threadSlug'] = $ctx['slug'];
+				$data['replyCount'] = $replyCounts[$post->getId()] ?? 0;
 				return $data;
 			}, $posts);
 
@@ -353,6 +356,7 @@ class ModerationController extends OCSController {
 	 * Permanently delete a soft-deleted reply and all associated data
 	 *
 	 * @param int $id Post ID
+	 * @param 'keep'|'delete' $replies Nested replies below the reply: 'keep' leaves them under a deleted reply placeholder, 'delete' deletes them too
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool}, array{}>
 	 *
 	 * 200: Reply permanently deleted
@@ -360,9 +364,9 @@ class ModerationController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessModeration')]
 	#[ApiRoute(verb: 'DELETE', url: '/api/moderation/replies/{id}')]
-	public function destroyReply(int $id): DataResponse {
+	public function destroyReply(int $id, string $replies = ModerationService::REPLIES_KEEP): DataResponse {
 		try {
-			$this->moderationService->permanentlyDeleteReply($id);
+			$this->moderationService->permanentlyDeleteReply($id, $replies);
 			return new DataResponse(['success' => true]);
 		} catch (DoesNotExistException $e) {
 			return new DataResponse(['error' => 'Reply not found'], Http::STATUS_NOT_FOUND);
@@ -378,6 +382,7 @@ class ModerationController extends OCSController {
 	 * Permanently delete multiple soft-deleted replies and their associated data
 	 *
 	 * @param list<int> $ids Post IDs to permanently delete
+	 * @param 'keep'|'delete' $replies Nested replies below the replies: 'keep' leaves them under deleted reply placeholders, 'delete' deletes them too
 	 * @return DataResponse<Http::STATUS_OK, array{success: bool, deleted: list<int>, failed: list<array{id: int, error: string}>}, array{}>
 	 *
 	 * 200: Bulk deletion processed
@@ -385,13 +390,18 @@ class ModerationController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessModeration')]
 	#[ApiRoute(verb: 'POST', url: '/api/moderation/replies/bulk-delete')]
-	public function bulkDestroyReplies(array $ids): DataResponse {
+	public function bulkDestroyReplies(array $ids, string $replies = ModerationService::REPLIES_KEEP): DataResponse {
 		$ids = $this->normalizeIds($ids);
 		if (empty($ids)) {
 			return new DataResponse(['error' => 'No valid IDs provided'], Http::STATUS_BAD_REQUEST);
 		}
+		// The docblock type documents the API; request input is not held to it
+		/** @psalm-suppress DocblockTypeContradiction */
+		if (!in_array($replies, [ModerationService::REPLIES_KEEP, ModerationService::REPLIES_DELETE], true)) {
+			return new DataResponse(['error' => 'Invalid nested replies mode'], Http::STATUS_BAD_REQUEST);
+		}
 		try {
-			$result = $this->moderationService->permanentlyDeleteReplies($ids);
+			$result = $this->moderationService->permanentlyDeleteReplies($ids, $replies);
 			return new DataResponse(['success' => true, 'deleted' => $result['deleted'], 'failed' => $result['failed']]);
 		} catch (\Exception $e) {
 			$this->logger->error('Error bulk deleting replies: ' . $e->getMessage());

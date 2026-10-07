@@ -54,6 +54,13 @@
             </NcCheckboxRadioSwitch>
             <p class="preference-hint">{{ strings.autoSubscribeRepliedHint }}</p>
           </div>
+
+          <div class="preference-item">
+            <NcCheckboxRadioSwitch v-model="formData.notify_post_replies">
+              {{ strings.notifyPostRepliesLabel }}
+            </NcCheckboxRadioSwitch>
+            <p class="preference-hint">{{ strings.notifyPostRepliesHint }}</p>
+          </div>
         </div>
 
         <!-- Files Section -->
@@ -226,6 +233,7 @@ export default defineComponent({
         hide_edit_history: false,
         use_category_upload_path: true,
         upload_behavior: 'configured',
+        notify_post_replies: true,
       } as UserPreferences,
       formData: {
         auto_subscribe_created_threads: true,
@@ -235,6 +243,7 @@ export default defineComponent({
         hide_edit_history: false,
         use_category_upload_path: true,
         upload_behavior: 'configured',
+        notify_post_replies: true,
       } as UserPreferences,
 
       strings: {
@@ -255,6 +264,11 @@ export default defineComponent({
         autoSubscribeRepliedHint: t(
           'forum',
           'When enabled, you will automatically receive notifications for new replies in threads you have replied to',
+        ),
+        notifyPostRepliesLabel: t('forum', 'Notify me about replies to my posts'),
+        notifyPostRepliesHint: t(
+          'forum',
+          'When enabled, you will receive a notification when someone replies directly to one of your posts',
         ),
         filesTitle: t('forum', 'Files'),
         filesDesc: t('forum', 'Configure file upload settings'),
@@ -310,7 +324,8 @@ export default defineComponent({
         this.formData.signature !== this.originalData.signature ||
         this.formData.hide_edit_history !== this.originalData.hide_edit_history ||
         this.formData.use_category_upload_path !== this.originalData.use_category_upload_path ||
-        this.formData.upload_behavior !== this.originalData.upload_behavior
+        this.formData.upload_behavior !== this.originalData.upload_behavior ||
+        this.formData.notify_post_replies !== this.originalData.notify_post_replies
       )
     },
     displayedUploadDirectory(): string {

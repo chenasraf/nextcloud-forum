@@ -72,6 +72,15 @@
         @restore="restoreThread"
         @delete="deleteThread"
       />
+
+      <!-- Nested replies choice when permanently deleting replies -->
+      <ModerationNestedRepliesDialog
+        :open="nestedRepliesDialog.open"
+        :post-count="nestedRepliesDialog.postCount"
+        :reply-count="nestedRepliesDialog.replyCount"
+        @update:open="!$event && resolveNestedReplies(null)"
+        @choose="resolveNestedReplies"
+      />
     </div>
   </PageWrapper>
 </template>
@@ -84,6 +93,9 @@ import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import ModerationDeletedList from '@/components/ModerationDeletedList'
 import ModerationThreadDialog from '@/components/ModerationThreadDialog'
+import ModerationNestedRepliesDialog, {
+  type NestedRepliesMode,
+} from '@/components/ModerationNestedRepliesDialog'
 import SortCalendarDescendingIcon from '@icons/SortCalendarDescending.vue'
 import SortCalendarAscendingIcon from '@icons/SortCalendarAscending.vue'
 import { ocs } from '@/axios'
@@ -101,6 +113,7 @@ export default defineComponent({
     PageHeader,
     ModerationDeletedList,
     ModerationThreadDialog,
+    ModerationNestedRepliesDialog,
     SortCalendarDescendingIcon,
     SortCalendarAscendingIcon,
   },
@@ -125,6 +138,12 @@ export default defineComponent({
       showThreadDialog: false,
       dialogThreadId: null as number | null,
       dialogThreadTitle: '',
+      nestedRepliesDialog: {
+        open: false,
+        postCount: 1,
+        replyCount: 0,
+        resolve: null as ((mode: NestedRepliesMode | null) => void) | null,
+      },
       strings: {
         title: t('forum', 'Moderation'),
         subtitle: t('forum', 'Review and restore deleted content'),
@@ -258,8 +277,42 @@ export default defineComponent({
       if (this.activeTab === 'threads') {
         this.deleteThreadById(item.id)
       } else {
-        this.deleteReplyById(item.id)
+        this.deleteReply(item)
       }
+    },
+
+    /**
+     * Ask what to do with the nested replies below replies being permanently
+     * deleted. Resolves to null when cancelled.
+     */
+    askNestedReplies(postCount: number, replyCount: number): Promise<NestedRepliesMode | null> {
+      this.resolveNestedReplies(null)
+      return new Promise((resolve) => {
+        this.nestedRepliesDialog = { open: true, postCount, replyCount, resolve }
+      })
+    },
+
+    resolveNestedReplies(mode: NestedRepliesMode | null): void {
+      const resolve = this.nestedRepliesDialog.resolve
+      this.nestedRepliesDialog.open = false
+      this.nestedRepliesDialog.resolve = null
+      resolve?.(mode)
+    },
+
+    /**
+     * Confirm permanently deleting replies, asking about their nested replies
+     * when they have any. Resolves to the nested replies mode, or null when
+     * cancelled.
+     */
+    async confirmDeleteReplies(
+      postCount: number,
+      replyCount: number,
+      confirmMessage: string,
+    ): Promise<NestedRepliesMode | null> {
+      if (replyCount > 0) {
+        return this.askNestedReplies(postCount, replyCount)
+      }
+      return window.confirm(confirmMessage) ? 'keep' : null
     },
 
     async deleteThread(): Promise<void> {
@@ -288,11 +341,18 @@ export default defineComponent({
       }
     },
 
-    async deleteReplyById(id: number): Promise<boolean> {
-      if (!window.confirm(this.strings.confirmDeleteReply)) return false
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async deleteReply(item: any): Promise<boolean> {
+      const id: number = item.id
+      const replies = await this.confirmDeleteReplies(
+        1,
+        item.replyCount ?? 0,
+        this.strings.confirmDeleteReply,
+      )
+      if (!replies) return false
       try {
         this.deleting = id
-        await ocs.delete(`/moderation/replies/${id}`)
+        await ocs.delete(`/moderation/replies/${id}`, { params: { replies } })
         await this.loadData()
         return true
       } catch (e: any) {
@@ -308,21 +368,35 @@ export default defineComponent({
       const ids = [...this.selectedIds]
       if (ids.length === 0) return
 
-      const confirmMsg =
-        this.activeTab === 'threads'
-          ? n(
-              'forum',
-              'Permanently delete %n selected thread and all its replies? This cannot be undone.',
-              'Permanently delete %n selected threads and all their replies? This cannot be undone.',
-              ids.length,
-            )
-          : n(
-              'forum',
-              'Permanently delete %n selected reply? This cannot be undone.',
-              'Permanently delete %n selected replies? This cannot be undone.',
-              ids.length,
-            )
-      if (!window.confirm(confirmMsg)) return
+      let body: { ids: number[]; replies?: NestedRepliesMode }
+      if (this.activeTab === 'threads') {
+        const confirmMsg = n(
+          'forum',
+          'Permanently delete %n selected thread and all its replies? This cannot be undone.',
+          'Permanently delete %n selected threads and all their replies? This cannot be undone.',
+          ids.length,
+        )
+        if (!window.confirm(confirmMsg)) return
+        body = { ids }
+      } else {
+        const replyCount = this.items
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((item: any) => ids.includes(item.id))
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .reduce((sum: number, item: any) => sum + (item.replyCount ?? 0), 0)
+        const replies = await this.confirmDeleteReplies(
+          ids.length,
+          replyCount,
+          n(
+            'forum',
+            'Permanently delete %n selected reply? This cannot be undone.',
+            'Permanently delete %n selected replies? This cannot be undone.',
+            ids.length,
+          ),
+        )
+        if (!replies) return
+        body = { ids, replies }
+      }
 
       try {
         this.bulkDeleting = true
@@ -333,7 +407,7 @@ export default defineComponent({
         const response = await ocs.post<{
           deleted: number[]
           failed: { id: number; error: string }[]
-        }>(endpoint, { ids })
+        }>(endpoint, body)
 
         const deletedCount = response.data?.deleted?.length ?? 0
         const failed = response.data?.failed ?? []

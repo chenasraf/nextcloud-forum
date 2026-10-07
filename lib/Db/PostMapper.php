@@ -256,39 +256,34 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Find replies (non-first posts) in a thread with pagination
+	 * Find the top-level replies of a thread with pagination.
 	 *
-	 * @param int $threadId Thread ID
-	 * @param int $limit Maximum results
-	 * @param int $offset Results offset
+	 * A soft-deleted top-level reply is still included while it has visible
+	 * descendants, so the thread can render it as a placeholder that keeps its
+	 * subtree in place.
+	 *
 	 * @return array<Post>
 	 */
-	public function findRepliesByThreadId(int $threadId, int $limit = 50, int $offset = 0): array {
+	public function findTopLevelReplies(int $threadId, int $limit = 50, int $offset = 0): array {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
-			->from($this->getTableName())
-			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
-			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
-			->andWhere($qb->expr()->isNull('deleted_at'))
-			->orderBy('created_at', 'ASC')
+			->from($this->getTableName());
+		$this->applyTopLevelFilter($qb, $threadId);
+		$qb->orderBy('created_at', 'ASC')
+			->addOrderBy('id', 'ASC')
 			->setMaxResults($limit)
 			->setFirstResult($offset);
 		return $this->findEntities($qb);
 	}
 
 	/**
-	 * Count replies (non-first posts) in a thread
-	 *
-	 * @param int $threadId Thread ID
-	 * @return int Number of replies
+	 * Count the top-level replies of a thread, as listed by findTopLevelReplies()
 	 */
-	public function countRepliesByThreadId(int $threadId): int {
+	public function countTopLevelReplies(int $threadId): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select($qb->func()->count('*', 'count'))
-			->from($this->getTableName())
-			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
-			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
-			->andWhere($qb->expr()->isNull('deleted_at'));
+			->from($this->getTableName());
+		$this->applyTopLevelFilter($qb, $threadId);
 		$result = $qb->executeQuery();
 		/** @var array{count: int|string}|false $row */
 		$row = $result->fetch();
@@ -297,7 +292,181 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Find the oldest unread reply in a thread
+	 * Find every nested reply below the given top-level replies, including
+	 * soft-deleted ones, ordered oldest first
+	 *
+	 * @param array<int> $rootIds Top-level reply IDs
+	 * @return array<Post>
+	 */
+	public function findDescendantsByRootIds(array $rootIds): array {
+		if (empty($rootIds)) {
+			return [];
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->in('root_reply_id', $qb->createNamedParameter($rootIds, IQueryBuilder::PARAM_INT_ARRAY)))
+			->orderBy('created_at', 'ASC')
+			->addOrderBy('id', 'ASC');
+		return $this->findEntities($qb);
+	}
+
+	/**
+	 * Find every reply below a post at any depth, including soft-deleted and
+	 * purged ones, ordered oldest first
+	 *
+	 * @return list<Post>
+	 */
+	public function findDescendants(Post $post): array {
+		return $this->findDescendantsOf([$post])[$post->getId()] ?? [];
+	}
+
+	/**
+	 * Count the replies below each post at any depth, leaving out purged ones
+	 *
+	 * @param array<Post> $posts
+	 * @return array<int, int> Reply count by post ID
+	 */
+	public function countDescendants(array $posts): array {
+		return array_map(
+			static fn (array $descendants): int => count(array_filter(
+				$descendants,
+				static fn (Post $p): bool => $p->getPurgedAt() === null,
+			)),
+			$this->findDescendantsOf($posts),
+		);
+	}
+
+	/**
+	 * @param array<Post> $posts
+	 * @return array<int, list<Post>> Descendants by post ID, oldest first
+	 */
+	private function findDescendantsOf(array $posts): array {
+		if (empty($posts)) {
+			return [];
+		}
+
+		$rootIds = array_values(array_unique(array_map(
+			static fn (Post $p): int => $p->getRootReplyId() ?? $p->getId(),
+			$posts,
+		)));
+		$candidates = $this->findDescendantsByRootIds($rootIds);
+
+		$childIdsByParent = [];
+		foreach ($candidates as $candidate) {
+			$childIdsByParent[(int)$candidate->getParentPostId()][] = $candidate->getId();
+		}
+
+		$result = [];
+		foreach ($posts as $post) {
+			$below = [];
+			$queue = [$post->getId()];
+			while (!empty($queue)) {
+				foreach ($childIdsByParent[array_shift($queue)] ?? [] as $childId) {
+					$below[$childId] = true;
+					$queue[] = $childId;
+				}
+			}
+			$result[$post->getId()] = array_values(array_filter(
+				$candidates,
+				static fn (Post $c): bool => isset($below[$c->getId()]),
+			));
+		}
+		return $result;
+	}
+
+	/**
+	 * Empty a permanently deleted post whose replies are kept. The row stays
+	 * so the replies keep their parent and are shown under its placeholder;
+	 * only its place in the tree and its creation time, which orders it among
+	 * its siblings, are left.
+	 */
+	public function purge(Post $post): void {
+		$now = time();
+		$post->setAuthorId('');
+		$post->setContent('');
+		$post->setIsEdited(false);
+		$post->setEditedAt(null);
+		$post->setUpdatedAt($now);
+		$post->setDeletedAt($now);
+		$post->setPurgedAt($now);
+		$this->update($post);
+	}
+
+	/**
+	 * Permanently delete purged posts that are left without replies, walking
+	 * up the tree from the given post
+	 */
+	public function deletePurgedAncestorsWithoutReplies(?int $postId): void {
+		while ($postId !== null) {
+			$qb = $this->db->getQueryBuilder();
+			$qb->select('*')
+				->from($this->getTableName())
+				->where($qb->expr()->eq('id', $qb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)))
+				->andWhere($qb->expr()->isNotNull('purged_at'));
+			$purged = $this->findEntities($qb);
+			if (empty($purged) || $this->hasReplies($postId)) {
+				return;
+			}
+
+			$this->deleteById($postId);
+			$postId = $purged[0]->getParentPostId();
+		}
+	}
+
+	private function hasReplies(int $postId): bool {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('parent_post_id', $qb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)))
+			->setMaxResults(1);
+		$result = $qb->executeQuery();
+		$found = $result->fetchOne() !== false;
+		$result->closeCursor();
+		return $found;
+	}
+
+	/**
+	 * Restrict a query to the top-level replies of a thread, keeping deleted
+	 * ones that still have visible descendants
+	 */
+	private function applyTopLevelFilter(IQueryBuilder $qb, int $threadId): void {
+		$rootsWithLiveDescendants = $this->findRootIdsWithLiveDescendants($threadId);
+
+		$visible = $qb->expr()->isNull('deleted_at');
+		if (!empty($rootsWithLiveDescendants)) {
+			$visible = $qb->expr()->orX(
+				$visible,
+				$qb->expr()->in('id', $qb->createNamedParameter($rootsWithLiveDescendants, IQueryBuilder::PARAM_INT_ARRAY)),
+			);
+		}
+
+		$qb->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('parent_post_id'))
+			->andWhere($visible);
+	}
+
+	/**
+	 * @return array<int> IDs of top-level replies that have at least one non-deleted descendant
+	 */
+	private function findRootIdsWithLiveDescendants(int $threadId): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->selectDistinct('root_reply_id')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNotNull('root_reply_id'))
+			->andWhere($qb->expr()->isNull('deleted_at'));
+		$result = $qb->executeQuery();
+		$ids = array_map(static fn (array $row): int => (int)$row['root_reply_id'], $result->fetchAll());
+		$result->closeCursor();
+		return $ids;
+	}
+
+	/**
+	 * Find the oldest unread top-level reply in a thread. Nested replies are
+	 * ignored so that opening a thread always lands on a top-level reply.
 	 *
 	 * @param int $threadId Thread ID
 	 * @param int $afterPostId Post ID to look after (last read post ID)
@@ -309,6 +478,7 @@ class PostMapper extends QBMapper {
 			->from($this->getTableName())
 			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
 			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNull('parent_post_id'))
 			->andWhere($qb->expr()->gt('id', $qb->createNamedParameter($afterPostId, IQueryBuilder::PARAM_INT)))
 			->andWhere($qb->expr()->isNull('deleted_at'))
 			->orderBy('created_at', 'ASC')
@@ -322,18 +492,24 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Get the position (0-indexed) of a reply in the replies list ordered by created_at ASC
+	 * Get the position (0-indexed) of a reply among the thread's top-level
+	 * replies ordered by created_at ASC. A nested reply takes the position of
+	 * the top-level reply it descends from, since it is shown on that page.
 	 *
 	 * @param int $threadId Thread ID
 	 * @param int $postId Post ID to find position of
 	 * @return int Position (0-indexed)
 	 */
 	public function getReplyPosition(int $threadId, int $postId): int {
-		// First get the created_at of the target post
+		$targetId = $this->getRootReplyIdOf($postId);
+		if ($targetId === null) {
+			return 0;
+		}
+
 		$targetQb = $this->db->getQueryBuilder();
 		$targetQb->select('created_at')
 			->from($this->getTableName())
-			->where($targetQb->expr()->eq('id', $targetQb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)));
+			->where($targetQb->expr()->eq('id', $targetQb->createNamedParameter($targetId, IQueryBuilder::PARAM_INT)));
 		$targetResult = $targetQb->executeQuery();
 		/** @var array{created_at: int|string}|false $targetRow */
 		$targetRow = $targetResult->fetch();
@@ -345,20 +521,45 @@ class PostMapper extends QBMapper {
 
 		$targetCreatedAt = (int)$targetRow['created_at'];
 
-		// Count replies created before the target post
+		// Count top-level replies listed before the target, matching the
+		// created_at, id ordering of findTopLevelReplies()
 		$qb = $this->db->getQueryBuilder();
 		$qb->select($qb->func()->count('*', 'position'))
-			->from($this->getTableName())
-			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
-			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
-			->andWhere($qb->expr()->isNull('deleted_at'))
-			->andWhere($qb->expr()->lt('created_at', $qb->createNamedParameter($targetCreatedAt, IQueryBuilder::PARAM_INT)));
+			->from($this->getTableName());
+		$this->applyTopLevelFilter($qb, $threadId);
+		$qb->andWhere($qb->expr()->orX(
+			$qb->expr()->lt('created_at', $qb->createNamedParameter($targetCreatedAt, IQueryBuilder::PARAM_INT)),
+			$qb->expr()->andX(
+				$qb->expr()->eq('created_at', $qb->createNamedParameter($targetCreatedAt, IQueryBuilder::PARAM_INT)),
+				$qb->expr()->lt('id', $qb->createNamedParameter($targetId, IQueryBuilder::PARAM_INT)),
+			),
+		));
 
 		$result = $qb->executeQuery();
 		/** @var array{position: int|string}|false $row */
 		$row = $result->fetch();
 		$result->closeCursor();
 		return $row === false ? 0 : (int)$row['position'];
+	}
+
+	/**
+	 * @return int|null ID of the top-level reply a post belongs to (the post
+	 *                  itself when it is top-level), or null if it does not exist
+	 */
+	private function getRootReplyIdOf(int $postId): ?int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('root_reply_id')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)));
+		$result = $qb->executeQuery();
+		/** @var array{root_reply_id: int|string|null}|false $row */
+		$row = $result->fetch();
+		$result->closeCursor();
+
+		if ($row === false) {
+			return null;
+		}
+		return $row['root_reply_id'] !== null ? (int)$row['root_reply_id'] : $postId;
 	}
 
 	/**
@@ -418,7 +619,7 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Find a post by ID including soft-deleted posts
+	 * Find a post by ID including soft-deleted posts, but not purged ones
 	 *
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
 	 * @throws DoesNotExistException
@@ -427,7 +628,8 @@ class PostMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from($this->getTableName())
-			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('purged_at'));
 		return $this->findEntity($qb);
 	}
 
@@ -441,6 +643,7 @@ class PostMapper extends QBMapper {
 		$qb->select('*')
 			->from($this->getTableName())
 			->where($qb->expr()->isNotNull('deleted_at'))
+			->andWhere($qb->expr()->isNull('purged_at'))
 			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
 
 		if ($search !== '') {
@@ -462,6 +665,7 @@ class PostMapper extends QBMapper {
 		$qb->select($qb->func()->count('*', 'count'))
 			->from($this->getTableName())
 			->where($qb->expr()->isNotNull('deleted_at'))
+			->andWhere($qb->expr()->isNull('purged_at'))
 			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
 
 		if ($search !== '') {
@@ -475,13 +679,14 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Count all posts for a thread, including deleted posts
+	 * Count all posts for a thread, including deleted posts but not purged ones
 	 */
 	public function countByThreadIdIncludingDeleted(int $threadId): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select($qb->func()->count('*', 'count'))
 			->from($this->getTableName())
-			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)));
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('purged_at'));
 		$result = $qb->executeQuery();
 		$count = (int)($result->fetchOne() ?? 0);
 		$result->closeCursor();
@@ -590,7 +795,24 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Find all posts for a thread, including deleted posts
+	 * Permanently delete posts by ID
+	 *
+	 * @param array<int> $postIds
+	 * @return int Number of posts removed
+	 */
+	public function deleteByIds(array $postIds): int {
+		if (empty($postIds)) {
+			return 0;
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->in('id', $qb->createNamedParameter($postIds, IQueryBuilder::PARAM_INT_ARRAY)));
+		return $qb->executeStatement();
+	}
+
+	/**
+	 * Find all posts for a thread, including deleted posts but not purged ones
 	 *
 	 * @return array<Post>
 	 */
@@ -599,6 +821,7 @@ class PostMapper extends QBMapper {
 		$qb->select('*')
 			->from($this->getTableName())
 			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('purged_at'))
 			->orderBy('created_at', 'ASC')
 			->setMaxResults($limit)
 			->setFirstResult($offset);

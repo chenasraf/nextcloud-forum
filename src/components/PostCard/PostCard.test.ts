@@ -273,6 +273,39 @@ describe('PostCard', () => {
       expect(wrapper.emitted('reply')![0]).toEqual([post])
     })
 
+    it('should emit reply-to-post event when reply is clicked', async () => {
+      const post = createMockPost()
+      const wrapper = mount(PostCard, {
+        props: { post, canReply: true, canReplyToPost: true },
+      })
+      const replyButton = wrapper.findComponent({ name: 'NcButton' })
+      expect(replyButton.classes()).toContain('reply-to-post-button')
+      expect(replyButton.text().trim()).toBe('Reply')
+      // The NcButton mock declares no emits, so a DOM click would fire twice
+      replyButton.vm.$emit('click')
+
+      expect(wrapper.emitted('reply-to-post')).toEqual([[post]])
+    })
+
+    it('should not offer reply to post without canReplyToPost', () => {
+      const post = createMockPost()
+      const wrapper = mount(PostCard, {
+        props: { post, canReply: true },
+      })
+      expect(wrapper.find('.reply-to-post-button').exists()).toBe(false)
+    })
+
+    it('should not offer reply to post while editing', async () => {
+      const post = createMockPost()
+      const wrapper = mount(PostCard, {
+        props: { post, canReply: true, canReplyToPost: true },
+      })
+      ;(wrapper.vm as InstanceType<typeof PostCard>).startEdit()
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.find('.reply-to-post-button').exists()).toBe(false)
+    })
+
     it('should emit delete event when delete is confirmed', async () => {
       const confirmMock = vi.fn(() => true)
       vi.stubGlobal('confirm', confirmMock)

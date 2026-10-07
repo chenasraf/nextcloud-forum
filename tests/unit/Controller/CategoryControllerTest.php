@@ -24,6 +24,7 @@ use OCP\Files\IRootFolder;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -420,6 +421,71 @@ class CategoryControllerTest extends TestCase {
 
 		$response = $this->controller->update(1, null, null, null, null, null, '__unset__', '__unset__', '__unset__', null, null);
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testCreateClampsMaxReplyDepth(): void {
+		$this->categoryMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function ($category) {
+				$this->assertSame(10, $category->getMaxReplyDepth());
+				return $category;
+			});
+
+		$this->controller->create(1, 'New', 'new', null, 0, null, null, null, false, null, 99);
+	}
+
+	public function testCreateUsesForumReplyDepthByDefault(): void {
+		$this->categoryMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function ($category) {
+				$this->assertNull($category->getMaxReplyDepth());
+				return $category;
+			});
+
+		$this->controller->create(1, 'New', 'new');
+	}
+
+	public function testUpdateLeavesMaxReplyDepthUnchangedWhenOmitted(): void {
+		$category = $this->createCategory(1, 1, 'Cat');
+		$category->setMaxReplyDepth(2);
+
+		$this->categoryMapper->method('find')->willReturn($category);
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updated) {
+				$this->assertSame(2, $updated->getMaxReplyDepth());
+				return $updated;
+			});
+
+		$this->controller->update(1, null, 'New Name');
+	}
+
+	/**
+	 * @return list<array{int|string|null, int|null}>
+	 */
+	public static function maxReplyDepthUpdates(): array {
+		return [
+			'forum setting' => [null, null],
+			'disabled' => [0, 0],
+			'depth' => [3, 3],
+			'clamped' => [-1, 0],
+		];
+	}
+
+	#[DataProvider('maxReplyDepthUpdates')]
+	public function testUpdateSetsMaxReplyDepth(int|string|null $given, ?int $stored): void {
+		$category = $this->createCategory(1, 1, 'Cat');
+		$category->setMaxReplyDepth(2);
+
+		$this->categoryMapper->method('find')->willReturn($category);
+		$this->categoryMapper->expects($this->once())
+			->method('update')
+			->willReturnCallback(function ($updated) use ($stored) {
+				$this->assertSame($stored, $updated->getMaxReplyDepth());
+				return $updated;
+			});
+
+		$this->controller->update(1, maxReplyDepth: $given);
 	}
 
 	public function testUpdateCategorySuccessfully(): void {

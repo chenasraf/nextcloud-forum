@@ -31,6 +31,12 @@ use OCP\AppFramework\Db\Entity;
  * @method void setUpdatedAt(int $value)
  * @method int|null getDeletedAt()
  * @method void setDeletedAt(?int $value)
+ * @method int|null getParentPostId()
+ * @method void setParentPostId(?int $value)
+ * @method int|null getRootReplyId()
+ * @method void setRootReplyId(?int $value)
+ * @method int|null getPurgedAt()
+ * @method void setPurgedAt(?int $value)
  */
 class Post extends Entity implements JsonSerializable {
 	protected $threadId;
@@ -42,6 +48,9 @@ class Post extends Entity implements JsonSerializable {
 	protected $createdAt;
 	protected $updatedAt;
 	protected $deletedAt;
+	protected $parentPostId;
+	protected $rootReplyId;
+	protected $purgedAt;
 
 	public function __construct() {
 		$this->addType('id', 'integer');
@@ -54,6 +63,9 @@ class Post extends Entity implements JsonSerializable {
 		$this->addType('createdAt', 'integer');
 		$this->addType('updatedAt', 'integer');
 		$this->addType('deletedAt', 'integer');
+		$this->addType('parentPostId', 'integer');
+		$this->addType('rootReplyId', 'integer');
+		$this->addType('purgedAt', 'integer');
 	}
 
 	public function jsonSerialize(): array {
@@ -69,6 +81,8 @@ class Post extends Entity implements JsonSerializable {
 			'createdAt' => $this->getCreatedAt(),
 			'updatedAt' => $this->getUpdatedAt(),
 			'deletedAt' => $this->getDeletedAt(),
+			'parentPostId' => $this->getParentPostId(),
+			'rootReplyId' => $this->getRootReplyId(),
 		];
 	}
 }

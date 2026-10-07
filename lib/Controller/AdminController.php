@@ -220,6 +220,7 @@ class AdminController extends OCSController {
 	 * @param bool|null $allow_edit_history_user_override Whether users can hide their own edit history from others
 	 * @param bool|null $enable_signatures Whether signatures are displayed on posts
 	 * @param bool|null $count_subcategory_in_category_counts Whether to include subcategory threads/replies in parent category counts
+	 * @param int|null $max_reply_depth How many levels replies can nest below a top-level reply (0-10, 0 disables nested replies)
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Settings updated
@@ -227,7 +228,7 @@ class AdminController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canAccessAdminTools')]
 	#[ApiRoute(verb: 'PUT', url: '/api/admin/settings')]
-	public function updateSettings(?string $title = null, ?string $subtitle = null, ?bool $allow_guest_access = null, ?bool $public_edit_history = null, ?bool $allow_edit_history_user_override = null, ?bool $enable_signatures = null, ?bool $count_subcategory_in_category_counts = null): DataResponse {
+	public function updateSettings(?string $title = null, ?string $subtitle = null, ?bool $allow_guest_access = null, ?bool $public_edit_history = null, ?bool $allow_edit_history_user_override = null, ?bool $enable_signatures = null, ?bool $count_subcategory_in_category_counts = null, ?int $max_reply_depth = null): DataResponse {
 		try {
 			// Build settings array with only non-null values
 			$settingsToUpdate = [];
@@ -251,6 +252,9 @@ class AdminController extends OCSController {
 			}
 			if ($count_subcategory_in_category_counts !== null) {
 				$settingsToUpdate[AdminSettingsService::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS] = $count_subcategory_in_category_counts;
+			}
+			if ($max_reply_depth !== null) {
+				$settingsToUpdate[AdminSettingsService::SETTING_MAX_REPLY_DEPTH] = $max_reply_depth;
 			}
 
 			// Update settings and return all settings

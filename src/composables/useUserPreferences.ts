@@ -19,6 +19,7 @@ export interface UserPreferences {
   hide_edit_history: boolean
   use_category_upload_path: boolean
   upload_behavior: 'configured' | 'prompt'
+  notify_post_replies: boolean
 }
 
 /** Conservative defaults — used while the first fetch is in flight. */
@@ -32,6 +33,7 @@ const DEFAULTS: UserPreferences = {
   hide_edit_history: false,
   use_category_upload_path: true,
   upload_behavior: 'configured',
+  notify_post_replies: true,
 }
 
 // Module-scoped state: shared across every component that calls the composable.

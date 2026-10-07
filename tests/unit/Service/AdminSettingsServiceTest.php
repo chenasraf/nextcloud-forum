@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Tests\Service;
 
+use OCA\Forum\Db\Category;
 use OCA\Forum\Service\AdminSettingsService;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\IL10N;
@@ -58,10 +59,16 @@ class AdminSettingsServiceTest extends TestCase {
 				};
 			});
 
+		$this->config->expects($this->once())
+			->method('getAppValueInt')
+			->with(AdminSettingsService::SETTING_MAX_REPLY_DEPTH, 5, true)
+			->willReturn(3);
+
 		$result = $this->service->getAllSettings();
 
 		$this->assertIsArray($result);
-		$this->assertCount(8, $result);
+		$this->assertCount(9, $result);
+		$this->assertSame(3, $result[AdminSettingsService::SETTING_MAX_REPLY_DEPTH]);
 		$this->assertEquals('My Forum', $result[AdminSettingsService::SETTING_TITLE]);
 		$this->assertEquals('Welcome!', $result[AdminSettingsService::SETTING_SUBTITLE]);
 		$this->assertTrue($result[AdminSettingsService::SETTING_ALLOW_GUEST_ACCESS]);
@@ -142,6 +149,40 @@ class AdminSettingsServiceTest extends TestCase {
 			->willReturn(true);
 
 		$this->service->setSetting($key, $value);
+	}
+
+	public function testSetSettingClampsMaxReplyDepth(): void {
+		$this->config->expects($this->exactly(2))
+			->method('setAppValueInt')
+			->willReturnCallback(function ($key, $value, $lazy) {
+				static $expected = [10, 0];
+				$this->assertSame(AdminSettingsService::SETTING_MAX_REPLY_DEPTH, $key);
+				$this->assertSame(array_shift($expected), $value);
+				return true;
+			});
+
+		$this->service->setSetting(AdminSettingsService::SETTING_MAX_REPLY_DEPTH, 99);
+		$this->service->setSetting(AdminSettingsService::SETTING_MAX_REPLY_DEPTH, -3);
+	}
+
+	public function testGetMaxReplyDepthUsesForumSettingWithoutCategoryDepth(): void {
+		$this->config->method('getAppValueInt')
+			->with(AdminSettingsService::SETTING_MAX_REPLY_DEPTH, 5, true)
+			->willReturn(3);
+
+		$this->assertSame(3, $this->service->getMaxReplyDepth());
+		$this->assertSame(3, $this->service->getMaxReplyDepth(new Category()));
+	}
+
+	public function testGetMaxReplyDepthPrefersCategoryDepth(): void {
+		$this->config->expects($this->never())->method('getAppValueInt');
+
+		$category = new Category();
+		$category->setMaxReplyDepth(0);
+		$this->assertSame(0, $this->service->getMaxReplyDepth($category));
+
+		$category->setMaxReplyDepth(99);
+		$this->assertSame(AdminSettingsService::MAX_REPLY_DEPTH_LIMIT, $this->service->getMaxReplyDepth($category));
 	}
 
 	public function testSetSettingThrowsExceptionForInvalidKey(): void {

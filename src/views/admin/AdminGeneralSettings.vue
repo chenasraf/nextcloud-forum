@@ -83,6 +83,10 @@
             </NcCheckboxRadioSwitch>
             <p class="hint">{{ strings.enableSignaturesHint }}</p>
           </div>
+
+          <div class="form-group">
+            <ReplyDepthField v-model="formData.max_reply_depth" input-id="forum-max-reply-depth" />
+          </div>
         </FormSection>
 
         <FormSection :title="strings.categoryCountsTitle" :subtitle="strings.categoryCountsDesc">
@@ -132,6 +136,7 @@ import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwit
 import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import FormSection from '@/components/FormSection'
+import ReplyDepthField from '@/components/ReplyDepthField'
 import CheckIcon from '@icons/Check.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -145,6 +150,7 @@ interface Settings {
   allow_edit_history_user_override: boolean
   enable_signatures: boolean
   count_subcategory_in_category_counts: boolean
+  max_reply_depth: number
 }
 
 export default defineComponent({
@@ -157,6 +163,7 @@ export default defineComponent({
     NcTextArea,
     NcCheckboxRadioSwitch,
     FormSection,
+    ReplyDepthField,
     PageHeader,
     PageWrapper,
     CheckIcon,
@@ -182,6 +189,7 @@ export default defineComponent({
         allow_edit_history_user_override: false,
         enable_signatures: true,
         count_subcategory_in_category_counts: true,
+        max_reply_depth: 5,
       } as Settings,
       formData: {
         title: '',
@@ -191,6 +199,7 @@ export default defineComponent({
         allow_edit_history_user_override: false,
         enable_signatures: true,
         count_subcategory_in_category_counts: true,
+        max_reply_depth: 5,
       } as Settings,
 
       strings: {
@@ -263,7 +272,8 @@ export default defineComponent({
           this.originalData.allow_edit_history_user_override ||
         this.formData.enable_signatures !== this.originalData.enable_signatures ||
         this.formData.count_subcategory_in_category_counts !==
-          this.originalData.count_subcategory_in_category_counts
+          this.originalData.count_subcategory_in_category_counts ||
+        this.formData.max_reply_depth !== this.originalData.max_reply_depth
       )
     },
   },

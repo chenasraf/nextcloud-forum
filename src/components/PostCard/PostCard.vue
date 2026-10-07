@@ -32,7 +32,7 @@
         <NcActions ref="actionsMenu">
           <NcActionButton v-if="canReply" @click="handleReply">
             <template #icon>
-              <ReplyIcon :size="20" />
+              <FormatQuoteCloseIcon :size="20" />
             </template>
             {{ strings.reply }}
           </NcActionButton>
@@ -90,13 +90,25 @@
       <div class="signature-content" v-html="post.author?.signature"></div>
     </div>
 
-    <!-- Reactions (hidden when editing) -->
-    <PostReactions
-      v-if="!isEditing"
-      :post-id="post.id"
-      :reactions="post.reactions || []"
-      @update="handleReactionsUpdate"
-    />
+    <!-- Reactions and reply (hidden when editing) -->
+    <div v-if="!isEditing" class="post-footer">
+      <PostReactions
+        :post-id="post.id"
+        :reactions="post.reactions || []"
+        @update="handleReactionsUpdate"
+      />
+      <NcButton
+        v-if="canReplyToPost"
+        variant="tertiary"
+        class="reply-to-post-button"
+        @click="handleReplyToPost"
+      >
+        <template #icon>
+          <ReplyIcon :size="20" />
+        </template>
+        {{ strings.replyToPost }}
+      </NcButton>
+    </div>
 
     <!-- Edit History Dialog -->
     <PostHistoryDialog
@@ -121,7 +133,9 @@ import { defineComponent, type PropType } from 'vue'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcActions from '@nextcloud/vue/components/NcActions'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+import NcButton from '@nextcloud/vue/components/NcButton'
 import ReplyIcon from '@icons/Reply.vue'
+import FormatQuoteCloseIcon from '@icons/FormatQuoteClose.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import DeleteIcon from '@icons/Delete.vue'
 import HistoryIcon from '@icons/History.vue'
@@ -146,7 +160,9 @@ export default defineComponent({
     NcDateTime,
     NcActions,
     NcActionButton,
+    NcButton,
     ReplyIcon,
+    FormatQuoteCloseIcon,
     PencilIcon,
     DeleteIcon,
     HistoryIcon,
@@ -179,6 +195,11 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    /** Whether to offer answering this post directly, as a nested reply */
+    canReplyToPost: {
+      type: Boolean,
+      default: false,
+    },
     currentPage: {
       type: Number,
       default: 1,
@@ -188,7 +209,7 @@ export default defineComponent({
       default: null,
     },
   },
-  emits: ['reply', 'edit', 'delete', 'update', 'reassigned'],
+  emits: ['reply', 'reply-to-post', 'edit', 'delete', 'update', 'reassigned'],
   setup() {
     const { canManageUsers } = useUserRole()
     return { canManageUsers }
@@ -201,6 +222,7 @@ export default defineComponent({
       strings: {
         edited: t('forum', 'Edited'),
         reply: t('forum', 'Quote reply'),
+        replyToPost: t('forum', 'Reply'),
         edit: t('forum', 'Edit'),
         delete: t('forum', 'Delete'),
         viewHistory: t('forum', 'View edit history'),
@@ -258,6 +280,10 @@ export default defineComponent({
     handleReply() {
       this.closeActionsMenu()
       this.$emit('reply', this.post)
+    },
+
+    handleReplyToPost() {
+      this.$emit('reply-to-post', this.post)
     },
 
     handleEditClick() {
@@ -449,6 +475,17 @@ export default defineComponent({
 
   .post-content {
     margin-top: 12px;
+  }
+
+  .post-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+
+    .reply-to-post-button {
+      flex-shrink: 0;
+    }
   }
 
   .post-signature {

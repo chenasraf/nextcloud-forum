@@ -90,8 +90,14 @@ export interface Post {
   editedAt: number | null
   createdAt: number
   updatedAt: number
+  // Set on deleted posts kept in a thread as placeholders for their replies
+  deletedAt?: number | null
+  // Post this one replies to; null for top-level replies
+  parentPostId?: number | null
+  // Top-level reply this one descends from; null for top-level replies
+  rootReplyId?: number | null
   // Enriched fields
-  author?: User
+  author?: User | null
   // Thread context (added by SearchController for search results)
   threadTitle?: string
   threadSlug?: string

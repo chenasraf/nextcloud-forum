@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use OCA\Forum\Db\Post;
 use OCA\Forum\Db\PostMapper;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
@@ -26,8 +27,78 @@ class NotificationService {
 		private ReadMarkerMapper $readMarkerMapper,
 		private IURLGenerator $urlGenerator,
 		private IUserManager $userManager,
+		private UserPreferencesService $userPreferencesService,
 		private LoggerInterface $logger,
 	) {
+	}
+
+	/**
+	 * Notify the author of a post that someone replied directly to it.
+	 *
+	 * Skipped for self-replies, for guest authors, when the author turned the
+	 * preference off, and when the reply mentions the author (the mention
+	 * notification already covers it).
+	 *
+	 * @param array<string> $mentionedUserIds Users mentioned in the reply
+	 */
+	public function notifyPostReply(Post $reply, Post $parent, array $mentionedUserIds): void {
+		$recipientId = $parent->getAuthorId();
+		$authorId = $reply->getAuthorId();
+
+		if ($recipientId === $authorId
+			|| in_array($recipientId, $mentionedUserIds, true)
+			|| !$this->userManager->userExists($recipientId)) {
+			return;
+		}
+
+		if (!(bool)$this->userPreferencesService->getPreference($recipientId, UserPreferencesService::PREF_NOTIFY_POST_REPLIES)) {
+			return;
+		}
+
+		try {
+			$thread = $this->threadMapper->find($reply->getThreadId());
+		} catch (\Exception $e) {
+			$this->logger->warning('Thread not found for reply notification', [
+				'threadId' => $reply->getThreadId(),
+				'error' => $e->getMessage(),
+			]);
+			return;
+		}
+
+		$author = $this->userManager->get($authorId);
+		$authorDisplayName = $author ? $author->getDisplayName() : $authorId;
+
+		$iconUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath('forum', 'app-dark.svg'));
+
+		$notification = $this->notificationManager->createNotification();
+		$notification->setApp('forum')
+			->setUser($recipientId)
+			->setDateTime(new \DateTime())
+			->setObject('post_reply', (string)$reply->getId())
+			->setSubject('post_reply', [
+				'postId' => $reply->getId(),
+				'parentPostId' => $parent->getId(),
+				'threadId' => $thread->getId(),
+				'threadTitle' => $thread->getTitle(),
+				'threadSlug' => $thread->getSlug(),
+				'authorId' => $authorId,
+				'authorDisplayName' => $authorDisplayName,
+			])
+			->setLink($this->generatePostLink($thread->getSlug(), $thread->getId(), $reply->getId()))
+			->setIcon($iconUrl);
+
+		$this->notificationManager->notify($notification);
+	}
+
+	/**
+	 * Dismiss the reply notification sent for a post, for whoever received it
+	 */
+	public function dismissPostReplyNotification(int $postId): void {
+		$notification = $this->notificationManager->createNotification();
+		$notification->setApp('forum')
+			->setObject('post_reply', (string)$postId);
+
+		$this->notificationManager->markProcessed($notification);
 	}
 
 	/**
@@ -184,6 +255,7 @@ class NotificationService {
 				if ($post->getId() <= $lastReadPostId) {
 					// Dismiss mention notification for this post (scoped by author)
 					$this->dismissMentionNotification($userId, $post->getId(), $post->getAuthorId());
+					$this->dismissUserPostReplyNotification($userId, $post->getId());
 				}
 			}
 		} catch (\Exception $e) {
@@ -435,6 +507,16 @@ class NotificationService {
 
 		foreach ($posts as $post) {
 			$this->dismissAllMentionNotifications($post->getId(), $post->getContent(), $post->getAuthorId());
+			$this->dismissPostReplyNotification($post->getId());
 		}
+	}
+
+	private function dismissUserPostReplyNotification(string $userId, int $postId): void {
+		$notification = $this->notificationManager->createNotification();
+		$notification->setApp('forum')
+			->setUser($userId)
+			->setObject('post_reply', (string)$postId);
+
+		$this->notificationManager->markProcessed($notification);
 	}
 }

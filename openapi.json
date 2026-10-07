@@ -395,6 +395,13 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Whether to include subcategory threads/replies in parent category counts"
+                                    },
+                                    "max_reply_depth": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "How many levels replies can nest below a top-level reply (0-10, 0 disables nested replies)"
                                     }
                                 }
                             }
@@ -6623,6 +6630,7 @@
             "get": {
                 "operationId": "post-by-thread",
                 "summary": "Get posts by thread with first post separated",
+                "description": "Pagination runs over top-level replies. Every nested reply below the top-level replies of the page is returned in `nestedReplies`, oldest first; each post links to the post it answers through `parentPostId`. Deleted posts that still have visible replies are returned as placeholders with `deletedAt` set and no author or content.",
                 "tags": [
                     "post"
                 ],
@@ -6649,7 +6657,7 @@
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Page number (1-indexed)",
+                        "description": "Page number (1-indexed); 0 picks the start page",
                         "schema": {
                             "type": "integer",
                             "format": "int64",
@@ -6659,11 +6667,21 @@
                     {
                         "name": "perPage",
                         "in": "query",
-                        "description": "Number of replies per page",
+                        "description": "Number of top-level replies per page",
                         "schema": {
                             "type": "integer",
                             "format": "int64",
                             "default": 20
+                        }
+                    },
+                    {
+                        "name": "postId",
+                        "in": "query",
+                        "description": "When page is 0, open the page that shows this post instead of the start page",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64",
+                            "default": 0
                         }
                     },
                     {
@@ -6703,6 +6721,7 @@
                                                     "required": [
                                                         "firstPost",
                                                         "replies",
+                                                        "nestedReplies",
                                                         "pagination"
                                                     ],
                                                     "properties": {
@@ -6714,6 +6733,15 @@
                                                             }
                                                         },
                                                         "replies": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "nestedReplies": {
                                                             "type": "array",
                                                             "items": {
                                                                 "type": "object",
@@ -7272,6 +7300,13 @@
                                         "type": "string",
                                         "default": "",
                                         "description": "Guest session token (32-char hex, for unauthenticated users)"
+                                    },
+                                    "parentPostId": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "Post this reply answers; omitted, or the thread's first post, for a top-level reply. Ignored when nested replies are disabled"
                                     }
                                 }
                             }

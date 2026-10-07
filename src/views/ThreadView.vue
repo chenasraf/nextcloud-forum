@@ -235,21 +235,73 @@
         </div>
 
         <div v-else class="posts-list mt-16">
-          <PostCard
-            v-for="reply in replies"
-            :key="reply.id"
-            :ref="(el) => setPostCardRef(el, reply.id)"
-            :post="reply"
-            :is-first-post="false"
-            :is-unread="isPostUnread(reply)"
-            :can-moderate-category="canModerate"
-            :can-reply="canReply"
-            :current-page="currentPage"
-            @reply="handleReply"
-            @update="handleUpdate"
-            @delete="handleDelete"
-            @reassigned="handleReassigned"
-          />
+          <div
+            v-for="row in replyRows"
+            :key="row.post.id"
+            class="reply-row"
+            :class="{ nested: row.depth > 0 }"
+            :style="{ '--reply-depth': row.depth }"
+          >
+            <div v-if="row.replyingTo" class="replying-to">
+              <SubdirectoryArrowRightIcon :size="16" />
+              <a href="#" @click.prevent="scrollToPost(row.replyingTo.id)">
+                {{ replyingToLabel(row.replyingTo) }}
+              </a>
+            </div>
+
+            <div
+              v-if="row.post.deletedAt"
+              :ref="(el) => setPostCardRef(el, row.post.id)"
+              class="deleted-reply"
+            >
+              {{ strings.deletedReply }}
+            </div>
+            <PostCard
+              v-else
+              :ref="(el) => setPostCardRef(el, row.post.id)"
+              :post="row.post"
+              :is-first-post="false"
+              :is-unread="isPostUnread(row.post)"
+              :can-moderate-category="canModerate"
+              :can-reply="canReply"
+              :can-reply-to-post="canReplyToPosts"
+              :current-page="currentPage"
+              :category-upload-path="categoryUploadPath"
+              @reply="handleReply"
+              @reply-to-post="openInlineReply"
+              @update="handleUpdate"
+              @delete="handleDelete"
+              @reassigned="handleReassigned"
+            />
+
+            <PostReplyForm
+              v-if="inlineReplyTargetId === row.post.id"
+              ref="inlineReplyForm"
+              class="inline-reply-form"
+              :inline="true"
+              :category-upload-path="categoryUploadPath"
+              @submit="handleSubmitInlineReply"
+              @cancel="closeInlineReply"
+            />
+
+            <NcButton
+              v-if="row.replyCount > 0"
+              variant="tertiary"
+              class="toggle-replies"
+              :aria-expanded="row.collapsed ? 'false' : 'true'"
+              @click="toggleCollapsed(row.post.id)"
+            >
+              <template #icon>
+                <ChevronRightIcon v-if="row.collapsed" :size="20" />
+                <ChevronDownIcon v-else :size="20" />
+              </template>
+              {{
+                row.collapsed
+                  ? strings.showReplies(row.replyCount)
+                  : strings.hideReplies(row.replyCount)
+              }}
+            </NcButton>
+          </div>
         </div>
 
         <!-- Pagination at bottom -->
@@ -373,7 +425,11 @@ import ReplyIcon from '@icons/Reply.vue'
 import PencilIcon from '@icons/Pencil.vue'
 import CheckIcon from '@icons/Check.vue'
 import FolderMoveIcon from '@icons/FolderMove.vue'
+import ChevronDownIcon from '@icons/ChevronDown.vue'
+import ChevronRightIcon from '@icons/ChevronRight.vue'
+import SubdirectoryArrowRightIcon from '@icons/SubdirectoryArrowRight.vue'
 import type { Category, Post } from '@/types'
+import { buildReplyTree, flattenReplyTree, type ReplyRow } from '@/utils/replyTree'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
@@ -382,6 +438,7 @@ import { useCurrentThread } from '@/composables/useCurrentThread'
 import { usePermissions } from '@/composables/usePermissions'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useGuestSession } from '@/composables/useGuestSession'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 
 export default defineComponent({
   name: 'ThreadView',
@@ -413,6 +470,9 @@ export default defineComponent({
     PencilIcon,
     CheckIcon,
     FolderMoveIcon,
+    ChevronDownIcon,
+    ChevronRightIcon,
+    SubdirectoryArrowRightIcon,
     MoveCategoryDialog,
   },
   setup() {
@@ -420,6 +480,7 @@ export default defineComponent({
     const { checkCategoryPermission } = usePermissions()
     const { userId } = useCurrentUser()
     const { isGuest, fetchGuestIdentity } = useGuestSession()
+    const { maxReplyDepth, fetchPublicSettings } = usePublicSettings()
 
     return {
       thread,
@@ -428,6 +489,8 @@ export default defineComponent({
       userId,
       isGuest,
       fetchGuestIdentity,
+      maxReplyDepth,
+      fetchPublicSettings,
     }
   },
   data() {
@@ -436,6 +499,9 @@ export default defineComponent({
       loadingReplies: false,
       firstPost: null as Post | null,
       replies: [] as Post[],
+      nestedReplies: [] as Post[],
+      collapsedPostIds: new Set<number>(),
+      inlineReplyTargetId: null as number | null,
       lastReadPostId: null as number | null,
       error: null as string | null,
       currentPage: 1,
@@ -490,6 +556,11 @@ export default defineComponent({
         titleUpdated: t('forum', 'Thread title updated'),
         moveThread: t('forum', 'Move thread'),
         threadMoved: t('forum', 'Thread moved successfully'),
+        deletedReply: t('forum', 'This reply was deleted.'),
+        inReplyTo: (name: string) => t('forum', 'In reply to {user}', { user: name }),
+        inReplyToDeleted: t('forum', 'In reply to a deleted reply'),
+        showReplies: (count: number) => n('forum', 'Show %n reply', 'Show %n replies', count),
+        hideReplies: (count: number) => n('forum', 'Hide %n reply', 'Hide %n replies', count),
       },
     }
   },
@@ -503,6 +574,20 @@ export default defineComponent({
     canEditTitle(): boolean {
       // Allow if user is the author, or has moderation permissions
       return this.thread?.authorId === this.userId || this.canModerate
+    },
+    replyRows(): ReplyRow[] {
+      return flattenReplyTree(
+        buildReplyTree(this.replies, this.nestedReplies, this.maxReplyDepth),
+        this.collapsedPostIds,
+      )
+    },
+    canReplyToPosts(): boolean {
+      return (
+        this.maxReplyDepth > 0 &&
+        this.canReply &&
+        (this.userId !== null || this.isGuest) &&
+        (!this.thread?.isLocked || this.canModerate)
+      )
     },
     // Whether ?page=last was requested
     isLastPageRequested(): boolean {
@@ -538,6 +623,10 @@ export default defineComponent({
       // If page changed, fetch that page
       if (newPage && newPage !== oldPage && newPage !== this.currentPage) {
         this.handlePageChange(newPage)
+      } else if (newPost && !newPage && !this.isPostLoaded(newPost)) {
+        // Linked post without a page: load the page that shows it
+        this.fetchPosts(0, newPost)
+        return
       }
 
       // If post param exists, scroll to it after posts are loaded
@@ -579,10 +668,22 @@ export default defineComponent({
           await this.fetchGuestIdentity()
         }
 
+        await this.fetchPublicSettings()
+
         // Fetch posts - use page from query param if present
         // page=last → use a high number so backend clamps to last page
-        const initialPage = this.isLastPageRequested ? 999999 : this.pageFromQuery || 0
-        await this.fetchPosts(initialPage)
+        // A linked post without an explicit page number opens the page that
+        // shows it, since a nested reply is not necessarily on the last page
+        const linkedPostId =
+          this.postFromQuery && (this.isLastPageRequested || !this.pageFromQuery)
+            ? this.postFromQuery
+            : null
+        const initialPage = linkedPostId
+          ? 0
+          : this.isLastPageRequested
+            ? 999999
+            : this.pageFromQuery || 0
+        await this.fetchPosts(initialPage, linkedPostId)
         // Check permissions
         await this.checkPermissions()
         // Fetch category-specific attachment upload path (resolved for this user)
@@ -620,11 +721,12 @@ export default defineComponent({
       }
     },
 
-    async fetchPosts(page: number = 0): Promise<void> {
+    async fetchPosts(page: number = 0, postId: number | null = null): Promise<void> {
       try {
         interface PaginatedResponse {
           firstPost: Post | null
           replies: Post[]
+          nestedReplies: Post[]
           pagination: {
             page: number
             perPage: number
@@ -639,6 +741,7 @@ export default defineComponent({
           params: {
             page,
             perPage: this.perPage,
+            ...(postId ? { postId } : {}),
           },
         })
 
@@ -646,6 +749,7 @@ export default defineComponent({
         if (data) {
           this.firstPost = data.firstPost
           this.replies = data.replies || []
+          this.nestedReplies = data.nestedReplies || []
           this.currentPage = data.pagination.page
           this.totalPages = data.pagination.totalPages
           this.lastReadPostId = data.pagination.lastReadPostId
@@ -694,6 +798,7 @@ export default defineComponent({
       try {
         this.loadingReplies = true
         this.currentPage = newPage
+        this.inlineReplyTargetId = null
 
         // Update URL query param without triggering the watcher
         const query = { ...this.$route.query, page: String(newPage) }
@@ -720,8 +825,12 @@ export default defineComponent({
       if (this.firstPost) {
         posts.push(this.firstPost)
       }
-      posts.push(...this.replies)
-      return posts
+      posts.push(...this.replies, ...this.nestedReplies)
+      return posts.filter((p) => !p.deletedAt)
+    },
+
+    isPostLoaded(postId: number): boolean {
+      return this.getAllPosts().some((p) => p.id === postId)
     },
 
     isPostUnread(post: Post): boolean {
@@ -745,26 +854,26 @@ export default defineComponent({
           return
         }
 
-        // Get the last post ID from the current view
+        // Get the newest post ID in the current view, nested replies included
         const allPosts = this.getAllPosts()
-        const lastPost = allPosts[allPosts.length - 1]
-        if (!lastPost || !this.thread) {
+        if (allPosts.length === 0 || !this.thread) {
           return
         }
+        const lastPostId = Math.max(...allPosts.map((p) => p.id))
 
         // Only update if the new post is newer than what we've already read
-        if (this.lastReadPostId !== null && lastPost.id <= this.lastReadPostId) {
+        if (this.lastReadPostId !== null && lastPostId <= this.lastReadPostId) {
           return
         }
 
         // Send request to mark thread as read
         await ocs.post('/read-markers', {
           threadId: this.thread.id,
-          lastReadPostId: lastPost.id,
+          lastReadPostId: lastPostId,
         })
 
         // Update local state so posts appear as read immediately
-        this.lastReadPostId = lastPost.id
+        this.lastReadPostId = lastPostId
       } catch (e) {
         // Silently fail - marking as read is not critical
         console.debug('Failed to mark thread as read', e)
@@ -772,6 +881,12 @@ export default defineComponent({
     },
 
     handleReply(post: Post): void {
+      // Quoting the post that is being answered inline fills the inline form
+      if (this.inlineReplyTargetId === post.id) {
+        this.getInlineReplyForm()?.setQuotedContent(post.contentRaw)
+        return
+      }
+
       const replyForm = this.$refs.replyForm as any
       if (!replyForm) {
         return
@@ -800,6 +915,69 @@ export default defineComponent({
       }, 500)
     },
 
+    openInlineReply(post: Post): void {
+      this.inlineReplyTargetId = post.id
+      this.$nextTick(() => {
+        const form = this.getInlineReplyForm()
+        if (!form) {
+          return
+        }
+        ;(form.$el as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        form.focus()
+      })
+    },
+
+    closeInlineReply(): void {
+      this.inlineReplyTargetId = null
+    },
+
+    getInlineReplyForm(): any {
+      const form = this.$refs.inlineReplyForm as any
+      return Array.isArray(form) ? form[0] : form
+    },
+
+    async handleSubmitInlineReply(content: string): Promise<void> {
+      if (!this.thread || this.inlineReplyTargetId === null) {
+        return
+      }
+
+      try {
+        const response = await ocs.post<Post>('/posts', {
+          threadId: this.thread.id,
+          content,
+          parentPostId: this.inlineReplyTargetId,
+        })
+
+        if (response.data) {
+          const newPostId = response.data.id
+          this.inlineReplyTargetId = null
+          // A nested reply stays on the page of its top-level reply
+          await this.fetchPosts(this.currentPage)
+          await this.$nextTick()
+          this.scrollToPost(newPostId)
+        }
+      } catch (e) {
+        console.error('Failed to submit reply', e)
+        this.getInlineReplyForm()?.setSubmitting(false)
+        showError(t('forum', 'Failed to submit reply'))
+      }
+    },
+
+    toggleCollapsed(postId: number): void {
+      if (this.collapsedPostIds.has(postId)) {
+        this.collapsedPostIds.delete(postId)
+      } else {
+        this.collapsedPostIds.add(postId)
+      }
+    },
+
+    replyingToLabel(post: Post): string {
+      if (post.deletedAt) {
+        return this.strings.inReplyToDeleted
+      }
+      return this.strings.inReplyTo(post.author?.displayName || post.authorId)
+    },
+
     setPostCardRef(el: any, postId: number) {
       if (el) {
         this.postCardRefs.set(postId, el)
@@ -822,12 +1000,14 @@ export default defineComponent({
           if (isFirstPost) {
             this.firstPost = { ...response.data, reactions: this.firstPost!.reactions || [] }
           } else {
-            const index = this.replies.findIndex((p) => p.id === data.post.id)
-            if (index !== -1) {
-              // Preserve reactions when updating
-              this.replies[index] = {
-                ...response.data,
-                reactions: this.replies[index]?.reactions || [],
+            for (const list of [this.replies, this.nestedReplies]) {
+              const index = list.findIndex((p) => p.id === data.post.id)
+              if (index !== -1) {
+                // Preserve reactions when updating
+                list[index] = {
+                  ...response.data,
+                  reactions: list[index]?.reactions || [],
+                }
               }
             }
           }
@@ -878,10 +1058,26 @@ export default defineComponent({
           // Delete post optimistically
           await ocs.delete(`/posts/${post.id}`)
 
-          // Remove the post from the local replies array without refreshing
-          const index = this.replies.findIndex((p) => p.id === post.id)
-          if (index !== -1) {
-            this.replies.splice(index, 1)
+          // Update the local replies without refreshing: a post that has
+          // replies stays as a placeholder so its replies keep their place
+          const hasReplies = this.nestedReplies.some((p) => p.parentPostId === post.id)
+          for (const list of [this.replies, this.nestedReplies]) {
+            const index = list.findIndex((p) => p.id === post.id)
+            if (index === -1) {
+              continue
+            }
+            if (hasReplies) {
+              list[index] = {
+                ...post,
+                deletedAt: Math.floor(Date.now() / 1000),
+                content: '',
+                contentRaw: '',
+                author: null,
+                reactions: [],
+              }
+            } else {
+              list.splice(index, 1)
+            }
           }
 
           showSuccess(t('forum', 'Reply deleted'))
@@ -923,12 +1119,12 @@ export default defineComponent({
         }
 
         // Update all replies that belonged to this guest
-        this.replies = this.replies.map((reply) => {
-          if (reply.authorId === data.guestAuthorId) {
-            return { ...reply, authorId: data.targetUserId, author: newAuthor }
-          }
-          return reply
-        })
+        const reassign = (reply: Post): Post =>
+          reply.authorId === data.guestAuthorId
+            ? { ...reply, authorId: data.targetUserId, author: newAuthor }
+            : reply
+        this.replies = this.replies.map(reassign)
+        this.nestedReplies = this.nestedReplies.map(reassign)
 
         // Update thread header if the thread author was this guest
         if (this.thread && this.thread.authorId === data.guestAuthorId) {
@@ -1123,9 +1319,10 @@ export default defineComponent({
     scrollToPost(postId: number): void {
       // Get the PostCard component reference
       const postCardRef = this.postCardRefs.get(postId)
+      // Deleted replies are plain elements rather than PostCard components
+      const element = (postCardRef?.$el ?? postCardRef) as HTMLElement | undefined
 
-      if (postCardRef && postCardRef.$el) {
-        const element = postCardRef.$el as HTMLElement
+      if (element instanceof HTMLElement) {
         const offset = 80 // Offset for toolbar and some breathing room
 
         // Use requestAnimationFrame to ensure scroll happens after any router scroll operations
@@ -1375,6 +1572,52 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .reply-row {
+    --reply-indent: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-left: calc(var(--reply-depth, 0) * var(--reply-indent));
+
+    &.nested {
+      padding-left: 12px;
+      border-left: 2px solid var(--color-border);
+    }
+
+    @media (max-width: 768px) {
+      --reply-indent: 12px;
+
+      &.nested {
+        padding-left: 8px;
+      }
+    }
+  }
+
+  .replying-to {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--color-text-maxcontrast);
+
+    a {
+      color: inherit;
+      text-decoration: underline;
+    }
+  }
+
+  .deleted-reply {
+    padding: 12px 16px;
+    border: 1px dashed var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text-maxcontrast);
+    font-style: italic;
+  }
+
+  .toggle-replies {
+    align-self: flex-start;
   }
 
   .first-post-section {

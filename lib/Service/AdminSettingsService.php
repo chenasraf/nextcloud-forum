@@ -35,6 +35,11 @@ class AdminSettingsService {
 	/** Setting key for whether category counts include subcategory threads/replies */
 	public const SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS = 'count_subcategory_in_category_counts';
 
+	/** Setting key for how many levels replies can nest below a top-level reply (0 disables nesting) */
+	public const SETTING_MAX_REPLY_DEPTH = 'max_reply_depth';
+
+	public const MAX_REPLY_DEPTH_LIMIT = 10;
+
 	/** @var array<string> List of valid setting keys */
 	private const VALID_KEYS = [
 		self::SETTING_TITLE,
@@ -45,6 +50,7 @@ class AdminSettingsService {
 		self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE,
 		self::SETTING_ENABLE_SIGNATURES,
 		self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS,
+		self::SETTING_MAX_REPLY_DEPTH,
 	];
 
 	public function __construct(
@@ -69,6 +75,7 @@ class AdminSettingsService {
 			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE => false,
 			self::SETTING_ENABLE_SIGNATURES => true,
 			self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => true,
+			self::SETTING_MAX_REPLY_DEPTH => 5,
 			default => null,
 		};
 	}
@@ -92,15 +99,16 @@ class AdminSettingsService {
 	 * Get a single setting
 	 *
 	 * @param string $key The setting key
-	 * @return bool|string The setting value
+	 * @return bool|int|string The setting value
 	 * @throws \InvalidArgumentException If the setting key is invalid
 	 */
-	public function getSetting(string $key): bool|string {
+	public function getSetting(string $key): bool|int|string {
 		if (!in_array($key, self::VALID_KEYS, true)) {
 			throw new \InvalidArgumentException("Invalid setting key: $key");
 		}
 
 		return match ($key) {
+			self::SETTING_MAX_REPLY_DEPTH => $this->clampReplyDepth($this->config->getAppValueInt($key, (int)$this->getDefault($key), true)),
 			self::SETTING_ALLOW_GUEST_ACCESS,
 			self::SETTING_IS_INITIALIZED,
 			self::SETTING_PUBLIC_EDIT_HISTORY,
@@ -147,7 +155,9 @@ class AdminSettingsService {
 			throw new \InvalidArgumentException("Invalid setting key: $key");
 		}
 
-		if ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED
+		if ($key === self::SETTING_MAX_REPLY_DEPTH) {
+			$this->config->setAppValueInt($key, $this->clampReplyDepth((int)$value), true);
+		} elseif ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED
 			|| $key === self::SETTING_PUBLIC_EDIT_HISTORY || $key === self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE
 			|| $key === self::SETTING_ENABLE_SIGNATURES
 			|| $key === self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS) {
@@ -155,5 +165,9 @@ class AdminSettingsService {
 		} else {
 			$this->config->setAppValueString($key, (string)$value, true);
 		}
+	}
+
+	private function clampReplyDepth(int $depth): int {
+		return max(0, min(self::MAX_REPLY_DEPTH_LIMIT, $depth));
 	}
 }

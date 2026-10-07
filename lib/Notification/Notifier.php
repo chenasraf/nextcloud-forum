@@ -107,6 +107,31 @@ class Notifier implements INotifier {
 				$this->setParsedSubjectFromRichSubject($notification);
 
 				return $notification;
+			case 'post_reply':
+				$parameters = $notification->getSubjectParameters();
+				$threadId = (int)($parameters['threadId'] ?? 0);
+				$threadTitle = (string)($parameters['threadTitle'] ?? 'Unknown Thread');
+				$authorDisplayName = (string)($parameters['authorDisplayName'] ?? 'Someone');
+
+				$notification->setRichSubject(
+					$l->t('{user} replied to your post in {thread}'),
+					[
+						'user' => [
+							'type' => 'user',
+							'id' => (string)($parameters['authorId'] ?? ''),
+							'name' => $authorDisplayName,
+						],
+						'thread' => [
+							'type' => 'highlight',
+							'id' => (string)$threadId,
+							'name' => $threadTitle,
+						],
+					]
+				);
+
+				$this->setParsedSubjectFromRichSubject($notification);
+
+				return $notification;
 			default:
 				throw new UnknownNotificationException();
 		}

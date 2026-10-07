@@ -153,8 +153,8 @@ class ModerationService {
 	 * Permanently delete a soft-deleted reply post and all of its associated data.
 	 *
 	 * This removes the post and all related reactions, edit history and
-	 * bookmarks. First posts must be deleted via thread deletion. The action
-	 * cannot be undone.
+	 * bookmarks. Replies to the post move up to the post's own parent. First
+	 * posts must be deleted via thread deletion. The action cannot be undone.
 	 *
 	 * @param int $postId Post ID to permanently delete
 	 * @throws \OCP\AppFramework\Db\DoesNotExistException If post not found
@@ -177,6 +177,7 @@ class ModerationService {
 			$this->postHistoryMapper->deleteByPostId($postId);
 			$this->bookmarkMapper->deleteByEntity(Bookmark::ENTITY_TYPE_POST, $postId);
 
+			$this->postMapper->reparentChildren($post);
 			$this->postMapper->deleteById($postId);
 
 			$this->db->commit();

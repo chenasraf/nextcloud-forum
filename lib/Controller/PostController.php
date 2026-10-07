@@ -16,6 +16,7 @@ use OCA\Forum\Db\ReactionMapper;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
+use OCA\Forum\Service\AdminSettingsService;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\GuestService;
 use OCA\Forum\Service\NotificationService;
@@ -56,6 +57,7 @@ class PostController extends OCSController {
 		private UserPreferencesService $userPreferencesService,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
 		private GuestService $guestService,
+		private AdminSettingsService $adminSettingsService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -65,10 +67,17 @@ class PostController extends OCSController {
 	/**
 	 * Get posts by thread with first post separated
 	 *
+	 * Pagination runs over top-level replies. Every nested reply below the
+	 * top-level replies of the page is returned in `nestedReplies`, oldest
+	 * first; each post links to the post it answers through `parentPostId`.
+	 * Deleted posts that still have visible replies are returned as
+	 * placeholders with `deletedAt` set and no author or content.
+	 *
 	 * @param int $threadId Thread ID
-	 * @param int $page Page number (1-indexed)
-	 * @param int $perPage Number of replies per page
-	 * @return DataResponse<Http::STATUS_OK, array{firstPost: array<string, mixed>|null, replies: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int, startPage: int, lastReadPostId: int|null}}, array{}>
+	 * @param int $page Page number (1-indexed); 0 picks the start page
+	 * @param int $perPage Number of top-level replies per page
+	 * @param int $postId When page is 0, open the page that shows this post instead of the start page
+	 * @return DataResponse<Http::STATUS_OK, array{firstPost: array<string, mixed>|null, replies: list<array<string, mixed>>, nestedReplies: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int, startPage: int, lastReadPostId: int|null}}, array{}>
 	 *
 	 * 200: Posts returned with pagination metadata
 	 */
@@ -76,13 +85,13 @@ class PostController extends OCSController {
 	#[PublicPage]
 	#[RequirePermission('canView', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
 	#[ApiRoute(verb: 'GET', url: '/api/threads/{threadId}/posts')]
-	public function byThread(int $threadId, int $page = 0, int $perPage = 20): DataResponse {
+	public function byThread(int $threadId, int $page = 0, int $perPage = 20, int $postId = 0): DataResponse {
 		try {
 			// Get current user ID
 			$currentUserId = $this->userSession->getUser()?->getUID();
 
-			// Count total replies (excluding first post)
-			$totalReplies = $this->postMapper->countRepliesByThreadId($threadId);
+			// Count top-level replies (excluding first post)
+			$totalReplies = $this->postMapper->countTopLevelReplies($threadId);
 			$totalPages = max(1, (int)ceil($totalReplies / $perPage));
 
 			// Determine the start page based on read status
@@ -110,9 +119,11 @@ class PostController extends OCSController {
 				}
 			}
 
-			// If page=0, use the calculated start page
+			// If page=0, open the page of the requested post, or the start page
 			if ($page === 0) {
-				$page = $startPage;
+				$page = $postId > 0
+					? (int)floor($this->postMapper->getReplyPosition($threadId, $postId) / $perPage) + 1
+					: $startPage;
 			}
 
 			// Ensure page is within valid range
@@ -122,15 +133,21 @@ class PostController extends OCSController {
 			// Fetch first post
 			$firstPost = $this->postMapper->findFirstPostByThreadId($threadId);
 
-			// Fetch replies for the current page
-			$replies = $this->postMapper->findRepliesByThreadId($threadId, $perPage, $offset);
+			// Fetch top-level replies for the current page, then their subtrees
+			$replies = $this->postMapper->findTopLevelReplies($threadId, $perPage, $offset);
+			$nestedReplies = $this->withoutDeadBranches(
+				$this->postMapper->findDescendantsByRootIds(array_map(fn ($p) => $p->getId(), $replies)),
+			);
 
 			// Prefetch BBCodes once for all posts to avoid repeated queries
 			$bbcodes = $this->bbCodeMapper->findAllEnabled();
 
-			// Collect all posts for reaction fetching
-			$allPosts = $firstPost !== null ? array_merge([$firstPost], $replies) : $replies;
-			$postIds = array_map(fn ($p) => $p->getId(), $allPosts);
+			// Collect all visible posts for reaction and author fetching
+			$allPosts = array_filter(
+				array_merge($firstPost !== null ? [$firstPost] : [], $replies, $nestedReplies),
+				fn ($p) => $p->getDeletedAt() === null,
+			);
+			$postIds = array_values(array_map(fn ($p) => $p->getId(), $allPosts));
 
 			// Fetch reactions for all posts at once (performance optimization)
 			$reactions = $this->reactionMapper->findByPostIds($postIds);
@@ -169,14 +186,20 @@ class PostController extends OCSController {
 			}
 
 			// Enrich replies
-			$enrichedReplies = array_map(function ($p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors, $categoryId) {
+			$enrichReply = function (\OCA\Forum\Db\Post $p) use ($bbcodes, $reactionsByPostId, $currentUserId, $authors, $categoryId): array {
+				if ($p->getDeletedAt() !== null) {
+					return $this->deletedPlaceholder($p);
+				}
 				$postReactions = $reactionsByPostId[$p->getId()] ?? [];
 				return $this->postEnrichmentService->enrichPost($p, $bbcodes, $postReactions, $currentUserId, $authors[$p->getAuthorId()] ?? null, $categoryId);
-			}, $replies);
+			};
+			$enrichedReplies = array_map($enrichReply, $replies);
+			$enrichedNestedReplies = array_map($enrichReply, $nestedReplies);
 
 			return new DataResponse([
 				'firstPost' => $enrichedFirstPost,
 				'replies' => $enrichedReplies,
+				'nestedReplies' => $enrichedNestedReplies,
 				'pagination' => [
 					'page' => $page,
 					'perPage' => $perPage,
@@ -190,6 +213,57 @@ class PostController extends OCSController {
 			$this->logger->error('Error fetching posts by thread: ' . $e->getMessage());
 			return new DataResponse(['error' => 'Failed to fetch posts'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	/**
+	 * Drop deleted nested replies that have no visible reply below them.
+	 * Deleted posts that do have one stay, so their subtree keeps its place.
+	 *
+	 * @param array<\OCA\Forum\Db\Post> $posts Nested replies, oldest first
+	 * @return list<\OCA\Forum\Db\Post>
+	 */
+	private function withoutDeadBranches(array $posts): array {
+		$hasVisibleReply = [];
+		$keep = [];
+		// A reply is always newer than its parent, so walking newest first
+		// settles every child before its parent
+		foreach (array_reverse($posts) as $post) {
+			$visible = $post->getDeletedAt() === null || isset($hasVisibleReply[$post->getId()]);
+			if ($visible) {
+				$keep[$post->getId()] = true;
+				$parentId = $post->getParentPostId();
+				if ($parentId !== null) {
+					$hasVisibleReply[$parentId] = true;
+				}
+			}
+		}
+
+		return array_values(array_filter($posts, fn ($p) => isset($keep[$p->getId()])));
+	}
+
+	/**
+	 * Serialize a deleted post that is kept in a thread to hold its replies
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function deletedPlaceholder(\OCA\Forum\Db\Post $post): array {
+		return [
+			'id' => $post->getId(),
+			'threadId' => $post->getThreadId(),
+			'authorId' => '',
+			'content' => '',
+			'contentRaw' => '',
+			'isEdited' => false,
+			'isFirstPost' => false,
+			'editedAt' => null,
+			'createdAt' => $post->getCreatedAt(),
+			'updatedAt' => $post->getUpdatedAt(),
+			'deletedAt' => $post->getDeletedAt(),
+			'parentPostId' => $post->getParentPostId(),
+			'rootReplyId' => $post->getRootReplyId(),
+			'author' => null,
+			'reactions' => [],
+		];
 	}
 
 	/**
@@ -301,6 +375,7 @@ class PostController extends OCSController {
 	 * @param int $threadId Thread ID
 	 * @param string $content Post content
 	 * @param string $guestToken Guest session token (32-char hex, for unauthenticated users)
+	 * @param int|null $parentPostId Post this reply answers; omitted, or the thread's first post, for a top-level reply. Ignored when nested replies are disabled
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Post created
@@ -310,7 +385,7 @@ class PostController extends OCSController {
 	#[NoCSRFRequired]
 	#[RequirePermission('canReply', resourceType: 'category', resourceIdFromThreadId: 'threadId')]
 	#[ApiRoute(verb: 'POST', url: '/api/posts')]
-	public function create(int $threadId, string $content, string $guestToken = ''): DataResponse {
+	public function create(int $threadId, string $content, string $guestToken = '', ?int $parentPostId = null): DataResponse {
 		try {
 			$user = $this->userSession->getUser();
 
@@ -327,12 +402,31 @@ class PostController extends OCSController {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
+			$parent = null;
+			if ($parentPostId !== null
+				&& (int)$this->adminSettingsService->getSetting(AdminSettingsService::SETTING_MAX_REPLY_DEPTH) > 0) {
+				try {
+					$parent = $this->postMapper->find($parentPostId);
+				} catch (DoesNotExistException $e) {
+					return new DataResponse(['error' => 'Parent post not found'], Http::STATUS_BAD_REQUEST);
+				}
+				if ($parent->getThreadId() !== $threadId) {
+					return new DataResponse(['error' => 'Parent post not found'], Http::STATUS_BAD_REQUEST);
+				}
+				// Answering the opening post is the same as replying to the thread
+				if ($parent->getIsFirstPost()) {
+					$parent = null;
+				}
+			}
+
 			$post = new \OCA\Forum\Db\Post();
 			$post->setThreadId($threadId);
 			$post->setAuthorId($authorId);
 			$post->setContent($content);
 			$post->setIsEdited(false);
 			$post->setIsFirstPost(false);
+			$post->setParentPostId($parent?->getId());
+			$post->setRootReplyId($parent === null ? null : ($parent->getRootReplyId() ?? $parent->getId()));
 			$post->setCreatedAt(time());
 			$post->setUpdatedAt(time());
 
@@ -405,11 +499,21 @@ class PostController extends OCSController {
 			}
 
 			// Notify mentioned users
+			$mentionedUsers = [];
 			try {
 				$mentionedUsers = $this->notificationService->extractMentions($content);
 				$this->notificationService->notifyMentionedUsers($createdPost->getId(), $threadId, $authorId, $mentionedUsers);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to send mention notifications: ' . $e->getMessage());
+			}
+
+			// Notify the author of the post being replied to
+			if ($parent !== null) {
+				try {
+					$this->notificationService->notifyPostReply($createdPost, $parent, $mentionedUsers);
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to send reply notification: ' . $e->getMessage());
+				}
 			}
 
 			$currentUserId = $user?->getUID();
@@ -596,6 +700,7 @@ class PostController extends OCSController {
 			// Dismiss all mention notifications for this post
 			try {
 				$this->notificationService->dismissAllMentionNotifications($id, $post->getContent(), $post->getAuthorId());
+				$this->notificationService->dismissPostReplyNotification($id);
 			} catch (\Exception $e) {
 				$this->logger->warning('Failed to dismiss mention notifications after post deletion: ' . $e->getMessage());
 				// Don't fail the request if notification dismissal fails

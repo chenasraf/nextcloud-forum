@@ -39,6 +39,9 @@ class UserPreferencesService {
 	/** Preference key for upload routing behavior — 'configured' or 'prompt' */
 	public const PREF_UPLOAD_BEHAVIOR = 'upload_behavior';
 
+	/** Preference key for being notified about direct replies to one's posts */
+	public const PREF_NOTIFY_POST_REPLIES = 'notify_post_replies';
+
 	/** @var array<string, mixed> Default preference values */
 	private const DEFAULTS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => true,
@@ -49,6 +52,7 @@ class UserPreferencesService {
 		self::PREF_HIDE_EDIT_HISTORY => false,
 		self::PREF_USE_CATEGORY_UPLOAD_PATH => true,
 		self::PREF_UPLOAD_BEHAVIOR => 'configured',
+		self::PREF_NOTIFY_POST_REPLIES => true,
 	];
 
 	/** @var array<string> List of valid preference keys */
@@ -61,6 +65,7 @@ class UserPreferencesService {
 		self::PREF_HIDE_EDIT_HISTORY,
 		self::PREF_USE_CATEGORY_UPLOAD_PATH,
 		self::PREF_UPLOAD_BEHAVIOR,
+		self::PREF_NOTIFY_POST_REPLIES,
 	];
 
 	/** @var array<string> Keys stored in forum_users table instead of config */

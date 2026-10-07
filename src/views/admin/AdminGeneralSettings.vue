@@ -83,6 +83,18 @@
             </NcCheckboxRadioSwitch>
             <p class="hint">{{ strings.enableSignaturesHint }}</p>
           </div>
+
+          <div class="form-group">
+            <label for="forum-max-reply-depth">{{ strings.maxReplyDepth }}</label>
+            <NcTextField
+              id="forum-max-reply-depth"
+              v-model.number="formData.max_reply_depth"
+              type="number"
+              :min="0"
+              :max="10"
+            />
+            <p class="hint">{{ strings.maxReplyDepthHint }}</p>
+          </div>
         </FormSection>
 
         <FormSection :title="strings.categoryCountsTitle" :subtitle="strings.categoryCountsDesc">
@@ -145,6 +157,7 @@ interface Settings {
   allow_edit_history_user_override: boolean
   enable_signatures: boolean
   count_subcategory_in_category_counts: boolean
+  max_reply_depth: number
 }
 
 export default defineComponent({
@@ -182,6 +195,7 @@ export default defineComponent({
         allow_edit_history_user_override: false,
         enable_signatures: true,
         count_subcategory_in_category_counts: true,
+        max_reply_depth: 5,
       } as Settings,
       formData: {
         title: '',
@@ -191,6 +205,7 @@ export default defineComponent({
         allow_edit_history_user_override: false,
         enable_signatures: true,
         count_subcategory_in_category_counts: true,
+        max_reply_depth: 5,
       } as Settings,
 
       strings: {
@@ -233,6 +248,11 @@ export default defineComponent({
           'forum',
           'When enabled, accounts can set a signature in their preferences that appears at the bottom of their posts.',
         ),
+        maxReplyDepth: t('forum', 'Maximum reply nesting depth'),
+        maxReplyDepthHint: t(
+          'forum',
+          'How many levels replies can nest below a reply to the thread, from 0 to 10. Deeper replies are shown next to the post they answer. Set to 0 to turn off replying to individual posts.',
+        ),
         categoryCountsTitle: t('forum', 'Category counts'),
         categoryCountsDesc: t(
           'forum',
@@ -263,7 +283,8 @@ export default defineComponent({
           this.originalData.allow_edit_history_user_override ||
         this.formData.enable_signatures !== this.originalData.enable_signatures ||
         this.formData.count_subcategory_in_category_counts !==
-          this.originalData.count_subcategory_in_category_counts
+          this.originalData.count_subcategory_in_category_counts ||
+        this.formData.max_reply_depth !== this.originalData.max_reply_depth
       )
     },
   },

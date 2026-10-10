@@ -19,6 +19,8 @@ export interface PublicSettings {
   allow_edit_history_user_override: boolean
   /** Whether signatures are displayed on posts */
   enable_signatures: boolean
+  /** How many levels replies can nest below a top-level reply (0 disables nested replies) */
+  max_reply_depth: number
 }
 
 const settings = ref<PublicSettings | null>(null)
@@ -80,6 +82,10 @@ export function usePublicSettings() {
     return settings.value?.is_initialized ?? false
   })
 
+  const maxReplyDepth = computed<number>(() => {
+    return settings.value?.max_reply_depth ?? 5
+  })
+
   /**
    * Refresh settings from server, forcing a new fetch
    *
@@ -112,6 +118,8 @@ export function usePublicSettings() {
     allowGuestAccess,
     /** Computed boolean indicating if forum has been initialized */
     isInitialized,
+    /** Computed nesting depth limit for replies; 0 when nested replies are disabled */
+    maxReplyDepth,
     /** Fetch settings from server */
     fetchPublicSettings,
     /** Force refresh settings from server */

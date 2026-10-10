@@ -21,6 +21,7 @@ use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
+use OCA\Forum\Service\AdminSettingsService;
 use OCA\Forum\Service\BBCodeService;
 use OCA\Forum\Service\GuestService;
 use OCA\Forum\Service\NotificationService;
@@ -72,6 +73,8 @@ class PostControllerTest extends TestCase {
 	private ThreadSubscriptionMapper $threadSubscriptionMapper;
 	/** @var GuestService&MockObject */
 	private GuestService $guestService;
+	/** @var AdminSettingsService&MockObject */
+	private AdminSettingsService $adminSettingsService;
 	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
 	/** @var LoggerInterface&MockObject */
@@ -97,6 +100,10 @@ class PostControllerTest extends TestCase {
 		$this->userPreferencesService = $this->createMock(UserPreferencesService::class);
 		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
 		$this->guestService = $this->createMock(GuestService::class);
+		$this->adminSettingsService = $this->createMock(AdminSettingsService::class);
+		$this->adminSettingsService->method('getSetting')
+			->with(AdminSettingsService::SETTING_MAX_REPLY_DEPTH)
+			->willReturn(5);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -128,6 +135,7 @@ class PostControllerTest extends TestCase {
 			$this->userPreferencesService,
 			$this->threadSubscriptionMapper,
 			$this->guestService,
+			$this->adminSettingsService,
 			$this->userSession,
 			$this->logger
 		);
@@ -140,7 +148,7 @@ class PostControllerTest extends TestCase {
 		$this->userSession->method('getUser')->willReturn(null);
 
 		$this->postMapper->expects($this->once())
-			->method('countRepliesByThreadId')
+			->method('countTopLevelReplies')
 			->with($threadId)
 			->willReturn(0);
 
@@ -150,7 +158,7 @@ class PostControllerTest extends TestCase {
 			->willReturn(null);
 
 		$this->postMapper->expects($this->once())
-			->method('findRepliesByThreadId')
+			->method('findTopLevelReplies')
 			->with($threadId, 20, 0)
 			->willReturn([]);
 
@@ -971,7 +979,7 @@ class PostControllerTest extends TestCase {
 
 		// Set up PostMapper expectations
 		$this->postMapper->expects($this->once())
-			->method('countRepliesByThreadId')
+			->method('countTopLevelReplies')
 			->with($threadId)
 			->willReturn(2);
 
@@ -981,7 +989,7 @@ class PostControllerTest extends TestCase {
 			->willReturn($firstPost);
 
 		$this->postMapper->expects($this->once())
-			->method('findRepliesByThreadId')
+			->method('findTopLevelReplies')
 			->with($threadId, $perPage, 0)
 			->willReturn($replies);
 
@@ -1046,7 +1054,7 @@ class PostControllerTest extends TestCase {
 
 		// 25 replies = 2 pages (20 per page)
 		$this->postMapper->expects($this->once())
-			->method('countRepliesByThreadId')
+			->method('countTopLevelReplies')
 			->with($threadId)
 			->willReturn(25);
 
@@ -1057,7 +1065,7 @@ class PostControllerTest extends TestCase {
 
 		// When page=0, it should calculate startPage=2 (last page) and fetch from offset 20
 		$this->postMapper->expects($this->once())
-			->method('findRepliesByThreadId')
+			->method('findTopLevelReplies')
 			->with($threadId, $perPage, 20) // offset = (2-1) * 20 = 20
 			->willReturn(array_slice($replies, 20)); // Last 5 replies
 
@@ -1110,7 +1118,7 @@ class PostControllerTest extends TestCase {
 
 		// 50 replies = 3 pages
 		$this->postMapper->expects($this->once())
-			->method('countRepliesByThreadId')
+			->method('countTopLevelReplies')
 			->with($threadId)
 			->willReturn(50);
 
@@ -1133,7 +1141,7 @@ class PostControllerTest extends TestCase {
 
 		// Should fetch page 2 (offset 20)
 		$this->postMapper->expects($this->once())
-			->method('findRepliesByThreadId')
+			->method('findTopLevelReplies')
 			->with($threadId, $perPage, 20)
 			->willReturn([]);
 
@@ -1183,7 +1191,7 @@ class PostControllerTest extends TestCase {
 
 		// 40 replies = 2 pages
 		$this->postMapper->expects($this->once())
-			->method('countRepliesByThreadId')
+			->method('countTopLevelReplies')
 			->with($threadId)
 			->willReturn(40);
 
@@ -1200,7 +1208,7 @@ class PostControllerTest extends TestCase {
 
 		// Should fetch last page (page 2, offset 20)
 		$this->postMapper->expects($this->once())
-			->method('findRepliesByThreadId')
+			->method('findTopLevelReplies')
 			->with($threadId, $perPage, 20)
 			->willReturn([]);
 
@@ -1236,7 +1244,7 @@ class PostControllerTest extends TestCase {
 
 		// 10 replies = 1 page
 		$this->postMapper->expects($this->once())
-			->method('countRepliesByThreadId')
+			->method('countTopLevelReplies')
 			->with($threadId)
 			->willReturn(10);
 
@@ -1250,7 +1258,7 @@ class PostControllerTest extends TestCase {
 			->willReturn($firstPost);
 
 		$this->postMapper->expects($this->once())
-			->method('findRepliesByThreadId')
+			->method('findTopLevelReplies')
 			->with($threadId, $perPage, 0)
 			->willReturn([]);
 
@@ -1291,7 +1299,7 @@ class PostControllerTest extends TestCase {
 
 		// 60 replies = 3 pages
 		$this->postMapper->expects($this->once())
-			->method('countRepliesByThreadId')
+			->method('countTopLevelReplies')
 			->with($threadId)
 			->willReturn(60);
 
@@ -1302,7 +1310,7 @@ class PostControllerTest extends TestCase {
 
 		// Request page 2 explicitly (even though startPage would be 3)
 		$this->postMapper->expects($this->once())
-			->method('findRepliesByThreadId')
+			->method('findTopLevelReplies')
 			->with($threadId, $perPage, 20) // Page 2 = offset 20
 			->willReturn([]);
 
@@ -1321,5 +1329,221 @@ class PostControllerTest extends TestCase {
 		$this->assertEquals(2, $data['pagination']['page']); // Requested page 2
 		$this->assertEquals(3, $data['pagination']['totalPages']);
 		$this->assertEquals(3, $data['pagination']['startPage']); // StartPage is still 3 (last page for unread)
+	}
+
+	public function testCreateNestedReplyStoresParentAndRoot(): void {
+		$threadId = 1;
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$parent = $this->createMockPost(7, $threadId, 'user2', 'Parent');
+		$parent->setParentPostId(3);
+		$parent->setRootReplyId(3);
+		$this->postMapper->method('find')->with(7)->willReturn($parent);
+		$this->threadMapper->method('find')->willThrowException(new DoesNotExistException(''));
+
+		$inserted = null;
+		$this->postMapper->expects($this->once())
+			->method('insert')
+			->willReturnCallback(function (Post $post) use (&$inserted) {
+				$post->setId(10);
+				$inserted = $post;
+				return $post;
+			});
+
+		$this->notificationService->method('extractMentions')->willReturn([]);
+		$this->notificationService->expects($this->once())
+			->method('notifyPostReply')
+			->with($this->isInstanceOf(Post::class), $parent, []);
+
+		$response = $this->controller->create($threadId, 'Reply', '', 7);
+
+		$this->assertEquals(Http::STATUS_CREATED, $response->getStatus());
+		$this->assertSame(7, $inserted->getParentPostId());
+		$this->assertSame(3, $inserted->getRootReplyId());
+	}
+
+	public function testCreateReplyToTopLevelReplyUsesItAsRoot(): void {
+		$threadId = 1;
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$parent = $this->createMockPost(3, $threadId, 'user2', 'Top-level');
+		$this->postMapper->method('find')->with(3)->willReturn($parent);
+		$this->threadMapper->method('find')->willThrowException(new DoesNotExistException(''));
+
+		$inserted = null;
+		$this->postMapper->method('insert')
+			->willReturnCallback(function (Post $post) use (&$inserted) {
+				$post->setId(10);
+				$inserted = $post;
+				return $post;
+			});
+
+		$this->controller->create($threadId, 'Reply', '', 3);
+
+		$this->assertSame(3, $inserted->getParentPostId());
+		$this->assertSame(3, $inserted->getRootReplyId());
+	}
+
+	public function testCreateReplyToFirstPostIsTopLevel(): void {
+		$threadId = 1;
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$firstPost = $this->createMockPost(1, $threadId, 'user2', 'Opening post');
+		$firstPost->setIsFirstPost(true);
+		$this->postMapper->method('find')->with(1)->willReturn($firstPost);
+		$this->threadMapper->method('find')->willThrowException(new DoesNotExistException(''));
+
+		$inserted = null;
+		$this->postMapper->method('insert')
+			->willReturnCallback(function (Post $post) use (&$inserted) {
+				$post->setId(10);
+				$inserted = $post;
+				return $post;
+			});
+		$this->notificationService->expects($this->never())->method('notifyPostReply');
+
+		$this->controller->create($threadId, 'Reply', '', 1);
+
+		$this->assertNull($inserted->getParentPostId());
+		$this->assertNull($inserted->getRootReplyId());
+	}
+
+	public function testCreateReplyRejectsParentFromAnotherThread(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->postMapper->method('find')->willReturn($this->createMockPost(7, 2, 'user2', 'Elsewhere'));
+		$this->postMapper->expects($this->never())->method('insert');
+
+		$response = $this->controller->create(1, 'Reply', '', 7);
+
+		$this->assertEquals(Http::STATUS_BAD_REQUEST, $response->getStatus());
+	}
+
+	public function testCreateReplyIgnoresParentWhenNestingDisabled(): void {
+		$adminSettings = $this->createMock(AdminSettingsService::class);
+		$adminSettings->method('getSetting')->willReturn(0);
+		$controller = $this->controllerWithAdminSettings($adminSettings);
+
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+		$this->threadMapper->method('find')->willThrowException(new DoesNotExistException(''));
+		$this->postMapper->expects($this->never())->method('find');
+
+		$inserted = null;
+		$this->postMapper->method('insert')
+			->willReturnCallback(function (Post $post) use (&$inserted) {
+				$post->setId(10);
+				$inserted = $post;
+				return $post;
+			});
+
+		$controller->create(1, 'Reply', '', 7);
+
+		$this->assertNull($inserted->getParentPostId());
+	}
+
+	public function testByThreadReturnsNestedRepliesAndDropsDeadBranches(): void {
+		$threadId = 1;
+		$this->userSession->method('getUser')->willReturn(null);
+
+		$root = $this->createMockPost(2, $threadId, 'user1', 'Root');
+
+		// 3 (deleted) -> 4 (visible): 3 stays as a placeholder
+		$deletedWithReply = $this->createMockPost(3, $threadId, 'user2', 'Gone');
+		$deletedWithReply->setParentPostId(2);
+		$deletedWithReply->setRootReplyId(2);
+		$deletedWithReply->setDeletedAt(time());
+		$visible = $this->createMockPost(4, $threadId, 'user3', 'Still here');
+		$visible->setParentPostId(3);
+		$visible->setRootReplyId(2);
+
+		// 5 (deleted) -> 6 (deleted): both are dropped
+		$deadParent = $this->createMockPost(5, $threadId, 'user2', 'Gone');
+		$deadParent->setParentPostId(2);
+		$deadParent->setRootReplyId(2);
+		$deadParent->setDeletedAt(time());
+		$deadChild = $this->createMockPost(6, $threadId, 'user2', 'Gone too');
+		$deadChild->setParentPostId(5);
+		$deadChild->setRootReplyId(2);
+		$deadChild->setDeletedAt(time());
+
+		$this->postMapper->method('countTopLevelReplies')->willReturn(1);
+		$this->postMapper->method('findFirstPostByThreadId')->willReturn(null);
+		$this->postMapper->method('findTopLevelReplies')->willReturn([$root]);
+		$this->postMapper->expects($this->once())
+			->method('findDescendantsByRootIds')
+			->with([2])
+			->willReturn([$deletedWithReply, $visible, $deadParent, $deadChild]);
+		$this->bbCodeMapper->method('findAllEnabled')->willReturn([]);
+		$this->reactionMapper->method('findByPostIds')->willReturn([]);
+		$this->userService->method('enrichMultipleUsers')->willReturn([]);
+
+		$response = $this->controller->byThread($threadId);
+
+		$data = $response->getData();
+		$this->assertCount(1, $data['replies']);
+		$this->assertSame([3, 4], array_column($data['nestedReplies'], 'id'));
+		$this->assertSame('', $data['nestedReplies'][0]['content']);
+		$this->assertNull($data['nestedReplies'][0]['author']);
+		$this->assertNotNull($data['nestedReplies'][0]['deletedAt']);
+		$this->assertSame(3, $data['nestedReplies'][1]['parentPostId']);
+	}
+
+	public function testByThreadOpensPageOfRequestedPost(): void {
+		$threadId = 1;
+		$this->userSession->method('getUser')->willReturn(null);
+
+		$this->postMapper->method('countTopLevelReplies')->willReturn(60);
+		$this->postMapper->expects($this->once())
+			->method('getReplyPosition')
+			->with($threadId, 42)
+			->willReturn(25);
+		$this->postMapper->method('findFirstPostByThreadId')->willReturn(null);
+		$this->postMapper->expects($this->once())
+			->method('findTopLevelReplies')
+			->with($threadId, 20, 20)
+			->willReturn([]);
+		$this->bbCodeMapper->method('findAllEnabled')->willReturn([]);
+		$this->reactionMapper->method('findByPostIds')->willReturn([]);
+		$this->userService->method('enrichMultipleUsers')->willReturn([]);
+
+		$response = $this->controller->byThread($threadId, 0, 20, 42);
+
+		$this->assertSame(2, $response->getData()['pagination']['page']);
+	}
+
+	private function controllerWithAdminSettings(AdminSettingsService $adminSettings): PostController {
+		return new PostController(
+			Application::APP_ID,
+			$this->request,
+			$this->postMapper,
+			$this->threadMapper,
+			$this->categoryMapper,
+			$this->forumUserMapper,
+			$this->reactionMapper,
+			$this->bbCodeService,
+			$this->bbCodeMapper,
+			$this->permissionService,
+			$this->readMarkerMapper,
+			$this->notificationService,
+			$this->postEnrichmentService,
+			$this->postHistoryService,
+			$this->userService,
+			$this->userPreferencesService,
+			$this->threadSubscriptionMapper,
+			$this->guestService,
+			$adminSettings,
+			$this->userSession,
+			$this->logger
+		);
 	}
 }

@@ -26,6 +26,9 @@ use Psr\Log\LoggerInterface;
  * Service for moderation actions (restore and permanently delete content)
  */
 class ModerationService {
+	public const REPLIES_KEEP = 'keep';
+	public const REPLIES_DELETE = 'delete';
+
 	public function __construct(
 		private ThreadMapper $threadMapper,
 		private PostMapper $postMapper,
@@ -36,6 +39,7 @@ class ModerationService {
 		private ReadMarkerMapper $readMarkerMapper,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
 		private DraftMapper $draftMapper,
+		private NotificationService $notificationService,
 		private IDBConnection $db,
 		private LoggerInterface $logger,
 	) {
@@ -152,15 +156,24 @@ class ModerationService {
 	/**
 	 * Permanently delete a soft-deleted reply post and all of its associated data.
 	 *
-	 * This removes the post and all related reactions, edit history and
-	 * bookmarks. Replies to the post move up to the post's own parent. First
-	 * posts must be deleted via thread deletion. The action cannot be undone.
+	 * This removes the post's content and all related reactions, edit history
+	 * and bookmarks. Nested replies never move up the tree: with
+	 * REPLIES_DELETE they are deleted along with the post, and with
+	 * REPLIES_KEEP the post stays as an empty placeholder they are shown under.
+	 * First posts must be deleted via thread deletion. The action cannot be
+	 * undone.
 	 *
 	 * @param int $postId Post ID to permanently delete
+	 * @param string $replies What to do with nested replies: REPLIES_KEEP or REPLIES_DELETE
+	 * @return list<int> IDs of the nested replies deleted along with the post
 	 * @throws \OCP\AppFramework\Db\DoesNotExistException If post not found
 	 * @throws \InvalidArgumentException If post is not soft-deleted or is a first post
 	 */
-	public function permanentlyDeleteReply(int $postId): void {
+	public function permanentlyDeleteReply(int $postId, string $replies = self::REPLIES_KEEP): array {
+		if (!in_array($replies, [self::REPLIES_KEEP, self::REPLIES_DELETE], true)) {
+			throw new \InvalidArgumentException('Invalid nested replies mode');
+		}
+
 		$post = $this->postMapper->findIncludingDeleted($postId);
 
 		if ($post->getDeletedAt() === null) {
@@ -171,14 +184,23 @@ class ModerationService {
 			throw new \InvalidArgumentException('First posts must be deleted via thread deletion');
 		}
 
+		$descendants = $this->postMapper->findDescendants($post);
+		$deleteDescendants = $replies === self::REPLIES_DELETE && !empty($descendants);
+		$removed = $deleteDescendants ? $descendants : [];
+		$removedIds = array_merge([$postId], array_map(fn (Post $p) => $p->getId(), $removed));
+
 		$this->db->beginTransaction();
 		try {
-			$this->reactionMapper->deleteByPostIds([$postId]);
-			$this->postHistoryMapper->deleteByPostId($postId);
-			$this->bookmarkMapper->deleteByEntity(Bookmark::ENTITY_TYPE_POST, $postId);
+			$this->reactionMapper->deleteByPostIds($removedIds);
+			$this->postHistoryMapper->deleteByPostIds($removedIds);
+			$this->bookmarkMapper->deleteByEntityTypeAndIds(Bookmark::ENTITY_TYPE_POST, $removedIds);
 
-			$this->postMapper->reparentChildren($post);
-			$this->postMapper->deleteById($postId);
+			if (!empty($descendants) && !$deleteDescendants) {
+				$this->postMapper->purge($post);
+			} else {
+				$this->postMapper->deleteByIds($removedIds);
+				$this->postMapper->deletePurgedAncestorsWithoutReplies($post->getParentPostId());
+			}
 
 			$this->db->commit();
 		} catch (\Throwable $e) {
@@ -186,7 +208,28 @@ class ModerationService {
 			throw $e;
 		}
 
-		$this->logger->info("Permanently deleted post $postId");
+		$visibleRemoved = array_filter($removed, fn (Post $p) => $p->getDeletedAt() === null);
+		if (!empty($visibleRemoved)) {
+			foreach ($visibleRemoved as $reply) {
+				try {
+					$this->notificationService->dismissAllMentionNotifications($reply->getId(), $reply->getContent(), $reply->getAuthorId());
+					$this->notificationService->dismissPostReplyNotification($reply->getId());
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to dismiss notifications for post ' . $reply->getId() . ': ' . $e->getMessage());
+				}
+			}
+
+			$thread = $this->threadMapper->findIncludingDeleted($post->getThreadId());
+			$this->statsService->rebuildThreadStats($post->getThreadId());
+			$this->statsService->rebuildCategoryStats($thread->getCategoryId());
+			foreach (array_unique(array_map(fn (Post $p) => $p->getAuthorId(), $visibleRemoved)) as $authorId) {
+				$this->statsService->rebuildUserStats($authorId);
+			}
+		}
+
+		$this->logger->info("Permanently deleted post $postId and " . count($removed) . ' nested replies');
+
+		return array_map(fn (Post $p) => $p->getId(), $removed);
 	}
 
 	/**
@@ -217,17 +260,27 @@ class ModerationService {
 	 * Permanently delete multiple soft-deleted reply posts.
 	 *
 	 * Each reply is deleted independently; a failure on one does not abort the
-	 * rest. Returns the IDs that were deleted and, per failure, the ID and reason.
+	 * rest. A reply already deleted as a nested reply of an earlier one counts
+	 * as deleted. Returns the IDs that were deleted and, per failure, the ID
+	 * and reason.
 	 *
 	 * @param list<int> $ids Post IDs to permanently delete
+	 * @param string $replies What to do with nested replies: REPLIES_KEEP or REPLIES_DELETE
 	 * @return array{deleted: list<int>, failed: list<array{id: int, error: string}>}
 	 */
-	public function permanentlyDeleteReplies(array $ids): array {
+	public function permanentlyDeleteReplies(array $ids, string $replies = self::REPLIES_KEEP): array {
 		$deleted = [];
 		$failed = [];
+		$deletedAsNested = [];
 		foreach ($ids as $id) {
+			if (isset($deletedAsNested[$id])) {
+				$deleted[] = $id;
+				continue;
+			}
 			try {
-				$this->permanentlyDeleteReply($id);
+				foreach ($this->permanentlyDeleteReply($id, $replies) as $nestedId) {
+					$deletedAsNested[$nestedId] = true;
+				}
 				$deleted[] = $id;
 			} catch (\Throwable $e) {
 				$this->logger->warning("Failed to permanently delete post $id: " . $e->getMessage());

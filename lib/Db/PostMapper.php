@@ -313,55 +313,118 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Move the direct children of a post up to that post's parent, before the
-	 * post is permanently deleted.
+	 * Find every reply below a post at any depth, including soft-deleted and
+	 * purged ones, ordered oldest first
 	 *
-	 * When the post is a top-level reply its children become top-level replies
-	 * themselves, and each of them becomes the root of its own subtree.
+	 * @return list<Post>
 	 */
-	public function reparentChildren(Post $post): void {
-		$parentId = $post->getParentPostId();
+	public function findDescendants(Post $post): array {
+		return $this->findDescendantsOf([$post])[$post->getId()] ?? [];
+	}
 
-		if ($parentId !== null) {
+	/**
+	 * Count the replies below each post at any depth, leaving out purged ones
+	 *
+	 * @param array<Post> $posts
+	 * @return array<int, int> Reply count by post ID
+	 */
+	public function countDescendants(array $posts): array {
+		return array_map(
+			static fn (array $descendants): int => count(array_filter(
+				$descendants,
+				static fn (Post $p): bool => $p->getPurgedAt() === null,
+			)),
+			$this->findDescendantsOf($posts),
+		);
+	}
+
+	/**
+	 * @param array<Post> $posts
+	 * @return array<int, list<Post>> Descendants by post ID, oldest first
+	 */
+	private function findDescendantsOf(array $posts): array {
+		if (empty($posts)) {
+			return [];
+		}
+
+		$rootIds = array_values(array_unique(array_map(
+			static fn (Post $p): int => $p->getRootReplyId() ?? $p->getId(),
+			$posts,
+		)));
+		$candidates = $this->findDescendantsByRootIds($rootIds);
+
+		$childIdsByParent = [];
+		foreach ($candidates as $candidate) {
+			$childIdsByParent[(int)$candidate->getParentPostId()][] = $candidate->getId();
+		}
+
+		$result = [];
+		foreach ($posts as $post) {
+			$below = [];
+			$queue = [$post->getId()];
+			while (!empty($queue)) {
+				foreach ($childIdsByParent[array_shift($queue)] ?? [] as $childId) {
+					$below[$childId] = true;
+					$queue[] = $childId;
+				}
+			}
+			$result[$post->getId()] = array_values(array_filter(
+				$candidates,
+				static fn (Post $c): bool => isset($below[$c->getId()]),
+			));
+		}
+		return $result;
+	}
+
+	/**
+	 * Empty a permanently deleted post whose replies are kept. The row stays
+	 * so the replies keep their parent and are shown under its placeholder;
+	 * only its place in the tree and its creation time, which orders it among
+	 * its siblings, are left.
+	 */
+	public function purge(Post $post): void {
+		$now = time();
+		$post->setAuthorId('');
+		$post->setContent('');
+		$post->setIsEdited(false);
+		$post->setEditedAt(null);
+		$post->setUpdatedAt($now);
+		$post->setDeletedAt($now);
+		$post->setPurgedAt($now);
+		$this->update($post);
+	}
+
+	/**
+	 * Permanently delete purged posts that are left without replies, walking
+	 * up the tree from the given post
+	 */
+	public function deletePurgedAncestorsWithoutReplies(?int $postId): void {
+		while ($postId !== null) {
 			$qb = $this->db->getQueryBuilder();
-			$qb->update($this->getTableName())
-				->set('parent_post_id', $qb->createNamedParameter($parentId, IQueryBuilder::PARAM_INT))
-				->where($qb->expr()->eq('parent_post_id', $qb->createNamedParameter($post->getId(), IQueryBuilder::PARAM_INT)));
-			$qb->executeStatement();
-			return;
-		}
-
-		$subtree = $this->findDescendantsByRootIds([$post->getId()]);
-		if (empty($subtree)) {
-			return;
-		}
-
-		$parentById = [];
-		foreach ($subtree as $descendant) {
-			$parentById[$descendant->getId()] = $descendant->getParentPostId();
-		}
-
-		foreach ($subtree as $descendant) {
-			// Walk up to the child of the deleted post; that child is the new root
-			$newRoot = $descendant->getId();
-			$parentId = $parentById[$newRoot] ?? null;
-			while ($parentId !== null && $parentId !== $post->getId() && array_key_exists($parentId, $parentById)) {
-				$newRoot = $parentId;
-				$parentId = $parentById[$newRoot];
+			$qb->select('*')
+				->from($this->getTableName())
+				->where($qb->expr()->eq('id', $qb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)))
+				->andWhere($qb->expr()->isNotNull('purged_at'));
+			$purged = $this->findEntities($qb);
+			if (empty($purged) || $this->hasReplies($postId)) {
+				return;
 			}
 
-			$isNewRoot = $newRoot === $descendant->getId();
-			$qb = $this->db->getQueryBuilder();
-			$qb->update($this->getTableName())
-				->set('root_reply_id', $isNewRoot
-					? $qb->createNamedParameter(null, IQueryBuilder::PARAM_NULL)
-					: $qb->createNamedParameter($newRoot, IQueryBuilder::PARAM_INT))
-				->where($qb->expr()->eq('id', $qb->createNamedParameter($descendant->getId(), IQueryBuilder::PARAM_INT)));
-			if ($isNewRoot) {
-				$qb->set('parent_post_id', $qb->createNamedParameter(null, IQueryBuilder::PARAM_NULL));
-			}
-			$qb->executeStatement();
+			$this->deleteById($postId);
+			$postId = $purged[0]->getParentPostId();
 		}
+	}
+
+	private function hasReplies(int $postId): bool {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('parent_post_id', $qb->createNamedParameter($postId, IQueryBuilder::PARAM_INT)))
+			->setMaxResults(1);
+		$result = $qb->executeQuery();
+		$found = $result->fetchOne() !== false;
+		$result->closeCursor();
+		return $found;
 	}
 
 	/**
@@ -556,7 +619,7 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Find a post by ID including soft-deleted posts
+	 * Find a post by ID including soft-deleted posts, but not purged ones
 	 *
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
 	 * @throws DoesNotExistException
@@ -565,7 +628,8 @@ class PostMapper extends QBMapper {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from($this->getTableName())
-			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)));
+			->where($qb->expr()->eq('id', $qb->createNamedParameter($id, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('purged_at'));
 		return $this->findEntity($qb);
 	}
 
@@ -579,6 +643,7 @@ class PostMapper extends QBMapper {
 		$qb->select('*')
 			->from($this->getTableName())
 			->where($qb->expr()->isNotNull('deleted_at'))
+			->andWhere($qb->expr()->isNull('purged_at'))
 			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
 
 		if ($search !== '') {
@@ -600,6 +665,7 @@ class PostMapper extends QBMapper {
 		$qb->select($qb->func()->count('*', 'count'))
 			->from($this->getTableName())
 			->where($qb->expr()->isNotNull('deleted_at'))
+			->andWhere($qb->expr()->isNull('purged_at'))
 			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
 
 		if ($search !== '') {
@@ -613,13 +679,14 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Count all posts for a thread, including deleted posts
+	 * Count all posts for a thread, including deleted posts but not purged ones
 	 */
 	public function countByThreadIdIncludingDeleted(int $threadId): int {
 		$qb = $this->db->getQueryBuilder();
 		$qb->select($qb->func()->count('*', 'count'))
 			->from($this->getTableName())
-			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)));
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('purged_at'));
 		$result = $qb->executeQuery();
 		$count = (int)($result->fetchOne() ?? 0);
 		$result->closeCursor();
@@ -728,7 +795,24 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
-	 * Find all posts for a thread, including deleted posts
+	 * Permanently delete posts by ID
+	 *
+	 * @param array<int> $postIds
+	 * @return int Number of posts removed
+	 */
+	public function deleteByIds(array $postIds): int {
+		if (empty($postIds)) {
+			return 0;
+		}
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete($this->getTableName())
+			->where($qb->expr()->in('id', $qb->createNamedParameter($postIds, IQueryBuilder::PARAM_INT_ARRAY)));
+		return $qb->executeStatement();
+	}
+
+	/**
+	 * Find all posts for a thread, including deleted posts but not purged ones
 	 *
 	 * @return array<Post>
 	 */
@@ -737,6 +821,7 @@ class PostMapper extends QBMapper {
 		$qb->select('*')
 			->from($this->getTableName())
 			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('purged_at'))
 			->orderBy('created_at', 'ASC')
 			->setMaxResults($limit)
 			->setFirstResult($offset);

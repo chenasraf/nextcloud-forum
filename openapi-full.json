@@ -6284,6 +6284,18 @@
                         }
                     },
                     {
+                        "name": "replies",
+                        "in": "query",
+                        "description": "Nested replies below the reply: 'keep' leaves them under a deleted reply placeholder, 'delete' deletes them too",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "keep",
+                                "delete"
+                            ]
+                        }
+                    },
+                    {
                         "name": "OCS-APIRequest",
                         "in": "header",
                         "description": "Required to be true for the API request to pass",
@@ -6510,6 +6522,14 @@
                                             "type": "integer",
                                             "format": "int64"
                                         }
+                                    },
+                                    "replies": {
+                                        "type": "string",
+                                        "enum": [
+                                            "keep",
+                                            "delete"
+                                        ],
+                                        "description": "Nested replies below the replies: 'keep' leaves them under deleted reply placeholders, 'delete' deletes them too"
                                     }
                                 }
                             }

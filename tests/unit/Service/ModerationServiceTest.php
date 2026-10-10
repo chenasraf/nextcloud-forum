@@ -17,6 +17,7 @@ use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
 use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Service\ModerationService;
+use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\StatsService;
 use OCP\IDBConnection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -44,6 +45,8 @@ class ModerationServiceTest extends TestCase {
 	private ThreadSubscriptionMapper $threadSubscriptionMapper;
 	/** @var DraftMapper&MockObject */
 	private DraftMapper $draftMapper;
+	/** @var NotificationService&MockObject */
+	private NotificationService $notificationService;
 	/** @var IDBConnection&MockObject */
 	private IDBConnection $db;
 	/** @var LoggerInterface&MockObject */
@@ -59,6 +62,7 @@ class ModerationServiceTest extends TestCase {
 		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
 		$this->draftMapper = $this->createMock(DraftMapper::class);
+		$this->notificationService = $this->createMock(NotificationService::class);
 		$this->db = $this->createMock(IDBConnection::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -72,6 +76,7 @@ class ModerationServiceTest extends TestCase {
 			$this->readMarkerMapper,
 			$this->threadSubscriptionMapper,
 			$this->draftMapper,
+			$this->notificationService,
 			$this->db,
 			$this->logger,
 		);
@@ -282,14 +287,131 @@ class ModerationServiceTest extends TestCase {
 		$this->db->expects($this->once())->method('beginTransaction');
 		$this->db->expects($this->once())->method('commit');
 
+		$this->postMapper->method('findDescendants')->willReturn([]);
+
 		$this->reactionMapper->expects($this->once())->method('deleteByPostIds')->with([10]);
-		$this->postHistoryMapper->expects($this->once())->method('deleteByPostId')->with(10);
+		$this->postHistoryMapper->expects($this->once())->method('deleteByPostIds')->with([10]);
 		$this->bookmarkMapper->expects($this->once())
-			->method('deleteByEntity')
-			->with(Bookmark::ENTITY_TYPE_POST, 10);
-		$this->postMapper->expects($this->once())->method('deleteById')->with(10);
+			->method('deleteByEntityTypeAndIds')
+			->with(Bookmark::ENTITY_TYPE_POST, [10]);
+		$this->postMapper->expects($this->once())->method('deleteByIds')->with([10]);
+		$this->postMapper->expects($this->never())->method('purge');
+		$this->statsService->expects($this->never())->method('rebuildThreadStats');
 
 		$this->service->permanentlyDeleteReply(10);
+	}
+
+	public function testPermanentlyDeleteReplyCleansUpChildlessPurgedParent(): void {
+		$post = $this->makeDeletedReply(10, parentPostId: 5);
+		$this->postMapper->method('findIncludingDeleted')->willReturn($post);
+		$this->postMapper->method('findDescendants')->willReturn([]);
+
+		$this->postMapper->expects($this->once())
+			->method('deletePurgedAncestorsWithoutReplies')
+			->with(5);
+
+		$this->service->permanentlyDeleteReply(10);
+	}
+
+	public function testPermanentlyDeleteReplyKeepsNestedRepliesUnderPurgedPost(): void {
+		$post = $this->makeDeletedReply(10);
+		$child = $this->makeReply(11, 10, 'bob');
+
+		$this->postMapper->method('findIncludingDeleted')->willReturn($post);
+		$this->postMapper->method('findDescendants')->with($post)->willReturn([$child]);
+
+		$this->reactionMapper->expects($this->once())->method('deleteByPostIds')->with([10]);
+		$this->postHistoryMapper->expects($this->once())->method('deleteByPostIds')->with([10]);
+		$this->postMapper->expects($this->once())->method('purge')->with($post);
+		$this->postMapper->expects($this->never())->method('deleteByIds');
+		$this->statsService->expects($this->never())->method('rebuildThreadStats');
+		$this->notificationService->expects($this->never())->method('dismissPostReplyNotification');
+
+		$this->service->permanentlyDeleteReply(10, ModerationService::REPLIES_KEEP);
+	}
+
+	public function testPermanentlyDeleteReplyDeletesNestedReplies(): void {
+		$post = $this->makeDeletedReply(10);
+		$child = $this->makeReply(11, 10, 'bob');
+		$deletedGrandchild = $this->makeReply(12, 11, 'carol');
+		$deletedGrandchild->setDeletedAt(3000);
+		$grandchild = $this->makeReply(13, 11, 'bob');
+
+		$thread = new Thread();
+		$thread->setId(1);
+		$thread->setCategoryId(5);
+
+		$this->postMapper->method('findIncludingDeleted')->willReturn($post);
+		$this->postMapper->method('findDescendants')->willReturn([$child, $deletedGrandchild, $grandchild]);
+		$this->threadMapper->method('findIncludingDeleted')->with(1)->willReturn($thread);
+
+		$this->reactionMapper->expects($this->once())->method('deleteByPostIds')->with([10, 11, 12, 13]);
+		$this->postHistoryMapper->expects($this->once())->method('deleteByPostIds')->with([10, 11, 12, 13]);
+		$this->bookmarkMapper->expects($this->once())
+			->method('deleteByEntityTypeAndIds')
+			->with(Bookmark::ENTITY_TYPE_POST, [10, 11, 12, 13]);
+		$this->postMapper->expects($this->once())->method('deleteByIds')->with([10, 11, 12, 13]);
+		$this->postMapper->expects($this->never())->method('purge');
+
+		$dismissed = [];
+		$this->notificationService->method('dismissPostReplyNotification')
+			->willReturnCallback(function (int $id) use (&$dismissed): void {
+				$dismissed[] = $id;
+			});
+
+		$this->statsService->expects($this->once())->method('rebuildThreadStats')->with(1);
+		$this->statsService->expects($this->once())->method('rebuildCategoryStats')->with(5);
+		$this->statsService->expects($this->once())->method('rebuildUserStats')->with('bob');
+
+		$this->service->permanentlyDeleteReply(10, ModerationService::REPLIES_DELETE);
+
+		// Soft-deleted replies already had their notifications dismissed
+		$this->assertSame([11, 13], $dismissed);
+	}
+
+	public function testPermanentlyDeleteRepliesCountsNestedSelectionAsDeleted(): void {
+		$parent = $this->makeDeletedReply(10);
+		$child = $this->makeReply(11, 10, 'bob');
+		$child->setDeletedAt(3000);
+		$thread = new Thread();
+		$thread->setId(1);
+		$thread->setCategoryId(5);
+
+		$this->postMapper->expects($this->once())
+			->method('findIncludingDeleted')
+			->with(10)
+			->willReturn($parent);
+		$this->postMapper->method('findDescendants')->willReturn([$child]);
+		$this->threadMapper->method('findIncludingDeleted')->willReturn($thread);
+
+		$result = $this->service->permanentlyDeleteReplies([10, 11], ModerationService::REPLIES_DELETE);
+
+		$this->assertSame([10, 11], $result['deleted']);
+		$this->assertSame([], $result['failed']);
+	}
+
+	public function testPermanentlyDeleteReplyInvalidModeThrows(): void {
+		$this->postMapper->expects($this->never())->method('findIncludingDeleted');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->service->permanentlyDeleteReply(10, 'reparent');
+	}
+
+	private function makeDeletedReply(int $id, ?int $parentPostId = null): Post {
+		$post = $this->makeReply($id, $parentPostId, 'alice');
+		$post->setDeletedAt(2000);
+		return $post;
+	}
+
+	private function makeReply(int $id, ?int $parentPostId, string $authorId): Post {
+		$post = new Post();
+		$post->setId($id);
+		$post->setThreadId(1);
+		$post->setAuthorId($authorId);
+		$post->setContent("post $id");
+		$post->setIsFirstPost(false);
+		$post->setParentPostId($parentPostId);
+		return $post;
 	}
 
 	public function testPermanentlyDeleteReplyNotDeletedThrows(): void {

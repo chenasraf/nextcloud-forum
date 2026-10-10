@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.3](https://github.com/chenasraf/nextcloud-forum/compare/v1.4.2...v1.4.3) (2026-10-10)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([56184df](https://github.com/chenasraf/nextcloud-forum/commit/56184dfecdb3dfb34de8265509a20eafcba4fd6f))
+* **l10n:** Update translations from Transifex ([be5639a](https://github.com/chenasraf/nextcloud-forum/commit/be5639a1d74164dcca8df6a072fb56feb40b8406))
+* **l10n:** Update translations from Transifex ([16d6136](https://github.com/chenasraf/nextcloud-forum/commit/16d61362cf0bbc68773be7c85c74fb8f6adb969f))
+* **l10n:** Update translations from Transifex ([63e088f](https://github.com/chenasraf/nextcloud-forum/commit/63e088f84f661329eb80438370b958a49f614460))
+* **l10n:** Update translations from Transifex ([1c54f47](https://github.com/chenasraf/nextcloud-forum/commit/1c54f478befa3ece3f4001e094310b5d69b0b9cd))
+* **l10n:** Update translations from Transifex ([22f16bb](https://github.com/chenasraf/nextcloud-forum/commit/22f16bb63e8f117920532c57832840fec78d39ad))
+* **l10n:** Update translations from Transifex ([5e4b025](https://github.com/chenasraf/nextcloud-forum/commit/5e4b025a42ea9f153ad528ce288fb1b87fc92c5b))
+* **l10n:** Update translations from Transifex ([4737856](https://github.com/chenasraf/nextcloud-forum/commit/4737856e776cdd994af6773f8f2c6c62bd17d14c))
+* **l10n:** Update translations from Transifex ([8a5aa18](https://github.com/chenasraf/nextcloud-forum/commit/8a5aa18fc3a3a26f1df14f6042a227c6828dd46b))
+* **l10n:** Update translations from Transifex ([7ab0f5f](https://github.com/chenasraf/nextcloud-forum/commit/7ab0f5fb91fb8350c1e215831c5fb51627b1de7d))
+* **seed:** resolve l10n via IFactory on Nextcloud 36 ([db7aa6c](https://github.com/chenasraf/nextcloud-forum/commit/db7aa6c1bf48a0f73770399bf39e0c7c7c327744))
+
 ## [1.4.2](https://github.com/chenasraf/nextcloud-forum/compare/v1.4.1...v1.4.2) (2026-09-17)
 
 

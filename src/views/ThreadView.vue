@@ -439,6 +439,8 @@ import { usePermissions } from '@/composables/usePermissions'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useGuestSession } from '@/composables/useGuestSession'
 import { usePublicSettings } from '@/composables/usePublicSettings'
+import { useCategories } from '@/composables/useCategories'
+import { useUserPreferences } from '@/composables/useUserPreferences'
 
 export default defineComponent({
   name: 'ThreadView',
@@ -481,6 +483,8 @@ export default defineComponent({
     const { userId } = useCurrentUser()
     const { isGuest, fetchGuestIdentity } = useGuestSession()
     const { maxReplyDepth: forumMaxReplyDepth, fetchPublicSettings } = usePublicSettings()
+    const { fetchUnreadCounts } = useCategories()
+    const { preferences } = useUserPreferences()
 
     return {
       thread,
@@ -491,6 +495,8 @@ export default defineComponent({
       fetchGuestIdentity,
       forumMaxReplyDepth,
       fetchPublicSettings,
+      fetchUnreadCounts,
+      preferences,
     }
   },
   data() {
@@ -881,6 +887,11 @@ export default defineComponent({
 
         // Update local state so posts appear as read immediately
         this.lastReadPostId = lastPostId
+
+        // Keep the sidebar's unread counters in sync with the new read marker
+        if (this.preferences.show_unread_counts) {
+          this.fetchUnreadCounts()
+        }
       } catch (e) {
         // Silently fail - marking as read is not critical
         console.debug('Failed to mark thread as read', e)

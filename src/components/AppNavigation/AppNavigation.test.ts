@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mount, flushPromises, enableAutoUnmount } from '@vue/test-utils'
 import {
   createIconMock,
   createComponentMock,
@@ -14,12 +14,31 @@ const mockFetchCategories = vi.fn().mockResolvedValue([])
 const mockGetAllCategoriesFlat = vi.fn(() => [])
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockCategoryHeaders = ref<any[]>([])
+const mockUnreadCounts = ref<Record<number, number>>({})
+const mockFetchUnreadCounts = vi.fn().mockResolvedValue({})
+const mockGetUnreadCount = vi.fn(
+  (category: { id: number }) => mockUnreadCounts.value[category.id] ?? 0,
+)
 
 vi.mock('@/composables/useCategories', () => ({
   useCategories: () => ({
     categoryHeaders: mockCategoryHeaders,
     fetchCategories: mockFetchCategories,
     getAllCategoriesFlat: mockGetAllCategoriesFlat,
+    fetchUnreadCounts: mockFetchUnreadCounts,
+    getUnreadCount: mockGetUnreadCount,
+  }),
+}))
+
+const mockPreferences = ref({ show_unread_counts: true })
+const mockPreferencesLoaded = ref(true)
+const mockFetchUserPreferences = vi.fn().mockResolvedValue(null)
+
+vi.mock('@/composables/useUserPreferences', () => ({
+  useUserPreferences: () => ({
+    preferences: mockPreferences,
+    loaded: mockPreferencesLoaded,
+    fetchUserPreferences: mockFetchUserPreferences,
   }),
 }))
 
@@ -90,7 +109,7 @@ vi.mock('@nextcloud/vue/components/NcAppNavigation', () =>
 vi.mock('@nextcloud/vue/components/NcAppNavigationItem', () =>
   createComponentMock('NcAppNavigationItem', {
     template:
-      '<div class="nav-item" :data-name="name" :data-active="active"><slot name="icon" /><slot name="actions" /><slot /></div>',
+      '<div class="nav-item" :data-name="name" :data-active="active"><slot name="icon" /><span class="nav-counter"><slot name="counter" /></span><slot name="actions" /><slot /></div>',
     props: ['name', 'to', 'active', 'open'],
   }),
 )
@@ -104,6 +123,13 @@ vi.mock('@nextcloud/vue/components/NcAppNavigationSearch', () =>
 
 vi.mock('@nextcloud/vue/components/NcActionButton', () => createNcActionButtonMock())
 
+vi.mock('@nextcloud/vue/components/NcCounterBubble', () =>
+  createComponentMock('NcCounterBubble', {
+    template: '<span class="counter-bubble">{{ count }}</span>',
+    props: ['count'],
+  }),
+)
+
 vi.mock('@/components/UserInfo', () =>
   createComponentMock('UserInfo', {
     template:
@@ -114,8 +140,10 @@ vi.mock('@/components/UserInfo', () =>
 
 vi.mock('./NavCategoryItem.vue', () =>
   createComponentMock('NavCategoryItem', {
-    template: '<div class="nav-category-item" :data-category-id="category?.id" />',
-    props: ['category', 'active', 'activeCategoryIds'],
+    template:
+      '<div class="nav-category-item" :data-category-id="category?.id" :data-show-unread="String(showUnreadCounts)" @click="$emit(\'toggle\', category.id, false)" />',
+    props: ['category', 'active', 'activeCategoryIds', 'openCategories', 'showUnreadCounts'],
+    emits: ['toggle'],
   }),
 )
 
@@ -139,6 +167,8 @@ vi.mock('@icons/Login.vue', () => createIconMock('LoginIcon'))
 import AppNavigation from './AppNavigation.vue'
 
 describe('AppNavigation', () => {
+  enableAutoUnmount(afterEach)
+
   let mockRoute: { path: string; params: Record<string, string>; query: Record<string, string> }
   let mockRouter: { push: ReturnType<typeof vi.fn> }
 
@@ -164,6 +194,9 @@ describe('AppNavigation', () => {
     mockCanEditBbcodes.value = false
     mockCanAccessModeration.value = false
     mockCurrentThreadCategoryId.value = null
+    mockUnreadCounts.value = {}
+    mockPreferences.value = { show_unread_counts: true }
+    mockPreferencesLoaded.value = true
   })
 
   async function mountAndWait() {
@@ -299,6 +332,96 @@ describe('AppNavigation', () => {
       const headerItem = wrapper.find('[data-name="General"]')
       await headerItem.trigger('click')
       expect(mockRouter.push).toHaveBeenCalledWith({ path: '/c/discussion' })
+    })
+  })
+
+  describe('category collapsing', () => {
+    beforeEach(() => {
+      mockCategoryHeaders.value = [
+        {
+          id: 1,
+          name: 'General',
+          categories: [{ id: 10, name: 'Discussion', slug: 'discussion', children: [] }],
+        },
+      ]
+    })
+
+    it('should persist category toggles to local storage', async () => {
+      const wrapper = await mountAndWait()
+      await wrapper.find('.nav-category-item').trigger('click')
+
+      const saved = JSON.parse(localStorage.getItem('forum_navigation_state')!)
+      expect(saved.openCategories).toEqual({ 10: false })
+    })
+
+    it('should restore category state from local storage', async () => {
+      localStorage.setItem(
+        'forum_navigation_state',
+        JSON.stringify({ openHeaders: {}, openCategories: { 10: false } }),
+      )
+      const wrapper = await mountAndWait()
+
+      expect(wrapper.findComponent({ name: 'NavCategoryItem' }).props('openCategories')).toEqual({
+        10: false,
+      })
+    })
+  })
+
+  describe('unread counts', () => {
+    beforeEach(() => {
+      mockCategoryHeaders.value = [
+        {
+          id: 1,
+          name: 'General',
+          categories: [
+            { id: 10, name: 'Discussion', slug: 'discussion', children: [] },
+            { id: 11, name: 'Announcements', slug: 'announcements', children: [] },
+          ],
+        },
+      ]
+    })
+
+    it('should fetch unread counts for logged-in users', async () => {
+      mockUserId.value = 'user1'
+      const wrapper = await mountAndWait()
+
+      expect(mockFetchUserPreferences).toHaveBeenCalled()
+      expect(mockFetchUnreadCounts).toHaveBeenCalledTimes(1)
+      expect(wrapper.find('.nav-category-item').attributes('data-show-unread')).toBe('true')
+    })
+
+    it('should not fetch unread counts for guests', async () => {
+      mockUserId.value = null
+      const wrapper = await mountAndWait()
+
+      expect(mockFetchUnreadCounts).not.toHaveBeenCalled()
+      expect(wrapper.find('.nav-category-item').attributes('data-show-unread')).toBe('false')
+    })
+
+    it('should not fetch unread counts when disabled in preferences', async () => {
+      mockUserId.value = 'user1'
+      mockPreferences.value = { show_unread_counts: false }
+      const wrapper = await mountAndWait()
+
+      expect(mockFetchUnreadCounts).not.toHaveBeenCalled()
+      expect(wrapper.find('.nav-category-item').attributes('data-show-unread')).toBe('false')
+    })
+
+    it('should show the total on a collapsed header', async () => {
+      mockUserId.value = 'user1'
+      mockUnreadCounts.value = { 10: 2, 11: 3 }
+      localStorage.setItem('forum_navigation_state', JSON.stringify({ openHeaders: { 1: false } }))
+      const wrapper = await mountAndWait()
+
+      expect(wrapper.find('[data-name="General"] > .nav-counter').text()).toBe('5')
+    })
+
+    it('should not show a total on an open header', async () => {
+      mockUserId.value = 'user1'
+      mockUnreadCounts.value = { 10: 2, 11: 3 }
+      const wrapper = await mountAndWait()
+
+      expect(wrapper.find('[data-name="General"] > .nav-counter').text()).toBe('')
     })
   })
 

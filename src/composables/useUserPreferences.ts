@@ -20,6 +20,7 @@ export interface UserPreferences {
   use_category_upload_path: boolean
   upload_behavior: 'configured' | 'prompt'
   notify_post_replies: boolean
+  show_unread_counts: boolean
 }
 
 /** Conservative defaults — used while the first fetch is in flight. */
@@ -34,6 +35,7 @@ const DEFAULTS: UserPreferences = {
   use_category_upload_path: true,
   upload_behavior: 'configured',
   notify_post_replies: true,
+  show_unread_counts: true,
 }
 
 // Module-scoped state: shared across every component that calls the composable.

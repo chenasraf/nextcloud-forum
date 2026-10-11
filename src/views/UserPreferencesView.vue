@@ -63,6 +63,19 @@
           </div>
         </div>
 
+        <!-- Navigation Section -->
+        <div class="form-section">
+          <h3>{{ strings.navigationTitle }}</h3>
+          <p class="section-description muted">{{ strings.navigationDesc }}</p>
+
+          <div class="preference-item">
+            <NcCheckboxRadioSwitch v-model="formData.show_unread_counts">
+              {{ strings.showUnreadCountsLabel }}
+            </NcCheckboxRadioSwitch>
+            <p class="preference-hint">{{ strings.showUnreadCountsHint }}</p>
+          </div>
+        </div>
+
         <!-- Files Section -->
         <div class="form-section">
           <h3>{{ strings.filesTitle }}</h3>
@@ -234,6 +247,7 @@ export default defineComponent({
         use_category_upload_path: true,
         upload_behavior: 'configured',
         notify_post_replies: true,
+        show_unread_counts: true,
       } as UserPreferences,
       formData: {
         auto_subscribe_created_threads: true,
@@ -244,6 +258,7 @@ export default defineComponent({
         use_category_upload_path: true,
         upload_behavior: 'configured',
         notify_post_replies: true,
+        show_unread_counts: true,
       } as UserPreferences,
 
       strings: {
@@ -269,6 +284,13 @@ export default defineComponent({
         notifyPostRepliesHint: t(
           'forum',
           'When enabled, you will receive a notification when someone replies directly to one of your posts',
+        ),
+        navigationTitle: t('forum', 'Navigation'),
+        navigationDesc: t('forum', 'Configure the navigation sidebar'),
+        showUnreadCountsLabel: t('forum', 'Show unread thread counts'),
+        showUnreadCountsHint: t(
+          'forum',
+          'When enabled, the number of unread threads is shown next to each category. Collapsed categories include the unread threads of their subcategories.',
         ),
         filesTitle: t('forum', 'Files'),
         filesDesc: t('forum', 'Configure file upload settings'),
@@ -325,7 +347,8 @@ export default defineComponent({
         this.formData.hide_edit_history !== this.originalData.hide_edit_history ||
         this.formData.use_category_upload_path !== this.originalData.use_category_upload_path ||
         this.formData.upload_behavior !== this.originalData.upload_behavior ||
-        this.formData.notify_post_replies !== this.originalData.notify_post_replies
+        this.formData.notify_post_replies !== this.originalData.notify_post_replies ||
+        this.formData.show_unread_counts !== this.originalData.show_unread_counts
       )
     },
     displayedUploadDirectory(): string {

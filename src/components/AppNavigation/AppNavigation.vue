@@ -50,6 +50,13 @@
               <FolderIcon :size="20" />
             </template>
 
+            <template v-if="!isHeaderOpen(header.id) && headerUnreadCount(header) > 0" #counter>
+              <NcCounterBubble
+                :count="headerUnreadCount(header)"
+                :title="unreadLabel(headerUnreadCount(header))"
+              />
+            </template>
+
             <template #actions>
               <NcActionButton
                 :aria-label="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
@@ -71,6 +78,9 @@
                 :category="category"
                 :active="isCategoryActive(category)"
                 :active-category-ids="activeCategoryIds"
+                :open-categories="openCategories"
+                :show-unread-counts="showUnreadCounts"
+                @toggle="toggleCategory"
               />
             </template>
           </NcAppNavigationItem>
@@ -223,12 +233,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { t } from '@nextcloud/l10n'
+import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSearch'
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
+import NcCounterBubble from '@nextcloud/vue/components/NcCounterBubble'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import UserInfo from '@/components/UserInfo'
 import NavCategoryItem from './NavCategoryItem.vue'
@@ -252,7 +263,8 @@ import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useUserRole } from '@/composables/useUserRole'
 import { useCurrentThread } from '@/composables/useCurrentThread'
 import { useGuestSession } from '@/composables/useGuestSession'
-import type { Category } from '@/types'
+import { useUserPreferences } from '@/composables/useUserPreferences'
+import type { Category, CategoryHeader } from '@/types'
 
 export default defineComponent({
   name: 'AppNavigation',
@@ -261,6 +273,7 @@ export default defineComponent({
     NcAppNavigationItem,
     NcAppNavigationSearch,
     NcActionButton,
+    NcCounterBubble,
     NcLoadingIcon,
     UserInfo,
     NavCategoryItem,
@@ -281,7 +294,13 @@ export default defineComponent({
     LoginIcon,
   },
   setup() {
-    const { categoryHeaders, fetchCategories, getAllCategoriesFlat } = useCategories()
+    const {
+      categoryHeaders,
+      fetchCategories,
+      getAllCategoriesFlat,
+      fetchUnreadCounts,
+      getUnreadCount,
+    } = useCategories()
     const { userId, displayName, fetchCurrentUser } = useCurrentUser()
     const {
       canAccessAdmin,
@@ -294,11 +313,17 @@ export default defineComponent({
     } = useUserRole()
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
     const { isGuest, guestDisplayName, fetchGuestIdentity } = useGuestSession()
+    const { preferences, loaded: preferencesLoaded, fetchUserPreferences } = useUserPreferences()
 
     return {
       categoryHeaders,
       fetchCategories,
       getAllCategoriesFlat,
+      fetchUnreadCounts,
+      getUnreadCount,
+      preferences,
+      preferencesLoaded,
+      fetchUserPreferences,
       fetchCurrentUser,
       userId,
       displayName,
@@ -322,6 +347,7 @@ export default defineComponent({
       isLoading: true,
       searchValue: '',
       openHeaders: {} as Record<number, boolean>,
+      openCategories: {} as Record<number, boolean>,
       isAdminOpen: true,
       STORAGE_KEY: 'forum_navigation_state',
       strings: {
@@ -366,6 +392,11 @@ export default defineComponent({
         })
       }
 
+      if (this.userId !== null) {
+        // Unread counters are secondary - don't hold the sidebar back for them
+        this.fetchUserPreferences()
+      }
+
       // Log any errors from categories fetch
       if (categoriesResult.status === 'rejected') {
         console.error('Failed to load categories for sidebar:', categoriesResult.reason)
@@ -381,6 +412,9 @@ export default defineComponent({
     loginUrl(): string {
       const returnUrl = window.location.pathname + window.location.search + window.location.hash
       return generateUrl('/login?redirect_url={url}', { url: returnUrl })
+    },
+    showUnreadCounts(): boolean {
+      return this.userId !== null && this.preferencesLoaded && this.preferences.show_unread_counts
     },
     visibleHeaders(): typeof this.categoryHeaders {
       return this.categoryHeaders.filter((header) => (header.categories?.length ?? 0) > 0)
@@ -412,6 +446,11 @@ export default defineComponent({
           if (parsed.openHeaders && typeof parsed.openHeaders === 'object') {
             this.openHeaders = parsed.openHeaders
           }
+
+          // Load categories state
+          if (parsed.openCategories && typeof parsed.openCategories === 'object') {
+            this.openCategories = parsed.openCategories
+          }
         }
 
         // Initialize headers that don't have saved state to open by default
@@ -439,6 +478,7 @@ export default defineComponent({
         const state = {
           isAdminOpen: this.isAdminOpen,
           openHeaders: this.openHeaders,
+          openCategories: this.openCategories,
         }
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state))
       } catch (e) {
@@ -474,6 +514,28 @@ export default defineComponent({
 
     isHeaderOpen(headerId: number): boolean {
       return this.openHeaders[headerId] !== false
+    },
+
+    toggleCategory(categoryId: number, open: boolean): void {
+      this.openCategories = {
+        ...this.openCategories,
+        [categoryId]: open,
+      }
+      this.saveNavigationState()
+    },
+
+    refreshUnreadCounts(): void {
+      if (this.showUnreadCounts) {
+        this.fetchUnreadCounts()
+      }
+    },
+
+    headerUnreadCount(header: CategoryHeader): number {
+      return (header.categories ?? []).reduce((sum, cat) => sum + this.getUnreadCount(cat, true), 0)
+    },
+
+    unreadLabel(count: number): string {
+      return n('forum', '%n unread thread', '%n unread threads', count)
     },
 
     toggleAdmin(): void {
@@ -567,8 +629,21 @@ export default defineComponent({
   },
   watch: {
     $route: {
-      handler() {
+      handler(_to, from) {
         this.updateThreadCategory()
+        // Pick up activity from others while navigating; the initial load is handled by the
+        // showUnreadCounts watcher
+        if (from) {
+          this.refreshUnreadCounts()
+        }
+      },
+      immediate: true,
+    },
+    showUnreadCounts: {
+      handler(show: boolean) {
+        if (show) {
+          this.fetchUnreadCounts()
+        }
       },
       immediate: true,
     },

@@ -129,6 +129,8 @@ export function createMockCategory(overrides: Partial<Category> = {}): Category 
     color: null,
     textColor: null,
     hideChildrenOnCard: false,
+    attachmentUploadFolderId: null,
+    maxReplyDepth: null,
     threadCount: 10,
     postCount: 50,
     createdAt: Date.now(),

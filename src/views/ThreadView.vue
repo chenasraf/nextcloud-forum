@@ -480,7 +480,7 @@ export default defineComponent({
     const { checkCategoryPermission } = usePermissions()
     const { userId } = useCurrentUser()
     const { isGuest, fetchGuestIdentity } = useGuestSession()
-    const { maxReplyDepth, fetchPublicSettings } = usePublicSettings()
+    const { maxReplyDepth: forumMaxReplyDepth, fetchPublicSettings } = usePublicSettings()
 
     return {
       thread,
@@ -489,7 +489,7 @@ export default defineComponent({
       userId,
       isGuest,
       fetchGuestIdentity,
-      maxReplyDepth,
+      forumMaxReplyDepth,
       fetchPublicSettings,
     }
   },
@@ -515,6 +515,7 @@ export default defineComponent({
       isSavingTitle: false,
       showMoveDialog: false,
       categoryUploadPath: null as string | null,
+      categoryMaxReplyDepth: null as number | null,
 
       strings: {
         back: t('forum', 'Back'),
@@ -574,6 +575,9 @@ export default defineComponent({
     canEditTitle(): boolean {
       // Allow if user is the author, or has moderation permissions
       return this.thread?.authorId === this.userId || this.canModerate
+    },
+    maxReplyDepth(): number {
+      return this.categoryMaxReplyDepth ?? this.forumMaxReplyDepth
     },
     replyRows(): ReplyRow[] {
       return flattenReplyTree(
@@ -668,7 +672,9 @@ export default defineComponent({
           await this.fetchGuestIdentity()
         }
 
-        await this.fetchPublicSettings()
+        // The category can override the forum's reply nesting depth, which
+        // shapes how the replies below are shown
+        await Promise.all([this.fetchPublicSettings(), this.fetchCategory()])
 
         // Fetch posts - use page from query param if present
         // page=last → use a high number so backend clamps to last page
@@ -686,8 +692,6 @@ export default defineComponent({
         await this.fetchPosts(initialPage, linkedPostId)
         // Check permissions
         await this.checkPermissions()
-        // Fetch category-specific attachment upload path (resolved for this user)
-        await this.fetchCategoryUploadPath()
       } catch (e) {
         console.error('Failed to refresh', e)
         this.error = (e as Error).message || t('forum', 'An unexpected error occurred')
@@ -707,17 +711,20 @@ export default defineComponent({
       }
     },
 
-    async fetchCategoryUploadPath(): Promise<void> {
+    // Fetch the category's attachment upload path (resolved for this user)
+    // and reply nesting depth
+    async fetchCategory(): Promise<void> {
+      this.categoryUploadPath = null
+      this.categoryMaxReplyDepth = null
       if (!this.thread?.categoryId) {
-        this.categoryUploadPath = null
         return
       }
       try {
         const resp = await ocs.get<Category>(`/categories/${this.thread.categoryId}`)
         this.categoryUploadPath = resp.data.attachmentUploadResolvedPath ?? null
+        this.categoryMaxReplyDepth = resp.data.maxReplyDepth ?? null
       } catch (e) {
-        // Non-fatal: just skip the per-category path
-        this.categoryUploadPath = null
+        // Non-fatal: fall back to the default upload path and the forum's depth
       }
     },
 

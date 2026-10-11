@@ -85,15 +85,7 @@
           </div>
 
           <div class="form-group">
-            <label for="forum-max-reply-depth">{{ strings.maxReplyDepth }}</label>
-            <NcTextField
-              id="forum-max-reply-depth"
-              v-model.number="formData.max_reply_depth"
-              type="number"
-              :min="0"
-              :max="10"
-            />
-            <p class="hint">{{ strings.maxReplyDepthHint }}</p>
+            <ReplyDepthField v-model="formData.max_reply_depth" input-id="forum-max-reply-depth" />
           </div>
         </FormSection>
 
@@ -144,6 +136,7 @@ import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwit
 import PageWrapper from '@/components/PageWrapper'
 import PageHeader from '@/components/PageHeader'
 import FormSection from '@/components/FormSection'
+import ReplyDepthField from '@/components/ReplyDepthField'
 import CheckIcon from '@icons/Check.vue'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
@@ -170,6 +163,7 @@ export default defineComponent({
     NcTextArea,
     NcCheckboxRadioSwitch,
     FormSection,
+    ReplyDepthField,
     PageHeader,
     PageWrapper,
     CheckIcon,
@@ -247,11 +241,6 @@ export default defineComponent({
         enableSignaturesHint: t(
           'forum',
           'When enabled, accounts can set a signature in their preferences that appears at the bottom of their posts.',
-        ),
-        maxReplyDepth: t('forum', 'Maximum reply nesting depth'),
-        maxReplyDepthHint: t(
-          'forum',
-          'How many levels replies can nest below a reply to the thread, from 0 to 10. Deeper replies are shown next to the post they answer. Set to 0 to turn off replying to individual posts.',
         ),
         categoryCountsTitle: t('forum', 'Category counts'),
         categoryCountsDesc: t(

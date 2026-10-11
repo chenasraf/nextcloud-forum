@@ -16,6 +16,7 @@ use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Service\AdminSettingsService;
 use OCA\Forum\Service\PermissionService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -214,6 +215,7 @@ class CategoryController extends OCSController {
 	 * @param int|null $parentId Parent category ID (null for top-level categories)
 	 * @param bool $hideChildrenOnCard Whether to hide child categories on the parent card
 	 * @param int|null $attachmentUploadFolderId Optional Nextcloud file ID of the per-category upload folder
+	 * @param int|null $maxReplyDepth How many levels replies can nest in this category (0-10, 0 disables nested replies, null = use the forum setting)
 	 * @return DataResponse<Http::STATUS_CREATED, array<string, mixed>, array{}>
 	 *
 	 * 201: Category created
@@ -221,7 +223,7 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'POST', url: '/api/categories')]
-	public function create(?int $headerId = null, string $name = '', string $slug = '', ?string $description = null, int $sortOrder = 0, ?string $color = null, ?string $textColor = null, ?int $parentId = null, bool $hideChildrenOnCard = false, ?int $attachmentUploadFolderId = null): DataResponse {
+	public function create(?int $headerId = null, string $name = '', string $slug = '', ?string $description = null, int $sortOrder = 0, ?string $color = null, ?string $textColor = null, ?int $parentId = null, bool $hideChildrenOnCard = false, ?int $attachmentUploadFolderId = null, ?int $maxReplyDepth = null): DataResponse {
 		try {
 			// Validate: either headerId (top-level) or parentId (child) must be set
 			if ($parentId !== null) {
@@ -250,6 +252,7 @@ class CategoryController extends OCSController {
 			$category->setTextColor($textColor);
 			$category->setHideChildrenOnCard($hideChildrenOnCard);
 			$category->setAttachmentUploadFolderId($attachmentUploadFolderId);
+			$category->setMaxReplyDepth($maxReplyDepth === null ? null : AdminSettingsService::clampReplyDepth($maxReplyDepth));
 			$category->setThreadCount(0);
 			$category->setPostCount(0);
 			$category->setCreatedAt(time());
@@ -277,6 +280,7 @@ class CategoryController extends OCSController {
 	 * @param string|null $parentId Parent category ID ('__unset__' = not provided, null = top-level, int = child)
 	 * @param bool|null $hideChildrenOnCard Whether to hide child categories on the parent card
 	 * @param int|string|null $attachmentUploadFolderId Category-specific upload folder ID ('__unset__' = not provided, null = use default, int = folder file ID)
+	 * @param int|string|null $maxReplyDepth How many levels replies can nest in this category ('__unset__' = not provided, null = use the forum setting, 0-10 = depth, 0 disables nested replies)
 	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
 	 *
 	 * 200: Category updated
@@ -284,7 +288,7 @@ class CategoryController extends OCSController {
 	#[NoAdminRequired]
 	#[RequirePermission('canEditCategories')]
 	#[ApiRoute(verb: 'PUT', url: '/api/categories/{id}')]
-	public function update(int $id, ?int $headerId = null, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null, ?string $color = '__unset__', ?string $textColor = '__unset__', string|int|null $parentId = '__unset__', ?bool $hideChildrenOnCard = null, string|int|null $attachmentUploadFolderId = '__unset__'): DataResponse {
+	public function update(int $id, ?int $headerId = null, ?string $name = null, ?string $description = null, ?string $slug = null, ?int $sortOrder = null, ?string $color = '__unset__', ?string $textColor = '__unset__', string|int|null $parentId = '__unset__', ?bool $hideChildrenOnCard = null, string|int|null $attachmentUploadFolderId = '__unset__', string|int|null $maxReplyDepth = '__unset__'): DataResponse {
 		try {
 			$category = $this->categoryMapper->find($id);
 
@@ -353,6 +357,11 @@ class CategoryController extends OCSController {
 			if ($attachmentUploadFolderId !== '__unset__') {
 				$category->setAttachmentUploadFolderId(
 					$attachmentUploadFolderId === null ? null : (int)$attachmentUploadFolderId
+				);
+			}
+			if ($maxReplyDepth !== '__unset__') {
+				$category->setMaxReplyDepth(
+					$maxReplyDepth === null ? null : AdminSettingsService::clampReplyDepth((int)$maxReplyDepth)
 				);
 			}
 			$category->setUpdatedAt(time());

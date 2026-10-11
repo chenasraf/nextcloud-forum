@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Tests\Service;
 
+use OCA\Forum\Db\Category;
 use OCA\Forum\Service\AdminSettingsService;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\IL10N;
@@ -162,6 +163,26 @@ class AdminSettingsServiceTest extends TestCase {
 
 		$this->service->setSetting(AdminSettingsService::SETTING_MAX_REPLY_DEPTH, 99);
 		$this->service->setSetting(AdminSettingsService::SETTING_MAX_REPLY_DEPTH, -3);
+	}
+
+	public function testGetMaxReplyDepthUsesForumSettingWithoutCategoryDepth(): void {
+		$this->config->method('getAppValueInt')
+			->with(AdminSettingsService::SETTING_MAX_REPLY_DEPTH, 5, true)
+			->willReturn(3);
+
+		$this->assertSame(3, $this->service->getMaxReplyDepth());
+		$this->assertSame(3, $this->service->getMaxReplyDepth(new Category()));
+	}
+
+	public function testGetMaxReplyDepthPrefersCategoryDepth(): void {
+		$this->config->expects($this->never())->method('getAppValueInt');
+
+		$category = new Category();
+		$category->setMaxReplyDepth(0);
+		$this->assertSame(0, $this->service->getMaxReplyDepth($category));
+
+		$category->setMaxReplyDepth(99);
+		$this->assertSame(AdminSettingsService::MAX_REPLY_DEPTH_LIMIT, $this->service->getMaxReplyDepth($category));
 	}
 
 	public function testSetSettingThrowsExceptionForInvalidKey(): void {

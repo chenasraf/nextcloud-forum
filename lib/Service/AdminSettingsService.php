@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace OCA\Forum\Service;
 
+use OCA\Forum\Db\Category;
 use OCP\AppFramework\Services\IAppConfig;
 use OCP\IL10N;
 
@@ -108,7 +109,7 @@ class AdminSettingsService {
 		}
 
 		return match ($key) {
-			self::SETTING_MAX_REPLY_DEPTH => $this->clampReplyDepth($this->config->getAppValueInt($key, (int)$this->getDefault($key), true)),
+			self::SETTING_MAX_REPLY_DEPTH => self::clampReplyDepth($this->config->getAppValueInt($key, (int)$this->getDefault($key), true)),
 			self::SETTING_ALLOW_GUEST_ACCESS,
 			self::SETTING_IS_INITIALIZED,
 			self::SETTING_PUBLIC_EDIT_HISTORY,
@@ -156,7 +157,7 @@ class AdminSettingsService {
 		}
 
 		if ($key === self::SETTING_MAX_REPLY_DEPTH) {
-			$this->config->setAppValueInt($key, $this->clampReplyDepth((int)$value), true);
+			$this->config->setAppValueInt($key, self::clampReplyDepth((int)$value), true);
 		} elseif ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED
 			|| $key === self::SETTING_PUBLIC_EDIT_HISTORY || $key === self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE
 			|| $key === self::SETTING_ENABLE_SIGNATURES
@@ -167,7 +168,19 @@ class AdminSettingsService {
 		}
 	}
 
-	private function clampReplyDepth(int $depth): int {
+	/**
+	 * How many levels replies can nest below a top-level reply in a category:
+	 * the category's own depth, or the forum-wide setting when it has none
+	 */
+	public function getMaxReplyDepth(?Category $category = null): int {
+		$override = $category?->getMaxReplyDepth();
+		if ($override !== null) {
+			return self::clampReplyDepth($override);
+		}
+		return (int)$this->getSetting(self::SETTING_MAX_REPLY_DEPTH);
+	}
+
+	public static function clampReplyDepth(int $depth): int {
 		return max(0, min(self::MAX_REPLY_DEPTH_LIMIT, $depth));
 	}
 }

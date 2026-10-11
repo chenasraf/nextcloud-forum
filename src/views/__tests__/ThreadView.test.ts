@@ -589,12 +589,17 @@ describe('ThreadView', () => {
       author: null,
     })
     const nested = createMockPost({ id: 4, parentPostId: 3, rootReplyId: 2 })
+    let categoryMaxReplyDepth: number | null
 
     beforeEach(() => {
+      categoryMaxReplyDepth = null
       mockCheckCategoryPermission.mockImplementation((_id: number, perm: string) =>
         Promise.resolve(perm === 'canReply'),
       )
       mockOcsGet.mockImplementation((url: string) => {
+        if (url === '/categories/5') {
+          return mockGetResponse({ data: { id: 5, maxReplyDepth: categoryMaxReplyDepth } })
+        }
         if (url.includes('/posts')) {
           return mockGetResponse({
             data: {
@@ -629,6 +634,28 @@ describe('ThreadView', () => {
       expect(rows[1]!.find('.deleted-reply').exists()).toBe(true)
       expect(rows[1]!.find('.post-card-mock').exists()).toBe(false)
       expect(rows[2]!.find('.post-card-mock').attributes('data-post-id')).toBe('4')
+    })
+
+    it("limits nesting to the category's depth", async () => {
+      categoryMaxReplyDepth = 1
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      expect(wrapper.findAll('.reply-row').map((r) => r.attributes('style'))).toEqual([
+        '--reply-depth: 0;',
+        '--reply-depth: 1;',
+        '--reply-depth: 1;',
+      ])
+    })
+
+    it('does not allow replying to posts when the category turns nested replies off', async () => {
+      categoryMaxReplyDepth = 0
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      expect(
+        wrapper.find('.post-card-mock[data-post-id="2"]').attributes('data-can-reply-to-post'),
+      ).toBe('false')
     })
 
     it('collapses the replies below a post', async () => {

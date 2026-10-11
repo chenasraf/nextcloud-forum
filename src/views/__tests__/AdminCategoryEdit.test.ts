@@ -367,6 +367,80 @@ describe('AdminCategoryEdit', () => {
     })
   })
 
+  describe('reply nesting depth', () => {
+    const editCategory = async (maxReplyDepth: number | null) => {
+      const existingCat = createMockCategory({ id: 5, headerId: 1, maxReplyDepth })
+      mockCategoryHeaders.value = [createHeader(1, 'H', [existingCat])]
+      setupEditMocks(existingCat)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockOcsPut.mockResolvedValue({ data: existingCat } as any)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      mockOcsPost.mockResolvedValue({ data: { success: true } } as any)
+
+      const wrapper = createWrapper({ id: '5' })
+      await flushPromises()
+      return wrapper
+    }
+
+    const submit = async (wrapper: Awaited<ReturnType<typeof editCategory>>) => {
+      await (wrapper.vm as unknown as { submitForm: () => Promise<void> }).submitForm()
+      await flushPromises()
+    }
+
+    it('should use the forum setting when the category has no depth', async () => {
+      const wrapper = await editCategory(null)
+
+      expect(wrapper.findComponent({ name: 'ReplyDepthField' }).exists()).toBe(false)
+
+      await submit(wrapper)
+      expect(mockOcsPut).toHaveBeenCalledWith(
+        '/categories/5',
+        expect.objectContaining({ maxReplyDepth: null }),
+      )
+    })
+
+    it("should show and keep the category's own depth", async () => {
+      const wrapper = await editCategory(0)
+
+      expect(wrapper.findComponent({ name: 'ReplyDepthField' }).props('modelValue')).toBe(0)
+
+      await submit(wrapper)
+      expect(mockOcsPut).toHaveBeenCalledWith(
+        '/categories/5',
+        expect.objectContaining({ maxReplyDepth: 0 }),
+      )
+    })
+
+    it("should start a category-specific depth from the forum's", async () => {
+      const wrapper = await editCategory(null)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const vm = wrapper.vm as any
+      vm.replyDepthMode = 'category'
+      await flushPromises()
+
+      expect(wrapper.findComponent({ name: 'ReplyDepthField' }).props('modelValue')).toBe(5)
+
+      await submit(wrapper)
+      expect(mockOcsPut).toHaveBeenCalledWith(
+        '/categories/5',
+        expect.objectContaining({ maxReplyDepth: 5 }),
+      )
+    })
+
+    it('should drop the category depth when switching back to the forum setting', async () => {
+      const wrapper = await editCategory(2)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(wrapper.vm as any).replyDepthMode = 'default'
+      await flushPromises()
+
+      await submit(wrapper)
+      expect(mockOcsPut).toHaveBeenCalledWith(
+        '/categories/5',
+        expect.objectContaining({ maxReplyDepth: null }),
+      )
+    })
+  })
+
   describe('navigation', () => {
     it('should navigate back to category list on cancel', async () => {
       mockCategoryHeaders.value = []

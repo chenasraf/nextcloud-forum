@@ -21,6 +21,8 @@ use OCP\Migration\SimpleMigrationStep;
  * their descendants in a single query. purged_at marks a permanently deleted
  * reply whose nested replies are kept: the row stays, emptied, so those
  * replies keep their parent and are shown under its placeholder.
+ * Also add max_reply_depth to forum_categories: a category's own nesting
+ * depth, or null to use the forum-wide setting.
  */
 class Version32Date20261006000000 extends SimpleMigrationStep {
 	public function changeSchema(IOutput $output, Closure $schemaClosure, array $options): ?ISchemaWrapper {
@@ -60,6 +62,18 @@ class Version32Date20261006000000 extends SimpleMigrationStep {
 				'default' => null,
 			]);
 			$changed = true;
+		}
+
+		if ($schema->hasTable('forum_categories')) {
+			$categories = $schema->getTable('forum_categories');
+			if (!$categories->hasColumn('max_reply_depth')) {
+				$categories->addColumn('max_reply_depth', 'smallint', [
+					'notnull' => false,
+					'unsigned' => true,
+					'default' => null,
+				]);
+				$changed = true;
+			}
 		}
 
 		return $changed ? $schema : null;

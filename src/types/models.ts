@@ -16,6 +16,7 @@ export interface Category {
   hideChildrenOnCard: boolean
   attachmentUploadFolderId: number | null
   attachmentUploadResolvedPath?: string | null
+  maxReplyDepth: number | null
   threadCount: number
   postCount: number
   createdAt: number

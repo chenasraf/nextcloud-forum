@@ -266,6 +266,11 @@ class PostController extends OCSController {
 		];
 	}
 
+	private function allowsNestedReplies(int $threadId): bool {
+		$category = $this->categoryMapper->find($this->permissionService->getCategoryIdFromThread($threadId));
+		return $this->adminSettingsService->getMaxReplyDepth($category) > 0;
+	}
+
 	/**
 	 * Get posts by author
 	 *
@@ -403,8 +408,7 @@ class PostController extends OCSController {
 			}
 
 			$parent = null;
-			if ($parentPostId !== null
-				&& (int)$this->adminSettingsService->getSetting(AdminSettingsService::SETTING_MAX_REPLY_DEPTH) > 0) {
+			if ($parentPostId !== null && $this->allowsNestedReplies($threadId)) {
 				try {
 					$parent = $this->postMapper->find($parentPostId);
 				} catch (DoesNotExistException $e) {

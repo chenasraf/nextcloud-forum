@@ -3133,6 +3133,13 @@
                                         "nullable": true,
                                         "default": null,
                                         "description": "Optional Nextcloud file ID of the per-category upload folder"
+                                    },
+                                    "maxReplyDepth": {
+                                        "type": "integer",
+                                        "format": "int64",
+                                        "nullable": true,
+                                        "default": null,
+                                        "description": "How many levels replies can nest in this category (0-10, 0 disables nested replies, null = use the forum setting)"
                                     }
                                 }
                             }
@@ -3472,6 +3479,20 @@
                                         "nullable": true,
                                         "default": "__unset__",
                                         "description": "Category-specific upload folder ID ('__unset__' = not provided, null = use default, int = folder file ID)",
+                                        "oneOf": [
+                                            {
+                                                "type": "integer",
+                                                "format": "int64"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    },
+                                    "maxReplyDepth": {
+                                        "nullable": true,
+                                        "default": "__unset__",
+                                        "description": "How many levels replies can nest in this category ('__unset__' = not provided, null = use the forum setting, 0-10 = depth, 0 disables nested replies)",
                                         "oneOf": [
                                             {
                                                 "type": "integer",

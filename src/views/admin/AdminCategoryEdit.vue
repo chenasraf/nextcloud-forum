@@ -189,6 +189,38 @@
           </div>
         </FormSection>
 
+        <!-- Replies Section -->
+        <FormSection :title="strings.replies" :subtitle="strings.repliesDesc">
+          <div class="form-grid">
+            <div class="form-group">
+              <NcCheckboxRadioSwitch
+                v-model="replyDepthMode"
+                value="default"
+                name="replyDepthMode"
+                type="radio"
+              >
+                {{ strings.replyDepthDefault }}
+              </NcCheckboxRadioSwitch>
+              <p class="help-text muted">{{ forumReplyDepthSummary }}</p>
+              <NcCheckboxRadioSwitch
+                v-model="replyDepthMode"
+                value="category"
+                name="replyDepthMode"
+                type="radio"
+              >
+                {{ strings.replyDepthCategory }}
+              </NcCheckboxRadioSwitch>
+            </div>
+
+            <div v-if="replyDepthMode === 'category'" class="form-group">
+              <ReplyDepthField
+                v-model="formData.maxReplyDepth"
+                input-id="category-max-reply-depth"
+              />
+            </div>
+          </div>
+        </FormSection>
+
         <!-- Permissions Section -->
         <FormSection :title="strings.permissions" :subtitle="strings.permissionsDescription">
           <div class="form-grid">
@@ -276,6 +308,7 @@ import AppToolbar from '@/components/AppToolbar'
 import FormSection from '@/components/FormSection'
 import CategoryCard from '@/components/CategoryCard'
 import ColorPickerPreset from '@/components/ColorPickerPreset'
+import ReplyDepthField from '@/components/ReplyDepthField'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
@@ -287,10 +320,11 @@ import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import FolderIcon from '@icons/Folder.vue'
 import { ocs } from '@/axios'
-import { t } from '@nextcloud/l10n'
+import { n, t } from '@nextcloud/l10n'
 import { getFilePickerBuilder, FilePickerType, showError } from '@nextcloud/dialogs'
 import { isAdminRole, isModeratorRole, isDefaultRole, isGuestRole } from '@/constants'
 import { useCategories } from '@/composables/useCategories'
+import { usePublicSettings } from '@/composables/usePublicSettings'
 import type { Category, CategoryPerm, CatHeader, Role, Team } from '@/types'
 import PageHeader from '@/components/PageHeader'
 
@@ -313,6 +347,7 @@ export default defineComponent({
     FormSection,
     CategoryCard,
     ColorPickerPreset,
+    ReplyDepthField,
     ArrowLeftIcon,
     FolderIcon,
     PageHeader,
@@ -324,11 +359,14 @@ export default defineComponent({
       refresh: refreshCategories,
       getAllCategoriesFlat,
     } = useCategories()
+    const { maxReplyDepth: forumMaxReplyDepth, fetchPublicSettings } = usePublicSettings()
     return {
       categoryHeaders,
       fetchCategories,
       refreshCategories,
       getAllCategoriesFlat,
+      forumMaxReplyDepth,
+      fetchPublicSettings,
     }
   },
   data() {
@@ -355,10 +393,12 @@ export default defineComponent({
         textColor: 'dark' as 'light' | 'dark',
         hideChildrenOnCard: false,
         attachmentUploadFolderId: null as number | null,
+        maxReplyDepth: 5,
       },
       slugManuallyEdited: false,
       attachmentPathMode: 'default' as 'default' | 'category',
       attachmentResolvedPath: null as string | null,
+      replyDepthMode: 'default' as 'default' | 'category',
 
       strings: {
         back: t('forum', 'Back'),
@@ -444,12 +484,26 @@ export default defineComponent({
           'This folder must be accessible to every user who uploads in this category. If a user cannot write to it, their upload will fall back to their personal default path.',
         ),
         browse: t('forum', 'Browse'),
+        replies: t('forum', 'Replies'),
+        repliesDesc: t('forum', 'Configure how replies nest in this category'),
+        replyDepthDefault: t('forum', 'Use the forum setting'),
+        replyDepthCategory: t('forum', 'Use a category-specific setting'),
       },
     }
   },
   computed: {
     isEditing(): boolean {
       return !!this.$route.params.id
+    },
+    forumReplyDepthSummary(): string {
+      return this.forumMaxReplyDepth > 0
+        ? n(
+            'forum',
+            'Nested replies are allowed, up to %n level deep',
+            'Nested replies are allowed, up to %n levels deep',
+            this.forumMaxReplyDepth,
+          )
+        : t('forum', 'Nested replies are turned off')
     },
     categoryId(): number | null {
       return this.$route.params.id ? parseInt(this.$route.params.id as string) : null
@@ -670,7 +724,9 @@ export default defineComponent({
         this.error = null
 
         // Load categories with nested structure (includes headers and categories)
-        await this.fetchCategories()
+        await Promise.all([this.fetchCategories(), this.fetchPublicSettings()])
+        // A category-specific setting starts from the forum's
+        this.formData.maxReplyDepth = this.forumMaxReplyDepth
 
         // Extract headers from categoryHeaders
         this.headers = this.categoryHeaders.map((header) => ({
@@ -745,6 +801,8 @@ export default defineComponent({
       this.formData.attachmentUploadFolderId = category.attachmentUploadFolderId ?? null
       this.attachmentResolvedPath = category.attachmentUploadResolvedPath ?? null
       this.attachmentPathMode = category.attachmentUploadFolderId !== null ? 'category' : 'default'
+      this.formData.maxReplyDepth = category.maxReplyDepth ?? this.forumMaxReplyDepth
+      this.replyDepthMode = category.maxReplyDepth !== null ? 'category' : 'default'
 
       // When editing, don't track manual slug edits (slug is pre-populated from DB)
       this.slugManuallyEdited = false
@@ -878,6 +936,7 @@ export default defineComponent({
           hideChildrenOnCard: this.formData.hideChildrenOnCard,
           attachmentUploadFolderId:
             this.attachmentPathMode === 'category' ? this.formData.attachmentUploadFolderId : null,
+          maxReplyDepth: this.replyDepthMode === 'category' ? this.formData.maxReplyDepth : null,
         }
 
         // Set parent based on selection type

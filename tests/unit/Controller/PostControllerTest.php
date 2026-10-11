@@ -101,9 +101,7 @@ class PostControllerTest extends TestCase {
 		$this->threadSubscriptionMapper = $this->createMock(ThreadSubscriptionMapper::class);
 		$this->guestService = $this->createMock(GuestService::class);
 		$this->adminSettingsService = $this->createMock(AdminSettingsService::class);
-		$this->adminSettingsService->method('getSetting')
-			->with(AdminSettingsService::SETTING_MAX_REPLY_DEPTH)
-			->willReturn(5);
+		$this->adminSettingsService->method('getMaxReplyDepth')->willReturn(5);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -1428,8 +1426,16 @@ class PostControllerTest extends TestCase {
 	}
 
 	public function testCreateReplyIgnoresParentWhenNestingDisabled(): void {
+		$category = new Category();
+		$category->setMaxReplyDepth(0);
+		$this->permissionService->method('getCategoryIdFromThread')->with(1)->willReturn(3);
+		$this->categoryMapper->method('find')->with(3)->willReturn($category);
+
 		$adminSettings = $this->createMock(AdminSettingsService::class);
-		$adminSettings->method('getSetting')->willReturn(0);
+		$adminSettings->expects($this->once())
+			->method('getMaxReplyDepth')
+			->with($category)
+			->willReturn(0);
 		$controller = $this->controllerWithAdminSettings($adminSettings);
 
 		$user = $this->createMock(IUser::class);

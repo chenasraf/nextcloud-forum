@@ -265,6 +265,35 @@ class CategoryControllerTest extends TestCase {
 		$this->assertGreaterThanOrEqual($cat['lastActivityAt'], $cat['readAt']);
 	}
 
+	public function testUnreadCountsReturnsEmptyForGuest(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+
+		$this->threadMapper->expects($this->never())
+			->method('countUnreadByCategories');
+
+		$response = $this->controller->unreadCounts();
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame([], $response->getData());
+	}
+
+	public function testUnreadCountsReturnsCountsForAccessibleCategories(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		// Category 200 is outside the accessible range (1-100) set up in setUp()
+		$this->threadMapper->expects($this->once())
+			->method('countUnreadByCategories')
+			->with('user1')
+			->willReturn([1 => 3, 2 => 0, 5 => 1, 200 => 7]);
+
+		$response = $this->controller->unreadCounts();
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame([1 => 3, 5 => 1], $response->getData());
+	}
+
 	public function testByHeaderReturnsCategoriesForHeader(): void {
 		$headerId = 1;
 		$category1 = $this->createCategory(1, $headerId, 'Category 1');

@@ -279,6 +279,47 @@ class ThreadMapper extends QBMapper {
 	}
 
 	/**
+	 * Count unread threads per category for a user
+	 *
+	 * A thread is unread when the user has no read marker for it, or when its
+	 * last post is newer than the marker's last read post.
+	 *
+	 * @return array<int, int> categoryId => unread thread count (categories with no unread threads are omitted)
+	 */
+	public function countUnreadByCategories(string $userId): array {
+		$markersTable = Application::tableName('forum_read_markers');
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('t.category_id')
+			->selectAlias($qb->func()->count('t.id'), 'unread_count')
+			->from($this->getTableName(), 't')
+			->leftJoin('t', $markersTable, 'rm', $qb->expr()->andX(
+				$qb->expr()->eq('rm.entity_id', 't.id'),
+				$qb->expr()->eq('rm.marker_type', $qb->createNamedParameter(ReadMarker::TYPE_THREAD, IQueryBuilder::PARAM_STR)),
+				$qb->expr()->eq('rm.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)),
+			))
+			->where($qb->expr()->isNull('t.deleted_at'))
+			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->isNotNull('t.last_post_id'))
+			->andWhere($qb->expr()->orX(
+				$qb->expr()->isNull('rm.id'),
+				$qb->expr()->gt('t.last_post_id', 'rm.last_read_post_id'),
+			))
+			->groupBy('t.category_id');
+
+		$result = $qb->executeQuery();
+		/** @var list<array{category_id: int|string, unread_count: int|string}> $rows */
+		$rows = $result->fetchAll();
+		$result->closeCursor();
+
+		$map = [];
+		foreach ($rows as $row) {
+			$map[(int)$row['category_id']] = (int)$row['unread_count'];
+		}
+		return $map;
+	}
+
+	/**
 	 * Find recent threads in specified categories
 	 *
 	 * @param array<int> $categoryIds Category IDs to filter by

@@ -8,6 +8,8 @@ const categoryHeaders = ref<CategoryHeader[]>([])
 const loading = ref<boolean>(false)
 const error = ref<string | null>(null)
 const loaded = ref<boolean>(false)
+// Unread thread count per category ID, covering each category's own threads only
+const unreadCounts = ref<Record<number, number>>({})
 
 /**
  * Build a category tree from flat category list.
@@ -141,10 +143,38 @@ export function useCategories() {
   }
 
   /**
+   * Fetch unread thread counts per category for the current user
+   */
+  const fetchUnreadCounts = async (): Promise<Record<number, number>> => {
+    try {
+      const response = await ocs.get<Record<number, number>>('/categories/unread-counts')
+      unreadCounts.value = response.data || {}
+    } catch (e) {
+      console.debug('Failed to fetch unread counts:', e)
+    }
+    return unreadCounts.value
+  }
+
+  /**
+   * Get the unread thread count of a category
+   * @param includeDescendants - Also count unread threads of all subcategories
+   */
+  const getUnreadCount = (category: Category, includeDescendants = false): number => {
+    let count = unreadCounts.value[category.id] ?? 0
+    if (includeDescendants && category.children) {
+      for (const child of category.children) {
+        count += getUnreadCount(child, true)
+      }
+    }
+    return count
+  }
+
+  /**
    * Clear cached categories
    */
   const clear = (): void => {
     categoryHeaders.value = []
+    unreadCounts.value = {}
     loaded.value = false
     error.value = null
   }
@@ -155,6 +185,7 @@ export function useCategories() {
     loading: loading as Ref<boolean>,
     error: error as Ref<string | null>,
     loaded: loaded as Ref<boolean>,
+    unreadCounts: unreadCounts as Ref<Record<number, number>>,
 
     // Methods
     fetchCategories,
@@ -163,6 +194,8 @@ export function useCategories() {
     markCategoryAsRead,
     findCategoryInTree,
     getAllCategoriesFlat,
+    fetchUnreadCounts,
+    getUnreadCount,
   }
 }
 

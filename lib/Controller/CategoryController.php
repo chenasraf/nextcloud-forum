@@ -129,6 +129,40 @@ class CategoryController extends OCSController {
 	}
 
 	/**
+	 * Get the number of unread threads in each category for the current user
+	 *
+	 * Counts cover each category's own threads only, not those of its subcategories.
+	 * Categories without unread threads are omitted. Guests always receive an empty map.
+	 *
+	 * @return DataResponse<Http::STATUS_OK, array<string, int>, array{}>
+	 *
+	 * 200: Unread thread counts returned (keyed by category ID)
+	 */
+	#[NoAdminRequired]
+	#[PublicPage]
+	#[ApiRoute(verb: 'GET', url: '/api/categories/unread-counts')]
+	public function unreadCounts(): DataResponse {
+		try {
+			$user = $this->userSession->getUser();
+			if (!$user) {
+				return new DataResponse([]);
+			}
+
+			$accessibleCategoryIds = array_flip($this->permissionService->getAccessibleCategories($user->getUID()));
+			$counts = array_filter(
+				$this->threadMapper->countUnreadByCategories($user->getUID()),
+				fn (int $count, int $categoryId) => $count > 0 && isset($accessibleCategoryIds[$categoryId]),
+				ARRAY_FILTER_USE_BOTH,
+			);
+
+			return new DataResponse($counts);
+		} catch (\Exception $e) {
+			$this->logger->error('Error fetching unread counts: ' . $e->getMessage());
+			return new DataResponse(['error' => 'Failed to fetch unread counts'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	/**
 	 * Get categories by header ID
 	 *
 	 * @param int $headerId Category header ID

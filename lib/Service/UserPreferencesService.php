@@ -42,6 +42,9 @@ class UserPreferencesService {
 	/** Preference key for being notified about direct replies to one's posts */
 	public const PREF_NOTIFY_POST_REPLIES = 'notify_post_replies';
 
+	/** Preference key for showing unread thread counts in the navigation sidebar */
+	public const PREF_SHOW_UNREAD_COUNTS = 'show_unread_counts';
+
 	/** @var array<string, mixed> Default preference values */
 	private const DEFAULTS = [
 		self::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => true,
@@ -53,6 +56,7 @@ class UserPreferencesService {
 		self::PREF_USE_CATEGORY_UPLOAD_PATH => true,
 		self::PREF_UPLOAD_BEHAVIOR => 'configured',
 		self::PREF_NOTIFY_POST_REPLIES => true,
+		self::PREF_SHOW_UNREAD_COUNTS => true,
 	];
 
 	/** @var array<string> List of valid preference keys */
@@ -66,6 +70,7 @@ class UserPreferencesService {
 		self::PREF_USE_CATEGORY_UPLOAD_PATH,
 		self::PREF_UPLOAD_BEHAVIOR,
 		self::PREF_NOTIFY_POST_REPLIES,
+		self::PREF_SHOW_UNREAD_COUNTS,
 	];
 
 	/** @var array<string> Keys stored in forum_users table instead of config */

@@ -324,4 +324,55 @@ describe('useCategories', () => {
       expect(found!.readAt).toBeGreaterThan(0)
     })
   })
+
+  describe('unread counts', () => {
+    it('should fetch unread counts', async () => {
+      vi.mocked(ocs.get).mockResolvedValueOnce({ data: { 1: 2, 3: 5 } } as unknown as Promise<{
+        data: Record<number, number>
+      }>)
+
+      const { fetchUnreadCounts, unreadCounts } = useCategories()
+      await fetchUnreadCounts()
+
+      expect(ocs.get).toHaveBeenCalledWith('/categories/unread-counts')
+      expect(unreadCounts.value).toEqual({ 1: 2, 3: 5 })
+    })
+
+    it('should keep previous counts when the fetch fails', async () => {
+      vi.mocked(ocs.get).mockResolvedValueOnce({ data: { 1: 2 } } as unknown as Promise<{
+        data: Record<number, number>
+      }>)
+      const { fetchUnreadCounts, unreadCounts } = useCategories()
+      await fetchUnreadCounts()
+
+      vi.mocked(ocs.get).mockRejectedValueOnce(new Error('Network error'))
+      await fetchUnreadCounts()
+
+      expect(unreadCounts.value).toEqual({ 1: 2 })
+    })
+
+    it('should aggregate counts of all descendants when requested', async () => {
+      const grandchild = createMockCategory({ id: 3, parentId: 2, children: [] })
+      const child = createMockCategory({ id: 2, parentId: 1, children: [grandchild] })
+      const other = createMockCategory({ id: 4, parentId: 1, children: [] })
+      const parent = createMockCategory({ id: 1, children: [child, other] })
+
+      vi.mocked(ocs.get).mockResolvedValueOnce({
+        data: { 1: 1, 2: 2, 3: 4, 4: 8 },
+      } as unknown as Promise<{ data: Record<number, number> }>)
+
+      const { fetchUnreadCounts, getUnreadCount } = useCategories()
+      await fetchUnreadCounts()
+
+      expect(getUnreadCount(parent)).toBe(1)
+      expect(getUnreadCount(parent, true)).toBe(15)
+      expect(getUnreadCount(child, true)).toBe(6)
+      expect(getUnreadCount(grandchild, true)).toBe(4)
+    })
+
+    it('should return 0 for categories without unread threads', () => {
+      const { getUnreadCount } = useCategories()
+      expect(getUnreadCount(createMockCategory({ id: 99, children: [] }), true)).toBe(0)
+    })
+  })
 })

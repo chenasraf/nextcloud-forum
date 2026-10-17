@@ -54,6 +54,7 @@ OC.L10N.register(
     "_%n reply_::_%n replies_" : ["%n одговор","%n одговори"],
     "Templates" : "Шаблони",
     "Name" : "Име",
+    "Content" : "Содржина",
     "Views" : "Прегледи",
     "Title" : "Наслов",
     "Saving draft …" : "Зачувување како нацрт ...",

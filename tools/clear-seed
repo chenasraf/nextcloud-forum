@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Remove everything tools/seed created and restore the forum's default seed.
+#
+# Usage: tools/clear-seed [-y]
+#   -y, --yes   Do not ask for confirmation
+#
+# Deletes every thread started by a seed account (seed-*) with all of its replies, reactions, read
+# markers, bookmarks and subscriptions, deletes the seed accounts themselves, then runs the default
+# forum seed again (roles, categories, BBCodes, welcome thread) and rebuilds the statistics.
+# Threads started by real accounts are kept, but replies they received from seed accounts are removed.
+#
+# The target instance is picked from environment variables; see tools/lib.sh.
+
+# shellcheck source=tools/lib.sh
+. "$(dirname "$0")/lib.sh"
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+	-y | --yes) yes=1; shift ;;
+	-h | --help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+	*) fail "Unknown option: $1 (see --help)" ;;
+	esac
+done
+
+target="$(describe_target)"
+[ -n "$target" ] || target="(not found)"
+info "Clearing seeded forum data on: $target"
+confirm "This permanently deletes the seeded threads and seed accounts on that instance. Continue?" ${yes:+--yes}
+
+run_php clear-seed.php

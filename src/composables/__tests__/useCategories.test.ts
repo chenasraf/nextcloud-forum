@@ -289,39 +289,45 @@ describe('useCategories', () => {
   })
 
   describe('markCategoryAsRead', () => {
-    it('should mark a child category as read', async () => {
-      const parent = createMockCategory({ id: 1, headerId: 1, parentId: null, name: 'Parent' })
-      const child = createMockCategory({
-        id: 2,
-        headerId: null,
-        parentId: 1,
-        name: 'Child',
-        readAt: null,
+    const child = createMockCategory({ id: 2, parentId: 1, children: [] })
+    const parent = createMockCategory({ id: 1, children: [child] })
+
+    it('should clear the subtree counts and reload them from the server', async () => {
+      vi.mocked(ocs.get).mockResolvedValueOnce({
+        data: { 1: 2, 2: 3, 9: 4 },
+      } as unknown as Promise<{
+        data: Record<number, number>
+      }>)
+      const { fetchUnreadCounts, markCategoryAsRead, unreadCounts } = useCategories()
+      await fetchUnreadCounts()
+
+      let countsWhilePosting: Record<number, number> = {}
+      vi.mocked(ocs.post).mockImplementationOnce(async () => {
+        countsWhilePosting = { ...unreadCounts.value }
+        return { data: { categoryIds: [1, 2] } }
       })
-
-      const mockResponse: CategoryHeader[] = [
-        {
-          id: 1,
-          name: 'Header',
-          description: null,
-          sortOrder: 0,
-          createdAt: Date.now(),
-          categories: [parent, child],
-        },
-      ]
-
-      vi.mocked(ocs.get).mockResolvedValueOnce({ data: mockResponse } as unknown as Promise<{
-        data: CategoryHeader[]
+      vi.mocked(ocs.get).mockResolvedValueOnce({ data: { 9: 4 } } as unknown as Promise<{
+        data: Record<number, number>
       }>)
 
-      const { fetchCategories, markCategoryAsRead, findCategoryInTree } = useCategories()
-      await fetchCategories(true)
+      await markCategoryAsRead(parent)
 
-      markCategoryAsRead(2)
+      expect(ocs.post).toHaveBeenCalledWith('/read-markers', { categoryId: 1 })
+      expect(countsWhilePosting).toEqual({ 9: 4 })
+      expect(unreadCounts.value).toEqual({ 9: 4 })
+    })
 
-      const found = findCategoryInTree(2)
-      expect(found!.readAt).toBeDefined()
-      expect(found!.readAt).toBeGreaterThan(0)
+    it('should restore the counts when the request fails', async () => {
+      vi.mocked(ocs.get).mockResolvedValueOnce({ data: { 1: 2, 2: 3 } } as unknown as Promise<{
+        data: Record<number, number>
+      }>)
+      const { fetchUnreadCounts, markCategoryAsRead, unreadCounts } = useCategories()
+      await fetchUnreadCounts()
+
+      vi.mocked(ocs.post).mockRejectedValueOnce(new Error('Network error'))
+
+      await expect(markCategoryAsRead(parent)).rejects.toThrow('Network error')
+      expect(unreadCounts.value).toEqual({ 1: 2, 2: 3 })
     })
   })
 
@@ -349,6 +355,19 @@ describe('useCategories', () => {
       await fetchUnreadCounts()
 
       expect(unreadCounts.value).toEqual({ 1: 2 })
+    })
+
+    it('should share one request between concurrent callers', async () => {
+      vi.mocked(ocs.get).mockResolvedValueOnce({ data: { 1: 2 } } as unknown as Promise<{
+        data: Record<number, number>
+      }>)
+      const { fetchUnreadCounts } = useCategories()
+
+      const [first, second] = await Promise.all([fetchUnreadCounts(), fetchUnreadCounts()])
+
+      expect(ocs.get).toHaveBeenCalledTimes(1)
+      expect(first).toEqual({ 1: 2 })
+      expect(second).toEqual({ 1: 2 })
     })
 
     it('should aggregate counts of all descendants when requested', async () => {

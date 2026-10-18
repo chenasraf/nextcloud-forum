@@ -23,6 +23,7 @@ use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostEnrichmentService;
 use OCA\Forum\Service\PostHistoryService;
+use OCA\Forum\Service\ReadStateService;
 use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -53,6 +54,7 @@ class PostController extends OCSController {
 		private NotificationService $notificationService,
 		private PostEnrichmentService $postEnrichmentService,
 		private PostHistoryService $postHistoryService,
+		private ReadStateService $readStateService,
 		private UserService $userService,
 		private UserPreferencesService $userPreferencesService,
 		private ThreadSubscriptionMapper $threadSubscriptionMapper,
@@ -94,28 +96,23 @@ class PostController extends OCSController {
 			$totalReplies = $this->postMapper->countTopLevelReplies($threadId);
 			$totalPages = max(1, (int)ceil($totalReplies / $perPage));
 
+			// Get category ID for permission checks and the category's read watermark
+			$categoryId = $this->permissionService->getCategoryIdFromThread($threadId);
+
 			// Determine the start page based on read status
 			$startPage = $totalPages; // Default: last page (newest) for unread threads
 			$lastReadPostId = null;
 
 			if ($currentUserId !== null) {
-				try {
-					$readMarker = $this->readMarkerMapper->findByUserAndThread($currentUserId, $threadId);
-					$lastReadPostId = $readMarker->getLastReadPostId();
-
+				$lastReadPostId = $this->readStateService->getLastReadPostId($currentUserId, $threadId, $categoryId);
+				if ($lastReadPostId !== null) {
 					// Find the oldest unread reply
-					$oldestUnreadReply = $this->postMapper->findOldestUnreadReply($threadId, (int)$lastReadPostId);
+					$oldestUnreadReply = $this->postMapper->findOldestUnreadReply($threadId, $lastReadPostId);
 					if ($oldestUnreadReply !== null) {
 						// Calculate which page this reply is on
 						$position = $this->postMapper->getReplyPosition($threadId, $oldestUnreadReply->getId());
 						$startPage = (int)floor($position / $perPage) + 1;
-					} else {
-						// All replies are read, go to last page
-						$startPage = $totalPages;
 					}
-				} catch (\OCP\AppFramework\Db\DoesNotExistException $e) {
-					// No read marker = never read = go to last page (newest)
-					$startPage = $totalPages;
 				}
 			}
 
@@ -167,9 +164,6 @@ class PostController extends OCSController {
 
 			// Batch fetch author data (includes roles)
 			$authors = $this->userService->enrichMultipleUsers($authorIds);
-
-			// Get category ID for permission checks
-			$categoryId = $this->permissionService->getCategoryIdFromThread($threadId);
 
 			// Enrich first post
 			$enrichedFirstPost = null;

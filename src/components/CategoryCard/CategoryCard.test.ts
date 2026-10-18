@@ -134,6 +134,40 @@ describe('CategoryCard', () => {
     })
   })
 
+  describe('unread state', () => {
+    it('should look read when it has no unread threads', () => {
+      const wrapper = mount(CategoryCard, {
+        props: { category: createMockCategory(), unreadCount: 0, showUnreadCount: true },
+        ...globalStubs,
+      })
+      expect(wrapper.find('.category-card').classes()).not.toContain('unread')
+      expect(wrapper.find('.unread-indicator').exists()).toBe(false)
+      expect(wrapper.find('.unread-stat').exists()).toBe(false)
+    })
+
+    it('should show the labeled unread count beside the description when counts are enabled', () => {
+      const wrapper = mount(CategoryCard, {
+        props: { category: createMockCategory(), unreadCount: 7, showUnreadCount: true },
+        ...globalStubs,
+      })
+      expect(wrapper.find('.category-card').classes()).toContain('unread')
+      const stat = wrapper.find('.category-body .unread-stat')
+      expect(stat.find('.stat-value').text()).toBe('7')
+      expect(stat.find('.stat-label').text()).toBe('Unread')
+      expect(wrapper.find('.unread-indicator').exists()).toBe(false)
+    })
+
+    it('should show a dot instead of the count when counts are disabled', () => {
+      const wrapper = mount(CategoryCard, {
+        props: { category: createMockCategory(), unreadCount: 7, showUnreadCount: false },
+        ...globalStubs,
+      })
+      expect(wrapper.find('.category-card').classes()).toContain('unread')
+      expect(wrapper.find('.unread-indicator').exists()).toBe(true)
+      expect(wrapper.find('.unread-stat').exists()).toBe(false)
+    })
+  })
+
   describe('structure', () => {
     it('should have correct class', () => {
       const wrapper = mount(CategoryCard, {

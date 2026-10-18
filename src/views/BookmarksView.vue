@@ -92,7 +92,8 @@
             v-for="thread in threads"
             :key="thread.id"
             :thread="thread"
-            :is-unread="isThreadUnread(thread)"
+            :is-unread="thread.isUnread ?? false"
+            :unread-reply-count="showUnreadCounts ? (thread.unreadReplyCount ?? null) : null"
             @click="navigateToThread(thread)"
             @navigate-last-reply="navigateToLastReply(thread)"
           />
@@ -127,13 +128,13 @@ import BookmarkIcon from '@icons/Bookmark.vue'
 import type { Thread } from '@/types'
 import { ocs } from '@/axios'
 import { t } from '@nextcloud/l10n'
-import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useUserPreferences } from '@/composables/useUserPreferences'
 
 export default defineComponent({
   name: 'BookmarksView',
   setup() {
-    const { userId } = useCurrentUser()
-    return { userId }
+    const { showUnreadCounts } = useUserPreferences()
+    return { showUnreadCounts }
   },
   components: {
     NcButton,
@@ -153,7 +154,6 @@ export default defineComponent({
       loading: false,
       loadingThreads: false,
       threads: [] as Thread[],
-      readMarkers: {} as Record<number, { lastReadPostId: number; readAt: number }>,
       error: null as string | null,
       currentPage: 1,
       totalPages: 1,
@@ -199,7 +199,6 @@ export default defineComponent({
             total: number
             totalPages: number
           }
-          readMarkers: Record<number, { entityId: number; lastReadPostId: number; readAt: number }>
         }
 
         const resp = await ocs.get<BookmarksResponse>('/bookmarks', {
@@ -214,7 +213,6 @@ export default defineComponent({
           this.threads = data.threads || []
           this.currentPage = data.pagination.page
           this.totalPages = data.pagination.totalPages
-          this.readMarkers = data.readMarkers || {}
         }
       } catch (e) {
         console.error('Failed to fetch bookmarks', e)
@@ -240,21 +238,6 @@ export default defineComponent({
       } finally {
         this.loadingThreads = false
       }
-    },
-
-    isThreadUnread(thread: Thread): boolean {
-      // Guests see everything as read
-      if (this.userId === null) {
-        return false
-      }
-
-      const marker = this.readMarkers[thread.id]
-      if (!marker) {
-        // No read marker means thread is unread
-        return true
-      }
-      // Thread is unread if last post ID > last read post ID
-      return thread.lastPostId ? thread.lastPostId > marker.lastReadPostId : false
     },
 
     navigateToThread(thread: Thread) {

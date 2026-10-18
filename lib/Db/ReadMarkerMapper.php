@@ -137,27 +137,6 @@ class ReadMarkerMapper extends QBMapper {
 	}
 
 	/**
-	 * Find a category read marker for a user
-	 *
-	 * @throws DoesNotExistException
-	 */
-	public function findByUserAndCategory(string $userId, int $categoryId): ReadMarker {
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('*')
-			->from($this->getTableName())
-			->where(
-				$qb->expr()->eq('user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR))
-			)
-			->andWhere(
-				$qb->expr()->eq('marker_type', $qb->createNamedParameter(ReadMarker::TYPE_CATEGORY, IQueryBuilder::PARAM_STR))
-			)
-			->andWhere(
-				$qb->expr()->eq('entity_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT))
-			);
-		return $this->findEntity($qb);
-	}
-
-	/**
 	 * Find all category read markers for a user
 	 *
 	 * @return array<ReadMarker>
@@ -176,7 +155,9 @@ class ReadMarkerMapper extends QBMapper {
 	}
 
 	/**
-	 * Create or update a category read marker
+	 * Set a category's "mark as read" watermark to the current time
+	 *
+	 * Every post in the category created up to the watermark counts as read.
 	 */
 	public function createOrUpdateCategoryMarker(string $userId, int $categoryId): ReadMarker {
 		try {

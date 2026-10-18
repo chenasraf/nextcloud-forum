@@ -9,6 +9,7 @@ use OCA\Forum\Controller\ReadMarkerController;
 use OCA\Forum\Db\ReadMarker;
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Service\NotificationService;
+use OCA\Forum\Service\ReadStateService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
@@ -24,6 +25,8 @@ class ReadMarkerControllerTest extends TestCase {
 	private ReadMarkerMapper $readMarkerMapper;
 	/** @var NotificationService&MockObject */
 	private NotificationService $notificationService;
+	/** @var ReadStateService&MockObject */
+	private ReadStateService $readStateService;
 	/** @var IUserSession&MockObject */
 	private IUserSession $userSession;
 	/** @var LoggerInterface&MockObject */
@@ -35,6 +38,7 @@ class ReadMarkerControllerTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
 		$this->notificationService = $this->createMock(NotificationService::class);
+		$this->readStateService = $this->createMock(ReadStateService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 
@@ -43,6 +47,7 @@ class ReadMarkerControllerTest extends TestCase {
 			$this->request,
 			$this->readMarkerMapper,
 			$this->notificationService,
+			$this->readStateService,
 			$this->userSession,
 			$this->logger
 		);
@@ -193,6 +198,35 @@ class ReadMarkerControllerTest extends TestCase {
 
 		$this->assertEquals(Http::STATUS_UNAUTHORIZED, $response->getStatus());
 		$this->assertEquals(['error' => 'User not authenticated'], $response->getData());
+	}
+
+	public function testCreateWithCategoryMarksCategoryTreeAsRead(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->readStateService->expects($this->once())
+			->method('markCategoryAsRead')
+			->with('user1', 3)
+			->willReturn([3, 4, 5]);
+		$this->readMarkerMapper->expects($this->never())->method('createOrUpdate');
+
+		$response = $this->controller->create(0, 0, 3);
+
+		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
+		$this->assertEquals(['categoryIds' => [3, 4, 5]], $response->getData());
+	}
+
+	public function testCreateWithCategoryReturnsNotFoundWhenNothingWasMarked(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user1');
+		$this->userSession->method('getUser')->willReturn($user);
+
+		$this->readStateService->method('markCategoryAsRead')->willReturn([]);
+
+		$response = $this->controller->create(0, 0, 99);
+
+		$this->assertEquals(Http::STATUS_NOT_FOUND, $response->getStatus());
 	}
 
 	public function testDestroyDeletesMarkerSuccessfully(): void {

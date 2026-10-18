@@ -2118,7 +2118,8 @@
         "/ocs/v2.php/apps/forum/api/bookmarks": {
             "get": {
                 "operationId": "bookmark-index",
-                "summary": "Get all bookmarked threads for the current user (paginated) Includes read marker information for unread status",
+                "summary": "Get all bookmarked threads for the current user (paginated)",
+                "description": "Each thread carries `isUnread` and `unreadReplyCount` (null when the user has never seen the thread).",
                 "tags": [
                     "bookmark"
                 ],
@@ -2164,7 +2165,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Bookmarked threads returned with pagination and read markers",
+                        "description": "Bookmarked threads returned with pagination",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2187,8 +2188,7 @@
                                                     "type": "object",
                                                     "required": [
                                                         "threads",
-                                                        "pagination",
-                                                        "readMarkers"
+                                                        "pagination"
                                                     ],
                                                     "properties": {
                                                         "threads": {
@@ -2224,31 +2224,6 @@
                                                                 "totalPages": {
                                                                     "type": "integer",
                                                                     "format": "int64"
-                                                                }
-                                                            }
-                                                        },
-                                                        "readMarkers": {
-                                                            "type": "object",
-                                                            "additionalProperties": {
-                                                                "type": "object",
-                                                                "required": [
-                                                                    "entityId",
-                                                                    "lastReadPostId",
-                                                                    "readAt"
-                                                                ],
-                                                                "properties": {
-                                                                    "entityId": {
-                                                                        "type": "integer",
-                                                                        "format": "int64"
-                                                                    },
-                                                                    "lastReadPostId": {
-                                                                        "type": "integer",
-                                                                        "format": "int64"
-                                                                    },
-                                                                    "readAt": {
-                                                                        "type": "integer",
-                                                                        "format": "int64"
-                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -8471,7 +8446,7 @@
                                         "format": "int64",
                                         "nullable": true,
                                         "default": null,
-                                        "description": "Category ID (if provided, creates a category marker instead)"
+                                        "description": "Category ID (if provided, marks the category and all of its subcategories as read instead)"
                                     }
                                 }
                             }
@@ -8515,6 +8490,44 @@
                                                     "type": "object",
                                                     "additionalProperties": {
                                                         "type": "object"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Category not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "error"
+                                                    ],
+                                                    "properties": {
+                                                        "error": {
+                                                            "type": "string"
+                                                        }
                                                     }
                                                 }
                                             }
@@ -11083,6 +11096,7 @@
             "get": {
                 "operationId": "thread-by-category",
                 "summary": "Get threads by category",
+                "description": "For signed-in users each thread also carries `isUnread` and `unreadReplyCount` (null when the user has never seen the thread).",
                 "tags": [
                     "thread"
                 ],

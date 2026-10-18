@@ -8,7 +8,7 @@
   >
     <div class="category-header">
       <span
-        v-if="isUnread"
+        v-if="isUnread && !showUnreadCount"
         class="unread-indicator"
         :title="strings.unread"
         :aria-label="strings.unread"
@@ -27,10 +27,16 @@
         </span>
       </div>
     </div>
-    <p v-if="category.description" class="category-description">{{ category.description }}</p>
-    <p v-else class="category-description muted">{{ strings.noDescription }}</p>
+    <div class="category-body">
+      <p v-if="category.description" class="category-description">{{ category.description }}</p>
+      <p v-else class="category-description muted">{{ strings.noDescription }}</p>
+      <span v-if="showsUnreadCount" class="stat unread-stat" :title="unreadLabel">
+        <span class="stat-value">{{ unreadCount }}</span>
+        <span class="stat-label">{{ strings.unreadLabel }}</span>
+      </span>
+    </div>
     <!-- Child category links -->
-    <div v-if="!hideChildren && visibleChildren.length > 0" class="category-children">
+    <div v-if="hasChildLinks" class="category-children">
       <router-link
         v-for="child in visibleChildren"
         :key="child.id"
@@ -56,7 +62,13 @@ export default defineComponent({
       type: Object as PropType<Category>,
       required: true,
     },
-    isUnread: {
+    /** Unread threads in the category and all of its subcategories */
+    unreadCount: {
+      type: Number,
+      default: 0,
+    },
+    /** Show the unread count; otherwise unread categories only get a dot */
+    showUnreadCount: {
       type: Boolean,
       default: false,
     },
@@ -84,6 +96,18 @@ export default defineComponent({
     visibleChildren(): Category[] {
       return this.children
     },
+    hasChildLinks(): boolean {
+      return !this.hideChildren && this.visibleChildren.length > 0
+    },
+    isUnread(): boolean {
+      return this.unreadCount > 0
+    },
+    showsUnreadCount(): boolean {
+      return this.isUnread && this.showUnreadCount
+    },
+    unreadLabel(): string {
+      return n('forum', '%n unread thread', '%n unread threads', this.unreadCount)
+    },
   },
   data() {
     return {
@@ -92,6 +116,7 @@ export default defineComponent({
         replies: (count: number) => t('forum', 'Replies'),
         noDescription: t('forum', 'No description available'),
         unread: t('forum', 'New activity'),
+        unreadLabel: t('forum', 'Unread'),
       },
     }
   },
@@ -100,6 +125,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .category-card {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 16px;
@@ -119,7 +146,8 @@ export default defineComponent({
     color: var(--card-text);
 
     .category-name,
-    .stat-value {
+    .stat-value,
+    .unread-stat .stat-value {
       color: var(--card-text);
     }
 
@@ -226,6 +254,20 @@ export default defineComponent({
     }
   }
 
+  // Grows to fill the card, so the unread count sits in the bottom right corner even when a
+  // taller card in the same row stretches this one
+  .category-body {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+
+    .category-description {
+      flex: 1;
+      align-self: flex-start;
+    }
+  }
+
   .category-children {
     display: flex;
     flex-wrap: wrap;
@@ -233,6 +275,15 @@ export default defineComponent({
     margin-top: 12px;
     padding-top: 10px;
     border-top: 1px solid var(--color-border);
+  }
+
+  .unread-stat {
+    margin-inline-start: auto;
+    font-size: 0.9rem;
+
+    .stat-value {
+      color: var(--color-primary-element);
+    }
   }
 
   .child-link {

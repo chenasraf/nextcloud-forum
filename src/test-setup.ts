@@ -99,6 +99,14 @@ vi.mock('@nextcloud/vue/components/NcLoadingIcon', () => ({
   },
 }))
 
+vi.mock('@nextcloud/vue/components/NcCounterBubble', () => ({
+  default: {
+    name: 'NcCounterBubble',
+    template: '<span class="counter-bubble-mock">{{ count }}</span>',
+    props: ['count', 'active'],
+  },
+}))
+
 vi.mock('@nextcloud/vue/components/NcTextField', () => ({
   default: {
     name: 'NcTextField',

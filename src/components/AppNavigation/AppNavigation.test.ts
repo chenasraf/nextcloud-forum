@@ -6,7 +6,7 @@ import {
   RouterLinkStub,
   createNcActionButtonMock,
 } from '@/test-utils'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 // --- Composable mocks ---
 
@@ -30,7 +30,7 @@ vi.mock('@/composables/useCategories', () => ({
   }),
 }))
 
-const mockPreferences = ref({ show_unread_counts: true })
+const mockPreferences = ref({ show_unread_counts: 'threads' })
 const mockPreferencesLoaded = ref(true)
 const mockFetchUserPreferences = vi.fn().mockResolvedValue(null)
 
@@ -39,6 +39,9 @@ vi.mock('@/composables/useUserPreferences', () => ({
     preferences: mockPreferences,
     loaded: mockPreferencesLoaded,
     fetchUserPreferences: mockFetchUserPreferences,
+    showUnreadCounts: computed(
+      () => mockPreferencesLoaded.value && mockPreferences.value.show_unread_counts !== 'off',
+    ),
   }),
 }))
 
@@ -195,7 +198,7 @@ describe('AppNavigation', () => {
     mockCanAccessModeration.value = false
     mockCurrentThreadCategoryId.value = null
     mockUnreadCounts.value = {}
-    mockPreferences.value = { show_unread_counts: true }
+    mockPreferences.value = { show_unread_counts: 'threads' }
     mockPreferencesLoaded.value = true
   })
 
@@ -398,12 +401,13 @@ describe('AppNavigation', () => {
       expect(wrapper.find('.nav-category-item').attributes('data-show-unread')).toBe('false')
     })
 
-    it('should not fetch unread counts when disabled in preferences', async () => {
+    it('should still fetch unread counts but hide them when disabled in preferences', async () => {
       mockUserId.value = 'user1'
-      mockPreferences.value = { show_unread_counts: false }
+      mockPreferences.value = { show_unread_counts: 'off' }
       const wrapper = await mountAndWait()
 
-      expect(mockFetchUnreadCounts).not.toHaveBeenCalled()
+      // Category cards still need the counts for their unread marker
+      expect(mockFetchUnreadCounts).toHaveBeenCalledTimes(1)
       expect(wrapper.find('.nav-category-item').attributes('data-show-unread')).toBe('false')
     })
 

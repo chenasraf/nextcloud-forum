@@ -58,6 +58,14 @@
       </div>
 
       <div class="thread-stats">
+        <!-- First, so replies and views line up across threads with and without it -->
+        <div v-if="unreadReplyCount" class="stat unread-stat" :title="unreadRepliesLabel">
+          <span class="stat-icon">
+            <CommentAlertIcon :size="20" />
+          </span>
+          <span class="stat-value">{{ unreadReplyCount }}</span>
+          <span class="stat-label">{{ strings.unreadLabel }}</span>
+        </div>
         <div class="stat">
           <span class="stat-icon">
             <CommentIcon :size="20" />
@@ -85,6 +93,7 @@ import PinIcon from '@icons/Pin.vue'
 import LockIcon from '@icons/Lock.vue'
 import CommentIcon from '@icons/Comment.vue'
 import EyeIcon from '@icons/Eye.vue'
+import CommentAlertIcon from '@icons/CommentAlert.vue'
 import { t, n } from '@nextcloud/l10n'
 import type { Thread } from '@/types'
 
@@ -97,6 +106,7 @@ export default defineComponent({
     LockIcon,
     CommentIcon,
     EyeIcon,
+    CommentAlertIcon,
   },
   props: {
     thread: {
@@ -107,11 +117,19 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    /** Unread posts in the thread; null hides the count */
+    unreadReplyCount: {
+      type: Number as PropType<number | null>,
+      default: null,
+    },
   },
   emits: ['navigate-last-reply'],
   computed: {
     lastReplyUrl(): string {
       return `/apps/forum/t/${this.thread.slug}?page=last&post=${this.thread.lastPostId}`
+    },
+    unreadRepliesLabel(): string {
+      return n('forum', '%n unread reply', '%n unread replies', this.unreadReplyCount ?? 0)
     },
   },
   data() {
@@ -123,6 +141,7 @@ export default defineComponent({
         locked: t('forum', 'Locked thread'),
         unread: t('forum', 'Unread'),
         lastReplyBy: (name: string) => t('forum', 'Last reply by {name}', { name }),
+        unreadLabel: t('forum', 'Unread'),
       },
     }
   },
@@ -280,6 +299,15 @@ export default defineComponent({
 
     @media (max-width: 768px) {
       font-size: 0.9rem;
+    }
+  }
+
+  .unread-stat {
+    background: var(--color-primary-element-light);
+
+    .stat-icon,
+    .stat-value {
+      color: var(--color-primary-element);
     }
   }
 

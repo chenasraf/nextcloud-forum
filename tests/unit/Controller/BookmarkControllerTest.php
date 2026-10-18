@@ -8,10 +8,9 @@ use OCA\Forum\AppInfo\Application;
 use OCA\Forum\Controller\BookmarkController;
 use OCA\Forum\Db\Bookmark;
 use OCA\Forum\Db\BookmarkMapper;
-use OCA\Forum\Db\ReadMarker;
-use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Thread;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Service\ReadStateService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
@@ -31,8 +30,8 @@ class BookmarkControllerTest extends TestCase {
 	/** @var ThreadMapper&MockObject */
 	private ThreadMapper $threadMapper;
 
-	/** @var ReadMarkerMapper&MockObject */
-	private ReadMarkerMapper $readMarkerMapper;
+	/** @var ReadStateService&MockObject */
+	private ReadStateService $readStateService;
 
 	/** @var ThreadEnrichmentService&MockObject */
 	private ThreadEnrichmentService $threadEnrichmentService;
@@ -53,7 +52,7 @@ class BookmarkControllerTest extends TestCase {
 		$this->request = $this->createMock(IRequest::class);
 		$this->bookmarkMapper = $this->createMock(BookmarkMapper::class);
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
-		$this->readMarkerMapper = $this->createMock(ReadMarkerMapper::class);
+		$this->readStateService = $this->createMock(ReadStateService::class);
 		$this->threadEnrichmentService = $this->createMock(ThreadEnrichmentService::class);
 		$this->userService = $this->createMock(UserService::class);
 		$this->userSession = $this->createMock(IUserSession::class);
@@ -64,7 +63,7 @@ class BookmarkControllerTest extends TestCase {
 			$this->request,
 			$this->bookmarkMapper,
 			$this->threadMapper,
-			$this->readMarkerMapper,
+			$this->readStateService,
 			$this->threadEnrichmentService,
 			$this->userService,
 			$this->userSession,
@@ -235,9 +234,9 @@ class BookmarkControllerTest extends TestCase {
 				return $data;
 			});
 
-		$this->readMarkerMapper->expects($this->once())
-			->method('findByUserAndThreads')
-			->with($userId, [1, 2])
+		$this->readStateService->expects($this->once())
+			->method('getThreadStates')
+			->with($userId, $threads)
 			->willReturn([]);
 
 		$response = $this->controller->index();
@@ -246,7 +245,6 @@ class BookmarkControllerTest extends TestCase {
 		$data = $response->getData();
 		$this->assertArrayHasKey('threads', $data);
 		$this->assertArrayHasKey('pagination', $data);
-		$this->assertArrayHasKey('readMarkers', $data);
 		$this->assertCount(2, $data['threads']);
 		$this->assertEquals(1, $data['pagination']['page']);
 		$this->assertEquals(2, $data['pagination']['total']);
@@ -329,10 +327,6 @@ class BookmarkControllerTest extends TestCase {
 				return $data;
 			});
 
-		$this->readMarkerMapper->expects($this->once())
-			->method('findByUserAndThreads')
-			->willReturn([]);
-
 		$response = $this->controller->index($page, $perPage);
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
@@ -343,7 +337,7 @@ class BookmarkControllerTest extends TestCase {
 		$this->assertEquals(2, $data['pagination']['totalPages']);
 	}
 
-	public function testIndexIncludesReadMarkers(): void {
+	public function testIndexIncludesReadState(): void {
 		$userId = 'user1';
 
 		$user = $this->createMock(IUser::class);
@@ -352,7 +346,6 @@ class BookmarkControllerTest extends TestCase {
 
 		$bookmark = $this->createMockBookmark(1, $userId, Bookmark::ENTITY_TYPE_THREAD, 1);
 		$thread = $this->createMockThread(1, 'Thread 1', 'thread-1', 'author1', 1);
-		$readMarker = $this->createMockReadMarker(1, $userId, 1, 5);
 
 		$this->bookmarkMapper->expects($this->once())
 			->method('countThreadBookmarksByUserId')
@@ -380,19 +373,17 @@ class BookmarkControllerTest extends TestCase {
 				return $data;
 			});
 
-		$this->readMarkerMapper->expects($this->once())
-			->method('findByUserAndThreads')
-			->with($userId, [1])
-			->willReturn([$readMarker]);
+		$this->readStateService->expects($this->once())
+			->method('getThreadStates')
+			->with($userId, [$thread])
+			->willReturn([1 => ['isUnread' => true, 'unreadReplyCount' => 2]]);
 
 		$response = $this->controller->index();
 
 		$this->assertEquals(Http::STATUS_OK, $response->getStatus());
-		$data = $response->getData();
-		$this->assertArrayHasKey('readMarkers', $data);
-		$this->assertArrayHasKey(1, $data['readMarkers']);
-		$this->assertEquals(1, $data['readMarkers'][1]['entityId']);
-		$this->assertEquals(5, $data['readMarkers'][1]['lastReadPostId']);
+		$threadData = $response->getData()['threads'][0];
+		$this->assertTrue($threadData['isUnread']);
+		$this->assertSame(2, $threadData['unreadReplyCount']);
 	}
 
 	private function createMockBookmark(int $id, string $userId, string $entityType, int $entityId): Bookmark {
@@ -420,16 +411,5 @@ class BookmarkControllerTest extends TestCase {
 		$thread->setCreatedAt(time());
 		$thread->setUpdatedAt(time());
 		return $thread;
-	}
-
-	private function createMockReadMarker(int $id, string $userId, int $threadId, int $lastReadPostId): ReadMarker {
-		$marker = new ReadMarker();
-		$marker->setId($id);
-		$marker->setUserId($userId);
-		$marker->setEntityId($threadId);
-		$marker->setMarkerType(ReadMarker::TYPE_THREAD);
-		$marker->setLastReadPostId($lastReadPostId);
-		$marker->setReadAt(time());
-		return $marker;
 	}
 }

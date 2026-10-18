@@ -1,16 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { computed } from 'vue'
+import { ref } from 'vue'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockThread } from '@/test-mocks'
 
 // Uses global mock for @/axios from test-setup.ts
 
-// Mock useCurrentUser composable
-vi.mock('@/composables/useCurrentUser', () => ({
-  useCurrentUser: () => ({
-    userId: computed(() => 'testuser'),
-    displayName: computed(() => 'Test User'),
+const mockShowUnreadCounts = ref(true)
+vi.mock('@/composables/useUserPreferences', () => ({
+  useUserPreferences: () => ({
+    showUnreadCounts: mockShowUnreadCounts,
   }),
 }))
 
@@ -43,7 +42,7 @@ vi.mock('@/components/PageHeader', () =>
 vi.mock('@/components/ThreadCard', () =>
   createComponentMock('ThreadCard', {
     template: '<div class="thread-card-mock" @click="$emit(\'click\')">{{ thread.title }}</div>',
-    props: ['thread', 'isUnread'],
+    props: ['thread', 'isUnread', 'unreadReplyCount'],
     emits: ['click'],
   }),
 )
@@ -80,12 +79,12 @@ describe('BookmarksView', () => {
         totalPages: Math.ceil(threads.length / 20) || 1,
         ...options,
       },
-      readMarkers: {},
     },
   })
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockShowUnreadCounts.value = true
     mockOcsGet.mockResolvedValue(createBookmarksResponse())
   })
 
@@ -199,59 +198,32 @@ describe('BookmarksView', () => {
       expect(wrapper.text()).toContain('Second Thread')
     })
 
-    it('marks thread as unread when no read marker exists', async () => {
-      const thread = createMockThread({ id: 1, lastPostId: 5 })
-      mockOcsGet.mockResolvedValue({
-        data: {
-          threads: [thread],
-          pagination: { page: 1, perPage: 20, total: 1, totalPages: 1 },
-          readMarkers: {}, // No marker for this thread
-        },
-      })
+    it('passes the read state of each thread to its card', async () => {
+      const unread = createMockThread({ id: 1, isUnread: true, unreadReplyCount: 3 })
+      const read = createMockThread({ id: 2, isUnread: false, unreadReplyCount: 0 })
+      mockOcsGet.mockResolvedValue(createBookmarksResponse([unread, read]))
 
       const wrapper = createWrapper()
       await flushPromises()
 
-      const threadCard = wrapper.findComponent({ name: 'ThreadCard' })
-      expect(threadCard.props('isUnread')).toBe(true)
+      const cards = wrapper.findAllComponents({ name: 'ThreadCard' })
+      expect(cards[0]!.props('isUnread')).toBe(true)
+      expect(cards[0]!.props('unreadReplyCount')).toBe(3)
+      expect(cards[1]!.props('isUnread')).toBe(false)
     })
 
-    it('marks thread as read when read marker is up to date', async () => {
-      const thread = createMockThread({ id: 1, lastPostId: 5 })
-      mockOcsGet.mockResolvedValue({
-        data: {
-          threads: [thread],
-          pagination: { page: 1, perPage: 20, total: 1, totalPages: 1 },
-          readMarkers: {
-            1: { lastReadPostId: 5, readAt: Date.now() },
-          },
-        },
-      })
+    it('hides unread reply counts when disabled in preferences', async () => {
+      mockShowUnreadCounts.value = false
+      mockOcsGet.mockResolvedValue(
+        createBookmarksResponse([createMockThread({ id: 1, isUnread: true, unreadReplyCount: 3 })]),
+      )
 
       const wrapper = createWrapper()
       await flushPromises()
 
-      const threadCard = wrapper.findComponent({ name: 'ThreadCard' })
-      expect(threadCard.props('isUnread')).toBe(false)
-    })
-
-    it('marks thread as unread when new posts exist', async () => {
-      const thread = createMockThread({ id: 1, lastPostId: 10 })
-      mockOcsGet.mockResolvedValue({
-        data: {
-          threads: [thread],
-          pagination: { page: 1, perPage: 20, total: 1, totalPages: 1 },
-          readMarkers: {
-            1: { lastReadPostId: 5, readAt: Date.now() }, // Behind lastPostId
-          },
-        },
-      })
-
-      const wrapper = createWrapper()
-      await flushPromises()
-
-      const threadCard = wrapper.findComponent({ name: 'ThreadCard' })
-      expect(threadCard.props('isUnread')).toBe(true)
+      const card = wrapper.findComponent({ name: 'ThreadCard' })
+      expect(card.props('isUnread')).toBe(true)
+      expect(card.props('unreadReplyCount')).toBeNull()
     })
   })
 
@@ -270,7 +242,6 @@ describe('BookmarksView', () => {
         data: {
           threads,
           pagination: { page: 1, perPage: 20, total: 50, totalPages: 3 },
-          readMarkers: {},
         },
       })
 
@@ -286,7 +257,6 @@ describe('BookmarksView', () => {
         data: {
           threads,
           pagination: { page: 1, perPage: 20, total: 50, totalPages: 3 },
-          readMarkers: {},
         },
       })
 
@@ -405,7 +375,6 @@ describe('BookmarksView', () => {
         data: {
           threads: [createMockThread()],
           pagination: { page: 1, perPage: 20, total: 50, totalPages: 3 },
-          readMarkers: {},
         },
       })
 

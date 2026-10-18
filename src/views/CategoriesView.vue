@@ -46,7 +46,8 @@
               :category="category"
               :children="category.children || []"
               :hide-children="category.hideChildrenOnCard"
-              :is-unread="isCategoryUnread(category)"
+              :unread-count="userId !== null ? getUnreadCount(category, true) : 0"
+              :show-unread-count="showUnreadCounts"
               @click="navigateToCategory(category)"
             />
           </div>
@@ -69,6 +70,7 @@ import RefreshIcon from '@icons/Refresh.vue'
 import { useCategories } from '@/composables/useCategories'
 import { usePublicSettings } from '@/composables/usePublicSettings'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import { useUserPreferences } from '@/composables/useUserPreferences'
 import type { Category } from '@/types'
 import { t } from '@nextcloud/l10n'
 
@@ -85,17 +87,18 @@ export default defineComponent({
     RefreshIcon,
   },
   setup() {
-    const { categoryHeaders, loading, fetchCategories, refresh, markCategoryAsRead } =
-      useCategories()
+    const { categoryHeaders, loading, fetchCategories, refresh, getUnreadCount } = useCategories()
     const { settings, loading: settingsLoading, fetchPublicSettings } = usePublicSettings()
     const { userId } = useCurrentUser()
+    const { showUnreadCounts } = useUserPreferences()
 
     return {
       categoryHeaders,
       loading,
       fetchCategories,
       refreshCategories: refresh,
-      markCategoryAsRead,
+      getUnreadCount,
+      showUnreadCounts,
       publicSettings: settings,
       settingsLoading,
       fetchPublicSettings,
@@ -140,24 +143,7 @@ export default defineComponent({
       }
     },
 
-    isCategoryUnread(category: Category): boolean {
-      if (this.userId === null) {
-        return false
-      }
-      const lastActivity = category.lastActivityAt
-      if (!lastActivity) {
-        return false
-      }
-      if (category.readAt == null) {
-        return true
-      }
-      return lastActivity > category.readAt
-    },
-
     navigateToCategory(category: Category) {
-      if (this.userId !== null) {
-        this.markCategoryAsRead(category.id)
-      }
       this.$router.push(`/c/${category.slug}`)
     },
   },

@@ -20,7 +20,8 @@ export interface UserPreferences {
   use_category_upload_path: boolean
   upload_behavior: 'configured' | 'prompt'
   notify_post_replies: boolean
-  show_unread_counts: boolean
+  /** What the unread counters next to categories and threads count */
+  show_unread_counts: 'off' | 'threads'
 }
 
 /** Conservative defaults — used while the first fetch is in flight. */
@@ -35,7 +36,7 @@ const DEFAULTS: UserPreferences = {
   use_category_upload_path: true,
   upload_behavior: 'configured',
   notify_post_replies: true,
-  show_unread_counts: true,
+  show_unread_counts: 'threads',
 }
 
 // Module-scoped state: shared across every component that calls the composable.
@@ -120,5 +121,9 @@ export function useUserPreferences() {
       () => preferences.value.upload_directory_resolved_path ?? preferences.value.upload_directory,
     ),
     useCategoryUploadPath: computed(() => preferences.value.use_category_upload_path),
+    /** Whether unread counters are shown; false until preferences have loaded */
+    showUnreadCounts: computed(
+      () => loaded.value && preferences.value.show_unread_counts !== 'off',
+    ),
   }
 }

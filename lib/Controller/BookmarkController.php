@@ -9,8 +9,8 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Db\Bookmark;
 use OCA\Forum\Db\BookmarkMapper;
-use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\ThreadMapper;
+use OCA\Forum\Service\ReadStateService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Http;
@@ -28,7 +28,7 @@ class BookmarkController extends OCSController {
 		IRequest $request,
 		private BookmarkMapper $bookmarkMapper,
 		private ThreadMapper $threadMapper,
-		private ReadMarkerMapper $readMarkerMapper,
+		private ReadStateService $readStateService,
 		private ThreadEnrichmentService $threadEnrichmentService,
 		private UserService $userService,
 		private IUserSession $userSession,
@@ -117,13 +117,15 @@ class BookmarkController extends OCSController {
 
 	/**
 	 * Get all bookmarked threads for the current user (paginated)
-	 * Includes read marker information for unread status
+	 *
+	 * Each thread carries `isUnread` and `unreadReplyCount` (null when the user
+	 * has never seen the thread).
 	 *
 	 * @param int $page Page number (1-indexed)
 	 * @param int $perPage Number of threads per page
-	 * @return DataResponse<Http::STATUS_OK, array{threads: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int}, readMarkers: array<string, array{entityId: int, lastReadPostId: int, readAt: int}>}, array{}>
+	 * @return DataResponse<Http::STATUS_OK, array{threads: list<array<string, mixed>>, pagination: array{page: int, perPage: int, total: int, totalPages: int}}, array{}>
 	 *
-	 * 200: Bookmarked threads returned with pagination and read markers
+	 * 200: Bookmarked threads returned with pagination
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'GET', url: '/api/bookmarks')]
@@ -159,7 +161,6 @@ class BookmarkController extends OCSController {
 						'total' => 0,
 						'totalPages' => 1,
 					],
-					'readMarkers' => [],
 				]);
 			}
 
@@ -180,6 +181,7 @@ class BookmarkController extends OCSController {
 			$lastReplyAuthorIds = array_filter(array_map(fn ($t) => $t->getLastReplyAuthorId(), $threads));
 			$allAuthorIds = array_unique(array_merge($authorIds, $lastReplyAuthorIds));
 			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
+			$readStates = $this->readStateService->getThreadStates($userId, $threads);
 
 			foreach ($bookmarks as $bookmark) {
 				$threadId = $bookmark->getEntityId();
@@ -194,6 +196,7 @@ class BookmarkController extends OCSController {
 							'createdAt' => $thread->getLastReplyAt(),
 						];
 					}
+					/** @var array<string, mixed> $enriched */
 					$enriched = $this->threadEnrichmentService->enrichThread(
 						$thread,
 						$authors[$thread->getAuthorId()] ?? null,
@@ -201,19 +204,8 @@ class BookmarkController extends OCSController {
 					);
 					// Add bookmark timestamp
 					$enriched['bookmarkedAt'] = $bookmark->getCreatedAt();
-					$orderedThreads[] = $enriched;
+					$orderedThreads[] = array_merge($enriched, $readStates[$threadId] ?? []);
 				}
-			}
-
-			// Fetch read markers for these threads
-			$readMarkers = [];
-			$markers = $this->readMarkerMapper->findByUserAndThreads($userId, $threadIds);
-			foreach ($markers as $marker) {
-				$readMarkers[$marker->getEntityId()] = [
-					'entityId' => $marker->getEntityId(),
-					'lastReadPostId' => $marker->getLastReadPostId(),
-					'readAt' => $marker->getReadAt(),
-				];
 			}
 
 			return new DataResponse([
@@ -224,7 +216,6 @@ class BookmarkController extends OCSController {
 					'total' => $totalBookmarks,
 					'totalPages' => $totalPages,
 				],
-				'readMarkers' => $readMarkers,
 			]);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching bookmarked threads: ' . $e->getMessage());

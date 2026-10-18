@@ -12,7 +12,6 @@ use OCA\Forum\Db\CategoryMapper;
 use OCA\Forum\Db\CategoryPerm;
 use OCA\Forum\Db\CategoryPermMapper;
 use OCA\Forum\Db\CatHeaderMapper;
-use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Db\Role;
 use OCA\Forum\Db\RoleMapper;
 use OCA\Forum\Db\ThreadMapper;
@@ -38,7 +37,6 @@ class CategoryController extends OCSController {
 		private CategoryMapper $categoryMapper,
 		private CategoryPermMapper $categoryPermMapper,
 		private ThreadMapper $threadMapper,
-		private ReadMarkerMapper $readMarkerMapper,
 		private RoleMapper $roleMapper,
 		private PermissionService $permissionService,
 		private IUserSession $userSession,
@@ -62,24 +60,14 @@ class CategoryController extends OCSController {
 	#[ApiRoute(verb: 'GET', url: '/api/categories')]
 	public function index(int $limit = 100, int $offset = 0): DataResponse {
 		try {
-			// Fetch all headers, categories, and last activity timestamps
+			// Fetch all headers and categories
 			$headers = $this->catHeaderMapper->findAll();
 			$allCategories = $this->categoryMapper->findAll();
-			$lastActivityMap = $this->threadMapper->getLastActivityByCategories();
 
 			// Filter categories by canView permission
 			$user = $this->userSession->getUser();
 			$userId = $user ? $user->getUID() : null;
 			$accessibleCategoryIds = $this->permissionService->getAccessibleCategories($userId);
-
-			// Fetch category read markers for authenticated users
-			$readMarkerMap = [];
-			if ($user) {
-				$markers = $this->readMarkerMapper->findCategoryMarkersByUserId($user->getUID());
-				foreach ($markers as $marker) {
-					$readMarkerMap[$marker->getEntityId()] = $marker->getReadAt();
-				}
-			}
 
 			// Build a lookup map for resolving effective header IDs
 			$allCatsById = [];
@@ -105,10 +93,7 @@ class CategoryController extends OCSController {
 				if (!isset($categoriesByHeader[$headerId])) {
 					$categoriesByHeader[$headerId] = [];
 				}
-				$categoryData = $this->serializeWithResolvedPath($category);
-				$categoryData['lastActivityAt'] = $lastActivityMap[$category->getId()] ?? null;
-				$categoryData['readAt'] = $readMarkerMap[$category->getId()] ?? null;
-				$categoriesByHeader[$headerId][] = $categoryData;
+				$categoriesByHeader[$headerId][] = $this->serializeWithResolvedPath($category);
 			}
 
 			// Build result with nested categories
@@ -149,11 +134,12 @@ class CategoryController extends OCSController {
 			}
 
 			$accessibleCategoryIds = array_flip($this->permissionService->getAccessibleCategories($user->getUID()));
-			$counts = array_filter(
-				$this->threadMapper->countUnreadByCategories($user->getUID()),
-				fn (int $count, int $categoryId) => $count > 0 && isset($accessibleCategoryIds[$categoryId]),
-				ARRAY_FILTER_USE_BOTH,
-			);
+			$counts = [];
+			foreach ($this->threadMapper->countUnreadByCategories($user->getUID()) as $categoryId => $count) {
+				if ($count > 0 && isset($accessibleCategoryIds[$categoryId])) {
+					$counts[$categoryId] = $count;
+				}
+			}
 
 			return new DataResponse($counts);
 		} catch (\Exception $e) {

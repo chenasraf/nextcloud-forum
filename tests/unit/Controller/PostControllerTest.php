@@ -28,6 +28,7 @@ use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
 use OCA\Forum\Service\PostEnrichmentService;
 use OCA\Forum\Service\PostHistoryService;
+use OCA\Forum\Service\ReadStateService;
 use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -65,6 +66,8 @@ class PostControllerTest extends TestCase {
 	private PostEnrichmentService $postEnrichmentService;
 	/** @var PostHistoryService&MockObject */
 	private PostHistoryService $postHistoryService;
+
+	private ReadStateService $readStateService;
 	/** @var UserService&MockObject */
 	private UserService $userService;
 	/** @var UserPreferencesService&MockObject */
@@ -104,6 +107,12 @@ class PostControllerTest extends TestCase {
 		$this->adminSettingsService->method('getMaxReplyDepth')->willReturn(5);
 		$this->userSession = $this->createMock(IUserSession::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->readStateService = new ReadStateService(
+			$this->readMarkerMapper,
+			$this->postMapper,
+			$this->categoryMapper,
+			$this->permissionService,
+		);
 
 		// Mock post enrichment service to return serialized post with mock data
 		$this->postEnrichmentService->method('enrichPost')
@@ -129,6 +138,7 @@ class PostControllerTest extends TestCase {
 			$this->notificationService,
 			$this->postEnrichmentService,
 			$this->postHistoryService,
+			$this->readStateService,
 			$this->userService,
 			$this->userPreferencesService,
 			$this->threadSubscriptionMapper,
@@ -1543,6 +1553,7 @@ class PostControllerTest extends TestCase {
 			$this->notificationService,
 			$this->postEnrichmentService,
 			$this->postHistoryService,
+			$this->readStateService,
 			$this->userService,
 			$this->userPreferencesService,
 			$this->threadSubscriptionMapper,

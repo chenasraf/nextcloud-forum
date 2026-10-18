@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { createIconMock, createComponentMock } from '@/test-utils'
 import { createMockCategory, createMockThread } from '@/test-mocks'
+import type { Category } from '@/types'
 
 // Uses global mock for @/axios from test-setup.ts
 
@@ -15,10 +16,20 @@ vi.mock('@/composables/useCurrentUser', () => ({
 }))
 
 // Mock useCategories composable
+const mockMarkCategoryAsRead = vi.fn()
+const mockUnreadCounts = ref<Record<number, number>>({})
 vi.mock('@/composables/useCategories', () => ({
   useCategories: () => ({
-    markCategoryAsRead: vi.fn(),
+    markCategoryAsRead: mockMarkCategoryAsRead,
     findCategoryInTree: vi.fn().mockReturnValue(null),
+    getUnreadCount: (category: Category) => mockUnreadCounts.value[category.id] ?? 0,
+  }),
+}))
+
+const mockShowUnreadCounts = ref(true)
+vi.mock('@/composables/useUserPreferences', () => ({
+  useUserPreferences: () => ({
+    showUnreadCounts: mockShowUnreadCounts,
   }),
 }))
 
@@ -34,6 +45,7 @@ vi.mock('@/composables/usePermissions', () => ({
 vi.mock('@icons/ArrowLeft.vue', () => createIconMock('ArrowLeftIcon'))
 vi.mock('@icons/Refresh.vue', () => createIconMock('RefreshIcon'))
 vi.mock('@icons/MessagePlus.vue', () => createIconMock('MessagePlusIcon'))
+vi.mock('@icons/CheckAll.vue', () => createIconMock('CheckAllIcon'))
 
 // Mock components
 vi.mock('@/components/PageWrapper', () =>
@@ -58,7 +70,7 @@ vi.mock('@/components/PageHeader', () =>
 vi.mock('@/components/ThreadCard', () =>
   createComponentMock('ThreadCard', {
     template: '<div class="thread-card-mock">{{ thread.title }}</div>',
-    props: ['thread', 'isUnread'],
+    props: ['thread', 'isUnread', 'unreadReplyCount'],
     emits: ['click'],
   }),
 )
@@ -80,7 +92,7 @@ vi.mock('@/views/CategoryNotFound.vue', () =>
 vi.mock('@/components/CategoryCard', () =>
   createComponentMock('CategoryCard', {
     template: '<div class="category-card-mock">{{ category.name }}</div>',
-    props: ['category', 'children', 'hideChildren', 'isUnread'],
+    props: ['category', 'children', 'hideChildren', 'unreadCount', 'showUnreadCount'],
     emits: ['click'],
   }),
 )
@@ -122,11 +134,8 @@ describe('CategoryView', () => {
       if (url.includes('/categories/slug/')) {
         return mockGetResponse({ data: mockCategory })
       }
-      if (url.includes('/paginated')) {
+      if (url.includes('/threads')) {
         return mockGetResponse(createThreadsResponse(threads))
-      }
-      if (url.includes('/read-markers')) {
-        return mockGetResponse({ data: {} })
       }
       return mockGetResponse({ data: null })
     })
@@ -134,6 +143,9 @@ describe('CategoryView', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockUnreadCounts.value = {}
+    mockShowUnreadCounts.value = true
+    mockMarkCategoryAsRead.mockResolvedValue(undefined)
     mockCheckCategoryPermission.mockResolvedValue(true)
     setupGetMock()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -199,6 +211,81 @@ describe('CategoryView', () => {
       await flushPromises()
 
       expect(mockCheckCategoryPermission).toHaveBeenCalledWith(5, 'canPost')
+    })
+  })
+
+  describe('read state', () => {
+    const findMarkAsReadButton = (wrapper: ReturnType<typeof createWrapper>) =>
+      wrapper
+        .findAllComponents({ name: 'NcButton' })
+        .find((b) => b.props('ariaLabel') === 'Mark as read')
+
+    it('does not mark the category as read when visiting it', async () => {
+      createWrapper()
+      await flushPromises()
+
+      expect(mockMarkCategoryAsRead).not.toHaveBeenCalled()
+      expect(mockOcsPost).not.toHaveBeenCalled()
+    })
+
+    it('passes the read state of each thread to its card', async () => {
+      setupGetMock([
+        createMockThread({ id: 1, isUnread: true, unreadReplyCount: 4 }),
+        createMockThread({ id: 2, isUnread: false, unreadReplyCount: 0 }),
+      ])
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const cards = wrapper.findAllComponents({ name: 'ThreadCard' })
+      expect(cards[0]!.props('isUnread')).toBe(true)
+      expect(cards[0]!.props('unreadReplyCount')).toBe(4)
+      expect(cards[1]!.props('isUnread')).toBe(false)
+    })
+
+    it('hides unread reply counts when disabled in preferences', async () => {
+      mockShowUnreadCounts.value = false
+      setupGetMock([createMockThread({ id: 1, isUnread: true, unreadReplyCount: 4 })])
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const card = wrapper.findComponent({ name: 'ThreadCard' })
+      expect(card.props('isUnread')).toBe(true)
+      expect(card.props('unreadReplyCount')).toBeNull()
+    })
+
+    it('disables mark as read when nothing is unread', async () => {
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      expect(findMarkAsReadButton(wrapper)!.props('disabled')).toBe(true)
+    })
+
+    it('marks the category as read and clears the listed threads', async () => {
+      mockUnreadCounts.value = { 5: 1 }
+      setupGetMock([createMockThread({ id: 1, isUnread: true, unreadReplyCount: 4 })])
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      await findMarkAsReadButton(wrapper)!.trigger('click')
+      await flushPromises()
+
+      expect(mockMarkCategoryAsRead).toHaveBeenCalledWith(expect.objectContaining({ id: 5 }))
+      const card = wrapper.findComponent({ name: 'ThreadCard' })
+      expect(card.props('isUnread')).toBe(false)
+      expect(card.props('unreadReplyCount')).toBe(0)
+    })
+
+    it('keeps the threads unread when marking as read fails', async () => {
+      mockUnreadCounts.value = { 5: 1 }
+      mockMarkCategoryAsRead.mockRejectedValue(new Error('Network error'))
+      setupGetMock([createMockThread({ id: 1, isUnread: true, unreadReplyCount: 4 })])
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      await findMarkAsReadButton(wrapper)!.trigger('click')
+      await flushPromises()
+
+      expect(wrapper.findComponent({ name: 'ThreadCard' }).props('isUnread')).toBe(true)
     })
   })
 })

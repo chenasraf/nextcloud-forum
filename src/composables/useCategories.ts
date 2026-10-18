@@ -10,6 +10,7 @@ const error = ref<string | null>(null)
 const loaded = ref<boolean>(false)
 // Unread thread count per category ID, covering each category's own threads only
 const unreadCounts = ref<Record<number, number>>({})
+let unreadCountsInFlight: Promise<Record<number, number>> | null = null
 
 /**
  * Build a category tree from flat category list.
@@ -108,14 +109,28 @@ export function useCategories() {
   }
 
   /**
-   * Mark a category as read in the local state
-   * Updates the readAt timestamp so the category appears read without refetching
+   * Mark a category and all of its subcategories as read
+   * Clears their unread counts immediately, then reloads them from the server.
    */
-  const markCategoryAsRead = (categoryId: number): void => {
-    const cat = findCategoryInTree(categoryId)
-    if (cat) {
-      cat.readAt = Math.floor(Date.now() / 1000)
+  const markCategoryAsRead = async (category: Category): Promise<void> => {
+    // A response still in flight predates this action and would restore the old counts
+    await unreadCountsInFlight
+    const previous = unreadCounts.value
+    const cleared = { ...previous }
+    const clearTree = (cat: Category): void => {
+      delete cleared[cat.id]
+      cat.children?.forEach(clearTree)
     }
+    clearTree(category)
+    unreadCounts.value = cleared
+
+    try {
+      await ocs.post('/read-markers', { categoryId: category.id })
+    } catch (e) {
+      unreadCounts.value = previous
+      throw e
+    }
+    await fetchUnreadCounts()
   }
 
   /**
@@ -145,14 +160,20 @@ export function useCategories() {
   /**
    * Fetch unread thread counts per category for the current user
    */
-  const fetchUnreadCounts = async (): Promise<Record<number, number>> => {
-    try {
-      const response = await ocs.get<Record<number, number>>('/categories/unread-counts')
-      unreadCounts.value = response.data || {}
-    } catch (e) {
-      console.debug('Failed to fetch unread counts:', e)
-    }
-    return unreadCounts.value
+  const fetchUnreadCounts = (): Promise<Record<number, number>> => {
+    // The sidebar and the current page both ask for counts on load; share one request
+    unreadCountsInFlight ??= (async () => {
+      try {
+        const response = await ocs.get<Record<number, number>>('/categories/unread-counts')
+        unreadCounts.value = response.data || {}
+      } catch (e) {
+        console.debug('Failed to fetch unread counts:', e)
+      } finally {
+        unreadCountsInFlight = null
+      }
+      return unreadCounts.value
+    })()
+    return unreadCountsInFlight
   }
 
   /**

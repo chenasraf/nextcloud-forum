@@ -20,6 +20,7 @@ use OCA\Forum\Db\ThreadSubscriptionMapper;
 use OCA\Forum\Service\GuestService;
 use OCA\Forum\Service\NotificationService;
 use OCA\Forum\Service\PermissionService;
+use OCA\Forum\Service\ReadStateService;
 use OCA\Forum\Service\ThreadEnrichmentService;
 use OCA\Forum\Service\UserPreferencesService;
 use OCA\Forum\Service\UserService;
@@ -47,6 +48,7 @@ class ThreadController extends OCSController {
 		private DraftMapper $draftMapper,
 		private ReadMarkerMapper $readMarkerMapper,
 		private ThreadEnrichmentService $threadEnrichmentService,
+		private ReadStateService $readStateService,
 		private UserPreferencesService $userPreferencesService,
 		private UserService $userService,
 		private PermissionService $permissionService,
@@ -104,6 +106,9 @@ class ThreadController extends OCSController {
 	/**
 	 * Get threads by category
 	 *
+	 * For signed-in users each thread also carries `isUnread` and
+	 * `unreadReplyCount` (null when the user has never seen the thread).
+	 *
 	 * @param int $categoryId Category ID
 	 * @param int $page Page number (1-indexed)
 	 * @param int $perPage Number of threads per page
@@ -136,8 +141,11 @@ class ThreadController extends OCSController {
 			// Batch fetch author data (includes roles)
 			$authors = $this->userService->enrichMultipleUsers($allAuthorIds);
 
-			// Enrich threads with pre-fetched author data and last reply info
-			$enrichedThreads = array_map(function ($t) use ($authors) {
+			$user = $this->userSession->getUser();
+			$readStates = $user ? $this->readStateService->getThreadStates($user->getUID(), $threads) : [];
+
+			// Enrich threads with pre-fetched author data, last reply info and read state
+			$enrichedThreads = array_map(function ($t) use ($authors, $readStates) {
 				$lastReply = null;
 				$lastReplyAuthorId = $t->getLastReplyAuthorId();
 				if ($lastReplyAuthorId !== null) {
@@ -147,7 +155,11 @@ class ThreadController extends OCSController {
 						'createdAt' => $t->getLastReplyAt(),
 					];
 				}
-				return $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null, $lastReply);
+				$enriched = $this->threadEnrichmentService->enrichThread($t, $authors[$t->getAuthorId()] ?? null, $lastReply);
+				if (isset($readStates[$t->getId()])) {
+					$enriched = array_merge($enriched, $readStates[$t->getId()]);
+				}
+				return $enriched;
 			}, $threads);
 
 			return new DataResponse([
@@ -306,25 +318,6 @@ class ThreadController extends OCSController {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
-			// Check if the category was already read before creating the thread
-			// (used later to decide whether to update the category read marker)
-			$wasCategoryRead = false;
-			if ($user) {
-				try {
-					$lastActivity = $this->threadMapper->getLastActivityForCategory($categoryId);
-					if ($lastActivity === null) {
-						$wasCategoryRead = true;
-					} else {
-						$marker = $this->readMarkerMapper->findByUserAndCategory($user->getUID(), $categoryId);
-						$wasCategoryRead = $marker->getReadAt() >= $lastActivity;
-					}
-				} catch (DoesNotExistException $e) {
-					// No read marker means the category is unread
-				} catch (\Exception $e) {
-					$this->logger->warning('Failed to check category read state: ' . $e->getMessage());
-				}
-			}
-
 			// Generate slug from title
 			$slug = $this->generateSlug($title);
 
@@ -396,14 +389,11 @@ class ThreadController extends OCSController {
 					$this->logger->warning('Failed to subscribe thread creator: ' . $e->getMessage());
 				}
 
-				// Update category read marker so the category stays read,
-				// but only if it was not already unread before this thread was created
-				if ($wasCategoryRead) {
-					try {
-						$this->readMarkerMapper->createOrUpdateCategoryMarker($user->getUID(), $categoryId);
-					} catch (\Exception $e) {
-						$this->logger->warning('Failed to update category read marker: ' . $e->getMessage());
-					}
+				// The author has read their own first post
+				try {
+					$this->readMarkerMapper->createOrUpdate($user->getUID(), $createdThread->getId(), $createdPost->getId());
+				} catch (\Exception $e) {
+					$this->logger->warning('Failed to create read marker for new thread: ' . $e->getMessage());
 				}
 
 				// Delete any draft for this category now that the thread is created

@@ -16,6 +16,7 @@ vi.mock('@icons/Pin.vue', () => createIconMock('PinIcon'))
 vi.mock('@icons/Lock.vue', () => createIconMock('LockIcon'))
 vi.mock('@icons/Comment.vue', () => createIconMock('CommentIcon'))
 vi.mock('@icons/Eye.vue', () => createIconMock('EyeIcon'))
+vi.mock('@icons/CommentAlert.vue', () => createIconMock('CommentAlertIcon'))
 
 describe('ThreadCard', () => {
   describe('rendering', () => {
@@ -127,6 +128,25 @@ describe('ThreadCard', () => {
         props: { thread },
       })
       expect(wrapper.find('.unread-indicator').exists()).toBe(false)
+    })
+
+    it('should show the unread reply count as the first stat', () => {
+      const thread = createMockThread({ postCount: 12 })
+      const wrapper = mount(ThreadCard, {
+        props: { thread, isUnread: true, unreadReplyCount: 3 },
+      })
+      const first = wrapper.findAll('.thread-stats .stat')[0]!
+      expect(first.classes()).toContain('unread-stat')
+      expect(first.find('.stat-value').text()).toBe('3')
+      expect(first.find('.stat-label').text()).toBe('Unread')
+    })
+
+    it.each([null, 0])('should not show an unread reply count of %s', (unreadReplyCount) => {
+      const thread = createMockThread({ postCount: 12 })
+      const wrapper = mount(ThreadCard, {
+        props: { thread, unreadReplyCount },
+      })
+      expect(wrapper.find('.unread-stat').exists()).toBe(false)
     })
   })
 

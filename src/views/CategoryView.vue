@@ -13,6 +13,17 @@
 
         <template #right>
           <NcButton
+            v-if="userId !== null && category"
+            @click="markAsRead"
+            :disabled="loading || markingAsRead || subtreeUnreadCount === 0"
+            :aria-label="strings.markAsRead"
+            :title="strings.markAsRead"
+          >
+            <template #icon>
+              <CheckAllIcon :size="20" />
+            </template>
+          </NcButton>
+          <NcButton
             @click="refresh"
             :disabled="loading"
             :aria-label="strings.refresh"
@@ -55,7 +66,8 @@
             :key="child.id"
             :category="child"
             :children="child.children || []"
-            :is-unread="isCategoryUnread(child)"
+            :unread-count="userId !== null ? getUnreadCount(child, true) : 0"
+            :show-unread-count="showUnreadCounts"
             @click="navigateToChildCategory(child)"
           />
         </div>
@@ -126,7 +138,8 @@
             v-for="thread in sortedThreads"
             :key="thread.id"
             :thread="thread"
-            :is-unread="isThreadUnread(thread)"
+            :is-unread="thread.isUnread ?? false"
+            :unread-reply-count="showUnreadCounts ? (thread.unreadReplyCount ?? null) : null"
             @click="navigateToThread(thread)"
             @navigate-last-reply="navigateToLastReply(thread)"
           />
@@ -159,26 +172,32 @@ import CategoryNotFound from '@/views/CategoryNotFound.vue'
 import ArrowLeftIcon from '@icons/ArrowLeft.vue'
 import RefreshIcon from '@icons/Refresh.vue'
 import MessagePlusIcon from '@icons/MessagePlus.vue'
+import CheckAllIcon from '@icons/CheckAll.vue'
 import CategoryCard from '@/components/CategoryCard'
 import type { Category, Thread } from '@/types'
 import { ocs } from '@/axios'
 import { t, n } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import { showError } from '@nextcloud/dialogs'
 import { useCurrentUser } from '@/composables/useCurrentUser'
 import { useCategories } from '@/composables/useCategories'
 import { usePermissions } from '@/composables/usePermissions'
+import { useUserPreferences } from '@/composables/useUserPreferences'
 
 export default defineComponent({
   name: 'CategoryView',
   setup() {
     const { userId } = useCurrentUser()
-    const { markCategoryAsRead, findCategoryInTree } = useCategories()
+    const { markCategoryAsRead, findCategoryInTree, getUnreadCount } = useCategories()
     const { checkCategoryPermission } = usePermissions()
+    const { showUnreadCounts } = useUserPreferences()
     return {
       userId,
-      markCategoryAsReadLocal: markCategoryAsRead,
+      markCategoryAsRead,
       findCategoryInTree,
+      getUnreadCount,
       checkCategoryPermission,
+      showUnreadCounts,
     }
   },
   components: {
@@ -195,6 +214,7 @@ export default defineComponent({
     ArrowLeftIcon,
     RefreshIcon,
     MessagePlusIcon,
+    CheckAllIcon,
   },
   data() {
     return {
@@ -203,7 +223,7 @@ export default defineComponent({
       canPost: false,
       category: null as Category | null,
       threads: [] as Thread[],
-      readMarkers: {} as Record<number, { lastReadPostId: number; readAt: number }>,
+      markingAsRead: false,
       error: null as string | null,
       currentPage: 1,
       totalPages: 1,
@@ -219,6 +239,8 @@ export default defineComponent({
         emptyDesc: t('forum', 'Be the first to start a discussion in this category.'),
         retry: t('forum', 'Retry'),
         subcategories: t('forum', 'Subcategories'),
+        markAsRead: t('forum', 'Mark as read'),
+        markAsReadFailed: t('forum', 'Failed to mark category as read'),
       },
     }
   },
@@ -247,6 +269,11 @@ export default defineComponent({
       const catInTree = this.findCategoryInTree(this.category.id)
       return catInTree?.children || []
     },
+    /** Unread threads in this category and all of its subcategories */
+    subtreeUnreadCount(): number {
+      if (!this.category) return 0
+      return this.getUnreadCount(this.findCategoryInTree(this.category.id) ?? this.category, true)
+    },
   },
   created() {
     this.refresh()
@@ -263,10 +290,6 @@ export default defineComponent({
         // Fetch threads and check permissions
         if (this.category) {
           await this.fetchThreads()
-          // Fetch read markers after threads are loaded
-          await this.fetchReadMarkers()
-          // Mark category as read for authenticated users
-          this.markCategoryAsRead()
           // Check canPost permission
           this.canPost = await this.checkCategoryPermission(this.category.id, 'canPost')
         }
@@ -332,8 +355,6 @@ export default defineComponent({
       try {
         this.loadingThreads = true
         await this.fetchThreads(newPage)
-        // Fetch read markers for the new page's threads
-        await this.fetchReadMarkers()
 
         // Scroll to top of threads list
         await this.$nextTick()
@@ -348,56 +369,24 @@ export default defineComponent({
       }
     },
 
-    async markCategoryAsRead() {
-      if (this.userId === null || !this.category) {
+    async markAsRead() {
+      if (!this.category) {
         return
       }
-      // Update shared state immediately so back navigation shows as read
-      this.markCategoryAsReadLocal(this.category.id)
+      this.markingAsRead = true
       try {
-        await ocs.post('/read-markers', { categoryId: this.category.id })
-      } catch (e) {
-        console.debug('Failed to mark category as read', e)
-      }
-    },
-
-    async fetchReadMarkers() {
-      try {
-        // Guests don't have read markers
-        if (this.userId === null) {
-          return
+        await this.markCategoryAsRead(this.findCategoryInTree(this.category.id) ?? this.category)
+        // Every listed thread now belongs to the marked category
+        for (const thread of this.threads) {
+          thread.isUnread = false
+          thread.unreadReplyCount = 0
         }
-
-        if (this.threads.length === 0) {
-          return
-        }
-
-        const threadIds = this.threads.map((t) => t.id).join(',')
-        const resp = await ocs.get<
-          Record<number, { entityId: number; lastReadPostId: number; readAt: number }>
-        >('/read-markers', {
-          params: { threadIds },
-        })
-        this.readMarkers = resp.data || {}
       } catch (e) {
-        // Silently fail - read markers are not critical
-        console.debug('Failed to fetch read markers', e)
+        console.error('Failed to mark category as read', e)
+        showError(this.strings.markAsReadFailed)
+      } finally {
+        this.markingAsRead = false
       }
-    },
-
-    isThreadUnread(thread: Thread): boolean {
-      // Guests see everything as read
-      if (this.userId === null) {
-        return false
-      }
-
-      const marker = this.readMarkers[thread.id]
-      if (!marker) {
-        // No read marker means thread is unread
-        return true
-      }
-      // Thread is unread if last post ID > last read post ID
-      return thread.lastPostId ? thread.lastPostId > marker.lastReadPostId : false
     },
 
     navigateToThread(thread: Thread) {
@@ -429,14 +418,6 @@ export default defineComponent({
 
     navigateToChildCategory(child: Category): void {
       this.$router.push(`/c/${child.slug}`)
-    },
-
-    isCategoryUnread(category: Category): boolean {
-      if (this.userId === null) return false
-      const lastActivity = category.lastActivityAt
-      if (!lastActivity) return false
-      if (category.readAt == null) return true
-      return lastActivity > category.readAt
     },
 
     goBack(): void {

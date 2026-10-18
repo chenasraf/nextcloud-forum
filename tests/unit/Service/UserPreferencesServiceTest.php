@@ -55,7 +55,7 @@ class UserPreferencesServiceTest extends TestCase {
 
 				return match ($key) {
 					UserPreferencesService::PREF_NOTIFY_POST_REPLIES => 'false',
-					UserPreferencesService::PREF_SHOW_UNREAD_COUNTS => 'false',
+					UserPreferencesService::PREF_SHOW_UNREAD_COUNTS => 'off',
 					UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS => 'true',
 					UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS => 'false',
 					UserPreferencesService::PREF_UPLOAD_DIRECTORY => 'Forum',
@@ -73,7 +73,7 @@ class UserPreferencesServiceTest extends TestCase {
 		// 10 stored keys + 1 derived `upload_directory_resolved_path` = 11
 		$this->assertCount(11, $result);
 		$this->assertFalse($result[UserPreferencesService::PREF_NOTIFY_POST_REPLIES]);
-		$this->assertFalse($result[UserPreferencesService::PREF_SHOW_UNREAD_COUNTS]);
+		$this->assertSame('off', $result[UserPreferencesService::PREF_SHOW_UNREAD_COUNTS]);
 		$this->assertTrue($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS]);
 		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS]);
 		$this->assertEquals('Forum', $result[UserPreferencesService::PREF_UPLOAD_DIRECTORY]);
@@ -215,7 +215,7 @@ class UserPreferencesServiceTest extends TestCase {
 		$this->assertIsArray($result);
 		$this->assertCount(11, $result);
 		$this->assertTrue($result[UserPreferencesService::PREF_NOTIFY_POST_REPLIES]);
-		$this->assertTrue($result[UserPreferencesService::PREF_SHOW_UNREAD_COUNTS]);
+		$this->assertSame('threads', $result[UserPreferencesService::PREF_SHOW_UNREAD_COUNTS]);
 		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_CREATED_THREADS]);
 		$this->assertFalse($result[UserPreferencesService::PREF_AUTO_SUBSCRIBE_REPLIED_THREADS]);
 		$this->assertEquals('Documents', $result[UserPreferencesService::PREF_UPLOAD_DIRECTORY]);
@@ -286,5 +286,30 @@ class UserPreferencesServiceTest extends TestCase {
 			->with($userId, Application::APP_ID, $key, 'Documents');
 
 		$this->service->setPreference($userId, $key, 'Documents');
+	}
+
+	public function testSetPreferenceAcceptsAllowedUnreadCountsValue(): void {
+		$this->config->expects($this->once())
+			->method('setUserValue')
+			->with('user1', Application::APP_ID, UserPreferencesService::PREF_SHOW_UNREAD_COUNTS, 'off');
+
+		$this->service->setPreference('user1', UserPreferencesService::PREF_SHOW_UNREAD_COUNTS, 'off');
+	}
+
+	public function testSetPreferenceRejectsUnknownUnreadCountsValue(): void {
+		$this->config->expects($this->never())->method('setUserValue');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->service->setPreference('user1', UserPreferencesService::PREF_SHOW_UNREAD_COUNTS, 'posts');
+	}
+
+	public function testUpdatePreferencesRejectsUnknownValueBeforeWritingAnything(): void {
+		$this->config->expects($this->never())->method('setUserValue');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->service->updatePreferences('user1', [
+			UserPreferencesService::PREF_HIDE_EDIT_HISTORY => true,
+			UserPreferencesService::PREF_SHOW_UNREAD_COUNTS => true,
+		]);
 	}
 }

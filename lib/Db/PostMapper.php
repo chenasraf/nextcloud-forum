@@ -234,6 +234,82 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
+	 * Count unread posts per thread for a user
+	 *
+	 * A post is unread when it is past both the user's read marker for its
+	 * thread and the "mark as read" watermark of the thread's category.
+	 *
+	 * @param array<int> $threadIds
+	 * @return array<int, int> threadId => unread post count (threads without unread posts are omitted)
+	 */
+	public function countUnreadByThreads(string $userId, array $threadIds): array {
+		if (empty($threadIds)) {
+			return [];
+		}
+
+		$markersTable = Application::tableName('forum_read_markers');
+		$threadsTable = Application::tableName('forum_threads');
+
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('p.thread_id')
+			->selectAlias($qb->func()->count('p.id'), 'unread_count')
+			->from($this->getTableName(), 'p')
+			->innerJoin('p', $threadsTable, 't', $qb->expr()->eq('t.id', 'p.thread_id'))
+			->leftJoin('p', $markersTable, 'rm', $qb->expr()->andX(
+				$qb->expr()->eq('rm.entity_id', 'p.thread_id'),
+				$qb->expr()->eq('rm.marker_type', $qb->createNamedParameter(ReadMarker::TYPE_THREAD, IQueryBuilder::PARAM_STR)),
+				$qb->expr()->eq('rm.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)),
+			))
+			->leftJoin('t', $markersTable, 'cm', $qb->expr()->andX(
+				$qb->expr()->eq('cm.entity_id', 't.category_id'),
+				$qb->expr()->eq('cm.marker_type', $qb->createNamedParameter(ReadMarker::TYPE_CATEGORY, IQueryBuilder::PARAM_STR)),
+				$qb->expr()->eq('cm.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)),
+			))
+			->where($qb->expr()->in('p.thread_id', $qb->createNamedParameter($threadIds, IQueryBuilder::PARAM_INT_ARRAY)))
+			->andWhere($qb->expr()->isNull('p.deleted_at'))
+			->andWhere($qb->expr()->orX(
+				$qb->expr()->isNull('rm.id'),
+				$qb->expr()->gt('p.id', 'rm.last_read_post_id'),
+			))
+			->andWhere($qb->expr()->orX(
+				$qb->expr()->isNull('cm.id'),
+				$qb->expr()->gt('p.created_at', 'cm.read_at'),
+			))
+			->groupBy('p.thread_id');
+
+		$result = $qb->executeQuery();
+		/** @var list<array{thread_id: int|string, unread_count: int|string}> $rows */
+		$rows = $result->fetchAll();
+		$result->closeCursor();
+
+		$map = [];
+		foreach ($rows as $row) {
+			$map[(int)$row['thread_id']] = (int)$row['unread_count'];
+		}
+		return $map;
+	}
+
+	/**
+	 * Find the ID of the newest post in a thread created at or before a timestamp
+	 *
+	 * @return int|null The post ID, or null if the thread has no post that old
+	 */
+	public function findLastIdCreatedUpTo(int $threadId, int $timestamp): ?int {
+		$qb = $this->db->getQueryBuilder();
+		$qb->selectAlias($qb->func()->max('id'), 'last_id')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->lte('created_at', $qb->createNamedParameter($timestamp, IQueryBuilder::PARAM_INT)));
+
+		$result = $qb->executeQuery();
+		/** @var array{last_id: int|string|null}|false $row */
+		$row = $result->fetch();
+		$result->closeCursor();
+
+		return $row !== false && $row['last_id'] !== null ? (int)$row['last_id'] : null;
+	}
+
+	/**
 	 * Find the first post in a thread
 	 *
 	 * @param int $threadId Thread ID

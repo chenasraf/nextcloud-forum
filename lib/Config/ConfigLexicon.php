@@ -41,7 +41,7 @@ class ConfigLexicon implements ILexicon {
 			new Entry('upload_behavior', ValueType::STRING, 'configured', 'Upload routing behavior: configured or prompt'),
 			new Entry('hide_edit_history', ValueType::BOOL, false, 'Whether to hide edit history from other users'),
 			new Entry('notify_post_replies', ValueType::BOOL, true, 'Notify the user when someone replies directly to one of their posts'),
-			new Entry('show_unread_counts', ValueType::BOOL, true, 'Whether to show unread thread counts next to categories in the navigation sidebar'),
+			new Entry('show_unread_counts', ValueType::STRING, 'threads', 'What the unread counters next to categories and threads count: off or threads'),
 		];
 	}
 }

@@ -21,8 +21,6 @@ export interface Category {
   postCount: number
   createdAt: number
   updatedAt: number
-  lastActivityAt?: number | null
-  readAt?: number | null
   children?: Category[]
 }
 
@@ -73,6 +71,10 @@ export interface Thread {
   categoryName?: string | null
   isSubscribed?: boolean
   isBookmarked?: boolean
+  /** Read state, present for signed-in users in thread lists */
+  isUnread?: boolean
+  /** Unread posts in the thread; null when the user has never seen it */
+  unreadReplyCount?: number | null
   lastReply?: {
     postId: number
     author: User | null

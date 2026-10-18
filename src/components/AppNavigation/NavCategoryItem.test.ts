@@ -17,13 +17,6 @@ vi.mock('@nextcloud/vue/components/NcAppNavigationItem', () =>
   }),
 )
 
-vi.mock('@nextcloud/vue/components/NcCounterBubble', () =>
-  createComponentMock('NcCounterBubble', {
-    template: '<span class="counter-bubble-mock">{{ count }}</span>',
-    props: ['count', 'active'],
-  }),
-)
-
 vi.mock('@icons/Forum.vue', () => createIconMock('ForumIcon'))
 
 import NavCategoryItem from './NavCategoryItem.vue'

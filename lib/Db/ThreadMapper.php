@@ -224,86 +224,42 @@ class ThreadMapper extends QBMapper {
 	}
 
 	/**
-	 * Get last activity timestamp (max updated_at) per category
-	 *
-	 * @return array<int, int> categoryId => lastActivityTimestamp
-	 */
-	public function getLastActivityByCategories(): array {
-		$postsTable = Application::tableName('forum_posts');
-
-		$qb = $this->db->getQueryBuilder();
-		$qb->select('t.category_id')
-			->selectAlias($qb->func()->max('p.created_at'), 'last_activity')
-			->from($this->getTableName(), 't')
-			->innerJoin('t', $postsTable, 'p', $qb->expr()->eq('p.thread_id', 't.id'))
-			->where($qb->expr()->isNull('t.deleted_at'))
-			->andWhere($qb->expr()->isNull('p.deleted_at'))
-			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
-			->groupBy('t.category_id');
-
-		$result = $qb->executeQuery();
-		/** @var list<array{category_id: int|string, last_activity: int|string|null}> $rows */
-		$rows = $result->fetchAll();
-		$result->closeCursor();
-
-		$map = [];
-		foreach ($rows as $row) {
-			$map[(int)$row['category_id']] = (int)$row['last_activity'];
-		}
-		return $map;
-	}
-
-	/**
-	 * Get the last activity timestamp for a single category
-	 *
-	 * @return int|null The timestamp of the last post, or null if no activity
-	 */
-	public function getLastActivityForCategory(int $categoryId): ?int {
-		$postsTable = Application::tableName('forum_posts');
-
-		$qb = $this->db->getQueryBuilder();
-		$qb->selectAlias($qb->func()->max('p.created_at'), 'last_activity')
-			->from($this->getTableName(), 't')
-			->innerJoin('t', $postsTable, 'p', $qb->expr()->eq('p.thread_id', 't.id'))
-			->where($qb->expr()->eq('t.category_id', $qb->createNamedParameter($categoryId, IQueryBuilder::PARAM_INT)))
-			->andWhere($qb->expr()->isNull('t.deleted_at'))
-			->andWhere($qb->expr()->isNull('p.deleted_at'))
-			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)));
-
-		$result = $qb->executeQuery();
-		/** @var array{last_activity: int|string|null}|false $row */
-		$row = $result->fetch();
-		$result->closeCursor();
-
-		return $row !== false && $row['last_activity'] !== null ? (int)$row['last_activity'] : null;
-	}
-
-	/**
 	 * Count unread threads per category for a user
 	 *
-	 * A thread is unread when the user has no read marker for it, or when its
-	 * last post is newer than the marker's last read post.
+	 * A thread is unread when its last post is past both the user's read marker
+	 * for the thread and the category's "mark as read" watermark. A missing
+	 * marker or watermark covers nothing.
 	 *
 	 * @return array<int, int> categoryId => unread thread count (categories with no unread threads are omitted)
 	 */
 	public function countUnreadByCategories(string $userId): array {
 		$markersTable = Application::tableName('forum_read_markers');
+		$postsTable = Application::tableName('forum_posts');
 
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('t.category_id')
 			->selectAlias($qb->func()->count('t.id'), 'unread_count')
 			->from($this->getTableName(), 't')
+			->innerJoin('t', $postsTable, 'lp', $qb->expr()->eq('lp.id', 't.last_post_id'))
 			->leftJoin('t', $markersTable, 'rm', $qb->expr()->andX(
 				$qb->expr()->eq('rm.entity_id', 't.id'),
 				$qb->expr()->eq('rm.marker_type', $qb->createNamedParameter(ReadMarker::TYPE_THREAD, IQueryBuilder::PARAM_STR)),
 				$qb->expr()->eq('rm.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)),
 			))
+			->leftJoin('t', $markersTable, 'cm', $qb->expr()->andX(
+				$qb->expr()->eq('cm.entity_id', 't.category_id'),
+				$qb->expr()->eq('cm.marker_type', $qb->createNamedParameter(ReadMarker::TYPE_CATEGORY, IQueryBuilder::PARAM_STR)),
+				$qb->expr()->eq('cm.user_id', $qb->createNamedParameter($userId, IQueryBuilder::PARAM_STR)),
+			))
 			->where($qb->expr()->isNull('t.deleted_at'))
 			->andWhere($qb->expr()->eq('t.is_hidden', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
-			->andWhere($qb->expr()->isNotNull('t.last_post_id'))
 			->andWhere($qb->expr()->orX(
 				$qb->expr()->isNull('rm.id'),
 				$qb->expr()->gt('t.last_post_id', 'rm.last_read_post_id'),
+			))
+			->andWhere($qb->expr()->orX(
+				$qb->expr()->isNull('cm.id'),
+				$qb->expr()->gt('lp.created_at', 'cm.read_at'),
 			))
 			->groupBy('t.category_id');
 

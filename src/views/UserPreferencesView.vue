@@ -69,7 +69,7 @@
           <p class="section-description muted">{{ strings.navigationDesc }}</p>
 
           <div class="preference-item">
-            <NcCheckboxRadioSwitch v-model="formData.show_unread_counts">
+            <NcCheckboxRadioSwitch v-model="showUnreadCounts">
               {{ strings.showUnreadCountsLabel }}
             </NcCheckboxRadioSwitch>
             <p class="preference-hint">{{ strings.showUnreadCountsHint }}</p>
@@ -247,7 +247,7 @@ export default defineComponent({
         use_category_upload_path: true,
         upload_behavior: 'configured',
         notify_post_replies: true,
-        show_unread_counts: true,
+        show_unread_counts: 'threads',
       } as UserPreferences,
       formData: {
         auto_subscribe_created_threads: true,
@@ -258,7 +258,7 @@ export default defineComponent({
         use_category_upload_path: true,
         upload_behavior: 'configured',
         notify_post_replies: true,
-        show_unread_counts: true,
+        show_unread_counts: 'threads',
       } as UserPreferences,
 
       strings: {
@@ -286,11 +286,11 @@ export default defineComponent({
           'When enabled, you will receive a notification when someone replies directly to one of your posts',
         ),
         navigationTitle: t('forum', 'Navigation'),
-        navigationDesc: t('forum', 'Configure the navigation sidebar'),
-        showUnreadCountsLabel: t('forum', 'Show unread thread counts'),
+        navigationDesc: t('forum', 'Configure how categories and threads are listed'),
+        showUnreadCountsLabel: t('forum', 'Show unread counts'),
         showUnreadCountsHint: t(
           'forum',
-          'When enabled, the number of unread threads is shown next to each category. Collapsed categories include the unread threads of their subcategories.',
+          'When enabled, the number of unread threads is shown next to each category and the number of unread replies next to each thread. Collapsed categories include the unread threads of their subcategories.',
         ),
         filesTitle: t('forum', 'Files'),
         filesDesc: t('forum', 'Configure file upload settings'),
@@ -350,6 +350,14 @@ export default defineComponent({
         this.formData.notify_post_replies !== this.originalData.notify_post_replies ||
         this.formData.show_unread_counts !== this.originalData.show_unread_counts
       )
+    },
+    showUnreadCounts: {
+      get(): boolean {
+        return this.formData.show_unread_counts !== 'off'
+      },
+      set(show: boolean): void {
+        this.formData.show_unread_counts = show ? 'threads' : 'off'
+      },
     },
     displayedUploadDirectory(): string {
       return this.formData.upload_directory_resolved_path ?? this.formData.upload_directory ?? ''

@@ -9,6 +9,7 @@ namespace OCA\Forum\Controller;
 
 use OCA\Forum\Db\ReadMarkerMapper;
 use OCA\Forum\Service\NotificationService;
+use OCA\Forum\Service\ReadStateService;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
@@ -25,6 +26,7 @@ class ReadMarkerController extends OCSController {
 		IRequest $request,
 		private ReadMarkerMapper $readMarkerMapper,
 		private NotificationService $notificationService,
+		private ReadStateService $readStateService,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
@@ -136,10 +138,11 @@ class ReadMarkerController extends OCSController {
 	 *
 	 * @param int $threadId Thread ID
 	 * @param int $lastReadPostId Last read post ID
-	 * @param int|null $categoryId Category ID (if provided, creates a category marker instead)
-	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>
+	 * @param int|null $categoryId Category ID (if provided, marks the category and all of its subcategories as read instead)
+	 * @return DataResponse<Http::STATUS_OK, array<string, mixed>, array{}>|DataResponse<Http::STATUS_NOT_FOUND, array{error: string}, array{}>
 	 *
 	 * 200: Marked as read
+	 * 404: Category not found
 	 */
 	#[NoAdminRequired]
 	#[ApiRoute(verb: 'POST', url: '/api/read-markers')]
@@ -150,15 +153,12 @@ class ReadMarkerController extends OCSController {
 				return new DataResponse(['error' => 'User not authenticated'], Http::STATUS_UNAUTHORIZED);
 			}
 
-			// Category marker
 			if ($categoryId !== null) {
-				$marker = $this->readMarkerMapper->createOrUpdateCategoryMarker(
-					$user->getUID(),
-					$categoryId
-				);
-				/** @var array<string, mixed> $data */
-				$data = $marker->jsonSerialize();
-				return new DataResponse($data);
+				$markedIds = $this->readStateService->markCategoryAsRead($user->getUID(), $categoryId);
+				if (empty($markedIds)) {
+					return new DataResponse(['error' => 'Category not found'], Http::STATUS_NOT_FOUND);
+				}
+				return new DataResponse(['categoryIds' => $markedIds]);
 			}
 
 			// Thread marker (default)

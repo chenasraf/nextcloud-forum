@@ -313,7 +313,7 @@ export default defineComponent({
     } = useUserRole()
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
     const { isGuest, guestDisplayName, fetchGuestIdentity } = useGuestSession()
-    const { preferences, loaded: preferencesLoaded, fetchUserPreferences } = useUserPreferences()
+    const { showUnreadCounts: unreadCountsEnabled, fetchUserPreferences } = useUserPreferences()
 
     return {
       categoryHeaders,
@@ -321,8 +321,7 @@ export default defineComponent({
       getAllCategoriesFlat,
       fetchUnreadCounts,
       getUnreadCount,
-      preferences,
-      preferencesLoaded,
+      unreadCountsEnabled,
       fetchUserPreferences,
       fetchCurrentUser,
       userId,
@@ -414,7 +413,7 @@ export default defineComponent({
       return generateUrl('/login?redirect_url={url}', { url: returnUrl })
     },
     showUnreadCounts(): boolean {
-      return this.userId !== null && this.preferencesLoaded && this.preferences.show_unread_counts
+      return this.userId !== null && this.unreadCountsEnabled
     },
     visibleHeaders(): typeof this.categoryHeaders {
       return this.categoryHeaders.filter((header) => (header.categories?.length ?? 0) > 0)
@@ -525,7 +524,8 @@ export default defineComponent({
     },
 
     refreshUnreadCounts(): void {
-      if (this.showUnreadCounts) {
+      // Fetched even when counters are hidden: category cards use them for their unread marker
+      if (this.userId !== null) {
         this.fetchUnreadCounts()
       }
     },
@@ -632,18 +632,16 @@ export default defineComponent({
       handler(_to, from) {
         this.updateThreadCategory()
         // Pick up activity from others while navigating; the initial load is handled by the
-        // showUnreadCounts watcher
+        // userId watcher
         if (from) {
           this.refreshUnreadCounts()
         }
       },
       immediate: true,
     },
-    showUnreadCounts: {
-      handler(show: boolean) {
-        if (show) {
-          this.fetchUnreadCounts()
-        }
+    userId: {
+      handler() {
+        this.refreshUnreadCounts()
       },
       immediate: true,
     },

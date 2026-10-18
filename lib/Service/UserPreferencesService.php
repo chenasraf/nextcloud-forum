@@ -42,8 +42,13 @@ class UserPreferencesService {
 	/** Preference key for being notified about direct replies to one's posts */
 	public const PREF_NOTIFY_POST_REPLIES = 'notify_post_replies';
 
-	/** Preference key for showing unread thread counts in the navigation sidebar */
+	/** Preference key for what the unread counters next to categories and threads count: 'off' or 'threads' */
 	public const PREF_SHOW_UNREAD_COUNTS = 'show_unread_counts';
+
+	/** @var array<string, list<string>> Allowed values for preferences restricted to a fixed set */
+	private const ALLOWED_VALUES = [
+		self::PREF_SHOW_UNREAD_COUNTS => ['off', 'threads'],
+	];
 
 	/** @var array<string, mixed> Default preference values */
 	private const DEFAULTS = [
@@ -56,7 +61,7 @@ class UserPreferencesService {
 		self::PREF_USE_CATEGORY_UPLOAD_PATH => true,
 		self::PREF_UPLOAD_BEHAVIOR => 'configured',
 		self::PREF_NOTIFY_POST_REPLIES => true,
-		self::PREF_SHOW_UNREAD_COUNTS => true,
+		self::PREF_SHOW_UNREAD_COUNTS => 'threads',
 	];
 
 	/** @var array<string> List of valid preference keys */
@@ -184,11 +189,12 @@ class UserPreferencesService {
 	 * @throws \InvalidArgumentException If any preference key is invalid
 	 */
 	public function updatePreferences(string $userId, array $preferences): array {
-		// Validate all keys before updating
+		// Validate all keys and values before updating
 		foreach (array_keys($preferences) as $key) {
 			if (!in_array($key, self::VALID_KEYS, true)) {
 				throw new \InvalidArgumentException("Invalid preference key: $key");
 			}
+			$this->assertAllowedValue($key, $preferences[$key]);
 		}
 
 		// Update each preference
@@ -212,6 +218,7 @@ class UserPreferencesService {
 		if (!in_array($key, self::VALID_KEYS, true)) {
 			throw new \InvalidArgumentException("Invalid preference key: $key");
 		}
+		$this->assertAllowedValue($key, $value);
 
 		// Handle keys stored in forum_users table
 		if (in_array($key, self::FORUM_USER_KEYS, true)) {
@@ -221,6 +228,16 @@ class UserPreferencesService {
 
 		$stringValue = $this->stringifyValue($value);
 		$this->config->setUserValue($userId, Application::APP_ID, $key, $stringValue);
+	}
+
+	/**
+	 * @throws \InvalidArgumentException If the preference only allows a fixed set of values and the value is not one of them
+	 */
+	private function assertAllowedValue(string $key, mixed $value): void {
+		$allowed = self::ALLOWED_VALUES[$key] ?? null;
+		if ($allowed !== null && !in_array($value, $allowed, true)) {
+			throw new \InvalidArgumentException("Invalid value for preference $key");
+		}
 	}
 
 	/**

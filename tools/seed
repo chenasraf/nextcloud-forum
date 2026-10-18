@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Seed the forum with test threads and replies written by a pool of seed accounts (seed-*).
+#
+# Usage: tools/seed [--threads N] [--replies N] [--password PASSWORD] [--random SEED] [--append] [-y]
+#   --threads N    Threads per category (default: 10)
+#   --replies N    Replies per thread (default: 20)
+#   --password P   Give every seed account this password, so you can log in as them
+#   --random SEED  Seed the random generator to get the same forum every time
+#   --append       Add more threads when seeded threads already exist
+#   -y, --yes      Do not ask for confirmation
+#
+# The target instance is picked from environment variables; see tools/lib.sh.
+# Remove everything again with tools/clear-seed.
+
+# shellcheck source=tools/lib.sh
+. "$(dirname "$0")/lib.sh"
+
+vars=()
+while [ $# -gt 0 ]; do
+	case "$1" in
+	--threads) vars+=("SEED_THREADS=$2"); shift 2 ;;
+	--replies) vars+=("SEED_REPLIES=$2"); shift 2 ;;
+	--password) vars+=("SEED_PASSWORD=$2"); shift 2 ;;
+	--random) vars+=("SEED_RANDOM=$2"); shift 2 ;;
+	--append) vars+=("SEED_APPEND=1"); shift ;;
+	-y | --yes) yes=1; shift ;;
+	-h | --help) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+	*) fail "Unknown option: $1 (see --help)" ;;
+	esac
+done
+
+target="$(describe_target)"
+[ -n "$target" ] || target="(not found)"
+info "Seeding the forum on: $target"
+confirm "This creates seed accounts, threads and replies on that instance. Continue?" ${yes:+--yes}
+
+run_php seed-content.php seed.php -- ${vars[@]+"${vars[@]}"}

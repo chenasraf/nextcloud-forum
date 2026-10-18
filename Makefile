@@ -21,6 +21,7 @@
 #   make dist             → build source + appstore tarballs
 #   make test             → run PHP unit tests
 #   make test-integration → run PHP integration tests
+#   make seed             → fill the forum with test threads (make clear-seed removes them)
 #   make lint             → lint JS & PHP
 #   make openapi          → generate OpenAPI JSON
 #   make sign             → print signature for GitHub tarball
@@ -203,6 +204,7 @@ appstore:
 		--exclude="/gen" \
 		--exclude="/.*" \
 		--exclude="/src" \
+		--exclude="/tools" \
 		--exclude="rename-template.sh" \
 		--exclude="*.config.cjs" \
 		--exclude="*.config.js" \
@@ -308,6 +310,20 @@ test-docker:
 .PHONY: test-frontend
 test-frontend:
 	$(pnpm_cmd) vitest run
+
+# seed:
+#   - Fill every category with test threads and replies from seed accounts (see tools/seed --help)
+#   - Targets NEXTCLOUD_CONTAINER, or NEXTCLOUD_ROOT resolved like `make test`
+#   - Pass options with ARGS, e.g. make seed ARGS="--threads 5 --replies 10"
+.PHONY: seed
+seed:
+	@NEXTCLOUD_ROOT="$(NEXTCLOUD_ROOT)" $(CURDIR)/tools/seed $(ARGS)
+
+# clear-seed:
+#   - Remove the seeded threads and accounts and restore the default forum seed
+.PHONY: clear-seed
+clear-seed:
+	@NEXTCLOUD_ROOT="$(NEXTCLOUD_ROOT)" $(CURDIR)/tools/clear-seed $(ARGS)
 
 info_xsd_url=https://apps.nextcloud.com/schema/apps/info.xsd
 info_xsd=$(build_tools_directory)/info.xsd

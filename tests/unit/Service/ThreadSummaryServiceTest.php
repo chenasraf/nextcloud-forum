@@ -36,6 +36,9 @@ class ThreadSummaryServiceTest extends TestCase {
 	private UserService $userService;
 
 	protected function setUp(): void {
+		if (!interface_exists(IManager::class)) {
+			$this->markTestSkipped('Task Processing requires Nextcloud 30 or newer');
+		}
 		$this->manager = $this->createMock(IManager::class);
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->with(IManager::class)->willReturn($this->manager);

@@ -31,6 +31,9 @@ class ThreadSummaryControllerTest extends TestCase {
 	private IUserSession $userSession;
 
 	protected function setUp(): void {
+		if (!interface_exists(\OCP\TaskProcessing\IManager::class)) {
+			$this->markTestSkipped('Task Processing requires Nextcloud 30 or newer');
+		}
 		$this->threadMapper = $this->createMock(ThreadMapper::class);
 		$this->threadSummaryService = $this->createMock(ThreadSummaryService::class);
 		$this->userSession = $this->createMock(IUserSession::class);

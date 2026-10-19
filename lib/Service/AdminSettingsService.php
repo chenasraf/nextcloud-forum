@@ -39,6 +39,9 @@ class AdminSettingsService {
 	/** Setting key for how many levels replies can nest below a top-level reply (0 disables nesting) */
 	public const SETTING_MAX_REPLY_DEPTH = 'max_reply_depth';
 
+	/** Setting key for whether people can summarize threads with the configured AI provider */
+	public const SETTING_ENABLE_THREAD_SUMMARIES = 'enable_thread_summaries';
+
 	public const MAX_REPLY_DEPTH_LIMIT = 10;
 
 	/** @var array<string> List of valid setting keys */
@@ -52,6 +55,7 @@ class AdminSettingsService {
 		self::SETTING_ENABLE_SIGNATURES,
 		self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS,
 		self::SETTING_MAX_REPLY_DEPTH,
+		self::SETTING_ENABLE_THREAD_SUMMARIES,
 	];
 
 	public function __construct(
@@ -77,6 +81,7 @@ class AdminSettingsService {
 			self::SETTING_ENABLE_SIGNATURES => true,
 			self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => true,
 			self::SETTING_MAX_REPLY_DEPTH => 5,
+			self::SETTING_ENABLE_THREAD_SUMMARIES => true,
 			default => null,
 		};
 	}
@@ -115,7 +120,8 @@ class AdminSettingsService {
 			self::SETTING_PUBLIC_EDIT_HISTORY,
 			self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE,
 			self::SETTING_ENABLE_SIGNATURES,
-			self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS => $this->config->getAppValueBool($key, (bool)$this->getDefault($key), true),
+			self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS,
+			self::SETTING_ENABLE_THREAD_SUMMARIES => $this->config->getAppValueBool($key, (bool)$this->getDefault($key), true),
 			default => $this->config->getAppValueString($key, (string)$this->getDefault($key), true),
 		};
 	}
@@ -161,7 +167,8 @@ class AdminSettingsService {
 		} elseif ($key === self::SETTING_ALLOW_GUEST_ACCESS || $key === self::SETTING_IS_INITIALIZED
 			|| $key === self::SETTING_PUBLIC_EDIT_HISTORY || $key === self::SETTING_ALLOW_EDIT_HISTORY_USER_OVERRIDE
 			|| $key === self::SETTING_ENABLE_SIGNATURES
-			|| $key === self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS) {
+			|| $key === self::SETTING_COUNT_SUBCATEGORY_IN_CATEGORY_COUNTS
+			|| $key === self::SETTING_ENABLE_THREAD_SUMMARIES) {
 			$this->config->setAppValueBool($key, (bool)$value, true);
 		} else {
 			$this->config->setAppValueString($key, (string)$value, true);

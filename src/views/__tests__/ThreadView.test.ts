@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { computed, ref } from 'vue'
-import { createIconMock, createComponentMock } from '@/test-utils'
+import { createIconMock, createComponentMock, createNcActionsMock } from '@/test-utils'
 import { createMockThread, createMockPost, createMockUser } from '@/test-mocks'
 
 // Uses global mock for @/axios from test-setup.ts
@@ -50,6 +50,26 @@ vi.mock('@icons/BookmarkOutline.vue', () => createIconMock('BookmarkOutlineIcon'
 vi.mock('@icons/Pencil.vue', () => createIconMock('PencilIcon'))
 vi.mock('@icons/Check.vue', () => createIconMock('CheckIcon'))
 vi.mock('@icons/FolderMove.vue', () => createIconMock('FolderMoveIcon'))
+vi.mock('@icons/Creation.vue', () => createIconMock('CreationIcon'))
+vi.mock('@nextcloud/vue/components/NcActions', () => createNcActionsMock())
+vi.mock('@icons/ForumOutline.vue', () => createIconMock('ForumOutlineIcon'))
+vi.mock('@icons/MessageBadgeOutline.vue', () => createIconMock('MessageBadgeOutlineIcon'))
+vi.mock('@nextcloud/vue/components/NcActionButton', () =>
+  createComponentMock('NcActionButton', {
+    template:
+      '<button class="nc-action-button" :disabled="disabled" @click="$emit(\'click\', $event)"><slot /><slot name="icon" /></button>',
+    props: ['disabled', 'closeAfterClick'],
+    emits: ['click'],
+  }),
+)
+
+vi.mock('@/components/ThreadSummary', () =>
+  createComponentMock('ThreadSummary', {
+    template: '<div class="thread-summary-mock" :data-after-post-id="afterPostId" />',
+    props: ['threadId', 'afterPostId'],
+    emits: ['close'],
+  }),
+)
 
 // Mock components
 vi.mock('@/components/PageWrapper', () =>
@@ -128,6 +148,7 @@ vi.mock('@nextcloud/vue/components/NcTextField', () =>
 
 import ThreadView from '../ThreadView.vue'
 import { ocs } from '@/axios'
+import { usePublicSettings, type PublicSettings } from '@/composables/usePublicSettings'
 
 const mockOcsGet = vi.mocked(ocs.get)
 const mockOcsPost = vi.mocked(ocs.post)
@@ -709,6 +730,127 @@ describe('ThreadView', () => {
       expect(
         wrapper.findAllComponents({ name: 'PostReplyForm' }).some((f) => f.props('inline')),
       ).toBe(false)
+    })
+  })
+
+  describe('thread summary', () => {
+    const { settings, loaded } = usePublicSettings()
+
+    const setSummariesAvailable = (available: boolean) => {
+      settings.value = { thread_summaries_available: available } as PublicSettings
+      loaded.value = true
+    }
+
+    const mockReadMarker = (lastReadPostId: number | null) => {
+      mockOcsGet.mockImplementation((url: string) => {
+        if (url.includes('/posts')) {
+          return mockGetResponse({
+            data: {
+              firstPost: mockFirstPost,
+              replies: [],
+              pagination: {
+                page: 1,
+                perPage: 20,
+                total: 1,
+                totalPages: 1,
+                startPage: 1,
+                lastReadPostId,
+              },
+            },
+          })
+        }
+        return mockGetResponse({ data: null })
+      })
+    }
+
+    afterEach(() => {
+      settings.value = null
+      loaded.value = false
+    })
+
+    const findButton = (wrapper: ReturnType<typeof createWrapper>, text: string) =>
+      wrapper.findAll('button').find((b) => b.text() === text)
+
+    it('hides the summary menu without a summary provider', async () => {
+      setSummariesAvailable(false)
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      expect(findButton(wrapper, 'Summarize entire thread')).toBeUndefined()
+    })
+
+    it('hides the summary menu from guests', async () => {
+      setSummariesAvailable(true)
+      mockUserId.value = null
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      expect(findButton(wrapper, 'Summarize entire thread')).toBeUndefined()
+    })
+
+    it('opens a summary of the whole thread', async () => {
+      setSummariesAvailable(true)
+
+      const wrapper = createWrapper()
+      await flushPromises()
+      expect(wrapper.find('.thread-summary-mock').exists()).toBe(false)
+
+      await findButton(wrapper, 'Summarize entire thread')!.trigger('click')
+
+      expect(wrapper.find('.thread-summary-mock').attributes('data-after-post-id')).toBe('0')
+    })
+
+    it('summarizes everything as unread in a thread that was never opened', async () => {
+      setSummariesAvailable(true)
+      mockReadMarker(null)
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      const unread = findButton(wrapper, 'Summarize unread posts')!
+      expect(unread.attributes('disabled')).toBeUndefined()
+      await unread.trigger('click')
+
+      expect(wrapper.find('.thread-summary-mock').attributes('data-after-post-id')).toBe('0')
+    })
+
+    it('offers a summary of the replies that were unread when the thread was opened', async () => {
+      setSummariesAvailable(true)
+      mockThread.value = createMockThread({
+        id: 1,
+        categoryId: 5,
+        slug: 'test-thread',
+        lastPostId: 9,
+      })
+      mockFetchThread.mockResolvedValue(mockThread.value)
+      mockReadMarker(4)
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      await findButton(wrapper, 'Summarize unread posts')!.trigger('click')
+
+      expect(wrapper.find('.thread-summary-mock').attributes('data-after-post-id')).toBe('4')
+    })
+
+    it('disables the unread summary when everything was read', async () => {
+      setSummariesAvailable(true)
+      mockThread.value = createMockThread({
+        id: 1,
+        categoryId: 5,
+        slug: 'test-thread',
+        lastPostId: 9,
+      })
+      mockFetchThread.mockResolvedValue(mockThread.value)
+      mockReadMarker(9)
+
+      const wrapper = createWrapper()
+      await flushPromises()
+
+      expect(findButton(wrapper, 'Summarize unread posts')!.attributes('disabled')).toBeDefined()
+      expect(findButton(wrapper, 'Summarize entire thread')!.attributes('disabled')).toBeUndefined()
     })
   })
 })

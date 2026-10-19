@@ -28,6 +28,7 @@ class ConfigLexicon implements ILexicon {
 			new Entry('enable_signatures', ValueType::BOOL, true, 'Whether signatures are displayed on posts', lazy: true),
 			new Entry('count_subcategory_in_category_counts', ValueType::BOOL, true, 'Whether category counts include threads/replies from subcategories', lazy: true),
 			new Entry('max_reply_depth', ValueType::INT, 5, 'How many levels replies can nest below a top-level reply (0 disables nested replies)', lazy: true),
+			new Entry('enable_thread_summaries', ValueType::BOOL, true, 'Whether people can summarize threads with the AI provider configured in Nextcloud', lazy: true),
 		];
 	}
 

@@ -21,6 +21,8 @@ export interface PublicSettings {
   enable_signatures: boolean
   /** How many levels replies can nest below a top-level reply (0 disables nested replies) */
   max_reply_depth: number
+  /** Whether summaries are enabled and a summary provider is available to the current account */
+  thread_summaries_available: boolean
 }
 
 const settings = ref<PublicSettings | null>(null)
@@ -86,6 +88,10 @@ export function usePublicSettings() {
     return settings.value?.max_reply_depth ?? 5
   })
 
+  const threadSummariesAvailable = computed<boolean>(() => {
+    return settings.value?.thread_summaries_available ?? false
+  })
+
   /**
    * Refresh settings from server, forcing a new fetch
    *
@@ -120,6 +126,8 @@ export function usePublicSettings() {
     isInitialized,
     /** Computed nesting depth limit for replies; 0 when nested replies are disabled */
     maxReplyDepth,
+    /** Computed boolean indicating if the current account can summarize threads */
+    threadSummariesAvailable,
     /** Fetch settings from server */
     fetchPublicSettings,
     /** Force refresh settings from server */

@@ -101,6 +101,15 @@
           </div>
         </FormSection>
 
+        <FormSection :title="strings.aiTitle" :subtitle="strings.aiDesc">
+          <div class="form-group">
+            <NcCheckboxRadioSwitch v-model="formData.enable_thread_summaries" type="switch">
+              {{ strings.enableThreadSummaries }}
+            </NcCheckboxRadioSwitch>
+            <p class="hint">{{ strings.enableThreadSummariesHint }}</p>
+          </div>
+        </FormSection>
+
         <!-- Actions -->
         <div class="form-actions">
           <NcButton :disabled="saving || !hasChanges" @click="resetForm">
@@ -151,6 +160,7 @@ interface Settings {
   enable_signatures: boolean
   count_subcategory_in_category_counts: boolean
   max_reply_depth: number
+  enable_thread_summaries: boolean
 }
 
 export default defineComponent({
@@ -190,6 +200,7 @@ export default defineComponent({
         enable_signatures: true,
         count_subcategory_in_category_counts: true,
         max_reply_depth: 5,
+        enable_thread_summaries: true,
       } as Settings,
       formData: {
         title: '',
@@ -200,6 +211,7 @@ export default defineComponent({
         enable_signatures: true,
         count_subcategory_in_category_counts: true,
         max_reply_depth: 5,
+        enable_thread_summaries: true,
       } as Settings,
 
       strings: {
@@ -255,6 +267,13 @@ export default defineComponent({
           'forum',
           'When enabled, category cards will show total threads/replies from all subcategories combined. When disabled, only the threads/replies from the category itself will be counted.',
         ),
+        aiTitle: t('forum', 'Artificial intelligence'),
+        aiDesc: t('forum', 'Features that use the AI provider configured in Nextcloud'),
+        enableThreadSummaries: t('forum', 'Allow summarizing threads'),
+        enableThreadSummariesHint: t(
+          'forum',
+          'When enabled, signed-in accounts can request an AI-generated summary of a thread. The posts they can read are sent to the text summary provider set up in the Nextcloud artificial intelligence settings, which may be an external service. The option only appears when such a provider is available.',
+        ),
         save: t('forum', 'Save'),
         cancel: t('forum', 'Cancel'),
         saveSuccess: t('forum', 'Settings saved'),
@@ -273,7 +292,8 @@ export default defineComponent({
         this.formData.enable_signatures !== this.originalData.enable_signatures ||
         this.formData.count_subcategory_in_category_counts !==
           this.originalData.count_subcategory_in_category_counts ||
-        this.formData.max_reply_depth !== this.originalData.max_reply_depth
+        this.formData.max_reply_depth !== this.originalData.max_reply_depth ||
+        this.formData.enable_thread_summaries !== this.originalData.enable_thread_summaries
       )
     },
   },

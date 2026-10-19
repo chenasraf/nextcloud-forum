@@ -18,6 +18,7 @@ Create discussions, share ideas, and collaborate with your community directly in
 - **Notifications** - Subscribe to threads and get notified on replies and @mentions
 - **Post Reactions** - React to posts with emoji reactions
 - **Read/Unread Tracking** - Track unread posts at thread and category level
+- **Thread Summaries** - Summarize a thread or its unread replies with the AI provider configured in Nextcloud
 - **Bookmarks** - Save threads for quick access
 - **Search** - Advanced search with boolean operators and category filtering
 - **User Profiles** - View post history, statistics, and role badges

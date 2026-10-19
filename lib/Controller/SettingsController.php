@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\Service\AdminSettingsService;
+use OCA\Forum\Service\ThreadSummaryService;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -15,6 +16,7 @@ use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
+use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 class SettingsController extends OCSController {
@@ -23,6 +25,8 @@ class SettingsController extends OCSController {
 		string $appName,
 		IRequest $request,
 		private AdminSettingsService $settingsService,
+		private ThreadSummaryService $threadSummaryService,
+		private IUserSession $userSession,
 		private LoggerInterface $logger,
 	) {
 		parent::__construct($appName, $request);
@@ -44,6 +48,9 @@ class SettingsController extends OCSController {
 	public function getPublicSettings(): DataResponse {
 		try {
 			$settings = $this->settingsService->getAllSettings();
+			// Summaries run as the requesting account, so guests never get them
+			$userId = $this->userSession->getUser()?->getUID();
+			$settings['thread_summaries_available'] = $userId !== null && $this->threadSummaryService->isAvailable($userId);
 			return new DataResponse($settings);
 		} catch (\Exception $e) {
 			$this->logger->error('Error fetching public settings: ' . $e->getMessage());

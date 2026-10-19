@@ -25,6 +25,34 @@
             </span>
           </NcCheckboxRadioSwitch>
 
+          <!-- AI summary (signed-in accounts with a summary provider only) -->
+          <NcActions
+            v-if="canSummarize"
+            :menu-name="strings.summarize"
+            :aria-label="strings.summarize"
+            :force-menu="true"
+          >
+            <template #icon>
+              <CreationIcon :size="20" />
+            </template>
+            <NcActionButton close-after-click @click="openSummary(0)">
+              <template #icon>
+                <ForumOutlineIcon :size="20" />
+              </template>
+              {{ strings.summarizeThread }}
+            </NcActionButton>
+            <NcActionButton
+              close-after-click
+              :disabled="!hasUnreadToSummarize"
+              @click="openSummary(unreadSincePostId ?? 0)"
+            >
+              <template #icon>
+                <MessageBadgeOutlineIcon :size="20" />
+              </template>
+              {{ strings.summarizeUnread }}
+            </NcActionButton>
+          </NcActions>
+
           <NcButton
             @click="refresh"
             :disabled="loading"
@@ -195,6 +223,15 @@
           </div>
         </div>
       </div>
+
+      <ThreadSummary
+        v-if="!loading && !error && thread && summaryRequest"
+        :key="summaryRequest.key"
+        :thread-id="thread.id"
+        :after-post-id="summaryRequest.afterPostId"
+        class="mt-16"
+        @close="summaryRequest = null"
+      />
 
       <!-- First post (always shown) -->
       <section v-if="!loading && !error && firstPost" class="mt-16 first-post-section">
@@ -404,6 +441,8 @@ import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcDateTime from '@nextcloud/vue/components/NcDateTime'
 import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
+import NcActions from '@nextcloud/vue/components/NcActions'
+import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import AppToolbar from '@/components/AppToolbar'
 import PageWrapper from '@/components/PageWrapper'
 import PostCard from '@/components/PostCard'
@@ -411,6 +450,10 @@ import PostReplyForm from '@/components/PostReplyForm'
 import Pagination from '@/components/Pagination'
 import ThreadNotFound from '@/views/ThreadNotFound.vue'
 import MoveCategoryDialog from '@/components/MoveCategoryDialog'
+import ThreadSummary from '@/components/ThreadSummary'
+import CreationIcon from '@icons/Creation.vue'
+import ForumOutlineIcon from '@icons/ForumOutline.vue'
+import MessageBadgeOutlineIcon from '@icons/MessageBadgeOutline.vue'
 import PinIcon from '@icons/Pin.vue'
 import PinOffIcon from '@icons/PinOff.vue'
 import LockIcon from '@icons/Lock.vue'
@@ -451,6 +494,8 @@ export default defineComponent({
     NcDateTime,
     NcNoteCard,
     NcTextField,
+    NcActions,
+    NcActionButton,
     AppToolbar,
     PageWrapper,
     PostCard,
@@ -474,14 +519,22 @@ export default defineComponent({
     ChevronDownIcon,
     ChevronRightIcon,
     SubdirectoryArrowRightIcon,
+    CreationIcon,
+    ForumOutlineIcon,
+    MessageBadgeOutlineIcon,
     MoveCategoryDialog,
+    ThreadSummary,
   },
   setup() {
     const { currentThread: thread, fetchThread } = useCurrentThread()
     const { checkCategoryPermission } = usePermissions()
     const { userId } = useCurrentUser()
     const { isGuest, fetchGuestIdentity } = useGuestSession()
-    const { maxReplyDepth: forumMaxReplyDepth, fetchPublicSettings } = usePublicSettings()
+    const {
+      maxReplyDepth: forumMaxReplyDepth,
+      threadSummariesAvailable,
+      fetchPublicSettings,
+    } = usePublicSettings()
     const { fetchUnreadCounts } = useCategories()
 
     return {
@@ -492,6 +545,7 @@ export default defineComponent({
       isGuest,
       fetchGuestIdentity,
       forumMaxReplyDepth,
+      threadSummariesAvailable,
       fetchPublicSettings,
       fetchUnreadCounts,
     }
@@ -506,6 +560,10 @@ export default defineComponent({
       collapsedPostIds: new Set<number>(),
       inlineReplyTargetId: null as number | null,
       lastReadPostId: null as number | null,
+      // The read marker as it was when the thread was opened, before viewing marked replies as read
+      unreadSincePostId: null as number | null,
+      captureUnreadSince: false,
+      summaryRequest: null as { afterPostId: number; key: number } | null,
       error: null as string | null,
       currentPage: 1,
       totalPages: 1,
@@ -565,6 +623,9 @@ export default defineComponent({
         inReplyToDeleted: t('forum', 'In reply to a deleted reply'),
         showReplies: (count: number) => n('forum', 'Show %n reply', 'Show %n replies', count),
         hideReplies: (count: number) => n('forum', 'Hide %n reply', 'Hide %n replies', count),
+        summarize: t('forum', 'Summarize'),
+        summarizeThread: t('forum', 'Summarize entire thread'),
+        summarizeUnread: t('forum', 'Summarize unread posts'),
       },
     }
   },
@@ -578,6 +639,15 @@ export default defineComponent({
     canEditTitle(): boolean {
       // Allow if user is the author, or has moderation permissions
       return this.thread?.authorId === this.userId || this.canModerate
+    },
+    canSummarize(): boolean {
+      return this.userId !== null && this.threadSummariesAvailable && !!this.thread
+    },
+    hasUnreadToSummarize(): boolean {
+      // Without a read marker the whole thread is unread
+      return (
+        this.unreadSincePostId === null || (this.thread?.lastPostId ?? 0) > this.unreadSincePostId
+      )
     },
     maxReplyDepth(): number {
       return this.categoryMaxReplyDepth ?? this.forumMaxReplyDepth
@@ -692,6 +762,8 @@ export default defineComponent({
           : this.isLastPageRequested
             ? 999999
             : this.pageFromQuery || 0
+        this.summaryRequest = null
+        this.captureUnreadSince = true
         await this.fetchPosts(initialPage, linkedPostId)
         // Check permissions
         await this.checkPermissions()
@@ -763,6 +835,10 @@ export default defineComponent({
           this.currentPage = data.pagination.page
           this.totalPages = data.pagination.totalPages
           this.lastReadPostId = data.pagination.lastReadPostId
+          if (this.captureUnreadSince) {
+            this.unreadSincePostId = this.lastReadPostId
+            this.captureUnreadSince = false
+          }
         }
 
         // Determine which post to scroll to on initial load (page=0 auto-navigation)
@@ -891,6 +967,11 @@ export default defineComponent({
         // Silently fail - marking as read is not critical
         console.debug('Failed to mark thread as read', e)
       }
+    },
+
+    openSummary(afterPostId: number): void {
+      // A fresh key restarts the summary even when the same one is requested again
+      this.summaryRequest = { afterPostId, key: Date.now() }
     },
 
     handleReply(post: Post): void {

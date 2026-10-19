@@ -63,6 +63,28 @@ class PostMapper extends QBMapper {
 	}
 
 	/**
+	 * Find a thread's replies newer than a post, newest first
+	 *
+	 * @param int $threadId Thread ID
+	 * @param int $afterPostId Only replies with a greater ID are returned
+	 * @param int $limit Maximum number of replies to return
+	 * @return array<Post>
+	 */
+	public function findNewestReplies(int $threadId, int $afterPostId = 0, int $limit = 500): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from($this->getTableName())
+			->where($qb->expr()->eq('thread_id', $qb->createNamedParameter($threadId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->eq('is_first_post', $qb->createNamedParameter(false, IQueryBuilder::PARAM_BOOL)))
+			->andWhere($qb->expr()->gt('id', $qb->createNamedParameter($afterPostId, IQueryBuilder::PARAM_INT)))
+			->andWhere($qb->expr()->isNull('deleted_at'))
+			->orderBy('created_at', 'DESC')
+			->addOrderBy('id', 'DESC')
+			->setMaxResults($limit);
+		return $this->findEntities($qb);
+	}
+
+	/**
 	 * @return array<Post>
 	 */
 	public function findByAuthorId(string $authorId, int $limit = 50, int $offset = 0, bool $excludeFirstPosts = false): array {

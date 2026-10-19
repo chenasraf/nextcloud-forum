@@ -54,6 +54,7 @@ OC.L10N.register(
     "Subscribed" : "Obuna boʻlgan",
     "Edit title" : "Sarlavhani tahrirlash",
     "Notifications" : "Bildirishnomalar",
+    "Navigation" : "Navigatsiya",
     "Files" : "Fayllar",
     "Privacy" : "Maxfiylik",
     "Enable" : "Yoqish",

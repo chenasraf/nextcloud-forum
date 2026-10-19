@@ -38,6 +38,7 @@ OC.L10N.register(
     "Title" : "სათაური",
     "Unsaved changes" : "შეუნახავი ცვლილებები",
     "Refresh" : "განახლება",
+    "Mark as read" : "წაკითხულად მონიშვნა",
     "Error" : "შეცდომა",
     "Created" : "შექმნილია",
     "by" : "სუბიექტი:",

@@ -43,6 +43,7 @@ OC.L10N.register(
     "Title" : "Titulli",
     "Unsaved changes" : "Ndryshime të paruajtura",
     "Refresh" : "Rifreskoje",
+    "Mark as read" : "Shënoje si të lexuar",
     "Error" : "Gabim",
     "Created" : "U krijua",
     "by" : "nga",

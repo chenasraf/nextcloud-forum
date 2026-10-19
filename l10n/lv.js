@@ -67,6 +67,7 @@ OC.L10N.register(
     "Subscribe" : "Abonēt",
     "Subscribed" : "Abonēts",
     "Bookmark" : "Grāmatzīme",
+    "Navigation" : "Navigācija",
     "Files" : "Datnes",
     "Signature" : "Paraksts",
     "Privacy" : "Privātums",

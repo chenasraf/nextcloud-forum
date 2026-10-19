@@ -37,6 +37,7 @@ OC.L10N.register(
     "Error" : "Gwall",
     "by" : "gan",
     "Subscribe" : "Tanysgrifio",
+    "Navigation" : "Llywio",
     "Signature" : "Llofnod",
     "Disable" : "Analluogi",
     "Description" : "Disgrifiad",

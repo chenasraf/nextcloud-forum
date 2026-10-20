@@ -71,6 +71,7 @@ OC.L10N.register(
     "Draft saved" : "Черновата е записана",
     "Unsaved changes" : "Незаписани промени",
     "Refresh" : "Опресняване",
+    "Mark as read" : "Маркиране като прочетено",
     "Error" : "Грешка",
     "Searching …" : "Търсене ...",
     "No results found" : "Няма намерени резултати",

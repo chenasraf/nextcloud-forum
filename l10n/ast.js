@@ -70,6 +70,7 @@ OC.L10N.register(
     "Edit title" : "Editar el títulu",
     "Move thread" : "Mover el filu",
     "Notifications" : "Avisos",
+    "Navigation" : "Navegación",
     "Files" : "Ficheros",
     "Signature" : "Firma",
     "Privacy" : "Privacidá",

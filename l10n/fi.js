@@ -91,6 +91,7 @@ OC.L10N.register(
     "Bookmark" : "Kirjanmerkki",
     "Edit title" : "Muokkaa otsikkoa",
     "Move thread" : "Siirrä ketju",
+    "Summarize" : "Luo yhteenveto",
     "Notifications" : "Ilmoitukset",
     "Navigation" : "Navigointi",
     "Files" : "Tiedostot",

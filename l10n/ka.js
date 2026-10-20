@@ -69,6 +69,7 @@ OC.L10N.register(
     "Subscribed" : "Subscribed",
     "Edit title" : "Edit title",
     "Move thread" : "Move thread",
+    "Summarize" : "Summarize",
     "Notifications" : "შეტყობინებები",
     "Navigation" : "Navigation",
     "Files" : "ფაილები",

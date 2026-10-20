@@ -74,6 +74,7 @@ OC.L10N.register(
     "Subscribed" : "Abonat",
     "Edit title" : "Editează titlul",
     "Move thread" : "Mută conversația",
+    "Summarize" : "Rezumă",
     "Notifications" : "Notificări",
     "Navigation" : "Navigare",
     "Files" : "Fișiere",

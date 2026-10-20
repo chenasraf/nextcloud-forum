@@ -88,6 +88,7 @@ OC.L10N.register(
     "Saving draft …" : "Concept aan het opslaan ...",
     "Draft saved" : "Concept opgeslagen",
     "Unsaved changes" : "Niet opgeslagen veranderingen",
+    "Thread summary" : "Samenvatting conversatie",
     "Refresh" : "Verversen",
     "Mark as read" : "Markeren als gelezen",
     "In {category}" : "In {category}",

@@ -276,6 +276,7 @@ OC.L10N.register(
     "Thread title updated" : "Thread title updated",
     "Move thread" : "Move thread",
     "Thread moved successfully" : "Thread moved successfully",
+    "Summarize" : "Fanya muhtasari",
     "No thread ID or slug provided" : "No thread ID or slug provided",
     "Failed to load replies" : "Failed to load replies",
     "Thread updated" : "Thread updated",

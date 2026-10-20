@@ -97,6 +97,7 @@ OC.L10N.register(
     "Bookmark" : "Könyvjelző",
     "Edit title" : "Cím szerkesztése",
     "Move thread" : "Szál áthelyezése",
+    "Summarize" : "Összefoglalás",
     "Notifications" : "Értesítések",
     "Navigation" : "Navigáció",
     "Files" : "Fájlok",

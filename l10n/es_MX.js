@@ -68,6 +68,7 @@ OC.L10N.register(
     "Subscribed" : "Suscrito",
     "Bookmark" : "Marcador",
     "Move thread" : "Mover hilo",
+    "Summarize" : "Resumir",
     "Navigation" : "Navegación",
     "Files" : "Archivo",
     "Signature" : "Firma",

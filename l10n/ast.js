@@ -69,6 +69,7 @@ OC.L10N.register(
     "Subscribe" : "Soscribise",
     "Edit title" : "Editar el títulu",
     "Move thread" : "Mover el filu",
+    "Summarize" : "Resume",
     "Notifications" : "Avisos",
     "Navigation" : "Navegación",
     "Files" : "Ficheros",

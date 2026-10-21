@@ -72,6 +72,7 @@ OC.L10N.register(
     "Subscribe" : "Претплата",
     "Subscribed" : "Претплатени",
     "Edit title" : "Удери наслов",
+    "Notifications" : "Известувања",
     "Navigation" : "Навигација",
     "Files" : "Датотеки",
     "Browse" : "Прелистај",

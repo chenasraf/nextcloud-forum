@@ -398,6 +398,7 @@
     "When enabled, you will automatically receive notifications for new replies in threads you have replied to" : "Kui see eelistus on kasutusel, siis saad automaatselt teavituse nende jutulõngade kohta, kuhu oled vastuse kirjutanud",
     "Navigation" : "Rakenduses liikumine",
     "Configure how categories and threads are listed" : "Seadista kuidas kategooriate ja jutulõngade loendid kuvatakse",
+    "Show unread counts" : "Näita lugemata sisu loendure",
     "Files" : "Failid",
     "Configure file upload settings" : "Seadista failide üleslaadimise seadistusi",
     "Upload directory" : "Üleslaadimiskaust",

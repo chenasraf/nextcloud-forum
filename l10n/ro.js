@@ -7,6 +7,7 @@ OC.L10N.register(
     "User" : "Utilizator",
     "Guest" : "Invitat",
     "General" : "General",
+    "Support" : "Asistență",
     "Attachment" : "Atașament",
     "Bold text" : "Text aldin",
     "Underlined text" : "Text subliniat",

@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.6.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.5.0...v1.6.0) (2026-10-26)
+
+
+### Features
+
+* **posts:** auto-link bare URLs ([283168e](https://github.com/chenasraf/nextcloud-forum/commit/283168e4f4c8d08f30d41ca7ab9fdf5c7c48cc50)), closes [#348](https://github.com/chenasraf/nextcloud-forum/issues/348)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([283b904](https://github.com/chenasraf/nextcloud-forum/commit/283b90484c3dd95929a440103221cbcac83da3fd))
+* **l10n:** Update translations from Transifex ([19d6801](https://github.com/chenasraf/nextcloud-forum/commit/19d68019c21ecfe197a69c376c24fedbcdbac02a))
+* **l10n:** Update translations from Transifex ([2e0da8d](https://github.com/chenasraf/nextcloud-forum/commit/2e0da8d7bfa4ab3d188446ee26022274dc02ea52))
+* **l10n:** Update translations from Transifex ([b6f136c](https://github.com/chenasraf/nextcloud-forum/commit/b6f136c46ec18adc0c65677501a0be6d996d43f6))
+* **l10n:** Update translations from Transifex ([3959a78](https://github.com/chenasraf/nextcloud-forum/commit/3959a7820a5c3039c803ba70c996bc70bf02af13))
+* **l10n:** Update translations from Transifex ([fa3ee16](https://github.com/chenasraf/nextcloud-forum/commit/fa3ee16589dd6c3e5b17d15345df341080867bea))
+* **l10n:** Update translations from Transifex ([d953d8f](https://github.com/chenasraf/nextcloud-forum/commit/d953d8fe495c6a286467d4d074be71e007073207))
+* **posts:** style links in post content ([3fd2157](https://github.com/chenasraf/nextcloud-forum/commit/3fd215798a7918b2a80d64861278f115508d5b64)), closes [#348](https://github.com/chenasraf/nextcloud-forum/issues/348)
+
 ## [1.5.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.4.2...v1.5.0) (2026-10-19)
 
 

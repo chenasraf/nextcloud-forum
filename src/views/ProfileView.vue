@@ -154,7 +154,7 @@
                       <NcDateTime v-if="post.createdAt" :timestamp="post.createdAt * 1000" />
                     </span>
                   </div>
-                  <div class="post-content" v-html="post.content"></div>
+                  <div class="post-content rich-content" v-html="post.content"></div>
                 </div>
               </div>
             </div>

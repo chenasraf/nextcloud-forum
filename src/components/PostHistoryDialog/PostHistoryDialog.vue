@@ -40,7 +40,7 @@
               </span>
             </div>
           </div>
-          <div class="entry-content" v-html="historyData.current.content"></div>
+          <div class="entry-content rich-content" v-html="historyData.current.content"></div>
         </div>
 
         <!-- Historical versions -->
@@ -61,7 +61,7 @@
               <NcDateTime :timestamp="entry.editedAt * 1000" />
             </div>
           </div>
-          <div class="entry-content" v-html="entry.content"></div>
+          <div class="entry-content rich-content" v-html="entry.content"></div>
         </div>
       </div>
     </div>

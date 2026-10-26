@@ -82,12 +82,12 @@
       />
 
       <!-- View mode -->
-      <div v-else class="content-text" v-html="formattedContent"></div>
+      <div v-else class="content-text rich-content" v-html="formattedContent"></div>
     </div>
 
     <!-- Signature -->
     <div v-if="hasSignature && !isEditing" class="post-signature">
-      <div class="signature-content" v-html="post.author?.signature"></div>
+      <div class="signature-content rich-content" v-html="post.author?.signature"></div>
     </div>
 
     <!-- Reactions and reply (hidden when editing) -->

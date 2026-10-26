@@ -206,8 +206,9 @@ class BBCodeService {
 				$html = str_replace($placeholder, $this->esc($original), $html);
 			}
 
-			// Parse @mentions and convert them to user profile links
-			$html = $this->parseMentions($html);
+			// Link bare URLs before mentions so an @handle inside a URL stays part of it
+			$html = $this->transformText($html, fn (string $text): string => $this->autoLink($text));
+			$html = $this->transformText($html, fn (string $text): string => $this->parseMentions($text));
 
 			return $html;
 		} catch (\Exception $e) {
@@ -623,6 +624,66 @@ class BBCodeService {
 			str_contains($mimeType, 'zip') || str_contains($mimeType, 'compressed') => 'icon-archive',
 			default => 'icon-file',
 		};
+	}
+
+	/**
+	 * Apply a transformation to the text between tags, leaving tag markup and the
+	 * contents of links and code untouched
+	 *
+	 * @param string $html The HTML content
+	 * @param callable(string): string $transform Receives and returns escaped text
+	 * @return string The transformed HTML
+	 */
+	private function transformText(string $html, callable $transform): string {
+		$parts = preg_split('/(<[^>]*>)/', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+		if ($parts === false) {
+			return $html;
+		}
+
+		$skipDepth = 0;
+		foreach ($parts as $i => $part) {
+			if (str_starts_with($part, '<')) {
+				if (preg_match('/^<(\/?)(a|pre|code)\b/i', $part, $matches) === 1) {
+					$skipDepth = max(0, $skipDepth + ($matches[1] === '/' ? -1 : 1));
+				}
+			} elseif ($part !== '' && $skipDepth === 0) {
+				$parts[$i] = $transform($part);
+			}
+		}
+
+		return implode('', $parts);
+	}
+
+	/**
+	 * Convert bare http(s):// and www. URLs in text into links
+	 *
+	 * @param string $text Text without tags, with only angle brackets escaped
+	 * @return string The text with URLs wrapped in links
+	 */
+	private function autoLink(string $text): string {
+		// Quotes and escaped angle brackets end a URL, so "https://x" links only the URL
+		$pattern = '/(?<![\w\/.@-])(?:https?:\/\/|www\.)(?:(?!&(?:lt|gt);)[^\s<"\'])+/i';
+
+		return preg_replace_callback($pattern, function ($matches) {
+			$url = $matches[0];
+			$trailing = '';
+
+			// Sentence punctuation after a URL is not part of it; a closing paren is kept
+			// only when it balances one inside the URL, as in Wikipedia links
+			while ($url !== '') {
+				$last = substr($url, -1);
+				if (str_contains('.,;:!?', $last)
+					|| ($last === ')' && substr_count($url, '(') < substr_count($url, ')'))) {
+					$trailing = $last . $trailing;
+					$url = substr($url, 0, -1);
+					continue;
+				}
+				break;
+			}
+
+			$href = stripos($url, 'www.') === 0 ? 'https://' . $url : $url;
+			return sprintf('<a href="%s">%s</a>', $this->esc($href), $this->esc($url)) . $trailing;
+		}, $text) ?? $text;
 	}
 
 	/**

@@ -9,6 +9,7 @@ use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Service\BBCodeService;
 use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
+use OCP\IUser;
 use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -239,6 +240,72 @@ class BBCodeServiceTest extends TestCase {
 
 		$this->assertStringContainsString('<a href="https://example.com"', $result);
 		$this->assertStringContainsString('>Example</a>', $result);
+	}
+
+	public function testParseAutoLinksBareUrls(): void {
+		$content = 'See https://example.com/docs?a=1&b=2 and http://example.org for details.';
+		$result = $this->service->parse($content, []);
+
+		$this->assertEquals(
+			'See <a href="https://example.com/docs?a=1&amp;b=2">https://example.com/docs?a=1&amp;b=2</a>'
+			. ' and <a href="http://example.org">http://example.org</a> for details.',
+			$result
+		);
+	}
+
+	public function testParseAutoLinksWwwUrlsWithHttps(): void {
+		$result = $this->service->parse('Visit www.example.com today', []);
+
+		$this->assertEquals('Visit <a href="https://www.example.com">www.example.com</a> today', $result);
+	}
+
+	public function testParseAutoLinkExcludesTrailingPunctuation(): void {
+		$tests = [
+			'Go to https://example.com.' => 'Go to <a href="https://example.com">https://example.com</a>.',
+			'(see https://example.com)' => '(see <a href="https://example.com">https://example.com</a>)',
+			'https://en.wikipedia.org/wiki/Foo_(bar), ok' => '<a href="https://en.wikipedia.org/wiki/Foo_(bar)">https://en.wikipedia.org/wiki/Foo_(bar)</a>, ok',
+			'"https://example.com"' => '"<a href="https://example.com">https://example.com</a>"',
+			'<https://example.com>' => '&lt;<a href="https://example.com">https://example.com</a>&gt;',
+		];
+
+		foreach ($tests as $input => $expected) {
+			$this->assertEquals($expected, $this->service->parse($input, []), "Failed for: $input");
+		}
+	}
+
+	public function testParseAutoLinkSkipsExistingLinks(): void {
+		$tests = [
+			'[url]https://example.com[/url]',
+			'[url=https://example.com]https://example.com[/url]',
+		];
+
+		foreach ($tests as $input) {
+			$result = $this->service->parse($input, []);
+			$this->assertEquals(1, substr_count($result, '<a '), "Failed for: $input");
+		}
+	}
+
+	public function testParseAutoLinkSkipsCode(): void {
+		$codeTag = $this->createBBCode('code', '<pre><code>{content}</code></pre>', true, false);
+		$icodeTag = $this->createBBCode('icode', '<code>{content}</code>', true, false);
+
+		$result = $this->service->parse('[code]curl https://example.com[/code] [icode]https://example.org[/icode]', [$codeTag, $icodeTag]);
+
+		$this->assertStringNotContainsString('<a ', $result);
+	}
+
+	public function testParseAutoLinkKeepsMentionInUrlAsText(): void {
+		$user = $this->createMock(IUser::class);
+		$user->method('getDisplayName')->willReturn('Some User');
+		$this->userManager->method('get')->willReturn($user);
+		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('http://localhost/');
+
+		$result = $this->service->parse('Follow https://mastodon.social/@someuser please', []);
+
+		$this->assertEquals(
+			'Follow <a href="https://mastodon.social/@someuser">https://mastodon.social/@someuser</a> please',
+			$result
+		);
 	}
 
 	public function testParseBuiltInColorTag(): void {

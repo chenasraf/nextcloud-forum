@@ -107,6 +107,7 @@ OC.L10N.register(
     "Failed to save settings" : "Shranjevanje nastavitev je spodletelo",
     "Newest first" : "najprej najnovejše",
     "Oldest first" : "najprej najstarejše",
+    "Colors" : "Barve",
     "Reset" : "Ponastavi",
     "Account management" : "Upravljanje z računi",
     "ID" : "ID",

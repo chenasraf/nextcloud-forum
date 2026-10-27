@@ -120,6 +120,7 @@ OC.L10N.register(
     "Failed to save settings" : "Salvataggio impostazioni non riuscito",
     "Newest first" : "Prima i più recenti",
     "Oldest first" : "Prima i più datati",
+    "Colors" : "Colori",
     "Reset" : "Ripristina",
     "Account management" : "Gestione account",
     "ID" : "ID",

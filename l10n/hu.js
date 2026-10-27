@@ -123,6 +123,7 @@ OC.L10N.register(
     "Failed to save settings" : "A beállítások mentése sikertelen",
     "Newest first" : "Legújabb elöl",
     "Oldest first" : "Régebbiek elöl",
+    "Colors" : "Színek",
     "Reset" : "Alaphelyzetbe állítás",
     "Account management" : "Fiókkezelés",
     "ID" : "Azonosító",

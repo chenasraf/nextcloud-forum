@@ -103,6 +103,7 @@ OC.L10N.register(
     "Failed to save settings" : "Mistókst að vista stillingar",
     "Newest first" : "Nýjast fyrst",
     "Oldest first" : "Elsta fyrst",
+    "Colors" : "Litir",
     "Reset" : "Endurstilla",
     "Account management" : "Umsýsla notandaaðgangs",
     "ID" : "ID",

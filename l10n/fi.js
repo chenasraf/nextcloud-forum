@@ -117,6 +117,7 @@ OC.L10N.register(
     "Failed to save settings" : "Asetusten tallentaminen epäonnistui",
     "Newest first" : "Uusin ensin",
     "Oldest first" : "Vanhin ensin",
+    "Colors" : "Värit",
     "Reset" : "Palauta",
     "Account management" : "Tilihallinta",
     "ID" : "ID",

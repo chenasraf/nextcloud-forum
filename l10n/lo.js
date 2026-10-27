@@ -120,6 +120,7 @@ OC.L10N.register(
     "Failed to save settings" : "ບໍ່ສາມາດບັນທຶກການຕັ້ງຄ່າໄດ້",
     "Newest first" : "ໃໝ່ສຸດກ່ອນ",
     "Oldest first" : "ເກົ່າສຸດກ່ອນ",
+    "Colors" : "ສີ",
     "Reset" : "ຕັ້ງຄ່າໃໝ່",
     "Account management" : "Account management",
     "ID" : "ໄອດີ",

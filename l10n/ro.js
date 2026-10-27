@@ -120,6 +120,7 @@ OC.L10N.register(
     "Failed to save settings" : "Setările nu au putut fi salvate",
     "Newest first" : "Cel mai nou mai întâi",
     "Oldest first" : "Cel mai vechi mai întâi",
+    "Colors" : "Culori",
     "Reset" : "Resetare",
     "Account management" : "Gestionarea conturilor",
     "ID" : "ID",

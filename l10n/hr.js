@@ -113,6 +113,7 @@ OC.L10N.register(
     "Failed to save settings" : "Spremanje postavki nije uspjelo",
     "Newest first" : "Najnoviji prvi",
     "Oldest first" : "Najstariji prvi",
+    "Colors" : "Boje",
     "Reset" : "Resetiraj",
     "Account management" : "Upravljanje računima",
     "ID" : "ID",

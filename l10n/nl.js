@@ -134,6 +134,7 @@ OC.L10N.register(
     "Failed to save settings" : "Instellingen konden niet worden opgeslagen",
     "Newest first" : "Nieuwste eerst",
     "Oldest first" : "Oudste eerst",
+    "Colors" : "Kleuren",
     "Reset" : "Herstellen",
     "Account management" : "Accountbeheer",
     "ID" : "ID",

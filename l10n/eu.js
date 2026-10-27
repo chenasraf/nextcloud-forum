@@ -114,6 +114,7 @@ OC.L10N.register(
     "Failed to save settings" : "Ezarpenak gordetzeak huts egin du",
     "Newest first" : "Berrienak lehenengo ",
     "Oldest first" : "Zaharrenak lehenengo",
+    "Colors" : "Koloreak",
     "Reset" : "Berrezarri",
     "Account management" : "Kontuen kudeaketa",
     "ID" : "ID",

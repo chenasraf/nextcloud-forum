@@ -118,6 +118,7 @@ OC.L10N.register(
     "Failed to save settings" : "无法保存设置",
     "Newest first" : "从新到旧",
     "Oldest first" : "从旧到新",
+    "Colors" : "颜色",
     "Reset" : "重置",
     "Account management" : "账号管理",
     "ID" : "ID",

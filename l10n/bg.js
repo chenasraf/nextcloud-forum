@@ -105,6 +105,7 @@ OC.L10N.register(
     "Failed to save settings" : "Неуспешно запазване на настройките",
     "Newest first" : "Първо най-новият",
     "Oldest first" : "Първо най-старият",
+    "Colors" : "Цветове",
     "Reset" : "Възстановяване",
     "Account management" : "Управление на акаунта",
     "ID" : "ID /Идентификатор/",

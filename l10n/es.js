@@ -198,6 +198,7 @@ OC.L10N.register(
     "Failed to save settings" : "Fallo al guardar ajustes",
     "Newest first" : "Más nuevas primero",
     "Oldest first" : "Más antiguas primero",
+    "Colors" : "Colores",
     "Reset" : "Restablecer",
     "Account management" : "Administración de cuentas",
     "ID" : "ID",

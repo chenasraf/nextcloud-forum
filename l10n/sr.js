@@ -116,6 +116,7 @@ OC.L10N.register(
     "Failed to save settings" : "Грешка приликом чувања поставки",
     "Newest first" : "Прво новије",
     "Oldest first" : "Прво старије",
+    "Colors" : "Боје",
     "Reset" : "Ресетуј",
     "Account management" : "Управљање налозима",
     "ID" : "ID",

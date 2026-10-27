@@ -122,6 +122,7 @@ OC.L10N.register(
     "Failed to save settings" : "Не ўдалося захаваць налады",
     "Newest first" : "Спачатку новыя",
     "Oldest first" : "Спачатку старыя",
+    "Colors" : "Колеры",
     "Reset" : "Скінуць",
     "Account management" : "Кіраванне ўліковымі запісамі",
     "ID" : "Ідэнтыфікатар",

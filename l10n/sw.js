@@ -182,6 +182,7 @@ OC.L10N.register(
     "Templates" : "Violezo",
     "Name" : "Jina",
     "Template name" : "Jina la kiolezo",
+    "Content" : "Maudhui",
     "Both" : "Wote",
     "Views" : "Mionekano",
     "Title" : "Kichwa cha habari",

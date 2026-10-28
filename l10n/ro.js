@@ -8,6 +8,7 @@ OC.L10N.register(
     "Guest" : "Invitat",
     "General" : "General",
     "Support" : "Asistență",
+    "Inline code" : "Cod în linie",
     "Attachment" : "Atașament",
     "Bold text" : "Text aldin",
     "Underlined text" : "Text subliniat",

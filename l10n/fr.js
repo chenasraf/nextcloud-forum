@@ -100,7 +100,7 @@ OC.L10N.register(
     "Font style struck through" : "Police barrée",
     "Font style underlined" : "Police soulignée",
     "Code" : "Code",
-    "Email (clickable)" : "Courriel (cliquable)",
+    "Email (clickable)" : "E-mail (cliquable)",
     "URL (clickable)" : "URL (cliquable)",
     "Image (not clickable)" : "Image (non cliquable)",
     "Quote" : "Citation",

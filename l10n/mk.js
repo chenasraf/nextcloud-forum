@@ -2,6 +2,7 @@ OC.L10N.register(
     "forum",
     {
     "Admin" : "Админ",
+    "Moderator" : "Модератор",
     "User" : "Корисник",
     "Guest" : "Гостин",
     "General" : "Општо",
@@ -29,6 +30,7 @@ OC.L10N.register(
     "Close" : "Затвори",
     "Threads" : "Нишки",
     "Unread" : "Непрочитана",
+    "Can view" : "Може да гледа",
     "Allow" : "Дозволи",
     "Change color" : "Промени боја",
     "Account" : "Сметка",
@@ -44,6 +46,7 @@ OC.L10N.register(
     "Move" : "Премести",
     "Page not found" : "Страницата не е пронајдена",
     "Back" : "Назад",
+    "Reply" : "Одговор",
     "Edit" : "Уреди",
     "Delete" : "Избриши",
     "Direct link" : "Директен линк",

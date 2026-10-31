@@ -1,5 +1,8 @@
 <template>
-  <NcAppNavigation>
+  <NcAppNavigation
+    :class="{ 'forum-navigation--resizable': !isMobile }"
+    :style="{ '--forum-navigation-width': `${navigationWidth}px` }"
+  >
     <template #list>
       <!-- Loading state -->
       <template v-if="isLoading">
@@ -205,6 +208,24 @@
     </template>
 
     <template #footer>
+      <div
+        v-if="!isMobile"
+        class="resize-handle"
+        :class="{ 'resize-handle--active': isResizing }"
+        role="separator"
+        tabindex="0"
+        aria-orientation="vertical"
+        :aria-label="strings.resizeNavigation"
+        :aria-valuenow="navigationWidth"
+        :aria-valuemin="MIN_NAVIGATION_WIDTH"
+        :aria-valuemax="MAX_NAVIGATION_WIDTH"
+        @pointerdown="onResizePointerDown"
+        @pointermove="onResizePointerMove"
+        @pointerup="onResizePointerUp"
+        @pointercancel="onResizePointerUp"
+        @keydown="onResizeKeydown"
+        @dblclick="resetNavigationWidth"
+      />
       <div v-if="!isLoading && userId" class="sidebar-footer">
         <UserInfo :user-id="userId" :display-name="displayName" :avatar-size="32" />
       </div>
@@ -241,6 +262,7 @@ import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSear
 import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import NcCounterBubble from '@nextcloud/vue/components/NcCounterBubble'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import { useIsMobile } from '@nextcloud/vue/composables/useIsMobile'
 import UserInfo from '@/components/UserInfo'
 import NavCategoryItem from './NavCategoryItem.vue'
 import HomeIcon from '@icons/Home.vue'
@@ -264,6 +286,11 @@ import { useUserRole } from '@/composables/useUserRole'
 import { useCurrentThread } from '@/composables/useCurrentThread'
 import { useGuestSession } from '@/composables/useGuestSession'
 import { useUserPreferences } from '@/composables/useUserPreferences'
+import {
+  useNavigationWidth,
+  MIN_NAVIGATION_WIDTH,
+  MAX_NAVIGATION_WIDTH,
+} from '@/composables/useNavigationWidth'
 import type { Category, CategoryHeader } from '@/types'
 
 export default defineComponent({
@@ -314,8 +341,28 @@ export default defineComponent({
     const { categoryId: currentThreadCategoryId, fetchThread, clearThread } = useCurrentThread()
     const { isGuest, guestDisplayName, fetchGuestIdentity } = useGuestSession()
     const { showUnreadCounts: unreadCountsEnabled, fetchUserPreferences } = useUserPreferences()
+    const isMobile = useIsMobile()
+    const {
+      width: navigationWidth,
+      isResizing,
+      onPointerDown: onResizePointerDown,
+      onPointerMove: onResizePointerMove,
+      onPointerUp: onResizePointerUp,
+      onKeydown: onResizeKeydown,
+      reset: resetNavigationWidth,
+    } = useNavigationWidth()
 
     return {
+      isMobile,
+      navigationWidth,
+      isResizing,
+      onResizePointerDown,
+      onResizePointerMove,
+      onResizePointerUp,
+      onResizeKeydown,
+      resetNavigationWidth,
+      MIN_NAVIGATION_WIDTH,
+      MAX_NAVIGATION_WIDTH,
       categoryHeaders,
       fetchCategories,
       getAllCategoriesFlat,
@@ -368,6 +415,7 @@ export default defineComponent({
         collapse: t('forum', 'Collapse'),
         guestLabel: t('forum', '(Guest)'),
         login: t('forum', 'Log in'),
+        resizeNavigation: t('forum', 'Resize sidebar'),
       },
     }
   },
@@ -650,6 +698,48 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+// NcAppNavigation compiles its width into its styles, so both the width and the margin that
+// slides it out when closed are overridden here.
+.app-navigation.forum-navigation--resizable {
+  --forum-navigation-rendered-width: min(var(--forum-navigation-width), 50vw);
+  width: var(--forum-navigation-rendered-width);
+
+  &.app-navigation--closed {
+    margin-inline-start: calc(-1 * var(--forum-navigation-rendered-width));
+  }
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: -4px;
+  width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-start: 3px;
+    width: 2px;
+    background-color: transparent;
+    transition: background-color var(--animation-quick);
+  }
+
+  &:hover::after,
+  &:focus-visible::after,
+  &--active::after {
+    background-color: var(--color-primary-element);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
 .nav-loading {
   display: flex;
   flex-direction: column;

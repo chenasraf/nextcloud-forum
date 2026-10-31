@@ -36,6 +36,7 @@ import { useIsDarkTheme } from '@nextcloud/vue/composables/useIsDarkTheme'
 import { usePublicSettings } from '@/composables/usePublicSettings'
 import { useCategories } from '@/composables/useCategories'
 import { useCurrentUser } from '@/composables/useCurrentUser'
+import { handleAttachmentClick } from '@/utils/attachmentViewer'
 
 export default defineComponent({
   name: 'ForumApp',
@@ -93,8 +94,10 @@ export default defineComponent({
     this._removeAfterEach = this.$router.afterEach(() => {
       this.isRouterLoading = false
     })
+    document.addEventListener('click', handleAttachmentClick)
   },
   beforeUnmount() {
+    document.removeEventListener('click', handleAttachmentClick)
     // Clean up router guards
     if (typeof this._removeBeforeEach === 'function') this._removeBeforeEach()
     if (typeof this._removeAfterEach === 'function') this._removeAfterEach()

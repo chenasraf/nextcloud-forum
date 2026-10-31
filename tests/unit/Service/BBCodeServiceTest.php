@@ -7,10 +7,13 @@ namespace OCA\Forum\Tests\Service;
 use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
 use OCA\Forum\Service\BBCodeService;
+use OCP\App\IAppManager;
 use OCP\Files\IRootFolder;
+use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserManager;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -27,6 +30,12 @@ class BBCodeServiceTest extends TestCase {
 	private IURLGenerator $urlGenerator;
 	/** @var IUserManager&MockObject */
 	private IUserManager $userManager;
+	/** @var IUserSession&MockObject */
+	private IUserSession $userSession;
+	/** @var IAppManager&MockObject */
+	private IAppManager $appManager;
+	/** @var IL10N&MockObject */
+	private IL10N $l10n;
 
 	protected function setUp(): void {
 		$this->bbCodeMapper = $this->createMock(BBCodeMapper::class);
@@ -34,13 +43,23 @@ class BBCodeServiceTest extends TestCase {
 		$this->rootFolder = $this->createMock(IRootFolder::class);
 		$this->urlGenerator = $this->createMock(IURLGenerator::class);
 		$this->userManager = $this->createMock(IUserManager::class);
+		$this->userSession = $this->createMock(IUserSession::class);
+		$this->appManager = $this->createMock(IAppManager::class);
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(
+			fn (string $text, array $parameters = []) => vsprintf($text, $parameters)
+		);
+		$this->l10n = $l10n;
 
 		$this->service = new BBCodeService(
 			$this->bbCodeMapper,
 			$this->logger,
 			$this->rootFolder,
 			$this->urlGenerator,
-			$this->userManager
+			$this->userManager,
+			$this->userSession,
+			$this->appManager,
+			$l10n
 		);
 	}
 
@@ -423,29 +442,83 @@ class BBCodeServiceTest extends TestCase {
 		$this->assertStringNotContainsString('<img', $result);
 	}
 
-	public function testParseGenericFileAttachmentRendersDownloadLink(): void {
-		$bbCode = $this->createAttachmentBBCode();
-
+	/**
+	 * Renders a generic file attachment for a reader, whose folder holds the file if $readerHasFile.
+	 */
+	private function renderFileAttachment(string $name, string $mimeType, ?string $officeApp = null, bool $readerHasFile = false): string {
 		$file = $this->createMock(\OCP\Files\File::class);
-		$file->method('getName')->willReturn('document.pdf');
-		$file->method('getMimeType')->willReturn('application/pdf');
+		$file->method('getName')->willReturn($name);
+		$file->method('getMimeType')->willReturn($mimeType);
 		$file->method('getSize')->willReturn(2 * 1024 * 1024);
 		$file->method('getId')->willReturn(45);
 
 		$userFolder = $this->createUserFolderMock();
 		$userFolder->method('get')->willReturn($file);
+		$userFolder->method('getById')->willReturn($readerHasFile ? [$file] : []);
 		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
-		$this->urlGenerator->method('linkToRouteAbsolute')->willReturn('https://example.com/download');
+		$this->urlGenerator->method('linkToRouteAbsolute')->willReturnCallback(
+			fn (string $route) => $route === 'files.view.showFile' ? 'https://example.com/f/45' : 'https://example.com/download'
+		);
 
-		$content = '[attachment]Forum/document.pdf[/attachment]';
-		$result = $this->service->parse($content, [$bbCode], 'alice', 1);
+		$reader = $this->createMock(IUser::class);
+		$reader->method('getUID')->willReturn('bob');
+		$this->userSession->method('getUser')->willReturn($reader);
+		$this->appManager->method('isEnabledForUser')->willReturnCallback(fn (string $app) => $app === $officeApp);
+
+		return $this->service->parse("[attachment]Forum/$name" . '[/attachment]', [$this->createAttachmentBBCode()], 'alice', 1);
+	}
+
+	public function testParseGenericFileAttachmentRendersDownloadLink(): void {
+		$result = $this->renderFileAttachment('archive.zip', 'application/zip');
 
 		$this->assertStringContainsString('class="attachment attachment-file"', $result);
-		$this->assertStringContainsString('download="document.pdf"', $result);
+		$this->assertStringContainsString('download="archive.zip"', $result);
 		$this->assertStringContainsString('attachment-size', $result);
+		$this->assertStringNotContainsString('attachment-download', $result);
 		$this->assertStringNotContainsString('<video', $result);
 		$this->assertStringNotContainsString('<audio', $result);
 		$this->assertStringNotContainsString('<img', $result);
+	}
+
+	public function testParsePdfAttachmentOpensAndKeepsDownloadButton(): void {
+		$result = $this->renderFileAttachment('document.pdf', 'application/pdf');
+
+		$this->assertStringContainsString('<a href="https://example.com/download" class="attachment-name" target="_blank"', $result);
+		$this->assertStringContainsString('data-viewer-mime="application/pdf"', $result);
+		$this->assertStringContainsString('data-file-id="45"', $result);
+		$this->assertStringContainsString('class="attachment-download icon-download" download="document.pdf"', $result);
+		$this->assertStringContainsString('aria-label="Download document.pdf"', $result);
+	}
+
+	public function testParseOfficeAttachmentOpensInOfficeAppWhenReaderHasAccess(): void {
+		$result = $this->renderFileAttachment(
+			'report.docx',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'richdocuments',
+			true
+		);
+
+		$this->assertStringContainsString('<a href="https://example.com/f/45" class="attachment-name" target="_blank"', $result);
+		$this->assertStringContainsString('class="attachment-download icon-download"', $result);
+	}
+
+	public function testParseOfficeAttachmentDownloadsWithoutReaderAccess(): void {
+		$result = $this->renderFileAttachment(
+			'report.docx',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+			'richdocuments',
+			false
+		);
+
+		$this->assertStringContainsString('class="attachment-name" download="report.docx"', $result);
+		$this->assertStringNotContainsString('/f/45', $result);
+	}
+
+	public function testParseOfficeAttachmentDownloadsWithoutOfficeApp(): void {
+		$result = $this->renderFileAttachment('report.odt', 'application/vnd.oasis.opendocument.text', null, true);
+
+		$this->assertStringContainsString('class="attachment-name" download="report.odt"', $result);
+		$this->assertStringNotContainsString('/f/45', $result);
 	}
 
 	public function testParseAttachmentByFileIdResolvesViaGetById(): void {
@@ -516,6 +589,9 @@ class BBCodeServiceTest extends TestCase {
 				$rootFolder,
 				$urlGenerator,
 				$this->userManager,
+				$this->userSession,
+				$this->appManager,
+				$this->l10n,
 			);
 
 			$result = $service->parse('[attachment]test[/attachment]', [$bbCode], 'user', 1);

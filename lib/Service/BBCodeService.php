@@ -11,10 +11,13 @@ use ChrisKonnertz\BBCode\BBCode as BBCodeParser;
 use ChrisKonnertz\BBCode\Tag;
 use OCA\Forum\Db\BBCode;
 use OCA\Forum\Db\BBCodeMapper;
+use OCP\App\IAppManager;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotFoundException;
+use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
+use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 
 class BBCodeService {
@@ -24,6 +27,9 @@ class BBCodeService {
 		private IRootFolder $rootFolder,
 		private IURLGenerator $urlGenerator,
 		private IUserManager $userManager,
+		private IUserSession $userSession,
+		private IAppManager $appManager,
+		private IL10N $l,
 	) {
 	}
 
@@ -439,7 +445,7 @@ class BBCodeService {
 				'image' => $this->renderImageAttachment($ctx),
 				'video' => $this->renderVideoAttachment($ctx),
 				'audio' => $this->renderAudioAttachment($ctx),
-				default => $this->renderFileAttachment($ctx),
+				default => $this->renderFileAttachment($ctx, $file),
 			};
 
 			return $html;
@@ -535,21 +541,95 @@ class BBCodeService {
 	/**
 	 * @param array{fileName: string, mimeType: string, downloadUrl: string, previewUrl: string, fileSize: string, iconClass: string} $ctx
 	 */
-	private function renderFileAttachment(array $ctx): string {
+	private function renderFileAttachment(array $ctx, \OCP\Files\File $file): string {
+		$nameLink = $this->renderFileAttachmentLink($ctx, $file);
+
+		// A name link that downloads already covers what the button would do
+		$downloadButton = str_contains($nameLink, ' download="')
+			? ''
+			: sprintf(
+				'<a href="%s" class="attachment-download icon-download" download="%s" title="%s" aria-label="%s"></a>',
+				$ctx['downloadUrl'],
+				$ctx['fileName'],
+				$this->esc($this->l->t('Download')),
+				$this->esc($this->l->t('Download %1$s', [$file->getName()]))
+			);
+
 		return sprintf(
 			'<div class="attachment attachment-file">'
 			. '<span class="attachment-icon %s"></span>'
 			. '<div class="attachment-info">'
-			. '<a href="%s" class="attachment-name" download="%s">%s</a>'
+			. '%s'
 			. '<span class="attachment-size">%s</span>'
 			. '</div>'
+			. '%s'
 			. '</div>',
 			$ctx['iconClass'],
+			$nameLink,
+			$ctx['fileSize'],
+			$downloadButton
+		);
+	}
+
+	/**
+	 * Link on the attachment's name: opens the file when something can display it to the current
+	 * reader, and downloads it otherwise.
+	 *
+	 * PDFs are served through the forum's own endpoint, so they display for everyone who can read
+	 * the post. The frontend upgrades the link to the Viewer when it is available. Office apps
+	 * work on the file itself, so those links need the reader to have access to it.
+	 *
+	 * @param array{fileName: string, mimeType: string, downloadUrl: string, previewUrl: string, fileSize: string, iconClass: string} $ctx
+	 */
+	private function renderFileAttachmentLink(array $ctx, \OCP\Files\File $file): string {
+		$mimeType = $file->getMimeType();
+
+		if ($mimeType === 'application/pdf') {
+			return sprintf(
+				'<a href="%s" class="attachment-name" target="_blank" rel="noopener noreferrer" data-viewer-mime="%s" data-file-id="%d">%s</a>',
+				$ctx['downloadUrl'],
+				$ctx['mimeType'],
+				$file->getId(),
+				$ctx['fileName']
+			);
+		}
+
+		if ($this->canOpenInOfficeApp($file)) {
+			return sprintf(
+				'<a href="%s" class="attachment-name" target="_blank" rel="noopener noreferrer">%s</a>',
+				$this->esc($this->urlGenerator->linkToRouteAbsolute('files.view.showFile', ['fileid' => $file->getId()])),
+				$ctx['fileName']
+			);
+		}
+
+		return sprintf(
+			'<a href="%s" class="attachment-name" download="%s">%s</a>',
 			$ctx['downloadUrl'],
 			$ctx['fileName'],
-			$ctx['fileName'],
-			$ctx['fileSize']
+			$ctx['fileName']
 		);
+	}
+
+	private function canOpenInOfficeApp(\OCP\Files\File $file): bool {
+		$isOfficeDocument = preg_match(
+			'#^application/(msword|rtf|vnd\.ms-|vnd\.openxmlformats-officedocument\.|vnd\.oasis\.opendocument\.)#',
+			$file->getMimeType()
+		) === 1;
+		if (!$isOfficeDocument) {
+			return false;
+		}
+
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return false;
+		}
+
+		if (!$this->appManager->isEnabledForUser('richdocuments', $user)
+			&& !$this->appManager->isEnabledForUser('onlyoffice', $user)) {
+			return false;
+		}
+
+		return $this->rootFolder->getUserFolder($user->getUID())->getById($file->getId()) !== [];
 	}
 
 	/**

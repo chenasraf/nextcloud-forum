@@ -145,6 +145,20 @@
     }
   }
 
+  &-download {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    opacity: 0.7;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--color-background-hover);
+      opacity: 1;
+    }
+  }
+
   &-info {
     flex: 1;
     min-width: 0;
@@ -174,7 +188,7 @@
 
 // Links in rendered post content ([url] and auto-detected URLs). Mentions and
 // attachments are links too, but carry their own styling.
-.rich-content a:not(.mention-bubble):not(.attachment-name) {
+.rich-content a:not(.mention-bubble):not(.attachment-name):not(.attachment-download) {
   color: var(--color-primary-element);
   text-decoration: underline;
   text-underline-offset: 2px;

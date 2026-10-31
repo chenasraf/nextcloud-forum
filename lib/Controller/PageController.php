@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OCA\Forum\Controller;
 
 use OCA\Forum\AppInfo\Application;
+use OCA\Viewer\Event\LoadViewer;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -13,6 +14,7 @@ use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Http\Template\PublicTemplateResponse;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -23,6 +25,7 @@ class PageController extends Controller {
 		IRequest $request,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
+		private IEventDispatcher $eventDispatcher,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -38,6 +41,11 @@ class PageController extends Controller {
 	#[NoCSRFRequired]
 	#[PublicPage]
 	public function index(): TemplateResponse|PublicTemplateResponse {
+		// The Viewer is an optional app; attachments open in the browser without it
+		if (class_exists(LoadViewer::class)) {
+			$this->eventDispatcher->dispatchTyped(new LoadViewer());
+		}
+
 		$user = $this->userSession->getUser();
 		$templateData = [
 			'script' => Application::getViteEntryScript('app.ts'),

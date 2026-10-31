@@ -258,6 +258,7 @@ OC.L10N.register(
     "Draft saved" : "Koncept uložen",
     "Unsaved changes" : "Neuložené změny",
     "Thread summary" : "Shrnutí vlákna",
+    "AI-generated" : "Vytvořeno AI",
     "Back to home" : "Zpět na začátek",
     "Refresh" : "Znovu načíst",
     "Your bookmarked threads" : "Vaše záložky na vlákna",

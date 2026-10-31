@@ -15,6 +15,7 @@
           <div v-if="isRouterLoading" class="router-loading">
             <NcLoadingIcon :size="48" />
           </div>
+          <GenericNotFound v-else-if="isNotFound" />
           <router-view v-else />
           <div class="bottom-spacer"></div>
         </div>
@@ -24,7 +25,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineAsyncComponent, defineComponent } from 'vue'
+import { START_LOCATION } from 'vue-router'
 import NcContent from '@nextcloud/vue/components/NcContent'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
@@ -43,6 +45,7 @@ export default defineComponent({
     NcLoadingIcon,
     AppNavigation,
     InitializationScreen,
+    GenericNotFound: defineAsyncComponent(() => import('@/views/GenericNotFound.vue')),
   },
   // Tell NcContent we *do* have a sidebar so it arranges layout properly
   provide() {
@@ -68,6 +71,12 @@ export default defineComponent({
       _removeBeforeEach: null as (() => void) | null,
       _removeAfterEach: null as (() => void) | null,
     }
+  },
+  computed: {
+    isNotFound(): boolean {
+      // The start location has no matches either, until the first navigation finishes
+      return this.$route !== START_LOCATION && this.$route.matched.length === 0
+    },
   },
   methods: {
     async onInitialized() {

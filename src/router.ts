@@ -37,8 +37,9 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/admin/bbcodes', component: () => import('@/views/admin/AdminBBCodeList.vue') },
   { path: '/admin/moderation', component: () => import('@/views/admin/AdminModerationView.vue') },
-  // Catch-all route - must be last
-  { path: '/:pathMatch(.*)*', component: () => import('@/views/GenericNotFound.vue') },
+  // No catch-all route: App.vue renders the not-found page for unmatched paths. @nextcloud/vue
+  // turns any server link that resolves to a route into a router link, so a catch-all would
+  // capture links to other apps, such as "Chat with" in the avatar menu.
 ]
 
 const router = createRouter({

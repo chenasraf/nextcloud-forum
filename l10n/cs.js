@@ -502,7 +502,7 @@ OC.L10N.register(
     "Deleted replies" : "Smazané odpovědi",
     "Newest first" : "Nejnovější jako první",
     "Oldest first" : "Nejstarší jako první",
-    "Create role" : "Vytvořit rol",
+    "Create role" : "Vytvořit roli",
     "Edit role" : "Upravit roli",
     "Configure role permissions and category access" : "Nastavit oprávnění rolí a přístupu ke kategoriím",
     "Error loading role" : "Chyba při načítání role",

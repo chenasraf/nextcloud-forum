@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.7.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.6.0...v1.7.0) (2026-11-03)
+
+
+### Features
+
+* **attachments:** open PDF and Office attachments instead of downloading ([cd1549d](https://github.com/chenasraf/nextcloud-forum/commit/cd1549da4124baf6843f65852b0e31dbb19fde88)), closes [#353](https://github.com/chenasraf/nextcloud-forum/issues/353)
+* **navigation:** resizable category sidebar ([9c8d521](https://github.com/chenasraf/nextcloud-forum/commit/9c8d521bf42ac80fffc888f3cfbf8d8600052564)), closes [#352](https://github.com/chenasraf/nextcloud-forum/issues/352)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([1be868f](https://github.com/chenasraf/nextcloud-forum/commit/1be868f04ef4539e5d4c1a97237dc501ff13463f))
+* **l10n:** Update translations from Transifex ([272f21b](https://github.com/chenasraf/nextcloud-forum/commit/272f21b55ca3d10acef87a0059598c0198e3192e))
+* **l10n:** Update translations from Transifex ([b4ff67c](https://github.com/chenasraf/nextcloud-forum/commit/b4ff67c4e989e7a82e69cfec57772d38b78c2830))
+* **l10n:** Update translations from Transifex ([4ad4419](https://github.com/chenasraf/nextcloud-forum/commit/4ad4419569b4c76fdbae0d576b9508a7cfa36268))
+* **l10n:** Update translations from Transifex ([675a588](https://github.com/chenasraf/nextcloud-forum/commit/675a588f2bd94180fbb83f20bae0c1ec3b5fb86d))
+* **l10n:** Update translations from Transifex ([39ffa46](https://github.com/chenasraf/nextcloud-forum/commit/39ffa46bff7b9ce962237a909dc8852fe50e02bd))
+* **l10n:** Update translations from Transifex ([bf57af3](https://github.com/chenasraf/nextcloud-forum/commit/bf57af30ac117ec65666b4c42c2d32e5b14acf6e))
+* **navigation:** consistent expand/collapse arrows on category headers ([37a9c92](https://github.com/chenasraf/nextcloud-forum/commit/37a9c9224dff9d38e50fe52bba2617a4b7ae590f)), closes [#349](https://github.com/chenasraf/nextcloud-forum/issues/349)
+* **router:** open links to other apps instead of the not-found page ([b0ca134](https://github.com/chenasraf/nextcloud-forum/commit/b0ca134aec04af6cc85f6e31287dc5222d671d3d)), closes [#351](https://github.com/chenasraf/nextcloud-forum/issues/351)
+
 ## [1.6.0](https://github.com/chenasraf/nextcloud-forum/compare/v1.5.0...v1.6.0) (2026-10-26)
 
 

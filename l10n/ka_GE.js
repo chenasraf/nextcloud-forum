@@ -6,6 +6,7 @@ OC.L10N.register(
     "User" : "მომხმარებელი",
     "General" : "ზოგადი",
     "Forum" : "ფორუმი",
+    "Download" : "ჩამოტვირთვა",
     "Search" : "ძიება",
     "Home" : "სახლი",
     "Bookmarks" : "სანიშნეები",

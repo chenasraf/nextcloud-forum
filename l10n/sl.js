@@ -8,6 +8,7 @@ OC.L10N.register(
     "Bold text" : "Krepko besedilo",
     "Underlined text" : "Podpisano besedilo",
     "Forum" : "Spletni forum",
+    "Download" : "Prejmi",
     "Deleted user" : "Izbrisan uporabnik",
     "Role" : "Vloga",
     "Loading …" : "Poteka nalaganje …",

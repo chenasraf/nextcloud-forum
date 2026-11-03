@@ -5,6 +5,7 @@ OC.L10N.register(
     "User" : "Foydalanuvchi",
     "General" : "Umumiy",
     "Forum" : "Forum",
+    "Download" : "Yuklab olish",
     "Deleted user" : "Deleted user",
     "Loading …" : "Yuklanmoqda…",
     "Search" : "Qidirish",

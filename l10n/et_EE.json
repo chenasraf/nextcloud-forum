@@ -54,6 +54,7 @@
     "{user} mentioned you in {thread}" : "{user} mainis sind jutulõngas „{thread}“",
     "{user} replied to your post in {thread}" : "{user} vastas sinu postitusele jutulõngas „{thread}“",
     "Welcome to the forum!" : "Tere tulemast foorumisse!",
+    "Download" : "Laadi alla",
     "Deleted user" : "Kustutatud kasutaja",
     "A community-driven forum built right into your Nextcloud instance" : "Kogukonnapõhine foorum, mis toimib otse sinu Nextcloudi serveris.",
     "Forum server administration" : "Foorumi serveri haldus",

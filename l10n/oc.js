@@ -6,6 +6,7 @@ OC.L10N.register(
     "Guest" : "Convidat",
     "General" : "Generals",
     "Forum" : "Forum",
+    "Download" : "Teledescargar",
     "Deleted user" : "Utilizaire suprimit",
     "Role" : "Ròtle",
     "Loading …" : "Cargament…",

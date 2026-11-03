@@ -55,6 +55,7 @@ OC.L10N.register(
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} resposta nova a {thread}","{count} respostes noves a {thread}"],
     "{user} mentioned you in {thread}" : "{user} us ha mencionat a {thread}",
     "Welcome to the forum!" : "Us donem la benvinguda al fòrum!",
+    "Download" : "Baixa",
     "Deleted user" : "Usuari suprimit",
     "A community-driven forum built right into your Nextcloud instance" : "Un fòrum comunitari integrat directament a la vostra instància del Nextcloud",
     "Forum server administration" : "Administració del servidor del fòrum",

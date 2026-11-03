@@ -10,6 +10,7 @@ OC.L10N.register(
     "Bold text" : "Грубий шрифт",
     "Underlined text" : "Підкреслений текст",
     "Forum" : "Форум",
+    "Download" : "Отримати",
     "Deleted user" : "Вилучений користувач",
     "Role" : "Роль",
     "Loading …" : "Завантаження …",

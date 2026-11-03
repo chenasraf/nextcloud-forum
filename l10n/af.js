@@ -4,6 +4,7 @@ OC.L10N.register(
     "Admin" : "Admin",
     "User" : "Gebruiker",
     "Forum" : "Forum",
+    "Download" : "Laai af",
     "Search" : "Soek",
     "Home" : "Tuis",
     "Bookmarks" : "Boekmerke",

@@ -10,6 +10,7 @@ OC.L10N.register(
     "Bold text" : "ຂໍ້ຄວາມຕົວໜາ",
     "Underlined text" : "ຂໍ້ຄວາມທີ່ຂີດກ້ອງ",
     "Forum" : "Forum",
+    "Download" : "ດາວໂຫຼດ",
     "Deleted user" : "Deleted user",
     "Role" : "ບົດບາດ",
     "Loading …" : "ກຳລັງໂຫຼດ...",

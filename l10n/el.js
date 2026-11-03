@@ -55,6 +55,7 @@ OC.L10N.register(
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} νέα απάντηση στο {thread}","{count} νέες απαντήσεις στο {thread}"],
     "{user} mentioned you in {thread}" : "Ο χρήστης {user} σας ανέφερε στο {thread}",
     "Welcome to the forum!" : "Καλώς ήρθατε στο φόρουμ!",
+    "Download" : "Λήψη",
     "Deleted user" : "Διαγραμμένος χρήστης",
     "A community-driven forum built right into your Nextcloud instance" : "Ένα φόρουμ βασισμένο στην κοινότητα, ενσωματωμένο απευθείας στο Nextcloud σας",
     "Forum server administration" : "Διαχείριση διακομιστή φόρουμ",

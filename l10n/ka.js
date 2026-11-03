@@ -7,6 +7,7 @@ OC.L10N.register(
     "Guest" : "Guest",
     "General" : "General",
     "Forum" : "Forum",
+    "Download" : "გადმოწერა",
     "Deleted user" : "Deleted user",
     "Role" : "Role",
     "Loading …" : "Loading …",

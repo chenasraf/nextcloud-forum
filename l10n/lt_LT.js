@@ -55,6 +55,7 @@ OC.L10N.register(
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} naujas atsakymas {thread}","{count} nauji atsakymai {thread}","{count} naujų atsakymų {thread}","{count} naujų atsakymų {thread}"],
     "{user} mentioned you in {thread}" : "{user} paminėjo jus {thread}",
     "Welcome to the forum!" : "Sveiki atvykę į forumą!",
+    "Download" : "Atsisiųsti",
     "Deleted user" : "Ištrintas vartotojas",
     "A community-driven forum built right into your Nextcloud instance" : "Bendruomenės valdomas forumas, integruotas tiesiai į jūsų „Nextcloud“ aplinką",
     "Forum server administration" : "Forumo serverio administravimas",

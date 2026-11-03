@@ -5,6 +5,7 @@ OC.L10N.register(
     "User" : "Implijer",
     "General" : "Hollek",
     "Forum" : "Forum",
+    "Download" : "Pellgargañ",
     "Search" : "Klask",
     "Home" : "Degemer",
     "Preferences" : "Penndibaboù",

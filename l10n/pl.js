@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "Pogrubiony tekst",
     "Underlined text" : "Podkreślony tekst",
     "Forum" : "Forum",
+    "Download" : "Pobierz",
     "Deleted user" : "Usunięty użytkownik",
     "Role" : "Rola społeczna",
     "Loading …" : "Wczytywanie…",

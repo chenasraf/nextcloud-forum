@@ -10,6 +10,7 @@ OC.L10N.register(
     "Italic text" : "Testo in corsivo",
     "Underlined text" : "Testo sottolineato",
     "Forum" : "Forum",
+    "Download" : "Scarica",
     "Deleted user" : "Utente eliminato",
     "Role" : "Ruolo",
     "Loading …" : "Caricamento…",

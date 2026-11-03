@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "Lihavoitu teksti",
     "Underlined text" : "Alleviivattu teksti",
     "Forum" : "Keskustelupalsta",
+    "Download" : "Lataa",
     "Deleted user" : "Poistettu käyttäjä",
     "Role" : "Rooli",
     "Loading …" : "Ladataan…",

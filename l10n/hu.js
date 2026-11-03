@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "Félkövér szöveg",
     "Underlined text" : "Aláhúzott szöveg",
     "Forum" : "Fórum",
+    "Download" : "Letöltés",
     "Deleted user" : "Törölt felhasználó",
     "Role" : "Szerepkör",
     "Loading …" : "Betöltés…",

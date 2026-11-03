@@ -8,6 +8,7 @@ OC.L10N.register(
     "Bold text" : "太字",
     "Underlined text" : "下線を引きたい文字",
     "Forum" : "フォーラム",
+    "Download" : "ダウンロード",
     "Deleted user" : "ユーザーを削除",
     "Role" : "ロール",
     "Loading …" : "読み込み中…",

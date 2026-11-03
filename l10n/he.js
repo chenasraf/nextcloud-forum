@@ -55,6 +55,7 @@ OC.L10N.register(
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["תגובה {count} חדשה ב-{thread}","{count} תגובות חדשות ב-{thread}","{count} תגובות חדשות ב-{thread}"],
     "{user} mentioned you in {thread}" : "אוזכרת על ידי {user}בנושא {thread}",
     "Welcome to the forum!" : "ברוכים הבאים לפורום!",
+    "Download" : "הורדה",
     "Deleted user" : "משתמש מחוק",
     "A community-driven forum built right into your Nextcloud instance" : "פורום מונחה-קהילה מובנה ישירות להתקנת ה Nextcloud שלכם.",
     "Repair Database Initial Data" : "תיקון מידע ראשוני במסד נתונים",

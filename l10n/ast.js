@@ -10,6 +10,7 @@ OC.L10N.register(
     "Bold text" : "Testu en negrina",
     "Underlined text" : "Testu solliniáu",
     "Forum" : "Foru",
+    "Download" : "Baxar",
     "Deleted user" : "Usuariu desaniciáu",
     "Role" : "Rol",
     "Loading …" : "Cargando…",

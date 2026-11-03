@@ -6,6 +6,7 @@ OC.L10N.register(
     "User" : "Defnyddwyr",
     "General" : "Cyffredinol",
     "Forum" : "Fforwm",
+    "Download" : "Llwytho i lawr",
     "Search" : "Chwilio",
     "Home" : "Cartref",
     "Dashboard" : "Bwrdd Rheoli",

@@ -53,6 +53,7 @@
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} پاسخ جدید در {thread}","{count} پاسخ جدید در {thread}"],
     "{user} mentioned you in {thread}" : "{user} در {thread} به شما اشاره کرد",
     "Welcome to the forum!" : "به انجمن خوش آمدید!",
+    "Download" : "دانلود",
     "Deleted user" : "کاربر حذف‌شده",
     "A community-driven forum built right into your Nextcloud instance" : "یک انجمن مبتنی بر جامعه که مستقیماً در نمونه نکست‌کلود شما ساخته شده است",
     "Forum server administration" : "مدیریت سرور انجمن",

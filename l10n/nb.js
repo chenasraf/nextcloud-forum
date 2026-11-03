@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "Fet tekst",
     "Underlined text" : "Understreket tekst",
     "Forum" : "Forum",
+    "Download" : "Last ned",
     "Deleted user" : "Slettet bruker",
     "Role" : "Rolle",
     "Loading …" : "Laster ...",

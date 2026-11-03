@@ -41,6 +41,7 @@
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} new reply in {thread}","{count} majibu mapya ndani {thread}"],
     "{user} mentioned you in {thread}" : "{user} amekutaja katika {thread}",
     "Welcome to the forum!" : "Karibu kwenye jukwaa!",
+    "Download" : "Pakua",
     "Deleted user" : "Mtumiaji aliyefutwa",
     "A community-driven forum built right into your Nextcloud instance" : "Jukwaa linaloendeshwa na jamii lililojengwa ndani ya mfano wako wa Nextcloud",
     "Role" : "Role",

@@ -43,6 +43,7 @@ OC.L10N.register(
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{thread} دا {count} يېڭى جاۋاپ","{thread} دا {count} يېڭى جاۋاپ"],
     "{user} mentioned you in {thread}" : "{user} سىزنى {thread} دا تىلغا ئالدى",
     "Welcome to the forum!" : "مۇنبەرگە خۇش كەپسىز!",
+    "Download" : "چۈشۈرۈش",
     "Deleted user" : "ئىشلەتكۈچى ئۆچۈرۈلدى",
     "A community-driven forum built right into your Nextcloud instance" : "Nextcloud ئۈلگىڭىزگە بىۋاسىتە ئورنىتىلغان مەھەللە تەرىپىدىن باشقۇرۇلىدىغان مۇنبەر",
     "Role" : "رولى",

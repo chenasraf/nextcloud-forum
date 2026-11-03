@@ -38,6 +38,7 @@
     "Forum" : "Foro",
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} nueva respuesta en {thread}","{count} nuevas respuestas en {thread}","{count} nuevas respuestas en {thread}"],
     "Welcome to the forum!" : "¡Bienvenido al foro!",
+    "Download" : "Descargar",
     "Deleted user" : "Usuario eliminado",
     "A community-driven forum built right into your Nextcloud instance" : "Un foro impulsado por la comunidad integrado directamente en tu instancia de Nextcloud",
     "Role" : "Rol",

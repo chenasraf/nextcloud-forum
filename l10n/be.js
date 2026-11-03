@@ -16,6 +16,7 @@ OC.L10N.register(
     "Welcome to Nextcloud Forums" : "Вітаем на Форумах Nextcloud",
     "Forum" : "Форум",
     "Welcome to the forum!" : "Вітаем на форуме!",
+    "Download" : "Спампаваць",
     "Deleted user" : "Выдалены карыстальнік",
     "Role" : "Роля",
     "Loading …" : "Загрузка …",

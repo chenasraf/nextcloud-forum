@@ -8,6 +8,7 @@ OC.L10N.register(
     "Bold text" : "Удебелен текст",
     "Underlined text" : "Подчертан текст",
     "Forum" : "Форум",
+    "Download" : "Изтегляне",
     "Deleted user" : "Изтрит потребител",
     "Role" : "Роля",
     "Loading …" : "Зареждане …",

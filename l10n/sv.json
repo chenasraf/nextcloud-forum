@@ -54,6 +54,7 @@
     "{user} mentioned you in {thread}" : "{user} nämnde dig i {thread}",
     "{user} replied to your post in {thread}" : "{user} svarade på ditt inlägg i {thread}",
     "Welcome to the forum!" : "Välkommen till forumet!",
+    "Download" : "Hämta",
     "Deleted user" : "Borttagen användare",
     "A community-driven forum built right into your Nextcloud instance" : "Ett gemenskapsdrivet forum som är inbyggt direkt i din Nextcloud-instans",
     "Forum server administration" : "Serveradministration för forum",

@@ -55,6 +55,7 @@ OC.L10N.register(
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} nová odpověď v {thread} ","{count} nové odpovědi v {thread} ","{count} nových odpovědí v {thread} ","{count} nové odpovědi v {thread} "],
     "{user} mentioned you in {thread}" : "{user} vás zmínil(a) v {thread}",
     "Welcome to the forum!" : "Vítejte ve fóru!",
+    "Download" : "Stáhnout",
     "Deleted user" : "Smazaný uživatel",
     "A community-driven forum built right into your Nextcloud instance" : "Komunitou řízené fórum, vestavěné přímo do vámi využívané instance Nextcloud",
     "Repair Database Initial Data" : "Opravit úvodní data databáze",

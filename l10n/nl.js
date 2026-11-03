@@ -10,6 +10,7 @@ OC.L10N.register(
     "Bold text" : "Vette tekst",
     "Underlined text" : "Onderstreepte tekst",
     "Forum" : "Forum",
+    "Download" : "Download",
     "Deleted user" : "Verwijderde gebruiker",
     "Role" : "Rol",
     "Loading …" : "Laden …",

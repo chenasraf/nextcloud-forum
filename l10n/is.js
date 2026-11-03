@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "Feitletraður texti",
     "Underlined text" : "Undirstrikaður texti",
     "Forum" : "Vefspjall",
+    "Download" : "Sækja",
     "Role" : "Hlutverk",
     "Loading …" : "Hleð inn …",
     "Search" : "Search",

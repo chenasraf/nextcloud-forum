@@ -6,6 +6,7 @@ OC.L10N.register(
     "User" : "Përdorues",
     "General" : "Të përgjithshme",
     "Forum" : "Forum",
+    "Download" : "Shkarko",
     "Search" : "Kërko",
     "Home" : "Kryefaqja",
     "Preferences" : "Preferencat",

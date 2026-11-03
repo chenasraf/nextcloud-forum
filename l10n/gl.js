@@ -54,6 +54,7 @@ OC.L10N.register(
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} nova resposta en {thread}","{count} novas respostas en {thread}"],
     "{user} mentioned you in {thread}" : "{user} mencionouno a Vde. en {thread}",
     "Welcome to the forum!" : "Dámoslle a benvida ao foro!",
+    "Download" : "Descargar",
     "Deleted user" : "Usuario eliminado",
     "A community-driven forum built right into your Nextcloud instance" : "Un foro impulsado pola comunidade integrado directamente na súa instancia de Nextcloud",
     "Repair Database Initial Data" : "Reparar os datos iniciais da base de datos",

@@ -8,6 +8,7 @@ OC.L10N.register(
     "Bold text" : "Testu lodia",
     "Underlined text" : "Azpimarratutako testua",
     "Forum" : "Foroa",
+    "Download" : "Deskargatu",
     "Deleted user" : "Ezabatutako erabiltzaileak",
     "Role" : "Zeregina",
     "Loading …" : "Kargatzen ...",

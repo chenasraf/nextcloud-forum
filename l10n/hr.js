@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "Podebljani tekst",
     "Underlined text" : "Podcrtani tekst",
     "Forum" : "Forum",
+    "Download" : "Preuzmi",
     "Deleted user" : "Izbrisan korisnik",
     "Role" : "Uloga",
     "Loading …" : "Učitavanje…",

@@ -6,6 +6,7 @@ OC.L10N.register(
     "User" : "Usuario",
     "General" : "General",
     "Forum" : "Foro",
+    "Download" : "Descargar",
     "Search" : "Buscar",
     "Home" : "Inicio",
     "Bookmarks" : "Marcadores",

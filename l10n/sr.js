@@ -10,6 +10,7 @@ OC.L10N.register(
     "Bold text" : "Подебљани текст",
     "Underlined text" : "Подвучени текст",
     "Forum" : "Форум",
+    "Download" : "Преузми",
     "Deleted user" : "Обрисани корисник",
     "Role" : "Улога",
     "Loading …" : "Учитавање…",

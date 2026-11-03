@@ -6,6 +6,7 @@ OC.L10N.register(
     "Guest" : "Persone invitada",
     "Support" : "Suportu",
     "Forum" : "Forum",
+    "Download" : "Iscàrriga",
     "Loading …" : "Carrigamentu …",
     "Search" : "Chirca",
     "Home" : "Pàgina printzipale",

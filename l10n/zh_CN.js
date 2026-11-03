@@ -10,6 +10,7 @@ OC.L10N.register(
     "Bold text" : "粗文本",
     "Underlined text" : "下划线",
     "Forum" : "论坛",
+    "Download" : "下载",
     "Deleted user" : "删除用户",
     "Role" : "角色",
     "Loading …" : "正在加载…",

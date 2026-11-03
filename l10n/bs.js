@@ -4,6 +4,7 @@ OC.L10N.register(
     "Admin" : "Administrator",
     "User" : "User",
     "Forum" : "Forum",
+    "Download" : "Preuzmi",
     "Search" : "Search",
     "Home" : "Početna stranica",
     "Accounts" : "Accounts",

@@ -49,6 +49,7 @@ OC.L10N.register(
     "Forum" : "Fórum",
     "{user} mentioned you in {thread}" : "{user} mencionou você em {thread}",
     "Welcome to the forum!" : "Bem-vindo ao fórum!",
+    "Download" : "Transferir",
     "Deleted user" : "Usuário excluído",
     "A community-driven forum built right into your Nextcloud instance" : "Um fórum comunitário integrado diretamente na sua instância Nextcloud",
     "Forum server administration" : "Administração do servidor do fórum",

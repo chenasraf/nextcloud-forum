@@ -6,6 +6,7 @@ OC.L10N.register(
     "User" : "Uzanto",
     "General" : "Ĝenerala",
     "Forum" : "Forumo",
+    "Download" : "Elŝuti",
     "Loading …" : "Ŝargado...",
     "Search" : "Serĉi",
     "Home" : "Hejmo",

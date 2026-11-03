@@ -5,6 +5,7 @@ OC.L10N.register(
     "User" : "User",
     "General" : "Ümumi",
     "Forum" : "Forum",
+    "Download" : "Yüklə",
     "Search" : "Axtarış",
     "Home" : "Ev",
     "Accounts" : "Accounts",

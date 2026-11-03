@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Moderator" : "Moderator",
     "User" : "Korisnik",
+    "Download" : "Preuzmi",
     "Loading …" : "Učitavanje...",
     "Search" : "Traži",
     "Home" : "Početak",

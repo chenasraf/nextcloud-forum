@@ -55,6 +55,7 @@ OC.L10N.register(
     "_{count} new reply in {thread}_::_{count} new replies in {thread}_" : ["{count} balasan baru di {thread}"],
     "{user} mentioned you in {thread}" : "{user} menyebut Anda di {thread}",
     "Welcome to the forum!" : "Selamat datang di forum!",
+    "Download" : "Unduh",
     "Deleted user" : "Pengguna dihapus",
     "A community-driven forum built right into your Nextcloud instance" : "Forum berbasis komunitas yang dibangun langsung ke dalam instance Nextcloud Anda",
     "Forum server administration" : "Administrasi server forum",

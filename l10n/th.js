@@ -5,6 +5,7 @@ OC.L10N.register(
     "User" : "ผู้ใช้",
     "General" : "ทั่วไป",
     "Forum" : "ฟอรัม",
+    "Download" : "ดาวน์โหลด",
     "Search" : "ค้นหา",
     "Home" : "หน้าหลัก",
     "Preferences" : "การกำหนดลักษณะ",

@@ -8,6 +8,7 @@ OC.L10N.register(
     "General" : "Generelt",
     "Support" : "Støtte",
     "Forum" : "Forum",
+    "Download" : "Last ned",
     "Role" : "Rolle",
     "Search" : "Søk",
     "Home" : "Heim",

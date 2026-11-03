@@ -5,6 +5,7 @@ OC.L10N.register(
     "User" : "User",
     "General" : "Allgemeng",
     "Forum" : "Forum",
+    "Download" : "Eroflueden",
     "Role" : "Roll",
     "Search" : "Sichen",
     "Home" : "Doheem",

@@ -10,6 +10,7 @@ OC.L10N.register(
     "Bold text" : "Болдиран текст",
     "Underlined text" : "Подвлечен текст",
     "Forum" : "Форум",
+    "Download" : "Преземи",
     "Deleted user" : "Избришан корисник",
     "Role" : "Улога",
     "Loading …" : "Се вчитува…",

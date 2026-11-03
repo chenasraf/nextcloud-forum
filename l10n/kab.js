@@ -11,6 +11,7 @@ OC.L10N.register(
     "Attachment" : "Amedday",
     "Features:" : "Timahilin:",
     "Forum" : "Anmager",
+    "Download" : "Sader",
     "Role" : "Tamlilt",
     "Loading …" : "Asali ...",
     "Search" : "Nadi",

@@ -11,6 +11,7 @@ OC.L10N.register(
     "Bold text" : "Тод текст",
     "Underlined text" : "Доогуур зурсан текст",
     "Forum" : "Хэлэлцүүлэг",
+    "Download" : "Татах",
     "Deleted user" : "Устгагдсан хэрэглэгч",
     "Role" : "Үүрэг",
     "Loading …" : "Ачаалж байна …",

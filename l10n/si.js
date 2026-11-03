@@ -4,6 +4,7 @@ OC.L10N.register(
     "Admin" : "පරිපාලක",
     "User" : "පරිශීලක",
     "General" : "සමාන්‍යය",
+    "Download" : "බාගන්න",
     "Search" : "සොයන්න",
     "Home" : "මුල් පිටුව",
     "Accounts" : "Accounts",

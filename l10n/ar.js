@@ -9,6 +9,7 @@ OC.L10N.register(
     "Bold text" : "نص داكن",
     "Underlined text" : "نصٌ مُسطّرٌ تحتيّاً",
     "Forum" : "المنتدى",
+    "Download" : "تنزيل",
     "Deleted user" : "مستخدم محذوف",
     "Role" : "الوظيفة",
     "Loading …" : "التحميل جارٍ ...",

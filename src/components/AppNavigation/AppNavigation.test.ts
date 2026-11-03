@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises, enableAutoUnmount } from '@vue/test-utils'
-import {
-  createIconMock,
-  createComponentMock,
-  RouterLinkStub,
-  createNcActionButtonMock,
-} from '@/test-utils'
+import { createIconMock, createComponentMock, RouterLinkStub } from '@/test-utils'
 import { computed, ref } from 'vue'
 
 // --- Composable mocks ---
@@ -112,8 +107,9 @@ vi.mock('@nextcloud/vue/components/NcAppNavigation', () =>
 vi.mock('@nextcloud/vue/components/NcAppNavigationItem', () =>
   createComponentMock('NcAppNavigationItem', {
     template:
-      '<div class="nav-item" :data-name="name" :data-active="active"><slot name="icon" /><span class="nav-counter"><slot name="counter" /></span><slot name="actions" /><slot /></div>',
-    props: ['name', 'to', 'active', 'open'],
+      '<div class="nav-item" :data-name="name" :data-active="active"><slot name="icon" /><span class="nav-counter"><slot name="counter" /></span><slot name="actions" /><button v-if="allowCollapse" class="nav-collapse" @click.stop="$emit(\'update:open\', !open)" /><slot /></div>',
+    props: ['name', 'to', 'active', 'open', 'allowCollapse'],
+    emits: ['update:open'],
   }),
 )
 
@@ -123,8 +119,6 @@ vi.mock('@nextcloud/vue/components/NcAppNavigationSearch', () =>
     props: ['modelValue', 'label'],
   }),
 )
-
-vi.mock('@nextcloud/vue/components/NcActionButton', () => createNcActionButtonMock())
 
 vi.mock('@nextcloud/vue/components/NcCounterBubble', () =>
   createComponentMock('NcCounterBubble', {
@@ -155,8 +149,6 @@ vi.mock('@icons/Home.vue', () => createIconMock('HomeIcon'))
 vi.mock('@icons/Folder.vue', () => createIconMock('FolderIcon'))
 vi.mock('@icons/Magnify.vue', () => createIconMock('MagnifyIcon'))
 vi.mock('@icons/Bookmark.vue', () => createIconMock('BookmarkIcon'))
-vi.mock('@icons/ChevronDown.vue', () => createIconMock('ChevronDownIcon'))
-vi.mock('@icons/ChevronRight.vue', () => createIconMock('ChevronRightIcon'))
 vi.mock('@icons/ShieldCheck.vue', () => createIconMock('ShieldCheckIcon'))
 vi.mock('@icons/ShieldAccount.vue', () => createIconMock('ShieldAccountIcon'))
 vi.mock('@icons/ChartLine.vue', () => createIconMock('ChartLineIcon'))
@@ -608,8 +600,7 @@ describe('AppNavigation', () => {
       const wrapper = await mountAndWait()
 
       // Toggle the header
-      const actionButton = wrapper.find('[data-name="General"]').find('.nc-action-button')
-      await actionButton.trigger('click')
+      await wrapper.find('[data-name="General"]').find('.nav-collapse').trigger('click')
 
       const saved = JSON.parse(localStorage.getItem('forum_navigation_state')!)
       expect(saved.openHeaders).toBeDefined()

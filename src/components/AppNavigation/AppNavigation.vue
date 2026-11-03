@@ -47,6 +47,9 @@
             v-for="header in visibleHeaders"
             :key="`header-${header.id}`"
             :name="header.name"
+            :allow-collapse="true"
+            :open="isHeaderOpen(header.id)"
+            @update:open="setHeaderOpen(header.id, $event)"
             @click="navigateToFirstCategory(header)"
           >
             <template #icon>
@@ -58,19 +61,6 @@
                 :count="headerUnreadCount(header)"
                 :title="unreadLabel(headerUnreadCount(header))"
               />
-            </template>
-
-            <template #actions>
-              <NcActionButton
-                :aria-label="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
-                :title="isHeaderOpen(header.id) ? strings.collapse : strings.expand"
-                @click.stop="toggleHeader(header.id)"
-              >
-                <template #icon>
-                  <ChevronDownIcon v-if="isHeaderOpen(header.id)" :size="20" />
-                  <ChevronRightIcon v-else :size="20" />
-                </template>
-              </NcActionButton>
             </template>
 
             <!-- Categories under each header -->
@@ -105,23 +95,13 @@
         <NcAppNavigationItem
           v-if="canAccessAdmin"
           :name="strings.navAdmin"
+          :allow-collapse="true"
+          :open="isAdminOpen"
+          @update:open="setAdminOpen"
           @click="navigateToAdmin"
         >
           <template #icon>
             <ShieldCheckIcon :size="20" />
-          </template>
-
-          <template #actions>
-            <NcActionButton
-              :aria-label="isAdminOpen ? strings.collapse : strings.expand"
-              :title="isAdminOpen ? strings.collapse : strings.expand"
-              @click.stop="toggleAdmin"
-            >
-              <template #icon>
-                <ChevronDownIcon v-if="isAdminOpen" :size="20" />
-                <ChevronRightIcon v-else :size="20" />
-              </template>
-            </NcActionButton>
           </template>
 
           <!-- Admin sub-items -->
@@ -259,7 +239,6 @@ import { generateUrl } from '@nextcloud/router'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
 import NcAppNavigationSearch from '@nextcloud/vue/components/NcAppNavigationSearch'
-import NcActionButton from '@nextcloud/vue/components/NcActionButton'
 import NcCounterBubble from '@nextcloud/vue/components/NcCounterBubble'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import { useIsMobile } from '@nextcloud/vue/composables/useIsMobile'
@@ -269,8 +248,6 @@ import HomeIcon from '@icons/Home.vue'
 import FolderIcon from '@icons/Folder.vue'
 import MagnifyIcon from '@icons/Magnify.vue'
 import BookmarkIcon from '@icons/Bookmark.vue'
-import ChevronDownIcon from '@icons/ChevronDown.vue'
-import ChevronRightIcon from '@icons/ChevronRight.vue'
 import ShieldCheckIcon from '@icons/ShieldCheck.vue'
 import ShieldAccountIcon from '@icons/ShieldAccount.vue'
 import ChartLineIcon from '@icons/ChartLine.vue'
@@ -299,7 +276,6 @@ export default defineComponent({
     NcAppNavigation,
     NcAppNavigationItem,
     NcAppNavigationSearch,
-    NcActionButton,
     NcCounterBubble,
     NcLoadingIcon,
     UserInfo,
@@ -308,8 +284,6 @@ export default defineComponent({
     FolderIcon,
     MagnifyIcon,
     BookmarkIcon,
-    ChevronDownIcon,
-    ChevronRightIcon,
     ShieldCheckIcon,
     ShieldAccountIcon,
     ChartLineIcon,
@@ -411,8 +385,6 @@ export default defineComponent({
         navAdminCategories: t('forum', 'Categories'),
         navAdminBBCodes: t('forum', 'BBCodes'),
         navAdminModeration: t('forum', 'Moderation'),
-        expand: t('forum', 'Expand'),
-        collapse: t('forum', 'Collapse'),
         guestLabel: t('forum', '(Guest)'),
         login: t('forum', 'Log in'),
         resizeNavigation: t('forum', 'Resize sidebar'),
@@ -551,10 +523,10 @@ export default defineComponent({
       return false
     },
 
-    toggleHeader(headerId: number): void {
+    setHeaderOpen(headerId: number, open: boolean): void {
       this.openHeaders = {
         ...this.openHeaders,
-        [headerId]: !this.openHeaders[headerId],
+        [headerId]: open,
       }
       this.saveNavigationState()
     },
@@ -586,8 +558,8 @@ export default defineComponent({
       return n('forum', '%n unread thread', '%n unread threads', count)
     },
 
-    toggleAdmin(): void {
-      this.isAdminOpen = !this.isAdminOpen
+    setAdminOpen(open: boolean): void {
+      this.isAdminOpen = open
       this.saveNavigationState()
     },
 

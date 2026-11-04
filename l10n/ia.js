@@ -8,7 +8,6 @@ OC.L10N.register(
     "Search" : "Cercar",
     "Home" : "Initio",
     "Accounts" : "Accounts",
-    "Collapse" : "Collaber",
     "Log in" : "Aperir session",
     "Close" : "Clauder",
     "Category" : "Categoria",

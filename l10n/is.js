@@ -19,8 +19,6 @@ OC.L10N.register(
     "Dashboard" : "Stjórnborð",
     "Accounts" : "Notandaaðgangar",
     "Categories" : "Flokkar",
-    "Expand" : "Fletta út",
-    "Collapse" : "Fella saman",
     "Log in" : "Skrá inn",
     "Hello world!" : "Halló heimur!",
     "Code" : "Kóði",

@@ -22,8 +22,6 @@ OC.L10N.register(
     "Accounts" : "Користувачі",
     "Categories" : "Категорії",
     "Moderation" : "Модерація",
-    "Expand" : "Розгорнути",
-    "Collapse" : "Згорнути",
     "Log in" : "Увійти",
     "Hello world!" : "Вітання, світе!",
     "Code" : "Код",

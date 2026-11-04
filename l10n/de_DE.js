@@ -88,8 +88,6 @@ OC.L10N.register(
     "Categories" : "Kategorien",
     "BBCodes" : "BBCodes",
     "Moderation" : "Moderation",
-    "Expand" : "Erweitern",
-    "Collapse" : "Zuklappen",
     "(Guest)" : "(Gast)",
     "Log in" : "Anmelden",
     "Resize sidebar" : "Größe der Seitenleiste ändern",

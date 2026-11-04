@@ -88,8 +88,6 @@ OC.L10N.register(
     "Categories" : "Категории",
     "BBCodes" : "BBCodes",
     "Moderation" : "Модерация",
-    "Expand" : "Развернуть",
-    "Collapse" : "Свернуть",
     "(Guest)" : "(Гость)",
     "Log in" : "Войти",
     "Resize sidebar" : "Изменить ширину боковой панели",

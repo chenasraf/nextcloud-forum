@@ -21,8 +21,6 @@ OC.L10N.register(
     "Accounts" : "Tilit",
     "Categories" : "Luokat",
     "Moderation" : "Moderaatio",
-    "Expand" : "Laajenna",
-    "Collapse" : "Kutista näkymää",
     "Log in" : "Kirjaudu sisään",
     "Hello world!" : "Hei maailma!",
     "Code" : "Koodi",

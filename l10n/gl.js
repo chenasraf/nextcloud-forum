@@ -73,8 +73,6 @@ OC.L10N.register(
     "Categories" : "Categorías",
     "BBCodes" : "BBCode",
     "Moderation" : "Moderación",
-    "Expand" : "Expandir",
-    "Collapse" : "Contraer",
     "Log in" : "Acceder",
     "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings." : "{bStart}Teña en conta:{bEnd} Os ficheiros anexos serán visíbeis para calquera no foro, independentemente da configuración de compartición do ficheiro.",
     "Drop file here to upload" : "Solte o ficheiro aquí para envialo",

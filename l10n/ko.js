@@ -19,8 +19,6 @@ OC.L10N.register(
     "Accounts" : "계정",
     "Categories" : "분류",
     "Moderation" : "중재",
-    "Expand" : "확장",
-    "Collapse" : "접기",
     "Log in" : "로그인",
     "Hello world!" : "Hello world!",
     "Code" : "코드",

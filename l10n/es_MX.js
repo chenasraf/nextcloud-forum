@@ -19,7 +19,6 @@ OC.L10N.register(
     "Dashboard" : "Tablero de control",
     "Accounts" : "Cuentas",
     "Categories" : "Categorías",
-    "Collapse" : "Colapsar",
     "Log in" : "Ingresar",
     "Hello world!" : "¡Hola mundo!",
     "List" : "Lista",

@@ -15,7 +15,6 @@ OC.L10N.register(
     "Dashboard" : "Pannellu de controllu",
     "Accounts" : "Accounts",
     "Categories" : "Categ",
-    "Collapse" : "Cuntrae",
     "Log in" : "Intra",
     "Hello world!" : "Salude mundu!",
     "Code" : "Còdighe",

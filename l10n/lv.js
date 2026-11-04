@@ -26,7 +26,6 @@ OC.L10N.register(
     "Dashboard" : "Informācijas panelis",
     "Accounts" : "Konti",
     "Categories" : "Kategorijas",
-    "Collapse" : "Sakļaut",
     "Log in" : "Pieteikties",
     "Hello world!" : "Sveika, pasaule!",
     "Code" : "Kods",

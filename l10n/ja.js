@@ -20,8 +20,6 @@ OC.L10N.register(
     "Accounts" : "アカウント",
     "Categories" : "カテゴリ",
     "Moderation" : "モデレーション",
-    "Expand" : "展開",
-    "Collapse" : "折りたたむ",
     "Log in" : "ログイン",
     "Hello world!" : "Hello world!",
     "Code" : "コード",

@@ -88,8 +88,6 @@ OC.L10N.register(
     "Categories" : "Bölümler",
     "BBCodes" : "BBCode kodları",
     "Moderation" : "Yönetim",
-    "Expand" : "Genişlet",
-    "Collapse" : "Daralt",
     "(Guest)" : "(Konuk)",
     "Log in" : "Oturum aç",
     "Resize sidebar" : "Kenar çubuğunu yeniden boyutlandır",

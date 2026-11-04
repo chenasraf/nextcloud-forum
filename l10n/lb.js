@@ -12,7 +12,6 @@ OC.L10N.register(
     "Dashboard" : "Dashboard",
     "Accounts" : "Accounts",
     "Categories" : "Kategorien",
-    "Collapse" : "Zesumme falen",
     "Log in" : "Umellen",
     "Quote" : "Cotéierung",
     "List" : "Lëscht",

@@ -14,7 +14,6 @@ OC.L10N.register(
     "Preferences" : "Preferencias",
     "Accounts" : "Accounts",
     "Categories" : "Categoría",
-    "Collapse" : "Colapsar",
     "Log in" : "Iniciar sesión",
     "Hello world!" : "¡Hola mundo!",
     "Font size" : "Tamaño de fuente",

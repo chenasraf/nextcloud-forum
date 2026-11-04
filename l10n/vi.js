@@ -16,8 +16,6 @@ OC.L10N.register(
     "Dashboard" : "Tổng quan",
     "Accounts" : "Tài khoản",
     "Categories" : "Các hạng mục",
-    "Expand" : "Mở rộng",
-    "Collapse" : "Thu gọn",
     "Log in" : "Đăng nhập",
     "Hello world!" : "Hello world!",
     "Code" : "Mã",

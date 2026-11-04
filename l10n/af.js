@@ -9,7 +9,6 @@ OC.L10N.register(
     "Home" : "Tuis",
     "Bookmarks" : "Boekmerke",
     "Accounts" : "Accounts",
-    "Collapse" : "Vou In",
     "Log in" : "Teken Aan",
     "Hello world!" : "Hallo wêreld!",
     "Close" : "Close",

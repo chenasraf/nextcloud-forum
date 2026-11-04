@@ -87,8 +87,6 @@ OC.L10N.register(
     "Categories" : "Categorii",
     "BBCodes" : "BBCode-uri",
     "Moderation" : "Moderare",
-    "Expand" : "Extinde",
-    "Collapse" : "Restrânge",
     "(Guest)" : "(Invitat)",
     "Log in" : "Autentifică-te",
     "_%n unread thread_::_%n unread threads_" : ["%n fir de discuție necitit","%n fire de discuție necitite","%n de fire de discuție necitite"],

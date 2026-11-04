@@ -21,8 +21,6 @@ OC.L10N.register(
     "Accounts" : "ບັນຊີ",
     "Categories" : "ໝວດໝູ່",
     "Moderation" : "Moderation",
-    "Expand" : "Expand",
-    "Collapse" : "Collapse",
     "Log in" : "ເຂົ້າລະບົບ",
     "Hello world!" : "ສະບາຍດີ",
     "Code" : "ລະຫັດ",

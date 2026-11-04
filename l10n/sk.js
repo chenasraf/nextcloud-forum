@@ -88,8 +88,6 @@ OC.L10N.register(
     "Categories" : "Kategórie",
     "BBCodes" : "Značky BBCode",
     "Moderation" : "Moderovanie",
-    "Expand" : "Rozbaliť",
-    "Collapse" : "Zvinúť",
     "(Guest)" : "(Hosť)",
     "Log in" : "Prihlásiť sa",
     "Resize sidebar" : "Zmeniť veľkosť bočného panela",

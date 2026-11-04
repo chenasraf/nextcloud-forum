@@ -10,7 +10,6 @@ OC.L10N.register(
     "Home" : "Ev",
     "Accounts" : "Accounts",
     "Categories" : "Kateqoriyalar",
-    "Collapse" : "Yığılma",
     "Log in" : "Giriş",
     "Upload failed" : "Yüklənmədə səhv baş verdi",
     "Close" : "Bağla",

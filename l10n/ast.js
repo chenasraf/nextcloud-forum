@@ -20,8 +20,6 @@ OC.L10N.register(
     "Dashboard" : "Panel",
     "Accounts" : "Cuentes",
     "Categories" : "Categories",
-    "Expand" : "Espander",
-    "Collapse" : "Contrayer",
     "Log in" : "Aniciar la sesión",
     "Hello world!" : "¡Hola, mundu!",
     "Code" : "Códigu",

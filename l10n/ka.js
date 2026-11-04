@@ -18,8 +18,6 @@ OC.L10N.register(
     "Accounts" : "Accounts",
     "Categories" : "Categories",
     "Moderation" : "Moderation",
-    "Expand" : "Expand",
-    "Collapse" : "Collapse",
     "Log in" : "Log in",
     "Hello world!" : "Hello world!",
     "Code" : "Code",

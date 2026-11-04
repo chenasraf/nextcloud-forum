@@ -86,8 +86,6 @@ OC.L10N.register(
     "Categories" : "Kategooriad",
     "BBCodes" : "BBCode'i märgistus",
     "Moderation" : "Modereerimine",
-    "Expand" : "Laienda",
-    "Collapse" : "Ahenda",
     "(Guest)" : "(Külaline)",
     "Log in" : "Logi sisse",
     "_%n unread thread_::_%n unread threads_" : ["%n lugemata jutulõng","%n lugemata jutulõnga"],

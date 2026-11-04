@@ -14,7 +14,6 @@ OC.L10N.register(
     "Dashboard" : "Regpanelo",
     "Accounts" : "Kontoj",
     "Categories" : "Kategorioj",
-    "Collapse" : "Maletendi",
     "Log in" : "Ensaluti",
     "Hello world!" : "Saluton, mondo!",
     "Upload failed" : "Alŝuto malsukcesis",

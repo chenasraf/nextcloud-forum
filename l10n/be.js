@@ -27,8 +27,6 @@ OC.L10N.register(
     "Roles & Teams" : "Ролі і каманды",
     "Categories" : "Катэгорыі",
     "Moderation" : "Мадэрацыя",
-    "Expand" : "Разгарнуць",
-    "Collapse" : "Згарнуць",
     "(Guest)" : "(Госць)",
     "Log in" : "Увайсці",
     "Hello world!" : "Hello world!",

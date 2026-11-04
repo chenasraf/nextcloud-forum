@@ -85,8 +85,6 @@ OC.L10N.register(
     "Categories" : "Categories",
     "BBCodes" : "BBCodes",
     "Moderation" : "Moderació",
-    "Expand" : "Expandeix",
-    "Collapse" : "Replega",
     "(Guest)" : "(Convidat)",
     "Log in" : "Inicia la sessió",
     "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings." : "{bStart}Tingueu en compte:{bEnd} els fitxers adjunts seran visibles per a qualsevol persona del fòrum, independentment dels paràmetres de compartició del fitxer.",

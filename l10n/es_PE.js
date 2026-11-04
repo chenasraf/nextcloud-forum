@@ -12,7 +12,6 @@ OC.L10N.register(
     "Dashboard" : "Tablero de control",
     "Accounts" : "Accounts",
     "Categories" : "Categorías",
-    "Collapse" : "Colapsar",
     "Log in" : "Ingresar",
     "Hello world!" : "¡Hola mundo!",
     "Upload failed" : "Falla en la carga",

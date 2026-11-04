@@ -87,8 +87,6 @@ OC.L10N.register(
     "Categories" : "Catagóirí",
     "BBCodes" : "BBCóid",
     "Moderation" : "Measarthacht",
-    "Expand" : "Leathnaigh",
-    "Collapse" : "Laghdaigh",
     "(Guest)" : "(Aoi)",
     "Log in" : "Logáil isteach",
     "_%n unread thread_::_%n unread threads_" : ["%n snáithe neamhléite","%n shnáithe neamhléite","%n shnáithe neamhléite","%n shnáithe neamhléite","%n snáithe neamhléite"],

@@ -12,7 +12,6 @@ OC.L10N.register(
     "Dashboard" : "แดชบอร์ด",
     "Accounts" : "บัญชี",
     "Categories" : "หมวดหมู่",
-    "Collapse" : "ย่อ",
     "Log in" : "เข้าสู่ระบบ",
     "Hello world!" : "สวัสดีทุกคน!",
     "Font size" : "ขนาดตัวอักษร",

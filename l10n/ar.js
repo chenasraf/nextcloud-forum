@@ -21,8 +21,6 @@ OC.L10N.register(
     "Accounts" : "الحسابات",
     "Categories" : "التصنيفات",
     "Moderation" : "الإدارة",
-    "Expand" : "توسيع",
-    "Collapse" : "طوي",
     "Log in" : "تسجيل الدخول",
     "Hello world!" : "مرحبا بالعالم!",
     "Code" : "الرمز",

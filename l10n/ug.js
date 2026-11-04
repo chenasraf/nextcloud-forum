@@ -58,8 +58,6 @@ OC.L10N.register(
     "Categories" : "سەھىپىلەر",
     "BBCodes" : "BBCCodes",
     "Moderation" : "ئوتتۇراھال",
-    "Expand" : "كېڭەيتىش",
-    "Collapse" : "يىمىرىلىش",
     "Log in" : "كىرىڭ",
     "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings." : "{bStart} دىققەت قىلىڭ:{bEnd} ھۆججەتنىڭ ھەمبەھىرلىنىش تەڭشەكلىرىگە قارىماي، قوشۇلغان ھۆججەتلەرنى مۇنبەردىكى ھەر قانداق ئادەم كۆرەلەيدۇ.",
     "Drop file here to upload" : "ھۆججەتنى يۈكلەش ئۈچۈن بۇ يەرگە تاشلاڭ",

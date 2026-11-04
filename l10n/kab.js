@@ -21,8 +21,6 @@ OC.L10N.register(
     "Dashboard" : "Tafelwit n usenqed",
     "Accounts" : "Imiḍanen",
     "Categories" : "Taggayin",
-    "Expand" : "Simɣur",
-    "Collapse" : "Seggelmes",
     "Log in" : "Qqen",
     "Hello world!" : "Azul i umaḍal s umata!",
     "Code" : "Angal",

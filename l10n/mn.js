@@ -22,8 +22,6 @@ OC.L10N.register(
     "Accounts" : "Accounts",
     "Categories" : "төрөл",
     "Moderation" : "Модераци",
-    "Expand" : "Дэлгэх",
-    "Collapse" : "Хураах",
     "Log in" : "–ù—ç–≤—Ç—Ä—ç—Ö",
     "Hello world!" : "Сайн байна уу, ертөнцөө!",
     "List" : "Жагсаалт",

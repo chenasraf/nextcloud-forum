@@ -87,8 +87,6 @@ OC.L10N.register(
     "Categories" : "Categories",
     "BBCodes" : "BBCodes",
     "Moderation" : "Moderation",
-    "Expand" : "Expand",
-    "Collapse" : "Collapse",
     "(Guest)" : "(Guest)",
     "Log in" : "Log in",
     "_%n unread thread_::_%n unread threads_" : ["%n unread thread","%n unread threads"],

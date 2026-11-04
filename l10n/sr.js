@@ -22,8 +22,6 @@ OC.L10N.register(
     "Accounts" : "Налози",
     "Categories" : "Категорије",
     "Moderation" : "Модерација",
-    "Expand" : "Proširi",
-    "Collapse" : "Скупи",
     "Log in" : "Пријава",
     "Hello world!" : "Здраво свете!",
     "Code" : "Кôд",

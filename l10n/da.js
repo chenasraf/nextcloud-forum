@@ -88,8 +88,6 @@ OC.L10N.register(
     "Categories" : "Kategorier",
     "BBCodes" : "BBCodes",
     "Moderation" : "Moderering",
-    "Expand" : "Fold ud",
-    "Collapse" : "Fold sammen",
     "(Guest)" : "(Gæst)",
     "Log in" : "Log ind",
     "Resize sidebar" : "Tilpas panelets størrelse",

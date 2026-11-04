@@ -87,8 +87,6 @@ OC.L10N.register(
     "Categories" : "Catégories",
     "BBCodes" : "BBCodes",
     "Moderation" : "Modération",
-    "Expand" : "Étendre",
-    "Collapse" : "Replier",
     "(Guest)" : "(Invité)",
     "Log in" : "Se connecter",
     "Resize sidebar" : "Redimensionner la barre latérale",

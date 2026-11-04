@@ -20,8 +20,6 @@ OC.L10N.register(
     "Accounts" : "Kontuak",
     "Categories" : "Kategoriak",
     "Moderation" : "Moderazioa",
-    "Expand" : "Zabaldu",
-    "Collapse" : "Tolestu",
     "Log in" : "Izena eman",
     "Hello world!" : "Kaixo mundua!",
     "Code" : "Kodea",

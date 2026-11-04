@@ -21,8 +21,6 @@ OC.L10N.register(
     "Accounts" : "Fiókok",
     "Categories" : "Kategóriák",
     "Moderation" : "Moderálás",
-    "Expand" : "Kibontás",
-    "Collapse" : "Összecsukás",
     "Log in" : "Bejelentkezés",
     "Hello world!" : "Helló világ!",
     "Code" : "Kód",

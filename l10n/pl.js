@@ -21,8 +21,6 @@ OC.L10N.register(
     "Accounts" : "Konta",
     "Categories" : "Kategorie",
     "Moderation" : "Moderacja",
-    "Expand" : "Rozwiń",
-    "Collapse" : "Zwiń",
     "Log in" : "Zaloguj się",
     "Hello world!" : "Witaj świecie!",
     "Code" : "Kod",

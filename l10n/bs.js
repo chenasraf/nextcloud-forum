@@ -8,7 +8,6 @@ OC.L10N.register(
     "Search" : "Search",
     "Home" : "Početna stranica",
     "Accounts" : "Accounts",
-    "Collapse" : "Proširi",
     "Log in" : "Prijava",
     "Hello world!" : "Halo svijete!",
     "Close" : "Zatvori",

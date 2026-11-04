@@ -68,8 +68,6 @@
     "Categories" : "Categorías",
     "BBCodes" : "Códigos BBCodes",
     "Moderation" : "Moderación",
-    "Expand" : "Expandir",
-    "Collapse" : "Colapsar",
     "Log in" : "Iniciar sesión",
     "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings." : "{bStart} Por favor tenga en cuenta: {bEnd} los archivos adjuntos serán visibles para cualquier persona en el foro, independientemente de la configuración para compartir el archivo.",
     "Drop file here to upload" : "Suelte el archivo aquí para subirlo",

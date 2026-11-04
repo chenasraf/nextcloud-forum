@@ -85,8 +85,6 @@ OC.L10N.register(
     "Categories" : "دسته‌بندی‌ها",
     "BBCodes" : "BBCodeها",
     "Moderation" : "نظارت",
-    "Expand" : "باز کردن",
-    "Collapse" : "بستن",
     "(Guest)" : "(مهمان)",
     "Log in" : "ورود",
     "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings." : "{bStart}لطفاً توجه داشته باشید:{bEnd} فایل‌های پیوست شده برای همه افراد در انجمن، صرف‌نظر از تنظیمات اشتراک‌گذاری فایل، قابل مشاهده خواهد بود.",

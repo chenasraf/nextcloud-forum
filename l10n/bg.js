@@ -20,8 +20,6 @@ OC.L10N.register(
     "Accounts" : "Профили",
     "Categories" : "Категории",
     "Moderation" : "Модериране /Наблюдаване/",
-    "Expand" : "Разгъване",
-    "Collapse" : "Сгъване",
     "Hello world!" : "Здравей Свят!",
     "Code" : "Код",
     "Quote" : "Оферта",

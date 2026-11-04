@@ -13,7 +13,6 @@ OC.L10N.register(
     "Dashboard" : "მთავარი დაფა",
     "Accounts" : "ანგარიში",
     "Categories" : "კატეგორიები",
-    "Collapse" : "აკეცვა",
     "Log in" : "შესვლა",
     "Hello world!" : "გამარჯობა სამყარო!",
     "Upload failed" : "ატვირთვა ვერ განხორციელდა",

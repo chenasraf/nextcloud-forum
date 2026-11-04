@@ -16,7 +16,6 @@ OC.L10N.register(
     "Dashboard" : "Tablèu de bòrd",
     "Accounts" : "Accounts",
     "Categories" : "Categorias",
-    "Collapse" : "Replegar",
     "Log in" : "Connexion",
     "Hello world!" : "Adieu monde !",
     "Code" : "Còdi",

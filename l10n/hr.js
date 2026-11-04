@@ -21,8 +21,6 @@ OC.L10N.register(
     "Accounts" : "Korisnički računi",
     "Categories" : "Kategorije",
     "Moderation" : "Moderiranje",
-    "Expand" : "Proširi",
-    "Collapse" : "Sakrij",
     "Log in" : "Prijavite se",
     "Hello world!" : "Pozdrav svijete!",
     "Code" : "Kod",

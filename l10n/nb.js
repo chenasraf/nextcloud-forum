@@ -21,8 +21,6 @@ OC.L10N.register(
     "Accounts" : "Kontoer",
     "Categories" : "Kategorier",
     "Moderation" : "Moderering",
-    "Expand" : "Ekspander",
-    "Collapse" : "Skjul",
     "Log in" : "Logg inn",
     "Hello world!" : "Hei, verden!",
     "Code" : "Kode",

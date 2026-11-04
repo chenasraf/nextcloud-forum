@@ -13,7 +13,6 @@ OC.L10N.register(
     "Dashboard" : "Tabelë",
     "Accounts" : "Llogari",
     "Categories" : "Kategoritë",
-    "Collapse" : "Tkurre",
     "Log in" : "Hyni",
     "Hello world!" : "Hello world!",
     "Code" : "Kod",

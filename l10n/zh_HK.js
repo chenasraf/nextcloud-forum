@@ -87,8 +87,6 @@ OC.L10N.register(
     "Categories" : "分類",
     "BBCodes" : "BBCode",
     "Moderation" : "主持",
-    "Expand" : "展開",
-    "Collapse" : "折疊",
     "(Guest)" : "（訪客）",
     "Log in" : "登入",
     "_%n unread thread_::_%n unread threads_" : ["%n 個未讀討論串"],

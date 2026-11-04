@@ -22,8 +22,6 @@ OC.L10N.register(
     "Accounts" : "账号",
     "Categories" : "分类",
     "Moderation" : "限制",
-    "Expand" : "展开",
-    "Collapse" : "折叠",
     "Log in" : "登录",
     "Hello world!" : "你好，世界！",
     "Code" : "代码",

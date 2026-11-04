@@ -85,8 +85,6 @@ OC.L10N.register(
     "Categories" : "Kategorijos",
     "BBCodes" : "„BBCodes“",
     "Moderation" : "Moderavimas",
-    "Expand" : "Išskleisti",
-    "Collapse" : "Suskleisti",
     "(Guest)" : "(Svečias)",
     "Log in" : "Prisijungti",
     "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings." : "{bStart} Pastaba:{bEnd} pridėti failai bus matomi visiems forume, nepriklausomai nuo failo bendrinimo nustatymų.",

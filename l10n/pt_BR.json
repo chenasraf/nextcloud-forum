@@ -88,7 +88,7 @@
     "Moderation" : "Moderação",
     "(Guest)" : "(Visitante)",
     "Log in" : "Login",
-    "Resize sidebar" : "Redimensionar a barra lateral",
+    "Resize sidebar" : "Redimensionar barra lateral",
     "_%n unread thread_::_%n unread threads_" : ["%n fio não lido","%n de fios não lidos","%n fios não lidos"],
     "{bStart}Please note:{bEnd} Attached files will be visible to anyone in the forum, regardless of the file's sharing settings." : "{bStart}Observação:{bEnd} Os arquivos anexados ficarão visíveis para todos no fórum, independentemente das configurações de compartilhamento do arquivo.",
     "Drop file here to upload" : "Arraste o arquivo aqui para fazer o upload",

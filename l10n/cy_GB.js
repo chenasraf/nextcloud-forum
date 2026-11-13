@@ -43,6 +43,7 @@ OC.L10N.register(
     "Disable" : "Analluogi",
     "Description" : "Disgrifiad",
     "Preview" : "Rhagolwg",
+    "Last 7 days" : "saith diwrnodau cynt",
     "Newest first" : "Diweddaraf gyntaf",
     "Oldest first" : "Hynaf gyntaf",
     "ID" : "ID",

@@ -83,6 +83,7 @@ OC.L10N.register(
     "Privacy" : "Приватност",
     "Enable" : "Овозможи",
     "Disable" : "Оневозможи",
+    "This action cannot be undone." : "Оваа акција неможе да се поврати.",
     "Tag" : "Ознака",
     "Description" : "Опис",
     "Enabled" : "Овозможено",

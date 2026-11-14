@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Admin" : "管理",
     "User" : "ユーザー",
+    "Guest" : "ゲスト",
     "General" : "一般",
     "Support" : "お問い合わせ",
     "Bold text" : "太字",

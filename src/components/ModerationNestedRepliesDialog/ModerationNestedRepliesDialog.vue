@@ -66,7 +66,7 @@ export default defineComponent({
   },
   computed: {
     title(): string {
-      return n('forum', 'Permanently delete reply', 'Permanently delete %n replies', this.postCount)
+      return n('forum', 'Permanently delete %n reply', 'Permanently delete %n replies', this.postCount)
     },
     message(): string {
       return this.postCount === 1

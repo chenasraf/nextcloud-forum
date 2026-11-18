@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.2](https://github.com/chenasraf/nextcloud-forum/compare/v1.7.1...v1.7.2) (2026-11-18)
+
+
+### Bug Fixes
+
+* **l10n:** Update translations from Transifex ([3b86599](https://github.com/chenasraf/nextcloud-forum/commit/3b86599f5f5c1354857b863dc9d03c1a54986a8e))
+* **l10n:** Use %n in singular form of plural string ([f7eb301](https://github.com/chenasraf/nextcloud-forum/commit/f7eb30107caf9e5c96a91949ab0d4f3fa71b3c23))
+
 ## [1.7.1](https://github.com/chenasraf/nextcloud-forum/compare/v1.7.0...v1.7.1) (2026-11-09)
 
 

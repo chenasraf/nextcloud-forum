@@ -196,7 +196,6 @@
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Răspunsurile imbricate păstrate rămân unde sunt, sub un substituent pentru răspunsul șters. Acțiunea nu poate fi anulată.",
     "Keep nested replies" : "Păstrează răspunsurile imbricate",
     "Delete nested replies" : "Șterge răspunsurile imbricate",
-    "_Permanently delete reply_::_Permanently delete %n replies_" : ["Șterge definitiv răspunsul","Șterge definitiv %n răspunsuri","Șterge definitiv %n de răspunsuri"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["Acest răspuns are %n răspuns imbricat. Ce ar trebui să se întâmple cu el?","Acest răspuns are %n răspunsuri imbricate. Ce ar trebui să se întâmple cu ele?","Acest răspuns are %n de răspunsuri imbricate. Ce ar trebui să se întâmple cu ele?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["Răspunsurile selectate au %n răspuns imbricat. Ce ar trebui să se întâmple cu el?","Răspunsurile selectate au %n răspunsuri imbricate. Ce ar trebui să se întâmple cu ele?","Răspunsurile selectate au %n de răspunsuri imbricate. Ce ar trebui să se întâmple cu ele?"],
     "Deleted reply" : "Răspuns șters",

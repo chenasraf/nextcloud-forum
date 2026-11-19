@@ -198,7 +198,6 @@
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Сохранённые вложенные ответы остаются на своих местах, под заглушкой удалённого ответа. Это действие нельзя отменить.",
     "Keep nested replies" : "Сохранить вложенные ответы",
     "Delete nested replies" : "Удалить вложенные ответы",
-    "_Permanently delete reply_::_Permanently delete %n replies_" : ["Удалить безвозвратно %n ответ","Удалить безвозвратно %n ответа","Удалить безвозвратно %n ответов","Удалить безвозвратно %n ответа"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["У этого ответа есть %n вложенный ответ. Что с ним сделать?","У этого ответа есть %n вложенных ответа. Что с ними сделать?","У этого ответа есть %n вложенных ответов. Что с ними сделать?","У этого ответа есть %n вложенного ответа. Что с ним сделать?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["У выбранных ответов есть %n вложенный ответ. Что с ним сделать?","У выбранных ответов есть %n вложенных ответа. Что с ними сделать?","У выбранных ответов есть %n вложенных ответов. Что с ними сделать?","У выбранных ответов есть %n вложенного ответа. Что с ним сделать?"],
     "Deleted reply" : "Удалённый ответ",

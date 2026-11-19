@@ -200,7 +200,6 @@ OC.L10N.register(
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "As respostas aninhadas mantidas permanecem onde estão, abaixo de um marcador de posição para a resposta excluída. Essa ação não pode ser desfeita.",
     "Keep nested replies" : "Manter respostas aninhadas",
     "Delete nested replies" : "Excluir respostas aninhadas",
-    "_Permanently delete reply_::_Permanently delete %n replies_" : ["Excluir permanentemente a resposta","Excluir permanentemente %n de respostas","Excluir permanentemente %n respostas"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["Esta resposta tem %n resposta aninhada. O que deve acontecer com ela?","Esta resposta tem %n de respostas aninhadas. O que deve acontecer com elas?","Esta resposta tem %n respostas aninhadas. O que deve acontecer com elas?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["As respostas selecionadas têm %n resposta aninhada. O que deve acontecer com ela?","As respostas selecionadas têm %n de respostas aninhadas. O que deve acontecer com elas?","As respostas selecionadas têm %n respostas aninhadas. O que deve acontecer com elas?"],
     "Deleted reply" : "Resposta excluída",

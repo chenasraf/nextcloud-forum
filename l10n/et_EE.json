@@ -198,7 +198,6 @@
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Säilitatud alamvastused jäävad sinna, kus nad on - kustutatud vastuse kohatäitja alla. Seda seadistust ei saa tagasi pöörata.",
     "Keep nested replies" : "Säilita alamvastused",
     "Delete nested replies" : "Kustuta alamvastused",
-    "_Permanently delete reply_::_Permanently delete %n replies_" : ["Kustuta %n vastus lõplikult","Kustuta %n vastust lõplikult"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["Sel vastusel on %n alamvastus. Mis peaks sellega juhtuma?","Sel vastusel on %n alamvastust. Mis peaks nendega juhtuma?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["Valitud vastustel on %n alamvastus. Mis peaks sellega juhtuma?","Valitud vastustel on %n alamvastust. Mis peaks nendega juhtuma?"],
     "Deleted reply" : "Kustutatud vastus",

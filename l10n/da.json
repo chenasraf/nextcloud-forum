@@ -198,7 +198,6 @@
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Indlejrede svar, der beholdes, bliver stående, hvor de er, under en pladsholder for det slettede svar. Det kan ikke fortrydes.",
     "Keep nested replies" : "Behold indlejrede svar",
     "Delete nested replies" : "Slet indlejrede svar",
-    "_Permanently delete reply_::_Permanently delete %n replies_" : ["Slet svaret permanent","Slet %n svar permanent"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["Dette svar har %n indlejret svar. Hvad skal der ske med det?","Dette svar har %n indlejrede svar. Hvad skal der ske med dem?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["De valgte svar har %n indlejret svar. Hvad skal der ske med det?","De valgte svar har %n indlejrede svar. Hvad skal der ske med dem?"],
     "Deleted reply" : "Slettet svar",

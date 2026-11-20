@@ -198,6 +198,7 @@
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "保留的巢狀回覆會留在原位，顯示於已刪除回覆的預留位置之下。此操作無法復原。",
     "Keep nested replies" : "保留巢狀回覆",
     "Delete nested replies" : "刪除巢狀回覆",
+    "_Permanently delete %n reply_::_Permanently delete %n replies_" : ["永久刪除 %n 個回覆"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["此回覆下有 %n 則巢狀回覆。你想如何處理這些回覆？"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["已選擇的回覆下有 %n 則巢狀回覆。你想如何處理這些回覆？"],
     "Deleted reply" : "已刪除的回覆",

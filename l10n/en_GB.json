@@ -198,6 +198,7 @@
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone.",
     "Keep nested replies" : "Keep nested replies",
     "Delete nested replies" : "Delete nested replies",
+    "_Permanently delete %n reply_::_Permanently delete %n replies_" : ["Permanently delete %n reply","Permanently delete %n replies"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["This reply has %n nested reply. What should happen to it?","This reply has %n nested replies. What should happen to them?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["The selected replies have %n nested reply. What should happen to it?","The selected replies have %n nested replies. What should happen to them?"],
     "Deleted reply" : "Deleted reply",

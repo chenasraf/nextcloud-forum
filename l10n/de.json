@@ -198,6 +198,7 @@
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Behaltene verschachtelte Antworten bleiben dort, wo sie sind, unter einem Platzhalter für die gelöschte Antwort. Dies kann nicht rückgängig gemacht werden.",
     "Keep nested replies" : "Verschachtelte Antworten behalten",
     "Delete nested replies" : "Verschachtelte Antworten löschen",
+    "_Permanently delete %n reply_::_Permanently delete %n replies_" : ["%n Antwort dauerhaft löschen","%n Antworten dauerhaft löschen"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["Diese Antwort enthält %n verschachtelte Antwort. Was soll mit ihr geschehen?","Diese Antwort enthält %n verschachtelte Antworten. Was soll mit ihnen geschehen?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["Die ausgewählten Antworten haben %n verschachtelte Antwort. Was soll mit ihr geschehen?","Die ausgewählten Antworten haben %n verschachtelte Antworten. Was soll mit ihnen geschehen?"],
     "Deleted reply" : "Antwort löschen",

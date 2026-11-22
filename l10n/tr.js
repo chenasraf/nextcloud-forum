@@ -200,6 +200,7 @@ OC.L10N.register(
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Alt alta geçmiş yanıtlar, silinen yanıt için bir yer belirtici altında bulundukları yerde tutulur. Bu işlem geri alınamaz.",
     "Keep nested replies" : "Alt alta yanıtlar tutulsun",
     "Delete nested replies" : "Alt alta yanıtlar silinsin",
+    "_Permanently delete %n reply_::_Permanently delete %n replies_" : ["%n yanıtı kalıcı olarak sil","%n yanıtı kalıcı olarak sil"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["Bu yanıtın %n alt alta yanıtı var. Buna ne yapılsın?","Bu yanıtın %n alt alta yanıtı var. Bunlara ne yapılsın?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["Seçilmiş yanıtların %n alt alta yanıtı var. Buna ne yapılsın?","Seçilmiş yanıtların %n alt alta yanıtı var. Bunlara ne yapılsın?"],
     "Deleted reply" : "Silinmiş yanıt",

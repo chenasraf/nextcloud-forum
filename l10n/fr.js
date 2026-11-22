@@ -200,6 +200,7 @@ OC.L10N.register(
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Les réponses imbriquées conservées restent à leur emplacement, sous un espace réservé à la réponse supprimée. Cette action est irréversible.",
     "Keep nested replies" : "Conserver les réponses imbriquées",
     "Delete nested replies" : "Supprimer les réponses imbriquées",
+    "_Permanently delete %n reply_::_Permanently delete %n replies_" : ["Supprimer définitivement %n réponse","Supprimer définitivement %n réponses","Supprimer définitivement %n réponses"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["Cette réponse contient %n réponse imbriquée. Que doit-il lui arriver ?","Cette réponse contient %n réponses imbriquées. Que doit-il leur arriver ?","Cette réponse contient %n réponses imbriquées. Que doit-il leur arriver ?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["Les réponses sélectionnées contiennent %n réponse imbriquée. Que doit-il lui arriver ?","Les réponses sélectionnées contiennent %n réponses imbriquées. Que doit-il leur arriver ?","Les réponses sélectionnées contiennent %n réponses imbriquées. Que doit-il leur arriver ?"],
     "Deleted reply" : "Réponse supprimée",

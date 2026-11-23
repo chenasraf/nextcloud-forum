@@ -198,6 +198,7 @@
     "Kept nested replies stay where they are, under a placeholder for the deleted reply. This cannot be undone." : "Ponechané vnorené odpovede zostanú tam, kde sú, pod zástupným symbolom pre vymazanú odpoveď. Toto nie je možné vrátiť späť.",
     "Keep nested replies" : "Ponechať vnorené odpovede",
     "Delete nested replies" : "Odstrániť vnorené odpovede",
+    "_Permanently delete %n reply_::_Permanently delete %n replies_" : ["Natrvalo odstrániť %n odpoveď","Natrvalo odstrániť %n odpovede","Natrvalo odstrániť %n odpovede","Natrvalo odstrániť %n odpovedí"],
     "_This reply has %n nested reply. What should happen to it?_::_This reply has %n nested replies. What should happen to them?_" : ["Táto odpoveď má %n vnorenú odpoveď. Čo s ňou chcete urobiť?","Táto odpoveď má %n vnorené odpovede. Čo s nimi chcete urobiť?","Táto odpoveď má %n vnorených odpovedí. Čo s nimi chcete urobiť?","Táto odpoveď má %n vnorených odpovedí. Čo s nimi chcete urobiť?"],
     "_The selected replies have %n nested reply. What should happen to it?_::_The selected replies have %n nested replies. What should happen to them?_" : ["Vybrané odpovede majú %n vnorenú odpoveď. Čo s ňou chcete urobiť?","Vybrané odpovede majú %n vnorené odpovede. Čo s nimi chcete urobiť?","Vybrané odpovede majú %n vnorených odpovedí. Čo s nimi chcete urobiť?","Vybrané odpovede majú %n vnorených odpovedí. Čo s nimi chcete urobiť?"],
     "Deleted reply" : "Odstránená odpoveď",
